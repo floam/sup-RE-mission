@@ -1,8 +1,7 @@
 import { type Config, defineConfig } from "@wagmi/cli";
 import { erc20Abi, type Abi } from "viem";
-import { react, actions, etherscan } from "@wagmi/cli/plugins";
+import { react, actions } from "@wagmi/cli/plugins";
 import { base, baseSepolia, mainnet } from "viem/chains";
-import 'dotenv/config'
 
 // # Main contracts
 import CFAv1Forwarder from "@superfluid-finance/ethereum-contracts/build/hardhat/contracts/utils/CFAv1Forwarder.sol/CFAv1Forwarder.json" with {
@@ -58,6 +57,15 @@ import StakingRewardController from "./abis/StakingRewardController.json" with {
 	type: "json"
 }
 import SupToken from "./abis/SupToken.json" with {
+	type: "json"
+}
+import ProgramManager from "./abis/FluidEPProgramManager.json" with {
+	type: "json"
+}
+import LockerFactory from "./abis/FluidLockerFactory.json" with {
+	type: "json"
+}
+import VestingFactory from "./abis/SupVestingFactory.json" with {
 	type: "json"
 }
 // ---
@@ -158,38 +166,7 @@ const plugins = (function (): Plugins {
 		}
 	})();
 
-	const supPlugins = category === "sup" ? [
-		etherscan({
-			apiKey: process.env.ETHERSCAN_API_KEY!,
-			chainId: base.id,
-			tryFetchProxyImplementation: true,
-			cacheDuration: 3600000, // 1 hour in ms
-			contracts: [
-				{
-					name: "programManager",
-					address: {
-						[base.id]: "0x1e32cf099992E9D3b17eDdDFFfeb2D07AED95C6a",
-						[baseSepolia.id]: "0x71a1975A1009e48E0BF2f621B6835db5Ea1f7706",
-					},
-				},
-				{
-					name: "lockerFactory",
-					address: {
-						[base.id]: "0xA6694cAB43713287F7735dADc940b555db9d39D9",
-						[baseSepolia.id]: "0x897D343D24Ac5b84838B976Cf37036EDEfe3E967",
-					},
-				},
-				{
-					name: "vestingFactory",
-					address: {
-						[base.id]: "0x3DF8A6558073e973f4c3979138Cca836C993E285"
-					},
-				}
-			],
-		}),
-	] : [];
-
-	return [...basePlugins, ...supPlugins];
+	return basePlugins;
 })();
 
 export default defineConfig({
@@ -305,9 +282,9 @@ export default defineConfig({
 					name: "supToken",
 					abi: SupToken as Abi,
 					address: {
-						[mainnet.id]: "0xD05001Db979ff2f1a3B2105875d3454E90dd2961",
-						[base.id]: "0xa69f80524381275A7fFdb3AE01c54150644c8792",
-						[baseSepolia.id]: "0xFd62b398DD8a233ad37156690631fb9515059d6A",
+						[mainnet.id]: "0xD05001Db979ff2f1a3B2105875d3454E90dd2961" as const,
+						[base.id]: "0xa69f80524381275A7fFdb3AE01c54150644c8792" as const,
+						[baseSepolia.id]: "0xFd62b398DD8a233ad37156690631fb9515059d6A" as const,
 					},
 				},
 				{
@@ -322,10 +299,33 @@ export default defineConfig({
 					abi: StakingRewardController as Abi,
 					name: "stakingRewardController",
 					address: {
-						[base.id]: "0xb19Ae25A98d352B36CED60F93db926247535048b",
-						[baseSepolia.id]: "0x9FC0Bb109F3e733Bd84B30F8D89685b0304fC018",
+						[base.id]: "0xb19Ae25A98d352B36CED60F93db926247535048b" as const,
+						[baseSepolia.id]: "0x9FC0Bb109F3e733Bd84B30F8D89685b0304fC018" as const,
 					}
-				}
+				},
+				{
+					abi: ProgramManager as Abi,
+					name: "programManager",
+					address: {
+						[base.id]: "0x1e32cf099992E9D3b17eDdDFFfeb2D07AED95C6a" as const,
+						[baseSepolia.id]: "0x71a1975A1009e48E0BF2f621B6835db5Ea1f7706" as const,
+					},
+				},
+				{
+					abi: LockerFactory as Abi,
+					name: "lockerFactory",
+					address: {
+						[base.id]: "0xA6694cAB43713287F7735dADc940b555db9d39D9" as const,
+						[baseSepolia.id]: "0x897D343D24Ac5b84838B976Cf37036EDEfe3E967" as const,
+					},
+				},
+				{
+					abi: VestingFactory as Abi,
+					name: "vestingFactory",
+					address: {
+						[base.id]: "0x3DF8A6558073e973f4c3979138Cca836C993E285" as const,
+					},
+				},
 			]
 			: []),
 	],

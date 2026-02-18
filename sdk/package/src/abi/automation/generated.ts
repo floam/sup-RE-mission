@@ -2484,6 +2484,8 @@ export const legacyVestingSchedulerV2Config = {
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const vestingSchedulerV3Abi = [
@@ -3269,6 +3271,8 @@ export const vestingSchedulerV3Abi = [
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const vestingSchedulerV3Address = {
@@ -3280,6 +3284,8 @@ export const vestingSchedulerV3Address = {
   8453: '0x6Bf35A170056eDf9aEba159dce4a640cfCef9312',
   42161: '0xc3069bDE869912E3d9B965F35D7764Fc92BccE67',
   43114: '0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf',
+  84532: '0x2D0B7a30bFdED086571D6525762a809ee1049c98',
+  11155111: '0x638a8ABF60118e018c80a0eC878057E8C53E0fd1',
   11155420: '0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C',
 } as const
 
@@ -3292,6 +3298,8 @@ export const vestingSchedulerV3Address = {
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const vestingSchedulerV3Config = {

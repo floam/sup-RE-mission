@@ -219,6 +219,16 @@ export const cfaAbi = [
   { type: 'error', inputs: [], name: 'CFA_ZERO_ADDRESS_RECEIVER' },
   { type: 'error', inputs: [], name: 'CFA_ZERO_ADDRESS_SENDER' },
   {
+    type: 'error',
+    inputs: [{ name: 'value', internalType: 'int256', type: 'int256' }],
+    name: 'SafeCastOverflowedIntToUint',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'value', internalType: 'uint256', type: 'uint256' }],
+    name: 'SafeCastOverflowedUintToInt',
+  },
+  {
     type: 'event',
     anonymous: false,
     inputs: [
@@ -941,6 +951,7 @@ export const gdaAbi = [
   },
   { type: 'error', inputs: [], name: 'AGREEMENT_BASE_ONLY_HOST' },
   { type: 'error', inputs: [], name: 'GDA_ADMIN_CANNOT_BE_POOL' },
+  { type: 'error', inputs: [], name: 'GDA_CANNOT_CONNECT_POOL' },
   { type: 'error', inputs: [], name: 'GDA_DISTRIBUTE_FOR_OTHERS_NOT_ALLOWED' },
   {
     type: 'error',
@@ -954,6 +965,32 @@ export const gdaAbi = [
   { type: 'error', inputs: [], name: 'GDA_NO_NEGATIVE_FLOW_RATE' },
   { type: 'error', inputs: [], name: 'GDA_NO_ZERO_ADDRESS_ADMIN' },
   { type: 'error', inputs: [], name: 'GDA_ONLY_SUPER_TOKEN_POOL' },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'bits', internalType: 'uint8', type: 'uint8' },
+      { name: 'value', internalType: 'int256', type: 'int256' },
+    ],
+    name: 'SafeCastOverflowedIntDowncast',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'value', internalType: 'int256', type: 'int256' }],
+    name: 'SafeCastOverflowedIntToUint',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'bits', internalType: 'uint8', type: 'uint8' },
+      { name: 'value', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'SafeCastOverflowedUintDowncast',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'value', internalType: 'uint256', type: 'uint256' }],
+    name: 'SafeCastOverflowedUintToInt',
+  },
   {
     type: 'event',
     anonymous: false,
@@ -1195,6 +1232,20 @@ export const gdaAbi = [
   {
     type: 'function',
     inputs: [],
+    name: 'ACL_POOL_CONNECT_EXCLUSIVE_ROLE',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MAX_POOL_AUTO_CONNECT_SLOTS',
+    outputs: [{ name: '', internalType: 'uint32', type: 'uint32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
     name: 'SLOTS_BITMAP_LIBRARY_ADDRESS',
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
@@ -1248,7 +1299,7 @@ export const gdaAbi = [
     type: 'function',
     inputs: [
       {
-        name: 'pool',
+        name: 'untrustedPool',
         internalType: 'contract ISuperfluidPool',
         type: 'address',
       },
@@ -1256,21 +1307,6 @@ export const gdaAbi = [
       { name: 'ctx', internalType: 'bytes', type: 'bytes' },
     ],
     name: 'claimAll',
-    outputs: [{ name: 'newCtx', internalType: 'bytes', type: 'bytes' }],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [
-      {
-        name: 'pool',
-        internalType: 'contract ISuperfluidPool',
-        type: 'address',
-      },
-      { name: 'doConnect', internalType: 'bool', type: 'bool' },
-      { name: 'ctx', internalType: 'bytes', type: 'bytes' },
-    ],
-    name: 'connectPool',
     outputs: [{ name: 'newCtx', internalType: 'bytes', type: 'bytes' }],
     stateMutability: 'nonpayable',
   },
@@ -1636,7 +1672,7 @@ export const gdaAbi = [
     type: 'function',
     inputs: [
       {
-        name: 'superToken',
+        name: 'token',
         internalType: 'contract ISuperfluidToken',
         type: 'address',
       },
@@ -1694,6 +1730,13 @@ export const gdaAbi = [
   },
   {
     type: 'function',
+    inputs: [{ name: 'allow', internalType: 'bool', type: 'bool' }],
+    name: 'setConnectPermission',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [],
     name: 'superfluidPoolBeacon',
     outputs: [
@@ -1707,6 +1750,24 @@ export const gdaAbi = [
   },
   {
     type: 'function',
+    inputs: [
+      {
+        name: 'pool',
+        internalType: 'contract ISuperfluidPool',
+        type: 'address',
+      },
+      { name: 'memberAddr', internalType: 'address', type: 'address' },
+      { name: 'ctx', internalType: 'bytes', type: 'bytes' },
+    ],
+    name: 'tryConnectPoolFor',
+    outputs: [
+      { name: 'success', internalType: 'bool', type: 'bool' },
+      { name: 'newCtx', internalType: 'bytes', type: 'bytes' },
+    ],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [{ name: 'newAddress', internalType: 'address', type: 'address' }],
     name: 'updateCode',
     outputs: [],
@@ -1716,7 +1777,7 @@ export const gdaAbi = [
     type: 'function',
     inputs: [
       {
-        name: 'pool',
+        name: 'untrustedPool',
         internalType: 'contract ISuperfluidPool',
         type: 'address',
       },
@@ -1805,6 +1866,17 @@ export const gdaConfig = { address: gdaAddress, abi: gdaAbi } as const
  * - [__View Contract on Degen Degen Chain Explorer__](https://explorer.degen.tips/address/0x4D420e94328bF1AEA1b525FDE9e498ADBe60f9B1)
  */
 export const governanceAbi = [
+  { type: 'constructor', inputs: [], stateMutability: 'nonpayable' },
+  {
+    type: 'error',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'OwnableInvalidOwner',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'OwnableUnauthorizedAccount',
+  },
   { type: 'error', inputs: [], name: 'SF_GOV_II_ONLY_OWNER' },
   {
     type: 'error',
@@ -2692,6 +2764,14 @@ export const hostAbi = [
   { type: 'error', inputs: [], name: 'HOST_SUPER_APP_IS_JAILED' },
   { type: 'error', inputs: [], name: 'HOST_UNKNOWN_BATCH_CALL_OPERATION_TYPE' },
   {
+    type: 'error',
+    inputs: [
+      { name: 'bits', internalType: 'uint8', type: 'uint8' },
+      { name: 'value', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'SafeCastOverflowedUintDowncast',
+  },
+  {
     type: 'event',
     anonymous: false,
     inputs: [
@@ -3483,6 +3563,17 @@ export const hostAbi = [
     outputs: [{ name: '', internalType: 'string', type: 'string' }],
     stateMutability: 'pure',
   },
+  { type: 'error', inputs: [], name: 'ECDSAInvalidSignature' },
+  {
+    type: 'error',
+    inputs: [{ name: 'length', internalType: 'uint256', type: 'uint256' }],
+    name: 'ECDSAInvalidSignatureLength',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 's', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'ECDSAInvalidSignatureS',
+  },
   { type: 'error', inputs: [], name: 'SF_TOKEN_AGREEMENT_ALREADY_EXISTS' },
   { type: 'error', inputs: [], name: 'SF_TOKEN_AGREEMENT_DOES_NOT_EXIST' },
   { type: 'error', inputs: [], name: 'SF_TOKEN_BURN_INSUFFICIENT_BALANCE' },
@@ -3528,6 +3619,16 @@ export const hostAbi = [
   },
   { type: 'error', inputs: [], name: 'SUPER_TOKEN_TRANSFER_FROM_ZERO_ADDRESS' },
   { type: 'error', inputs: [], name: 'SUPER_TOKEN_TRANSFER_TO_ZERO_ADDRESS' },
+  {
+    type: 'error',
+    inputs: [{ name: 'value', internalType: 'uint256', type: 'uint256' }],
+    name: 'SafeCastOverflowedUintToInt',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'token', internalType: 'address', type: 'address' }],
+    name: 'SafeERC20FailedOperation',
+  },
   { type: 'error', inputs: [], name: 'AGREEMENT_BASE_ONLY_HOST' },
   { type: 'error', inputs: [], name: 'CFA_ACL_FLOW_RATE_ALLOWANCE_EXCEEDED' },
   { type: 'error', inputs: [], name: 'CFA_ACL_NO_NEGATIVE_ALLOWANCE' },
@@ -3549,7 +3650,13 @@ export const hostAbi = [
   { type: 'error', inputs: [], name: 'CFA_NO_SELF_FLOW' },
   { type: 'error', inputs: [], name: 'CFA_ZERO_ADDRESS_RECEIVER' },
   { type: 'error', inputs: [], name: 'CFA_ZERO_ADDRESS_SENDER' },
+  {
+    type: 'error',
+    inputs: [{ name: 'value', internalType: 'int256', type: 'int256' }],
+    name: 'SafeCastOverflowedIntToUint',
+  },
   { type: 'error', inputs: [], name: 'GDA_ADMIN_CANNOT_BE_POOL' },
+  { type: 'error', inputs: [], name: 'GDA_CANNOT_CONNECT_POOL' },
   { type: 'error', inputs: [], name: 'GDA_DISTRIBUTE_FOR_OTHERS_NOT_ALLOWED' },
   {
     type: 'error',
@@ -3563,6 +3670,14 @@ export const hostAbi = [
   { type: 'error', inputs: [], name: 'GDA_NO_NEGATIVE_FLOW_RATE' },
   { type: 'error', inputs: [], name: 'GDA_NO_ZERO_ADDRESS_ADMIN' },
   { type: 'error', inputs: [], name: 'GDA_ONLY_SUPER_TOKEN_POOL' },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'bits', internalType: 'uint8', type: 'uint8' },
+      { name: 'value', internalType: 'int256', type: 'int256' },
+    ],
+    name: 'SafeCastOverflowedIntDowncast',
+  },
   { type: 'error', inputs: [], name: 'SUPERFLUID_POOL_INVALID_TIME' },
   { type: 'error', inputs: [], name: 'SUPERFLUID_POOL_NOT_GDA' },
   { type: 'error', inputs: [], name: 'SUPERFLUID_POOL_NOT_POOL_ADMIN_OR_GDA' },
@@ -3686,6 +3801,19 @@ export const idaAbi = [
   { type: 'error', inputs: [], name: 'IDA_SUBSCRIPTION_DOES_NOT_EXIST' },
   { type: 'error', inputs: [], name: 'IDA_SUBSCRIPTION_IS_NOT_APPROVED' },
   { type: 'error', inputs: [], name: 'IDA_ZERO_ADDRESS_SUBSCRIBER' },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'bits', internalType: 'uint8', type: 'uint8' },
+      { name: 'value', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'SafeCastOverflowedUintDowncast',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'value', internalType: 'uint256', type: 'uint256' }],
+    name: 'SafeCastOverflowedUintToInt',
+  },
   {
     type: 'event',
     anonymous: false,
@@ -4497,16 +4625,6 @@ export const superTokenFactoryAbi = [
         type: 'address',
       },
       {
-        name: 'constantOutflowNFTLogic',
-        internalType: 'contract IConstantOutflowNFT',
-        type: 'address',
-      },
-      {
-        name: 'constantInflowNFTLogic',
-        internalType: 'contract IConstantInflowNFT',
-        type: 'address',
-      },
-      {
         name: 'poolAdminNFTLogic',
         internalType: 'contract IPoolAdminNFT',
         type: 'address',
@@ -4599,32 +4717,6 @@ export const superTokenFactoryAbi = [
       },
     ],
     name: 'SuperTokenLogicCreated',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'CONSTANT_INFLOW_NFT_LOGIC',
-    outputs: [
-      {
-        name: '',
-        internalType: 'contract IConstantInflowNFT',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'CONSTANT_OUTFLOW_NFT_LOGIC',
-    outputs: [
-      {
-        name: '',
-        internalType: 'contract IConstantOutflowNFT',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -4973,6 +5065,11 @@ export const togaAbi = [
       { name: 'minBondDuration_', internalType: 'uint256', type: 'uint256' },
     ],
     stateMutability: 'nonpayable',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'value', internalType: 'uint256', type: 'uint256' }],
+    name: 'SafeCastOverflowedUintToInt',
   },
   {
     type: 'event',
@@ -6998,6 +7095,60 @@ export const useReadGda = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link gdaAbi}__ and `functionName` set to `"ACL_POOL_CONNECT_EXCLUSIVE_ROLE"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xAAdBB3Eee3Bd080f5353d86DdF1916aCA3fAC842)
+ * - [__View Contract on Op Mainnet Optimism Explorer__](https://optimistic.etherscan.io/address/0x68Ae17fa7a31b86F306c383277552fd4813b0d35)
+ * - [__View Contract on Bnb Smart Chain Bsc Scan__](https://bscscan.com/address/0x3bbFA4C406719424C7f66CD97A8Fe27Af383d3e2)
+ * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0xd7992D358A20478c82dDEd98B3D8A9da46e99b82)
+ * - [__View Contract on Polygon Polygon Scan__](https://polygonscan.com/address/0x961dd5A052741B49B6CBf6759591f9D8576fCFb0)
+ * - [__View Contract on Base Basescan__](https://basescan.org/address/0xfE6c87BE05feDB2059d2EC41bA0A09826C9FD7aa)
+ * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x1e299701792a2aF01408B122419d65Fd2dF0Ba02)
+ * - [__View Contract on Celo Celo Explorer__](https://celoscan.io/address/0x308b7405272d11494716e30C6E972DbF6fb89555)
+ * - [__View Contract on Avalanche Fuji Snow Trace__](https://testnet.snowtrace.io/address/0x51f571D934C59185f13d17301a36c07A2268B814)
+ * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xA7b197cD5b0cEF6d62c4A0a851E3581f5E62e4D2)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x53F4f44C813Dc380182d0b2b67fe5832A12B97f8)
+ * - [__View Contract on Scroll Sepolia Scrollscan__](https://sepolia.scrollscan.com/address/0x93fA9B627eE016990Fe5e654F923aaE8a480a75b)
+ * - [__View Contract on Scroll Scrollscan__](https://scrollscan.com/address/0x97a9f293d7eD13f3fbD499cE684Ed4F103295a28)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9823364056BcA85Dc3c4a3b96801314D082C8Eb9)
+ * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xd453d38A001B47271488886532f1CCeAbf0c7eF3)
+ * - [__View Contract on Degen Degen Chain Explorer__](https://explorer.degen.tips/address/0x210a01ad187003603B2287F78579ec103Eb70D9B)
+ */
+export const useReadGdaAclPoolConnectExclusiveRole =
+  /*#__PURE__*/ createUseReadContract({
+    abi: gdaAbi,
+    address: gdaAddress,
+    functionName: 'ACL_POOL_CONNECT_EXCLUSIVE_ROLE',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link gdaAbi}__ and `functionName` set to `"MAX_POOL_AUTO_CONNECT_SLOTS"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xAAdBB3Eee3Bd080f5353d86DdF1916aCA3fAC842)
+ * - [__View Contract on Op Mainnet Optimism Explorer__](https://optimistic.etherscan.io/address/0x68Ae17fa7a31b86F306c383277552fd4813b0d35)
+ * - [__View Contract on Bnb Smart Chain Bsc Scan__](https://bscscan.com/address/0x3bbFA4C406719424C7f66CD97A8Fe27Af383d3e2)
+ * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0xd7992D358A20478c82dDEd98B3D8A9da46e99b82)
+ * - [__View Contract on Polygon Polygon Scan__](https://polygonscan.com/address/0x961dd5A052741B49B6CBf6759591f9D8576fCFb0)
+ * - [__View Contract on Base Basescan__](https://basescan.org/address/0xfE6c87BE05feDB2059d2EC41bA0A09826C9FD7aa)
+ * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x1e299701792a2aF01408B122419d65Fd2dF0Ba02)
+ * - [__View Contract on Celo Celo Explorer__](https://celoscan.io/address/0x308b7405272d11494716e30C6E972DbF6fb89555)
+ * - [__View Contract on Avalanche Fuji Snow Trace__](https://testnet.snowtrace.io/address/0x51f571D934C59185f13d17301a36c07A2268B814)
+ * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xA7b197cD5b0cEF6d62c4A0a851E3581f5E62e4D2)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x53F4f44C813Dc380182d0b2b67fe5832A12B97f8)
+ * - [__View Contract on Scroll Sepolia Scrollscan__](https://sepolia.scrollscan.com/address/0x93fA9B627eE016990Fe5e654F923aaE8a480a75b)
+ * - [__View Contract on Scroll Scrollscan__](https://scrollscan.com/address/0x97a9f293d7eD13f3fbD499cE684Ed4F103295a28)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9823364056BcA85Dc3c4a3b96801314D082C8Eb9)
+ * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xd453d38A001B47271488886532f1CCeAbf0c7eF3)
+ * - [__View Contract on Degen Degen Chain Explorer__](https://explorer.degen.tips/address/0x210a01ad187003603B2287F78579ec103Eb70D9B)
+ */
+export const useReadGdaMaxPoolAutoConnectSlots =
+  /*#__PURE__*/ createUseReadContract({
+    abi: gdaAbi,
+    address: gdaAddress,
+    functionName: 'MAX_POOL_AUTO_CONNECT_SLOTS',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link gdaAbi}__ and `functionName` set to `"SLOTS_BITMAP_LIBRARY_ADDRESS"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xAAdBB3Eee3Bd080f5353d86DdF1916aCA3fAC842)
@@ -7812,6 +7963,60 @@ export const useWriteGdaPoolSettleClaim = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link gdaAbi}__ and `functionName` set to `"setConnectPermission"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xAAdBB3Eee3Bd080f5353d86DdF1916aCA3fAC842)
+ * - [__View Contract on Op Mainnet Optimism Explorer__](https://optimistic.etherscan.io/address/0x68Ae17fa7a31b86F306c383277552fd4813b0d35)
+ * - [__View Contract on Bnb Smart Chain Bsc Scan__](https://bscscan.com/address/0x3bbFA4C406719424C7f66CD97A8Fe27Af383d3e2)
+ * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0xd7992D358A20478c82dDEd98B3D8A9da46e99b82)
+ * - [__View Contract on Polygon Polygon Scan__](https://polygonscan.com/address/0x961dd5A052741B49B6CBf6759591f9D8576fCFb0)
+ * - [__View Contract on Base Basescan__](https://basescan.org/address/0xfE6c87BE05feDB2059d2EC41bA0A09826C9FD7aa)
+ * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x1e299701792a2aF01408B122419d65Fd2dF0Ba02)
+ * - [__View Contract on Celo Celo Explorer__](https://celoscan.io/address/0x308b7405272d11494716e30C6E972DbF6fb89555)
+ * - [__View Contract on Avalanche Fuji Snow Trace__](https://testnet.snowtrace.io/address/0x51f571D934C59185f13d17301a36c07A2268B814)
+ * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xA7b197cD5b0cEF6d62c4A0a851E3581f5E62e4D2)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x53F4f44C813Dc380182d0b2b67fe5832A12B97f8)
+ * - [__View Contract on Scroll Sepolia Scrollscan__](https://sepolia.scrollscan.com/address/0x93fA9B627eE016990Fe5e654F923aaE8a480a75b)
+ * - [__View Contract on Scroll Scrollscan__](https://scrollscan.com/address/0x97a9f293d7eD13f3fbD499cE684Ed4F103295a28)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9823364056BcA85Dc3c4a3b96801314D082C8Eb9)
+ * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xd453d38A001B47271488886532f1CCeAbf0c7eF3)
+ * - [__View Contract on Degen Degen Chain Explorer__](https://explorer.degen.tips/address/0x210a01ad187003603B2287F78579ec103Eb70D9B)
+ */
+export const useWriteGdaSetConnectPermission =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: gdaAbi,
+    address: gdaAddress,
+    functionName: 'setConnectPermission',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link gdaAbi}__ and `functionName` set to `"tryConnectPoolFor"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xAAdBB3Eee3Bd080f5353d86DdF1916aCA3fAC842)
+ * - [__View Contract on Op Mainnet Optimism Explorer__](https://optimistic.etherscan.io/address/0x68Ae17fa7a31b86F306c383277552fd4813b0d35)
+ * - [__View Contract on Bnb Smart Chain Bsc Scan__](https://bscscan.com/address/0x3bbFA4C406719424C7f66CD97A8Fe27Af383d3e2)
+ * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0xd7992D358A20478c82dDEd98B3D8A9da46e99b82)
+ * - [__View Contract on Polygon Polygon Scan__](https://polygonscan.com/address/0x961dd5A052741B49B6CBf6759591f9D8576fCFb0)
+ * - [__View Contract on Base Basescan__](https://basescan.org/address/0xfE6c87BE05feDB2059d2EC41bA0A09826C9FD7aa)
+ * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x1e299701792a2aF01408B122419d65Fd2dF0Ba02)
+ * - [__View Contract on Celo Celo Explorer__](https://celoscan.io/address/0x308b7405272d11494716e30C6E972DbF6fb89555)
+ * - [__View Contract on Avalanche Fuji Snow Trace__](https://testnet.snowtrace.io/address/0x51f571D934C59185f13d17301a36c07A2268B814)
+ * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xA7b197cD5b0cEF6d62c4A0a851E3581f5E62e4D2)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x53F4f44C813Dc380182d0b2b67fe5832A12B97f8)
+ * - [__View Contract on Scroll Sepolia Scrollscan__](https://sepolia.scrollscan.com/address/0x93fA9B627eE016990Fe5e654F923aaE8a480a75b)
+ * - [__View Contract on Scroll Scrollscan__](https://scrollscan.com/address/0x97a9f293d7eD13f3fbD499cE684Ed4F103295a28)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9823364056BcA85Dc3c4a3b96801314D082C8Eb9)
+ * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xd453d38A001B47271488886532f1CCeAbf0c7eF3)
+ * - [__View Contract on Degen Degen Chain Explorer__](https://explorer.degen.tips/address/0x210a01ad187003603B2287F78579ec103Eb70D9B)
+ */
+export const useWriteGdaTryConnectPoolFor =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: gdaAbi,
+    address: gdaAddress,
+    functionName: 'tryConnectPoolFor',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link gdaAbi}__ and `functionName` set to `"updateCode"`
  *
  * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xAAdBB3Eee3Bd080f5353d86DdF1916aCA3fAC842)
@@ -8149,6 +8354,60 @@ export const useSimulateGdaPoolSettleClaim =
     abi: gdaAbi,
     address: gdaAddress,
     functionName: 'poolSettleClaim',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link gdaAbi}__ and `functionName` set to `"setConnectPermission"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xAAdBB3Eee3Bd080f5353d86DdF1916aCA3fAC842)
+ * - [__View Contract on Op Mainnet Optimism Explorer__](https://optimistic.etherscan.io/address/0x68Ae17fa7a31b86F306c383277552fd4813b0d35)
+ * - [__View Contract on Bnb Smart Chain Bsc Scan__](https://bscscan.com/address/0x3bbFA4C406719424C7f66CD97A8Fe27Af383d3e2)
+ * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0xd7992D358A20478c82dDEd98B3D8A9da46e99b82)
+ * - [__View Contract on Polygon Polygon Scan__](https://polygonscan.com/address/0x961dd5A052741B49B6CBf6759591f9D8576fCFb0)
+ * - [__View Contract on Base Basescan__](https://basescan.org/address/0xfE6c87BE05feDB2059d2EC41bA0A09826C9FD7aa)
+ * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x1e299701792a2aF01408B122419d65Fd2dF0Ba02)
+ * - [__View Contract on Celo Celo Explorer__](https://celoscan.io/address/0x308b7405272d11494716e30C6E972DbF6fb89555)
+ * - [__View Contract on Avalanche Fuji Snow Trace__](https://testnet.snowtrace.io/address/0x51f571D934C59185f13d17301a36c07A2268B814)
+ * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xA7b197cD5b0cEF6d62c4A0a851E3581f5E62e4D2)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x53F4f44C813Dc380182d0b2b67fe5832A12B97f8)
+ * - [__View Contract on Scroll Sepolia Scrollscan__](https://sepolia.scrollscan.com/address/0x93fA9B627eE016990Fe5e654F923aaE8a480a75b)
+ * - [__View Contract on Scroll Scrollscan__](https://scrollscan.com/address/0x97a9f293d7eD13f3fbD499cE684Ed4F103295a28)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9823364056BcA85Dc3c4a3b96801314D082C8Eb9)
+ * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xd453d38A001B47271488886532f1CCeAbf0c7eF3)
+ * - [__View Contract on Degen Degen Chain Explorer__](https://explorer.degen.tips/address/0x210a01ad187003603B2287F78579ec103Eb70D9B)
+ */
+export const useSimulateGdaSetConnectPermission =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: gdaAbi,
+    address: gdaAddress,
+    functionName: 'setConnectPermission',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link gdaAbi}__ and `functionName` set to `"tryConnectPoolFor"`
+ *
+ * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0xAAdBB3Eee3Bd080f5353d86DdF1916aCA3fAC842)
+ * - [__View Contract on Op Mainnet Optimism Explorer__](https://optimistic.etherscan.io/address/0x68Ae17fa7a31b86F306c383277552fd4813b0d35)
+ * - [__View Contract on Bnb Smart Chain Bsc Scan__](https://bscscan.com/address/0x3bbFA4C406719424C7f66CD97A8Fe27Af383d3e2)
+ * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0xd7992D358A20478c82dDEd98B3D8A9da46e99b82)
+ * - [__View Contract on Polygon Polygon Scan__](https://polygonscan.com/address/0x961dd5A052741B49B6CBf6759591f9D8576fCFb0)
+ * - [__View Contract on Base Basescan__](https://basescan.org/address/0xfE6c87BE05feDB2059d2EC41bA0A09826C9FD7aa)
+ * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x1e299701792a2aF01408B122419d65Fd2dF0Ba02)
+ * - [__View Contract on Celo Celo Explorer__](https://celoscan.io/address/0x308b7405272d11494716e30C6E972DbF6fb89555)
+ * - [__View Contract on Avalanche Fuji Snow Trace__](https://testnet.snowtrace.io/address/0x51f571D934C59185f13d17301a36c07A2268B814)
+ * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xA7b197cD5b0cEF6d62c4A0a851E3581f5E62e4D2)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x53F4f44C813Dc380182d0b2b67fe5832A12B97f8)
+ * - [__View Contract on Scroll Sepolia Scrollscan__](https://sepolia.scrollscan.com/address/0x93fA9B627eE016990Fe5e654F923aaE8a480a75b)
+ * - [__View Contract on Scroll Scrollscan__](https://scrollscan.com/address/0x97a9f293d7eD13f3fbD499cE684Ed4F103295a28)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9823364056BcA85Dc3c4a3b96801314D082C8Eb9)
+ * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xd453d38A001B47271488886532f1CCeAbf0c7eF3)
+ * - [__View Contract on Degen Degen Chain Explorer__](https://explorer.degen.tips/address/0x210a01ad187003603B2287F78579ec103Eb70D9B)
+ */
+export const useSimulateGdaTryConnectPoolFor =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: gdaAbi,
+    address: gdaAddress,
+    functionName: 'tryConnectPoolFor',
   })
 
 /**
@@ -13888,60 +14147,6 @@ export const useReadSuperTokenFactory = /*#__PURE__*/ createUseReadContract({
   abi: superTokenFactoryAbi,
   address: superTokenFactoryAddress,
 })
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link superTokenFactoryAbi}__ and `functionName` set to `"CONSTANT_INFLOW_NFT_LOGIC"`
- *
- * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x0422689cc4087b6B7280e0a7e7F655200ec86Ae1)
- * - [__View Contract on Op Mainnet Optimism Explorer__](https://optimistic.etherscan.io/address/0x8276469A443D5C6B7146BED45e2abCaD3B6adad9)
- * - [__View Contract on Bnb Smart Chain Bsc Scan__](https://bscscan.com/address/0x8bde47397301F0Cd31b9000032fD517a39c946Eb)
- * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x23410e2659380784498509698ed70E414D384880)
- * - [__View Contract on Polygon Polygon Scan__](https://polygonscan.com/address/0x2C90719f25B10Fc5646c82DA3240C76Fa5BcCF34)
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0xe20B9a38E0c96F61d1bA6b42a61512D56Fea1Eb3)
- * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x1C21Ead77fd45C84a4c916Db7A6635D0C6FF09D6)
- * - [__View Contract on Celo Celo Explorer__](https://celoscan.io/address/0x36be86dEe6BC726Ed0Cbd170ccD2F21760BC73D9)
- * - [__View Contract on Avalanche Fuji Snow Trace__](https://testnet.snowtrace.io/address/0x1C92042426B6bAAe497bEf461B6d8342D03aEc92)
- * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0x464AADdBB2B80f3Cb666522EB7381bE610F638b4)
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x7447E94Dfe3d804a9f46Bf12838d467c912C8F6C)
- * - [__View Contract on Scroll Sepolia Scrollscan__](https://sepolia.scrollscan.com/address/0x87560833d59Be057aFc63cFFa3fc531589Ba428F)
- * - [__View Contract on Scroll Scrollscan__](https://scrollscan.com/address/0xacFBED2bC9344C158DD3dC229b84Bd7220e7c673)
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x254C2e152E8602839D288A7bccdf3d0974597193)
- * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xfcF0489488397332579f35b0F711BE570Da0E8f5)
- * - [__View Contract on Degen Degen Chain Explorer__](https://explorer.degen.tips/address/0x184D999ea60e9b16fE4cCC1f756422114E9B663f)
- */
-export const useReadSuperTokenFactoryConstantInflowNftLogic =
-  /*#__PURE__*/ createUseReadContract({
-    abi: superTokenFactoryAbi,
-    address: superTokenFactoryAddress,
-    functionName: 'CONSTANT_INFLOW_NFT_LOGIC',
-  })
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link superTokenFactoryAbi}__ and `functionName` set to `"CONSTANT_OUTFLOW_NFT_LOGIC"`
- *
- * - [__View Contract on Ethereum Etherscan__](https://etherscan.io/address/0x0422689cc4087b6B7280e0a7e7F655200ec86Ae1)
- * - [__View Contract on Op Mainnet Optimism Explorer__](https://optimistic.etherscan.io/address/0x8276469A443D5C6B7146BED45e2abCaD3B6adad9)
- * - [__View Contract on Bnb Smart Chain Bsc Scan__](https://bscscan.com/address/0x8bde47397301F0Cd31b9000032fD517a39c946Eb)
- * - [__View Contract on Gnosis Gnosisscan__](https://gnosisscan.io/address/0x23410e2659380784498509698ed70E414D384880)
- * - [__View Contract on Polygon Polygon Scan__](https://polygonscan.com/address/0x2C90719f25B10Fc5646c82DA3240C76Fa5BcCF34)
- * - [__View Contract on Base Basescan__](https://basescan.org/address/0xe20B9a38E0c96F61d1bA6b42a61512D56Fea1Eb3)
- * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x1C21Ead77fd45C84a4c916Db7A6635D0C6FF09D6)
- * - [__View Contract on Celo Celo Explorer__](https://celoscan.io/address/0x36be86dEe6BC726Ed0Cbd170ccD2F21760BC73D9)
- * - [__View Contract on Avalanche Fuji Snow Trace__](https://testnet.snowtrace.io/address/0x1C92042426B6bAAe497bEf461B6d8342D03aEc92)
- * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0x464AADdBB2B80f3Cb666522EB7381bE610F638b4)
- * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x7447E94Dfe3d804a9f46Bf12838d467c912C8F6C)
- * - [__View Contract on Scroll Sepolia Scrollscan__](https://sepolia.scrollscan.com/address/0x87560833d59Be057aFc63cFFa3fc531589Ba428F)
- * - [__View Contract on Scroll Scrollscan__](https://scrollscan.com/address/0xacFBED2bC9344C158DD3dC229b84Bd7220e7c673)
- * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x254C2e152E8602839D288A7bccdf3d0974597193)
- * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0xfcF0489488397332579f35b0F711BE570Da0E8f5)
- * - [__View Contract on Degen Degen Chain Explorer__](https://explorer.degen.tips/address/0x184D999ea60e9b16fE4cCC1f756422114E9B663f)
- */
-export const useReadSuperTokenFactoryConstantOutflowNftLogic =
-  /*#__PURE__*/ createUseReadContract({
-    abi: superTokenFactoryAbi,
-    address: superTokenFactoryAddress,
-    functionName: 'CONSTANT_OUTFLOW_NFT_LOGIC',
-  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link superTokenFactoryAbi}__ and `functionName` set to `"POOL_ADMIN_NFT_LOGIC"`

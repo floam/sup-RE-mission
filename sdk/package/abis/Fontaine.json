@@ -6,11 +6,6 @@
 				"name": "fluid",
 				"type": "address",
 				"internalType": "contract ISuperToken"
-			},
-			{
-				"name": "taxDistributionPool",
-				"type": "address",
-				"internalType": "contract ISuperfluidPool"
 			}
 		],
 		"stateMutability": "nonpayable"
@@ -43,19 +38,6 @@
 	},
 	{
 		"type": "function",
-		"name": "TAX_DISTRIBUTION_POOL",
-		"inputs": [],
-		"outputs": [
-			{
-				"name": "",
-				"type": "address",
-				"internalType": "contract ISuperfluidPool"
-			}
-		],
-		"stateMutability": "view"
-	},
-	{
-		"type": "function",
 		"name": "endDate",
 		"inputs": [],
 		"outputs": [
@@ -82,11 +64,6 @@
 				"internalType": "int96"
 			},
 			{
-				"name": "targetTaxFlowRate",
-				"type": "int96",
-				"internalType": "int96"
-			},
-			{
 				"name": "unlockPeriod",
 				"type": "uint128",
 				"internalType": "uint128"
@@ -104,19 +81,6 @@
 				"name": "",
 				"type": "address",
 				"internalType": "address"
-			}
-		],
-		"stateMutability": "view"
-	},
-	{
-		"type": "function",
-		"name": "taxFlowRate",
-		"inputs": [],
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint96",
-				"internalType": "uint96"
 			}
 		],
 		"stateMutability": "view"
