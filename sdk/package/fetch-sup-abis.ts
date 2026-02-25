@@ -23,6 +23,6 @@ for (const [remotePath, localFile] of Object.entries(ABI_MAP)) {
 	}
 	const json = await res.json()
 	const dest = join(abisDir, localFile)
-	await writeFile(dest, JSON.stringify(json, null, "\t") + "\n")
+	await writeFile(dest, `${JSON.stringify(json, null, "\t")}\n`)
 	console.log(`${localFile} ✓`)
 }
