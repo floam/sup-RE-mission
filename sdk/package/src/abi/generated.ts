@@ -226,6 +226,27 @@ export const cfaForwarderAbi = [
   { type: 'error', inputs: [], name: 'CFA_NO_SELF_FLOW' },
   { type: 'error', inputs: [], name: 'CFA_ZERO_ADDRESS_RECEIVER' },
   { type: 'error', inputs: [], name: 'CFA_ZERO_ADDRESS_SENDER' },
+  {
+    type: 'error',
+    inputs: [{ name: 'value', internalType: 'int256', type: 'int256' }],
+    name: 'SafeCastOverflowedIntToUint',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'value', internalType: 'uint256', type: 'uint256' }],
+    name: 'SafeCastOverflowedUintToInt',
+  },
+  { type: 'error', inputs: [], name: 'ECDSAInvalidSignature' },
+  {
+    type: 'error',
+    inputs: [{ name: 'length', internalType: 'uint256', type: 'uint256' }],
+    name: 'ECDSAInvalidSignatureLength',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 's', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'ECDSAInvalidSignatureS',
+  },
   { type: 'error', inputs: [], name: 'SF_TOKEN_AGREEMENT_ALREADY_EXISTS' },
   { type: 'error', inputs: [], name: 'SF_TOKEN_AGREEMENT_DOES_NOT_EXIST' },
   { type: 'error', inputs: [], name: 'SF_TOKEN_BURN_INSUFFICIENT_BALANCE' },
@@ -271,6 +292,11 @@ export const cfaForwarderAbi = [
   },
   { type: 'error', inputs: [], name: 'SUPER_TOKEN_TRANSFER_FROM_ZERO_ADDRESS' },
   { type: 'error', inputs: [], name: 'SUPER_TOKEN_TRANSFER_TO_ZERO_ADDRESS' },
+  {
+    type: 'error',
+    inputs: [{ name: 'token', internalType: 'address', type: 'address' }],
+    name: 'SafeERC20FailedOperation',
+  },
 ] as const
 
 /**
@@ -626,6 +652,7 @@ export const gdaForwarderAbi = [
   },
   { type: 'error', inputs: [], name: 'AGREEMENT_BASE_ONLY_HOST' },
   { type: 'error', inputs: [], name: 'GDA_ADMIN_CANNOT_BE_POOL' },
+  { type: 'error', inputs: [], name: 'GDA_CANNOT_CONNECT_POOL' },
   { type: 'error', inputs: [], name: 'GDA_DISTRIBUTE_FOR_OTHERS_NOT_ALLOWED' },
   {
     type: 'error',
@@ -639,6 +666,32 @@ export const gdaForwarderAbi = [
   { type: 'error', inputs: [], name: 'GDA_NO_NEGATIVE_FLOW_RATE' },
   { type: 'error', inputs: [], name: 'GDA_NO_ZERO_ADDRESS_ADMIN' },
   { type: 'error', inputs: [], name: 'GDA_ONLY_SUPER_TOKEN_POOL' },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'bits', internalType: 'uint8', type: 'uint8' },
+      { name: 'value', internalType: 'int256', type: 'int256' },
+    ],
+    name: 'SafeCastOverflowedIntDowncast',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'value', internalType: 'int256', type: 'int256' }],
+    name: 'SafeCastOverflowedIntToUint',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'bits', internalType: 'uint8', type: 'uint8' },
+      { name: 'value', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'SafeCastOverflowedUintDowncast',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'value', internalType: 'uint256', type: 'uint256' }],
+    name: 'SafeCastOverflowedUintToInt',
+  },
   { type: 'error', inputs: [], name: 'SUPERFLUID_POOL_INVALID_TIME' },
   { type: 'error', inputs: [], name: 'SUPERFLUID_POOL_NOT_GDA' },
   { type: 'error', inputs: [], name: 'SUPERFLUID_POOL_NOT_POOL_ADMIN_OR_GDA' },
@@ -653,6 +706,17 @@ export const gdaForwarderAbi = [
     type: 'error',
     inputs: [],
     name: 'SUPERFLUID_POOL_TRANSFER_UNITS_NOT_ALLOWED',
+  },
+  { type: 'error', inputs: [], name: 'ECDSAInvalidSignature' },
+  {
+    type: 'error',
+    inputs: [{ name: 'length', internalType: 'uint256', type: 'uint256' }],
+    name: 'ECDSAInvalidSignatureLength',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 's', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'ECDSAInvalidSignatureS',
   },
   { type: 'error', inputs: [], name: 'SF_TOKEN_AGREEMENT_ALREADY_EXISTS' },
   { type: 'error', inputs: [], name: 'SF_TOKEN_AGREEMENT_DOES_NOT_EXIST' },
@@ -699,6 +763,11 @@ export const gdaForwarderAbi = [
   },
   { type: 'error', inputs: [], name: 'SUPER_TOKEN_TRANSFER_FROM_ZERO_ADDRESS' },
   { type: 'error', inputs: [], name: 'SUPER_TOKEN_TRANSFER_TO_ZERO_ADDRESS' },
+  {
+    type: 'error',
+    inputs: [{ name: 'token', internalType: 'address', type: 'address' }],
+    name: 'SafeERC20FailedOperation',
+  },
 ] as const
 
 /**
@@ -791,6 +860,32 @@ export const gdaPoolAbi = [
     type: 'error',
     inputs: [],
     name: 'SUPERFLUID_POOL_TRANSFER_UNITS_NOT_ALLOWED',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'bits', internalType: 'uint8', type: 'uint8' },
+      { name: 'value', internalType: 'int256', type: 'int256' },
+    ],
+    name: 'SafeCastOverflowedIntDowncast',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'value', internalType: 'int256', type: 'int256' }],
+    name: 'SafeCastOverflowedIntToUint',
+  },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'bits', internalType: 'uint8', type: 'uint8' },
+      { name: 'value', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'SafeCastOverflowedUintDowncast',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'value', internalType: 'uint256', type: 'uint256' }],
+    name: 'SafeCastOverflowedUintToInt',
   },
   {
     type: 'event',
@@ -1097,6 +1192,16 @@ export const gdaPoolAbi = [
   {
     type: 'function',
     inputs: [
+      { name: 'memberAddr', internalType: 'address', type: 'address' },
+      { name: 'time', internalType: 'uint32', type: 'uint32' },
+    ],
+    name: 'getUnsettledValue',
+    outputs: [{ name: '', internalType: 'int256', type: 'int256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
       { name: 'spender', internalType: 'address', type: 'address' },
       { name: 'addedValue', internalType: 'uint256', type: 'uint256' },
     ],
@@ -1288,27 +1393,23 @@ export const superTokenAbi = [
     inputs: [
       { name: 'host', internalType: 'contract ISuperfluid', type: 'address' },
       {
-        name: 'constantOutflowNFT',
-        internalType: 'contract IConstantOutflowNFT',
-        type: 'address',
-      },
-      {
-        name: 'constantInflowNFT',
-        internalType: 'contract IConstantInflowNFT',
-        type: 'address',
-      },
-      {
         name: 'poolAdminNFT',
         internalType: 'contract IPoolAdminNFT',
         type: 'address',
       },
-      {
-        name: 'poolMemberNFT',
-        internalType: 'contract IPoolMemberNFT',
-        type: 'address',
-      },
     ],
     stateMutability: 'nonpayable',
+  },
+  { type: 'error', inputs: [], name: 'ECDSAInvalidSignature' },
+  {
+    type: 'error',
+    inputs: [{ name: 'length', internalType: 'uint256', type: 'uint256' }],
+    name: 'ECDSAInvalidSignatureLength',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 's', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'ECDSAInvalidSignatureS',
   },
   { type: 'error', inputs: [], name: 'SF_TOKEN_AGREEMENT_ALREADY_EXISTS' },
   { type: 'error', inputs: [], name: 'SF_TOKEN_AGREEMENT_DOES_NOT_EXIST' },
@@ -1355,6 +1456,16 @@ export const superTokenAbi = [
   },
   { type: 'error', inputs: [], name: 'SUPER_TOKEN_TRANSFER_FROM_ZERO_ADDRESS' },
   { type: 'error', inputs: [], name: 'SUPER_TOKEN_TRANSFER_TO_ZERO_ADDRESS' },
+  {
+    type: 'error',
+    inputs: [{ name: 'value', internalType: 'uint256', type: 'uint256' }],
+    name: 'SafeCastOverflowedUintToInt',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'token', internalType: 'address', type: 'address' }],
+    name: 'SafeERC20FailedOperation',
+  },
   {
     type: 'event',
     anonymous: false,
@@ -1742,19 +1853,6 @@ export const superTokenAbi = [
     anonymous: false,
     inputs: [
       {
-        name: 'poolMemberNFT',
-        internalType: 'contract IPoolMemberNFT',
-        type: 'address',
-        indexed: true,
-      },
-    ],
-    name: 'PoolMemberNFTCreated',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      {
         name: 'operator',
         internalType: 'address',
         type: 'address',
@@ -1849,32 +1947,6 @@ export const superTokenAbi = [
       },
     ],
     name: 'Transfer',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'CONSTANT_INFLOW_NFT',
-    outputs: [
-      {
-        name: '',
-        internalType: 'contract IConstantInflowNFT',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'CONSTANT_OUTFLOW_NFT',
-    outputs: [
-      {
-        name: '',
-        internalType: 'contract IConstantOutflowNFT',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
   },
   {
     type: 'function',

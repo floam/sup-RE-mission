@@ -12,11 +12,11 @@ function parseTimestamp(value: string): Date | null {
 	if (/^\d+$/.test(value)) {
 		const seconds = parseInt(value, 10)
 		const date = new Date(seconds * 1000)
-		return isNaN(date.getTime()) ? null : date
+		return Number.isNaN(date.getTime()) ? null : date
 	}
 	// Try ISO 8601
 	const date = new Date(value)
-	return isNaN(date.getTime()) ? null : date
+	return Number.isNaN(date.getTime()) ? null : date
 }
 
 /**
@@ -42,7 +42,7 @@ export const GET = async (request: Request): Promise<Response> => {
 		}
 
 		const campaignId = parseInt(campaignIdParam, 10)
-		if (isNaN(campaignId) || campaignId <= 0) {
+		if (Number.isNaN(campaignId) || campaignId <= 0) {
 			return Response.json({ message: "campaignId must be a positive integer" }, { status: 400 })
 		}
 

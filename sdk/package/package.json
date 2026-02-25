@@ -1,6 +1,6 @@
 {
 	"name": "@sfpro/sdk",
-	"version": "0.1.9",
+	"version": "0.1.10",
 	"description": "TypeScript SDK for Superfluid Protocol - stream money every second",
 	"keywords": [
 		"superfluid",
@@ -89,6 +89,7 @@
 	},
 	"scripts": {
 		"build": "rimraf dist && tsc --removeComments --declaration false && tsc --emitDeclarationOnly",
+		"fetch-sup-abis": "bunx tsx fetch-sup-abis.ts",
 		"generate": "run-p generate:*",
 		"generate:abi": "TYPE=abi wagmi generate",
 		"generate:abi-automation": "TYPE=abi CATEGORY=automation wagmi generate",
@@ -109,7 +110,7 @@
 		"@superfluid-finance/ethereum-contracts": "^1.14.1",
 		"@superfluid-finance/metadata": "^1.6.2",
 		"@types/node": "^24.10.9",
-		"@wagmi/cli": "^2.9.0",
+		"@wagmi/cli": "^2.10.0",
 		"dotenv": "^17.2.3",
 		"npm-run-all": "^4.1.5",
 		"rimraf": "^6.1.2",
@@ -120,10 +121,10 @@
 		"wagmi": "^2.19.5"
 	},
 	"peerDependencies": {
-		"@wagmi/core": "^2",
+		"@wagmi/core": "^2 || ^3",
 		"react": ">=18",
 		"viem": "^2",
-		"wagmi": "^2"
+		"wagmi": "^2 || ^3"
 	},
 	"peerDependenciesMeta": {
 		"@wagmi/core": {

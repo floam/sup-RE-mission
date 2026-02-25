@@ -7,7 +7,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 	const { id } = await params
 	const campaignId = parseInt(id, 10)
 
-	if (isNaN(campaignId)) {
+	if (Number.isNaN(campaignId)) {
 		return NextResponse.json({ error: "Invalid campaign ID" }, { status: 400 })
 	}
 

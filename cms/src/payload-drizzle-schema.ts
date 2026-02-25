@@ -7,7 +7,7 @@
  */
 
 import type {} from "@payloadcms/db-vercel-postgres"
-import { relations, sql } from "@payloadcms/db-vercel-postgres/drizzle"
+import { relations } from "@payloadcms/db-vercel-postgres/drizzle"
 import {
 	boolean,
 	foreignKey,
@@ -50,7 +50,7 @@ export const users_token_permissions_allowed_tags = pgTable(
 		index("users_token_permissions_allowed_tags_order_idx").on(columns._order),
 		index("users_token_permissions_allowed_tags_parent_id_idx").on(columns._parentID),
 		foreignKey({
-			columns: [columns["_parentID"]],
+			columns: [columns._parentID],
 			foreignColumns: [users.id],
 			name: "users_token_permissions_allowed_tags_parent_id_fk",
 		}).onDelete("cascade"),
@@ -69,7 +69,7 @@ export const users_token_permissions_allowed_addresses = pgTable(
 		index("users_token_permissions_allowed_addresses_order_idx").on(columns._order),
 		index("users_token_permissions_allowed_addresses_parent_id_idx").on(columns._parentID),
 		foreignKey({
-			columns: [columns["_parentID"]],
+			columns: [columns._parentID],
 			foreignColumns: [users.id],
 			name: "users_token_permissions_allowed_addresses_parent_id_fk",
 		}).onDelete("cascade"),
@@ -88,7 +88,7 @@ export const users_token_permissions_allowed_chain_ids = pgTable(
 		index("users_token_permissions_allowed_chain_ids_order_idx").on(columns._order),
 		index("users_token_permissions_allowed_chain_ids_parent_id_idx").on(columns._parentID),
 		foreignKey({
-			columns: [columns["_parentID"]],
+			columns: [columns._parentID],
 			foreignColumns: [users.id],
 			name: "users_token_permissions_allowed_chain_ids_parent_id_fk",
 		}).onDelete("cascade"),
@@ -107,7 +107,7 @@ export const users_campaign_permissions_allowed_campaign_ids = pgTable(
 		index("users_campaign_permissions_allowed_campaign_ids_order_idx").on(columns._order),
 		index("users_campaign_permissions_allowed_campaign_ids_parent_id_idx").on(columns._parentID),
 		foreignKey({
-			columns: [columns["_parentID"]],
+			columns: [columns._parentID],
 			foreignColumns: [users.id],
 			name: "users_campaign_permissions_allowed_campaign_ids_parent_id_fk",
 		}).onDelete("cascade"),
@@ -131,7 +131,7 @@ export const users_sessions = pgTable(
 		index("users_sessions_order_idx").on(columns._order),
 		index("users_sessions_parent_id_idx").on(columns._parentID),
 		foreignKey({
-			columns: [columns["_parentID"]],
+			columns: [columns._parentID],
 			foreignColumns: [users.id],
 			name: "users_sessions_parent_id_fk",
 		}).onDelete("cascade"),
@@ -179,7 +179,7 @@ export const tokens_tags = pgTable(
 		index("tokens_tags_order_idx").on(columns.order),
 		index("tokens_tags_parent_idx").on(columns.parent),
 		foreignKey({
-			columns: [columns["parent"]],
+			columns: [columns.parent],
 			foreignColumns: [tokens.id],
 			name: "tokens_tags_parent_fk",
 		}).onDelete("cascade"),
@@ -223,7 +223,7 @@ export const chains_public_r_p_cs = pgTable(
 		index("chains_public_r_p_cs_order_idx").on(columns._order),
 		index("chains_public_r_p_cs_parent_id_idx").on(columns._parentID),
 		foreignKey({
-			columns: [columns["_parentID"]],
+			columns: [columns._parentID],
 			foreignColumns: [chains.id],
 			name: "chains_public_r_p_cs_parent_id_fk",
 		}).onDelete("cascade"),
@@ -242,7 +242,7 @@ export const chains_trusted_forwarders = pgTable(
 		index("chains_trusted_forwarders_order_idx").on(columns._order),
 		index("chains_trusted_forwarders_parent_id_idx").on(columns._parentID),
 		foreignKey({
-			columns: [columns["_parentID"]],
+			columns: [columns._parentID],
 			foreignColumns: [chains.id],
 			name: "chains_trusted_forwarders_parent_id_fk",
 		}).onDelete("cascade"),
@@ -445,7 +445,7 @@ export const point_balances_rels = pgTable(
 		index("point_balances_rels_path_idx").on(columns.path),
 		index("point_balances_rels_point_events_id_idx").on(columns["point-eventsID"]),
 		foreignKey({
-			columns: [columns["parent"]],
+			columns: [columns.parent],
 			foreignColumns: [point_balances.id],
 			name: "point_balances_rels_parent_fk",
 		}).onDelete("cascade"),
@@ -511,27 +511,27 @@ export const payload_locked_documents_rels = pgTable(
 		index("payload_locked_documents_rels_point_events_id_idx").on(columns["point-eventsID"]),
 		index("payload_locked_documents_rels_point_balances_id_idx").on(columns["point-balancesID"]),
 		foreignKey({
-			columns: [columns["parent"]],
+			columns: [columns.parent],
 			foreignColumns: [payload_locked_documents.id],
 			name: "payload_locked_documents_rels_parent_fk",
 		}).onDelete("cascade"),
 		foreignKey({
-			columns: [columns["usersID"]],
+			columns: [columns.usersID],
 			foreignColumns: [users.id],
 			name: "payload_locked_documents_rels_users_fk",
 		}).onDelete("cascade"),
 		foreignKey({
-			columns: [columns["tokensID"]],
+			columns: [columns.tokensID],
 			foreignColumns: [tokens.id],
 			name: "payload_locked_documents_rels_tokens_fk",
 		}).onDelete("cascade"),
 		foreignKey({
-			columns: [columns["chainsID"]],
+			columns: [columns.chainsID],
 			foreignColumns: [chains.id],
 			name: "payload_locked_documents_rels_chains_fk",
 		}).onDelete("cascade"),
 		foreignKey({
-			columns: [columns["campaignsID"]],
+			columns: [columns.campaignsID],
 			foreignColumns: [campaigns.id],
 			name: "payload_locked_documents_rels_campaigns_fk",
 		}).onDelete("cascade"),
@@ -589,12 +589,12 @@ export const payload_preferences_rels = pgTable(
 		index("payload_preferences_rels_path_idx").on(columns.path),
 		index("payload_preferences_rels_users_id_idx").on(columns.usersID),
 		foreignKey({
-			columns: [columns["parent"]],
+			columns: [columns.parent],
 			foreignColumns: [payload_preferences.id],
 			name: "payload_preferences_rels_parent_fk",
 		}).onDelete("cascade"),
 		foreignKey({
-			columns: [columns["usersID"]],
+			columns: [columns.usersID],
 			foreignColumns: [users.id],
 			name: "payload_preferences_rels_users_fk",
 		}).onDelete("cascade"),

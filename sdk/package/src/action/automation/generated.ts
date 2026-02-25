@@ -2491,6 +2491,8 @@ export const legacyVestingSchedulerV2Config = {
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const vestingSchedulerV3Abi = [
@@ -3276,6 +3278,8 @@ export const vestingSchedulerV3Abi = [
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const vestingSchedulerV3Address = {
@@ -3287,6 +3291,8 @@ export const vestingSchedulerV3Address = {
   8453: '0x6Bf35A170056eDf9aEba159dce4a640cfCef9312',
   42161: '0xc3069bDE869912E3d9B965F35D7764Fc92BccE67',
   43114: '0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf',
+  84532: '0x2D0B7a30bFdED086571D6525762a809ee1049c98',
+  11155111: '0x638a8ABF60118e018c80a0eC878057E8C53E0fd1',
   11155420: '0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C',
 } as const
 
@@ -3299,6 +3305,8 @@ export const vestingSchedulerV3Address = {
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const vestingSchedulerV3Config = {
@@ -6424,6 +6432,8 @@ export const watchLegacyVestingSchedulerV2VestingScheduleUpdatedEvent =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const readVestingSchedulerV3 = /*#__PURE__*/ createReadContract({
@@ -6442,6 +6452,8 @@ export const readVestingSchedulerV3 = /*#__PURE__*/ createReadContract({
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const readVestingSchedulerV3EndDateValidBefore =
@@ -6462,6 +6474,8 @@ export const readVestingSchedulerV3EndDateValidBefore =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const readVestingSchedulerV3Host = /*#__PURE__*/ createReadContract({
@@ -6481,6 +6495,8 @@ export const readVestingSchedulerV3Host = /*#__PURE__*/ createReadContract({
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const readVestingSchedulerV3MinVestingDuration =
@@ -6501,6 +6517,8 @@ export const readVestingSchedulerV3MinVestingDuration =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const readVestingSchedulerV3StartDateValidAfter =
@@ -6521,6 +6539,8 @@ export const readVestingSchedulerV3StartDateValidAfter =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const readVestingSchedulerV3Accountings =
@@ -6541,6 +6561,8 @@ export const readVestingSchedulerV3Accountings =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const readVestingSchedulerV3GetMaximumNeededTokenAllowance =
@@ -6561,6 +6583,8 @@ export const readVestingSchedulerV3GetMaximumNeededTokenAllowance =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const readVestingSchedulerV3GetTotalVestedAmount =
@@ -6581,6 +6605,8 @@ export const readVestingSchedulerV3GetTotalVestedAmount =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const readVestingSchedulerV3GetVestingSchedule =
@@ -6601,6 +6627,8 @@ export const readVestingSchedulerV3GetVestingSchedule =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const readVestingSchedulerV3IsTrustedForwarder =
@@ -6621,6 +6649,8 @@ export const readVestingSchedulerV3IsTrustedForwarder =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const readVestingSchedulerV3MapCreateVestingScheduleParams =
@@ -6641,6 +6671,8 @@ export const readVestingSchedulerV3MapCreateVestingScheduleParams =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const readVestingSchedulerV3VersionRecipient =
@@ -6661,6 +6693,8 @@ export const readVestingSchedulerV3VersionRecipient =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const readVestingSchedulerV3VestingSchedules =
@@ -6681,6 +6715,8 @@ export const readVestingSchedulerV3VestingSchedules =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const writeVestingSchedulerV3 = /*#__PURE__*/ createWriteContract({
@@ -6699,6 +6735,8 @@ export const writeVestingSchedulerV3 = /*#__PURE__*/ createWriteContract({
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const writeVestingSchedulerV3CreateAndExecuteVestingScheduleFromAmountAndDuration =
@@ -6719,6 +6757,8 @@ export const writeVestingSchedulerV3CreateAndExecuteVestingScheduleFromAmountAnd
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const writeVestingSchedulerV3CreateVestingSchedule =
@@ -6739,6 +6779,8 @@ export const writeVestingSchedulerV3CreateVestingSchedule =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const writeVestingSchedulerV3CreateVestingScheduleFromAmountAndDuration =
@@ -6759,6 +6801,8 @@ export const writeVestingSchedulerV3CreateVestingScheduleFromAmountAndDuration =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const writeVestingSchedulerV3DeleteVestingSchedule =
@@ -6779,6 +6823,8 @@ export const writeVestingSchedulerV3DeleteVestingSchedule =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const writeVestingSchedulerV3EndVestingScheduleNow =
@@ -6799,6 +6845,8 @@ export const writeVestingSchedulerV3EndVestingScheduleNow =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const writeVestingSchedulerV3ExecuteCliffAndFlow =
@@ -6819,6 +6867,8 @@ export const writeVestingSchedulerV3ExecuteCliffAndFlow =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const writeVestingSchedulerV3ExecuteEndVesting =
@@ -6839,6 +6889,8 @@ export const writeVestingSchedulerV3ExecuteEndVesting =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const writeVestingSchedulerV3UpdateVestingSchedule =
@@ -6859,6 +6911,8 @@ export const writeVestingSchedulerV3UpdateVestingSchedule =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const writeVestingSchedulerV3UpdateVestingScheduleFlowRateFromAmount =
@@ -6879,6 +6933,8 @@ export const writeVestingSchedulerV3UpdateVestingScheduleFlowRateFromAmount =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const writeVestingSchedulerV3UpdateVestingScheduleFlowRateFromAmountAndEndDate =
@@ -6899,6 +6955,8 @@ export const writeVestingSchedulerV3UpdateVestingScheduleFlowRateFromAmountAndEn
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const writeVestingSchedulerV3UpdateVestingScheduleFlowRateFromEndDate =
@@ -6919,6 +6977,8 @@ export const writeVestingSchedulerV3UpdateVestingScheduleFlowRateFromEndDate =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const simulateVestingSchedulerV3 = /*#__PURE__*/ createSimulateContract({
@@ -6937,6 +6997,8 @@ export const simulateVestingSchedulerV3 = /*#__PURE__*/ createSimulateContract({
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const simulateVestingSchedulerV3CreateAndExecuteVestingScheduleFromAmountAndDuration =
@@ -6957,6 +7019,8 @@ export const simulateVestingSchedulerV3CreateAndExecuteVestingScheduleFromAmount
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const simulateVestingSchedulerV3CreateVestingSchedule =
@@ -6977,6 +7041,8 @@ export const simulateVestingSchedulerV3CreateVestingSchedule =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const simulateVestingSchedulerV3CreateVestingScheduleFromAmountAndDuration =
@@ -6997,6 +7063,8 @@ export const simulateVestingSchedulerV3CreateVestingScheduleFromAmountAndDuratio
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const simulateVestingSchedulerV3DeleteVestingSchedule =
@@ -7017,6 +7085,8 @@ export const simulateVestingSchedulerV3DeleteVestingSchedule =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const simulateVestingSchedulerV3EndVestingScheduleNow =
@@ -7037,6 +7107,8 @@ export const simulateVestingSchedulerV3EndVestingScheduleNow =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const simulateVestingSchedulerV3ExecuteCliffAndFlow =
@@ -7057,6 +7129,8 @@ export const simulateVestingSchedulerV3ExecuteCliffAndFlow =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const simulateVestingSchedulerV3ExecuteEndVesting =
@@ -7077,6 +7151,8 @@ export const simulateVestingSchedulerV3ExecuteEndVesting =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const simulateVestingSchedulerV3UpdateVestingSchedule =
@@ -7097,6 +7173,8 @@ export const simulateVestingSchedulerV3UpdateVestingSchedule =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const simulateVestingSchedulerV3UpdateVestingScheduleFlowRateFromAmount =
@@ -7117,6 +7195,8 @@ export const simulateVestingSchedulerV3UpdateVestingScheduleFlowRateFromAmount =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const simulateVestingSchedulerV3UpdateVestingScheduleFlowRateFromAmountAndEndDate =
@@ -7137,6 +7217,8 @@ export const simulateVestingSchedulerV3UpdateVestingScheduleFlowRateFromAmountAn
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const simulateVestingSchedulerV3UpdateVestingScheduleFlowRateFromEndDate =
@@ -7157,6 +7239,8 @@ export const simulateVestingSchedulerV3UpdateVestingScheduleFlowRateFromEndDate 
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const watchVestingSchedulerV3Event =
@@ -7176,6 +7260,8 @@ export const watchVestingSchedulerV3Event =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const watchVestingSchedulerV3VestingClaimedEvent =
@@ -7196,6 +7282,8 @@ export const watchVestingSchedulerV3VestingClaimedEvent =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const watchVestingSchedulerV3VestingCliffAndFlowExecutedEvent =
@@ -7216,6 +7304,8 @@ export const watchVestingSchedulerV3VestingCliffAndFlowExecutedEvent =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const watchVestingSchedulerV3VestingEndExecutedEvent =
@@ -7236,6 +7326,8 @@ export const watchVestingSchedulerV3VestingEndExecutedEvent =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const watchVestingSchedulerV3VestingEndFailedEvent =
@@ -7256,6 +7348,8 @@ export const watchVestingSchedulerV3VestingEndFailedEvent =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const watchVestingSchedulerV3VestingScheduleCreatedEvent =
@@ -7276,6 +7370,8 @@ export const watchVestingSchedulerV3VestingScheduleCreatedEvent =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const watchVestingSchedulerV3VestingScheduleDeletedEvent =
@@ -7296,6 +7392,8 @@ export const watchVestingSchedulerV3VestingScheduleDeletedEvent =
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x6Bf35A170056eDf9aEba159dce4a640cfCef9312)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0xc3069bDE869912E3d9B965F35D7764Fc92BccE67)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xB84C98d9B51D0e32114C60C500e17eA79dfd0dAf)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x2D0B7a30bFdED086571D6525762a809ee1049c98)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x638a8ABF60118e018c80a0eC878057E8C53E0fd1)
  * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x4F4BC2ca9A7CA26AfcFabc6A2A381c104927D72C)
  */
 export const watchVestingSchedulerV3VestingScheduleUpdatedEvent =

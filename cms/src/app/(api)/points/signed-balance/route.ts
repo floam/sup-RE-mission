@@ -21,7 +21,7 @@ export const GET = async (request: Request): Promise<Response> => {
 		}
 
 		const campaignId = parseInt(campaignIdParam, 10)
-		if (isNaN(campaignId) || campaignId <= 0) {
+		if (Number.isNaN(campaignId) || campaignId <= 0) {
 			return Response.json({ message: "campaignId must be a positive integer" }, { status: 400 })
 		}
 
