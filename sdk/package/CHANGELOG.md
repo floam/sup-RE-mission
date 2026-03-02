@@ -1,5 +1,11 @@
 # @sfpro/sdk
 
+## 0.1.11
+
+### Patch Changes
+
+- 9b04287: Update SUP contracts & allow wagmi v3 in package.json
+
 ## 0.1.9
 
 ### Patch Changes
