@@ -5,6 +5,9 @@ import {
 	BalanceBatchResponseSchema,
 	BalancePostBodySchema,
 	BalanceQuerySchema,
+	CampaignAccountSchema,
+	CampaignAccountsQuerySchema,
+	CampaignAccountsResponseSchema,
 	EventBalanceQuerySchema,
 	EventBalanceResponseSchema,
 	EventsQuerySchema,
@@ -34,6 +37,8 @@ pointsRegistry.register("SignedBalanceResponse", SignedBalanceResponseSchema)
 pointsRegistry.register("SignedBalanceBatchResponse", SignedBalanceBatchResponseSchema)
 pointsRegistry.register("BalanceBatchResponse", BalanceBatchResponseSchema)
 pointsRegistry.register("EventBalanceResponse", EventBalanceResponseSchema)
+pointsRegistry.register("CampaignAccount", CampaignAccountSchema)
+pointsRegistry.register("CampaignAccountsResponse", CampaignAccountsResponseSchema)
 pointsRegistry.register("ApiError", ApiErrorSchema)
 
 // Register security scheme
@@ -267,6 +272,79 @@ This endpoint queries the raw point events and aggregates on-demand, unlike \`/b
 		},
 		400: {
 			description: "Invalid request (missing campaignId/eventName or invalid address)",
+			content: {
+				"application/json": {
+					schema: ApiErrorSchema,
+				},
+			},
+		},
+		404: {
+			description: "Campaign not found",
+			content: {
+				"application/json": {
+					schema: ApiErrorSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				"application/json": {
+					schema: ApiErrorSchema,
+				},
+			},
+		},
+	},
+})
+
+// ============================================
+// GET /points/accounts
+// ============================================
+pointsRegistry.registerPath({
+	method: "get",
+	path: "/points/accounts",
+	summary: "Get campaign accounts (leaderboard)",
+	description:
+		"Retrieves all accounts in a campaign with their point balances, event counts, and last event timestamps. Results are paginated and sortable, making this ideal for building leaderboard views.",
+	tags: ["Balance"],
+	request: {
+		query: CampaignAccountsQuerySchema,
+	},
+	responses: {
+		200: {
+			description: "Campaign accounts retrieved successfully",
+			content: {
+				"application/json": {
+					schema: CampaignAccountsResponseSchema,
+					example: {
+						accounts: [
+							{
+								account: "0x1234567890abcdef1234567890abcdef12345678",
+								totalPoints: 1500,
+								eventCount: 42,
+								lastEventAt: "2026-01-15T12:00:00.000Z",
+							},
+							{
+								account: "0xabcdef1234567890abcdef1234567890abcdef12",
+								totalPoints: 750,
+								eventCount: 18,
+								lastEventAt: "2026-01-14T08:30:00.000Z",
+							},
+						],
+						pagination: {
+							page: 1,
+							limit: 50,
+							totalDocs: 150,
+							totalPages: 3,
+							hasNextPage: true,
+							hasPrevPage: false,
+						},
+					},
+				},
+			},
+		},
+		400: {
+			description: "Invalid request (missing/invalid campaignId, invalid orderBy, or invalid pagination)",
 			content: {
 				"application/json": {
 					schema: ApiErrorSchema,
@@ -789,7 +867,7 @@ npx @hey-api/openapi-ts -i https://cms.superfluid.pro/points/openapi.json \\
 
 ### Authentication
 
-**Query Endpoints** (\`/balance\`, \`/signed-balance\`, \`/events\`): Public access, no authentication required. Use numeric \`campaignId\` as query parameter.
+**Query Endpoints** (\`/balance\`, \`/signed-balance\`, \`/events\`, \`/accounts\`): Public access, no authentication required. Use numeric \`campaignId\` as query parameter.
 
 **Push Endpoint** (\`/push\`): Requires API key in the \`X-API-Key\` header. API keys are scoped to a specific campaign.
 
@@ -877,10 +955,17 @@ const { data: campaigns } = await client.POST('/points/balance-batch', {
   body: { campaignIds: [1, 2, 3], account: '0x1234...' }
 });
 // { address, campaignIds, points, warnings? }
+
+// Leaderboard - all accounts ranked by points (GET)
+const { data: leaderboard } = await client.GET('/points/accounts', {
+  params: { query: { campaignId: 42, orderBy: 'totalPoints', order: 'desc' } }
+});
+// { accounts: [{ account, totalPoints, eventCount, lastEventAt }], pagination }
 \`\`\`
 
 > **Note:** Stack.so only offered \`getSignedPointsBatch()\` for querying multiple campaigns (signed).
 > The unsigned \`/points/balance-batch\` endpoint is a new capability.
+> The \`/points/accounts\` endpoint is a new leaderboard capability with no Stack.so equivalent.
 
 ### Signed Points (On-Chain Verification)
 
