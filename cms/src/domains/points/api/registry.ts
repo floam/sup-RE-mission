@@ -867,7 +867,7 @@ npx @hey-api/openapi-ts -i https://cms.superfluid.pro/points/openapi.json \\
 
 ### Authentication
 
-**Query Endpoints** (\`/balance\`, \`/signed-balance\`, \`/events\`): Public access, no authentication required. Use numeric \`campaignId\` as query parameter.
+**Query Endpoints** (\`/balance\`, \`/signed-balance\`, \`/events\`, \`/accounts\`): Public access, no authentication required. Use numeric \`campaignId\` as query parameter.
 
 **Push Endpoint** (\`/push\`): Requires API key in the \`X-API-Key\` header. API keys are scoped to a specific campaign.
 
@@ -955,10 +955,17 @@ const { data: campaigns } = await client.POST('/points/balance-batch', {
   body: { campaignIds: [1, 2, 3], account: '0x1234...' }
 });
 // { address, campaignIds, points, warnings? }
+
+// Leaderboard - all accounts ranked by points (GET)
+const { data: leaderboard } = await client.GET('/points/accounts', {
+  params: { query: { campaignId: 42, orderBy: 'totalPoints', order: 'desc' } }
+});
+// { accounts: [{ account, totalPoints, eventCount, lastEventAt }], pagination }
 \`\`\`
 
 > **Note:** Stack.so only offered \`getSignedPointsBatch()\` for querying multiple campaigns (signed).
 > The unsigned \`/points/balance-batch\` endpoint is a new capability.
+> The \`/points/accounts\` endpoint is a new leaderboard capability with no Stack.so equivalent.
 
 ### Signed Points (On-Chain Verification)
 
