@@ -380,6 +380,74 @@ export const PushResponseSchema = z
 	})
 
 // ============================================
+// Campaign Accounts Endpoint Schemas
+// ============================================
+
+export const CampaignAccountsQuerySchema = z
+	.object({
+		campaignId: z.coerce.number().int().positive().openapi({
+			example: 42,
+			description: "Campaign ID",
+		}),
+		orderBy: z.enum(["totalPoints", "eventCount", "lastEventAt"]).optional().openapi({
+			example: "totalPoints",
+			description: "Field to order results by (default: totalPoints)",
+		}),
+		order: z.enum(["asc", "desc"]).optional().openapi({
+			example: "desc",
+			description: "Sort order (default: desc)",
+		}),
+		limit: z.coerce.number().int().min(1).max(100).optional().openapi({
+			example: 50,
+			description: "Number of results per page (1-100, default: 50)",
+		}),
+		page: z.coerce.number().int().positive().optional().openapi({
+			example: 1,
+			description: "Page number (default: 1)",
+		}),
+	})
+	.openapi({
+		title: "CampaignAccountsQuery",
+		description: "Query parameters for campaign accounts (leaderboard) endpoint",
+	})
+
+export const CampaignAccountSchema = z
+	.object({
+		account: z.string().openapi({
+			example: "0x1234567890abcdef1234567890abcdef12345678",
+			description: "Ethereum wallet address",
+		}),
+		totalPoints: z.number().openapi({
+			example: 1500,
+			description: "Total accumulated points in the campaign",
+		}),
+		eventCount: z.number().openapi({
+			example: 42,
+			description: "Total number of point events for this account",
+		}),
+		lastEventAt: z.string().nullable().openapi({
+			example: "2026-01-15T12:00:00.000Z",
+			description: "ISO 8601 timestamp of the most recent event, or null if no events",
+		}),
+	})
+	.openapi({
+		title: "CampaignAccount",
+		description: "Account entry with point balance and metadata for a campaign",
+	})
+
+export const CampaignAccountsResponseSchema = z
+	.object({
+		accounts: z.array(CampaignAccountSchema).openapi({
+			description: "List of accounts with their point balances",
+		}),
+		pagination: PaginationSchema,
+	})
+	.openapi({
+		title: "CampaignAccountsResponse",
+		description: "Paginated list of campaign accounts for leaderboard display",
+	})
+
+// ============================================
 // Signed Balance Endpoint Schemas
 // ============================================
 

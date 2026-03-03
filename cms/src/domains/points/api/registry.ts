@@ -5,6 +5,9 @@ import {
 	BalanceBatchResponseSchema,
 	BalancePostBodySchema,
 	BalanceQuerySchema,
+	CampaignAccountSchema,
+	CampaignAccountsQuerySchema,
+	CampaignAccountsResponseSchema,
 	EventBalanceQuerySchema,
 	EventBalanceResponseSchema,
 	EventsQuerySchema,
@@ -34,6 +37,8 @@ pointsRegistry.register("SignedBalanceResponse", SignedBalanceResponseSchema)
 pointsRegistry.register("SignedBalanceBatchResponse", SignedBalanceBatchResponseSchema)
 pointsRegistry.register("BalanceBatchResponse", BalanceBatchResponseSchema)
 pointsRegistry.register("EventBalanceResponse", EventBalanceResponseSchema)
+pointsRegistry.register("CampaignAccount", CampaignAccountSchema)
+pointsRegistry.register("CampaignAccountsResponse", CampaignAccountsResponseSchema)
 pointsRegistry.register("ApiError", ApiErrorSchema)
 
 // Register security scheme
@@ -267,6 +272,79 @@ This endpoint queries the raw point events and aggregates on-demand, unlike \`/b
 		},
 		400: {
 			description: "Invalid request (missing campaignId/eventName or invalid address)",
+			content: {
+				"application/json": {
+					schema: ApiErrorSchema,
+				},
+			},
+		},
+		404: {
+			description: "Campaign not found",
+			content: {
+				"application/json": {
+					schema: ApiErrorSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				"application/json": {
+					schema: ApiErrorSchema,
+				},
+			},
+		},
+	},
+})
+
+// ============================================
+// GET /points/accounts
+// ============================================
+pointsRegistry.registerPath({
+	method: "get",
+	path: "/points/accounts",
+	summary: "Get campaign accounts (leaderboard)",
+	description:
+		"Retrieves all accounts in a campaign with their point balances, event counts, and last event timestamps. Results are paginated and sortable, making this ideal for building leaderboard views.",
+	tags: ["Balance"],
+	request: {
+		query: CampaignAccountsQuerySchema,
+	},
+	responses: {
+		200: {
+			description: "Campaign accounts retrieved successfully",
+			content: {
+				"application/json": {
+					schema: CampaignAccountsResponseSchema,
+					example: {
+						accounts: [
+							{
+								account: "0x1234567890abcdef1234567890abcdef12345678",
+								totalPoints: 1500,
+								eventCount: 42,
+								lastEventAt: "2026-01-15T12:00:00.000Z",
+							},
+							{
+								account: "0xabcdef1234567890abcdef1234567890abcdef12",
+								totalPoints: 750,
+								eventCount: 18,
+								lastEventAt: "2026-01-14T08:30:00.000Z",
+							},
+						],
+						pagination: {
+							page: 1,
+							limit: 50,
+							totalDocs: 150,
+							totalPages: 3,
+							hasNextPage: true,
+							hasPrevPage: false,
+						},
+					},
+				},
+			},
+		},
+		400: {
+			description: "Invalid request (missing/invalid campaignId, invalid orderBy, or invalid pagination)",
 			content: {
 				"application/json": {
 					schema: ApiErrorSchema,

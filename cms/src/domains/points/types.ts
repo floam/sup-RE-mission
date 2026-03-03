@@ -88,3 +88,21 @@ export const eventBalanceResponseSchema = z.object({
 })
 
 export type EventBalanceResponse = z.infer<typeof eventBalanceResponseSchema>
+
+// Campaign account response (for leaderboard)
+export const campaignAccountResponseSchema = z.object({
+	account: z.string(),
+	totalPoints: z.number(),
+	eventCount: z.number(),
+	lastEventAt: z.string().nullable(),
+})
+
+export type CampaignAccountResponse = z.infer<typeof campaignAccountResponseSchema>
+
+// Campaign accounts list response
+export const campaignAccountsResponseSchema = z.object({
+	accounts: z.array(campaignAccountResponseSchema),
+	pagination: paginationSchema,
+})
+
+export type CampaignAccountsResponse = z.infer<typeof campaignAccountsResponseSchema>
