@@ -29,11 +29,14 @@ export async function getCampaignTotalPoints(payload: BasePayload, campaignId: n
  * If the user's actual points are below the cap, they're returned as-is.
  * Points of 0 or negative are never capped upward.
  */
-export function applyPointsCap(userPoints: number, totalCampaignPoints: number): number {
+export function applyPointsCap(
+	userPoints: number,
+	totalCampaignPoints: number,
+): { points: number; uncappedPoints: number } {
 	if (userPoints <= 0) {
-		return userPoints
+		return { points: userPoints, uncappedPoints: userPoints }
 	}
 
 	const cap = Math.max(CAP_MINIMUM, Math.floor(totalCampaignPoints * CAP_PERCENTAGE))
-	return Math.min(userPoints, cap)
+	return { points: Math.min(userPoints, cap), uncappedPoints: userPoints }
 }

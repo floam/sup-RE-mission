@@ -68,7 +68,8 @@ export const GET = async (request: Request): Promise<Response> => {
 
 		// Apply points cap: limit to max(500, 5% of total campaign points)
 		const totalCampaignPoints = await getCampaignTotalPoints(payload, campaign.id)
-		points = applyPointsCap(points, totalCampaignPoints)
+		const { points: cappedPoints, uncappedPoints } = applyPointsCap(points, totalCampaignPoints)
+		points = cappedPoints
 
 		// Create message hash: keccak256(encodePacked([address, points, campaignId, timestamp]))
 		const signatureTimestamp = Math.floor(Date.now() / 1000)
@@ -90,6 +91,7 @@ export const GET = async (request: Request): Promise<Response> => {
 		return Response.json({
 			address: accountLower,
 			points,
+			uncappedPoints,
 			signatureTimestamp,
 			signature: signingResult.signature,
 			signer: signingResult.signer,

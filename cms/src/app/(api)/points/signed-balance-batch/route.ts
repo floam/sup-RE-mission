@@ -113,12 +113,16 @@ export const POST = async (request: Request): Promise<Response> => {
 			}),
 		)
 
-		// Build points array in same order as requested campaigns
-		const pointsArray = validIds.map((id) => {
+		// Build points arrays in same order as requested campaigns
+		const pointsArray: number[] = []
+		const uncappedPointsArray: number[] = []
+		for (const id of validIds) {
 			const rawPoints = balanceMap.get(id) ?? 0
 			const totalCampaignPoints = totalPointsMap.get(id) ?? 0
-			return applyPointsCap(rawPoints, totalCampaignPoints)
-		})
+			const { points, uncappedPoints } = applyPointsCap(rawPoints, totalCampaignPoints)
+			pointsArray.push(points)
+			uncappedPointsArray.push(uncappedPoints)
+		}
 
 		// Create message hash: keccak256(encodePacked([address, points[], campaigns[], timestamp]))
 		const signatureTimestamp = Math.floor(Date.now() / 1000)
@@ -146,6 +150,7 @@ export const POST = async (request: Request): Promise<Response> => {
 			address: accountLower,
 			campaignIds: validIds,
 			points: pointsArray,
+			uncappedPoints: uncappedPointsArray,
 			signatureTimestamp,
 			signature: signingResult.signature,
 			signer: signingResult.signer,
