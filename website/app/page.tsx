@@ -47,13 +47,13 @@ export default function Home() {
 					</a>
 
 					<a
-						href={process.env.NEXT_PUBLIC_MCP_DOCS_URL}
-						className="mcp-card group relative p-10 rounded-3xl border border-foreground/10 bg-gradient-to-br from-foreground/[0.02] to-transparent backdrop-blur-sm hover:border-foreground/20 transition-all duration-500 flex flex-col h-full"
+						href="https://skills.superfluid.org/"
+						className="skill-card group relative p-10 rounded-3xl border border-foreground/10 bg-gradient-to-br from-foreground/[0.02] to-transparent backdrop-blur-sm hover:border-foreground/20 transition-all duration-500 flex flex-col h-full"
 					>
 						<div className="flex-1">
-							<h2 className="text-2xl font-semibold mb-3 font-[family-name:var(--font-gt-walsheim)]">MCP</h2>
+							<h2 className="text-2xl font-semibold mb-3 font-[family-name:var(--font-gt-walsheim)]">AI Skill</h2>
 							<p className="text-foreground/60 leading-relaxed">
-								Superfluid integration for Claude, Cursor, and other MCP-compatible AI assistants.
+								Superfluid integration for Claude, Cursor, and other AI-powered coding tools.
 							</p>
 						</div>
 						<div className="mt-8 text-foreground/60 group-hover:text-foreground transition-colors font-medium flex items-center gap-2">
