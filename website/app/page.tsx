@@ -1,6 +1,6 @@
 export default function Home() {
 	return (
-		<div className="min-h-screen flex flex-col items-center justify-center p-8 relative overflow-hidden test">
+		<div className="min-h-screen flex flex-col items-center justify-center p-8 relative overflow-hidden">
 			{/* Hero Pattern Background - Polka Dots  */}
 			<div
 				className="absolute inset-0"
