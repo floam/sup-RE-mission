@@ -6,7 +6,7 @@ import { point_balances } from "@/payload-drizzle-schema"
 const CAP_PERCENTAGE = 0.05
 
 /** Minimum cap value so early claimers aren't unfairly limited. */
-const CAP_MINIMUM = 500
+const CAP_MINIMUM = 100
 
 /**
  * Fetches the total points distributed in a campaign using a DB aggregate.
