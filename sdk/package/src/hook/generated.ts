@@ -1956,6 +1956,38 @@ export const superTokenAbi = [
     name: 'Transfer',
   },
   {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'yieldBackend',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'YieldBackendDisabled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'yieldBackend',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'depositAmount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'YieldBackendEnabled',
+  },
+  {
     type: 'function',
     inputs: [],
     name: 'DOMAIN_SEPARATOR',
@@ -1978,6 +2010,13 @@ export const superTokenAbi = [
     outputs: [
       { name: '', internalType: 'contract IPoolMemberNFT', type: 'address' },
     ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'VERSION',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
     stateMutability: 'view',
   },
   {
@@ -2074,6 +2113,13 @@ export const superTokenAbi = [
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'disableYieldBackend',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [{ name: 'amount', internalType: 'uint256', type: 'uint256' }],
     name: 'downgrade',
     outputs: [],
@@ -2103,6 +2149,19 @@ export const superTokenAbi = [
       { name: 'extensions', internalType: 'uint256[]', type: 'uint256[]' },
     ],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: 'newYieldBackend',
+        internalType: 'contract IYieldBackend',
+        type: 'address',
+      },
+    ],
+    name: 'enableYieldBackend',
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -2176,6 +2235,13 @@ export const superTokenAbi = [
     type: 'function',
     inputs: [],
     name: 'getUnderlyingToken',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getYieldBackend',
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
   },
@@ -2656,6 +2722,13 @@ export const superTokenAbi = [
       { name: 'userData', internalType: 'bytes', type: 'bytes' },
     ],
     name: 'upgradeTo',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'withdrawSurplusFromYieldBackend',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -4579,6 +4652,14 @@ export const useReadSuperTokenPoolMemberNft =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link superTokenAbi}__ and `functionName` set to `"VERSION"`
+ */
+export const useReadSuperTokenVersion = /*#__PURE__*/ createUseReadContract({
+  abi: superTokenAbi,
+  functionName: 'VERSION',
+})
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link superTokenAbi}__ and `functionName` set to `"allowance"`
  */
 export const useReadSuperTokenAllowance = /*#__PURE__*/ createUseReadContract({
@@ -4688,6 +4769,15 @@ export const useReadSuperTokenGetUnderlyingToken =
   /*#__PURE__*/ createUseReadContract({
     abi: superTokenAbi,
     functionName: 'getUnderlyingToken',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link superTokenAbi}__ and `functionName` set to `"getYieldBackend"`
+ */
+export const useReadSuperTokenGetYieldBackend =
+  /*#__PURE__*/ createUseReadContract({
+    abi: superTokenAbi,
+    functionName: 'getYieldBackend',
   })
 
 /**
@@ -4877,6 +4967,15 @@ export const useWriteSuperTokenDecreaseAllowance =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link superTokenAbi}__ and `functionName` set to `"disableYieldBackend"`
+ */
+export const useWriteSuperTokenDisableYieldBackend =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: superTokenAbi,
+    functionName: 'disableYieldBackend',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link superTokenAbi}__ and `functionName` set to `"downgrade"`
  */
 export const useWriteSuperTokenDowngrade = /*#__PURE__*/ createUseWriteContract(
@@ -4890,6 +4989,15 @@ export const useWriteSuperTokenDowngradeTo =
   /*#__PURE__*/ createUseWriteContract({
     abi: superTokenAbi,
     functionName: 'downgradeTo',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link superTokenAbi}__ and `functionName` set to `"enableYieldBackend"`
+ */
+export const useWriteSuperTokenEnableYieldBackend =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: superTokenAbi,
+    functionName: 'enableYieldBackend',
   })
 
 /**
@@ -5173,6 +5281,15 @@ export const useWriteSuperTokenUpgradeTo = /*#__PURE__*/ createUseWriteContract(
 )
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link superTokenAbi}__ and `functionName` set to `"withdrawSurplusFromYieldBackend"`
+ */
+export const useWriteSuperTokenWithdrawSurplusFromYieldBackend =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: superTokenAbi,
+    functionName: 'withdrawSurplusFromYieldBackend',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link superTokenAbi}__ and `functionName` set to `"downgradeToETH"`
  */
 export const useWriteSuperTokenDowngradeToEth =
@@ -5270,6 +5387,15 @@ export const useSimulateSuperTokenDecreaseAllowance =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link superTokenAbi}__ and `functionName` set to `"disableYieldBackend"`
+ */
+export const useSimulateSuperTokenDisableYieldBackend =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: superTokenAbi,
+    functionName: 'disableYieldBackend',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link superTokenAbi}__ and `functionName` set to `"downgrade"`
  */
 export const useSimulateSuperTokenDowngrade =
@@ -5285,6 +5411,15 @@ export const useSimulateSuperTokenDowngradeTo =
   /*#__PURE__*/ createUseSimulateContract({
     abi: superTokenAbi,
     functionName: 'downgradeTo',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link superTokenAbi}__ and `functionName` set to `"enableYieldBackend"`
+ */
+export const useSimulateSuperTokenEnableYieldBackend =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: superTokenAbi,
+    functionName: 'enableYieldBackend',
   })
 
 /**
@@ -5576,6 +5711,15 @@ export const useSimulateSuperTokenUpgradeTo =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link superTokenAbi}__ and `functionName` set to `"withdrawSurplusFromYieldBackend"`
+ */
+export const useSimulateSuperTokenWithdrawSurplusFromYieldBackend =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: superTokenAbi,
+    functionName: 'withdrawSurplusFromYieldBackend',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link superTokenAbi}__ and `functionName` set to `"downgradeToETH"`
  */
 export const useSimulateSuperTokenDowngradeToEth =
@@ -5804,4 +5948,22 @@ export const useWatchSuperTokenTransferEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: superTokenAbi,
     eventName: 'Transfer',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link superTokenAbi}__ and `eventName` set to `"YieldBackendDisabled"`
+ */
+export const useWatchSuperTokenYieldBackendDisabledEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: superTokenAbi,
+    eventName: 'YieldBackendDisabled',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link superTokenAbi}__ and `eventName` set to `"YieldBackendEnabled"`
+ */
+export const useWatchSuperTokenYieldBackendEnabledEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: superTokenAbi,
+    eventName: 'YieldBackendEnabled',
   })
