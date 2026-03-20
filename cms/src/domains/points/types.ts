@@ -69,6 +69,7 @@ export type PointEventsResponse = z.infer<typeof pointEventsResponseSchema>
 export const pointBalanceResponseSchema = z.object({
 	account: z.string(),
 	points: z.number(),
+	cappedPoints: z.number(),
 })
 
 export type PointBalanceResponse = z.infer<typeof pointBalanceResponseSchema>

@@ -1,5 +1,6 @@
 import { isAddress } from "viem"
 import type { PointBalanceResponse, PointBalancesResponse } from "@/domains/points/types"
+import { applyPointsCap, getCampaignTotalPoints } from "@/domains/points/utils/points-cap"
 import { getPayloadInstance } from "@/payload"
 
 /**
@@ -54,7 +55,9 @@ export const GET = async (request: Request): Promise<Response> => {
 		})
 
 		const points = result.docs[0]?.totalPoints ?? 0
-		const response: PointBalanceResponse = { account, points }
+		const totalCampaignPoints = await getCampaignTotalPoints(payload, campaignId)
+		const { points: cappedPoints } = applyPointsCap(points, totalCampaignPoints)
+		const response: PointBalanceResponse = { account, points, cappedPoints }
 
 		return Response.json(response)
 	} catch (error) {
@@ -149,11 +152,14 @@ export const POST = async (request: Request): Promise<Response> => {
 			balanceMap.set(doc.account, doc.totalPoints)
 		}
 
+		const totalCampaignPoints = await getCampaignTotalPoints(payload, campaignId)
+
 		const response: PointBalancesResponse = {
-			balances: normalizedAccounts.map((account) => ({
-				account,
-				points: balanceMap.get(account) ?? 0,
-			})),
+			balances: normalizedAccounts.map((account) => {
+				const points = balanceMap.get(account) ?? 0
+				const { points: cappedPoints } = applyPointsCap(points, totalCampaignPoints)
+				return { account, points, cappedPoints }
+			}),
 		}
 
 		return Response.json(response)

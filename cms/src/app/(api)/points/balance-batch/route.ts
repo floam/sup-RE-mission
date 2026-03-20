@@ -1,4 +1,5 @@
 import { isAddress } from "viem"
+import { applyPointsCap, getCampaignTotalPoints } from "@/domains/points/utils/points-cap"
 import { getPayloadInstance } from "@/payload"
 
 const MAX_CAMPAIGNS = 50
@@ -95,14 +96,22 @@ export const POST = async (request: Request): Promise<Response> => {
 			}
 		}
 
-		// Build points array in same order as requested campaigns
+		// Fetch total points per campaign in parallel for cap calculation
+		const totalPointsPerCampaign = await Promise.all(validIds.map((id) => getCampaignTotalPoints(payload, id)))
+
+		// Build points and cappedPoints arrays in same order as requested campaigns
 		// Missing campaigns get 0 points
 		const pointsArray = validIds.map((id) => balanceMap.get(id) ?? 0)
+		const cappedPointsArray = pointsArray.map((points, i) => {
+			const { points: cappedPoints } = applyPointsCap(points, totalPointsPerCampaign[i])
+			return cappedPoints
+		})
 
 		return Response.json({
 			address: accountLower,
 			campaignIds: validIds,
 			points: pointsArray,
+			cappedPoints: cappedPointsArray,
 			...(warnings.length > 0 && { warnings }),
 		})
 	} catch (error) {
