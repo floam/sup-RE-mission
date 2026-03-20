@@ -1949,6 +1949,38 @@ export const superTokenAbi = [
     name: 'Transfer',
   },
   {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'yieldBackend',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'YieldBackendDisabled',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'yieldBackend',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'depositAmount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'YieldBackendEnabled',
+  },
+  {
     type: 'function',
     inputs: [],
     name: 'DOMAIN_SEPARATOR',
@@ -1971,6 +2003,13 @@ export const superTokenAbi = [
     outputs: [
       { name: '', internalType: 'contract IPoolMemberNFT', type: 'address' },
     ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'VERSION',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
     stateMutability: 'view',
   },
   {
@@ -2067,6 +2106,13 @@ export const superTokenAbi = [
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'disableYieldBackend',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [{ name: 'amount', internalType: 'uint256', type: 'uint256' }],
     name: 'downgrade',
     outputs: [],
@@ -2096,6 +2142,19 @@ export const superTokenAbi = [
       { name: 'extensions', internalType: 'uint256[]', type: 'uint256[]' },
     ],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: 'newYieldBackend',
+        internalType: 'contract IYieldBackend',
+        type: 'address',
+      },
+    ],
+    name: 'enableYieldBackend',
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -2169,6 +2228,13 @@ export const superTokenAbi = [
     type: 'function',
     inputs: [],
     name: 'getUnderlyingToken',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getYieldBackend',
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
   },
@@ -2649,6 +2715,13 @@ export const superTokenAbi = [
       { name: 'userData', internalType: 'bytes', type: 'bytes' },
     ],
     name: 'upgradeTo',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'withdrawSurplusFromYieldBackend',
     outputs: [],
     stateMutability: 'nonpayable',
   },

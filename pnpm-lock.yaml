@@ -656,8 +656,8 @@ importers:
         version: 19.2.4
     devDependencies:
       '@superfluid-finance/ethereum-contracts':
-        specifier: ^1.14.1
-        version: 1.14.1(@openzeppelin/contracts@4.9.6)(@openzeppelin/test-helpers@0.5.16(bn.js@5.2.2)(bufferutil@4.1.0)(encoding@0.1.13)(utf-8-validate@5.0.10))(bufferutil@4.1.0)(encoding@0.1.13)(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(typescript@5.9.3)(utf-8-validate@5.0.10)
+        specifier: ^1.15.0
+        version: 1.15.0(@openzeppelin/contracts@4.9.6)(@openzeppelin/test-helpers@0.5.16(bn.js@5.2.2)(bufferutil@4.1.0)(encoding@0.1.13)(utf-8-validate@5.0.10))(bufferutil@4.1.0)(encoding@0.1.13)(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)
       '@superfluid-finance/metadata':
         specifier: ^1.6.2
         version: 1.6.2
@@ -3607,37 +3607,37 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@nomicfoundation/edr-darwin-arm64@0.11.3':
-    resolution: {integrity: sha512-w0tksbdtSxz9nuzHKsfx4c2mwaD0+l5qKL2R290QdnN9gi9AV62p9DHkOgfBdyg6/a6ZlnQqnISi7C9avk/6VA==}
-    engines: {node: '>= 18'}
+  '@nomicfoundation/edr-darwin-arm64@0.12.0-next.16':
+    resolution: {integrity: sha512-no/8BPVBzVxDGGbDba0zsAxQmVNIq6SLjKzzhCxVKt4tatArXa6+24mr4jXJEmhVBvTNpQsNBO+MMpuEDVaTzQ==}
+    engines: {node: '>= 20'}
 
-  '@nomicfoundation/edr-darwin-x64@0.11.3':
-    resolution: {integrity: sha512-QR4jAFrPbOcrO7O2z2ESg+eUeIZPe2bPIlQYgiJ04ltbSGW27FblOzdd5+S3RoOD/dsZGKAvvy6dadBEl0NgoA==}
-    engines: {node: '>= 18'}
+  '@nomicfoundation/edr-darwin-x64@0.12.0-next.16':
+    resolution: {integrity: sha512-tf36YbcC6po3XYRbi+v0gjwzqg1MvyRqVUujNMXPHgjNWATXNRNOLyjwt2qDn+RD15qtzk70SHVnz9n9mPWzwg==}
+    engines: {node: '>= 20'}
 
-  '@nomicfoundation/edr-linux-arm64-gnu@0.11.3':
-    resolution: {integrity: sha512-Ktjv89RZZiUmOFPspuSBVJ61mBZQ2+HuLmV67InNlh9TSUec/iDjGIwAn59dx0bF/LOSrM7qg5od3KKac4LJDQ==}
-    engines: {node: '>= 18'}
+  '@nomicfoundation/edr-linux-arm64-gnu@0.12.0-next.16':
+    resolution: {integrity: sha512-Kr6t9icKSaKtPVbb0TjUcbn3XHqXOGIn+KjKKSSpm6542OkL0HyOi06amh6/8CNke9Gf6Lwion8UJ0aGQhnFwA==}
+    engines: {node: '>= 20'}
 
-  '@nomicfoundation/edr-linux-arm64-musl@0.11.3':
-    resolution: {integrity: sha512-B3sLJx1rL2E9pfdD4mApiwOZSrX0a/KQSBWdlq1uAhFKqkl00yZaY4LejgZndsJAa4iKGQJlGnw4HCGeVt0+jA==}
-    engines: {node: '>= 18'}
+  '@nomicfoundation/edr-linux-arm64-musl@0.12.0-next.16':
+    resolution: {integrity: sha512-HaStgfxctSg5PYF+6ooDICL1O59KrgM4XEUsIqoRrjrQax9HnMBXcB8eAj+0O52FWiO9FlchBni2dzh4RjQR2g==}
+    engines: {node: '>= 20'}
 
-  '@nomicfoundation/edr-linux-x64-gnu@0.11.3':
-    resolution: {integrity: sha512-D/4cFKDXH6UYyKPu6J3Y8TzW11UzeQI0+wS9QcJzjlrrfKj0ENW7g9VihD1O2FvXkdkTjcCZYb6ai8MMTCsaVw==}
-    engines: {node: '>= 18'}
+  '@nomicfoundation/edr-linux-x64-gnu@0.12.0-next.16':
+    resolution: {integrity: sha512-8JPTxEZkwOPTgnN4uTWut9ze9R8rp7+T4IfmsKK9i+lDtdbJIxkrFY275YHG2BEYLd7Y5jTa/I4nC74ZpTAvpA==}
+    engines: {node: '>= 20'}
 
-  '@nomicfoundation/edr-linux-x64-musl@0.11.3':
-    resolution: {integrity: sha512-ergXuIb4nIvmf+TqyiDX5tsE49311DrBky6+jNLgsGDTBaN1GS3OFwFS8I6Ri/GGn6xOaT8sKu3q7/m+WdlFzg==}
-    engines: {node: '>= 18'}
+  '@nomicfoundation/edr-linux-x64-musl@0.12.0-next.16':
+    resolution: {integrity: sha512-KugTrq3iHukbG64DuCYg8uPgiBtrrtX4oZSLba5sjocp0Ul6WWI1FeP1Qule+vClUrHSpJ+wR1G6SE7G0lyS/Q==}
+    engines: {node: '>= 20'}
 
-  '@nomicfoundation/edr-win32-x64-msvc@0.11.3':
-    resolution: {integrity: sha512-snvEf+WB3OV0wj2A7kQ+ZQqBquMcrozSLXcdnMdEl7Tmn+KDCbmFKBt3Tk0X3qOU4RKQpLPnTxdM07TJNVtung==}
-    engines: {node: '>= 18'}
+  '@nomicfoundation/edr-win32-x64-msvc@0.12.0-next.16':
+    resolution: {integrity: sha512-Idy0ZjurxElfSmepUKXh6QdptLbW5vUNeIaydvqNogWoTbkJIM6miqZd9lXUy1TYxY7G4Rx5O50c52xc4pFwXQ==}
+    engines: {node: '>= 20'}
 
-  '@nomicfoundation/edr@0.11.3':
-    resolution: {integrity: sha512-kqILRkAd455Sd6v8mfP3C1/0tCOynJWY+Ir+k/9Boocu2kObCrsFgG+ZWB7fSBVdd9cPVSNrnhWS+V+PEo637g==}
-    engines: {node: '>= 18'}
+  '@nomicfoundation/edr@0.12.0-next.16':
+    resolution: {integrity: sha512-bBL/nHmQwL1WCveALwg01VhJcpVVklJyunG1d/bhJbHgbjzAn6kohVJc7A6gFZegw+Rx38vdxpBkeCDjAEprzw==}
+    engines: {node: '>= 20'}
 
   '@nomicfoundation/solidity-analyzer-darwin-arm64@0.1.2':
     resolution: {integrity: sha512-JaqcWPDZENCvm++lFFGjrDd8mxtf+CtLd2MiXvMNTBD33dContTZ9TWETwNFwg7JTJT5Q9HEecH7FA+HTSsIUw==}
@@ -3863,6 +3863,9 @@ packages:
       payload: 3.74.0
       react: ^19.0.1 || ^19.1.2 || ^19.2.1
       react-dom: ^19.0.1 || ^19.1.2 || ^19.2.1
+
+  '@peculiar/asn1-schema@2.6.0':
+    resolution: {integrity: sha512-xNLYLBFTBKkCzEZIw842BxytQQATQv+lDTCEMZ8C196iJcJJMBUZxrhSTxLaohMyKK8QlzRNTRkUmanucnDSqg==}
 
   '@phosphor-icons/core@2.1.1':
     resolution: {integrity: sha512-v4ARvrip4qBCImOE5rmPUylOEK4iiED9ZyKjcvzuezqMaiRASCHKcRIuvvxL/twvLpkfnEODCOJp5dM4eZilxQ==}
@@ -4569,15 +4572,30 @@ packages:
     peerDependencies:
       typescript: ^5.9.3
 
+  '@safe-global/api-kit@4.0.1':
+    resolution: {integrity: sha512-pNtDLgMHlCSr4Hwwe6jsnvMheAu2SZCTqjYlnNe4cKH2pSKINVRTiILoeJ0wOpixrMCH4NlgJ+9N3QruRNcCpQ==}
+
+  '@safe-global/protocol-kit@6.1.2':
+    resolution: {integrity: sha512-cTpPdUAS2AMfGCkD1T601rQNjT0rtMQLA2TH7L/C+iFPAC6WrrDFop2B9lzeHjczlnVzrRpfFe4cL1bLrJ9NZw==}
+
   '@safe-global/safe-apps-provider@0.18.6':
     resolution: {integrity: sha512-4LhMmjPWlIO8TTDC2AwLk44XKXaK6hfBTWyljDm0HQ6TWlOEijVWNrt2s3OCVMSxlXAcEzYfqyu1daHZooTC2Q==}
 
   '@safe-global/safe-apps-sdk@9.1.0':
     resolution: {integrity: sha512-N5p/ulfnnA2Pi2M3YeWjULeWbjo7ei22JwU/IXnhoHzKq3pYCN6ynL9mJBOlvDVv892EgLPCWCOwQk/uBT2v0Q==}
 
+  '@safe-global/safe-deployments@1.37.53':
+    resolution: {integrity: sha512-3XihirwKqcCi6jsipCiW3lYXra9i4pC9nlhHTdUyi7Yx38nBYIkXeLZN2Nmf2UPcQBeHGnW1T3DgzY4VnuF/FQ==}
+
   '@safe-global/safe-gateway-typescript-sdk@3.23.1':
     resolution: {integrity: sha512-6ORQfwtEJYpalCeVO21L4XXGSdbEMfyp2hEv6cP82afKXSwvse6d3sdelgaPWUxHIsFRkWvHDdzh8IyyKHZKxw==}
     engines: {node: '>=16'}
+
+  '@safe-global/safe-modules-deployments@2.2.25':
+    resolution: {integrity: sha512-KjgenKhBRyFHEfo8xlBgNzKAy25vrmGyCGZwTjIuA81yOSRJRe85GE5Yfg/FBKeeyHqR2dD1WPZr6c2Uqd6C/g==}
+
+  '@safe-global/types-kit@3.0.0':
+    resolution: {integrity: sha512-AZWIlR5MguDPdGiOj7BB4JQPY2afqmWQww1mu8m8Oi16HHBW99G01kFOu4NEHBwEU1cgwWOMY19hsI5KyL4W2w==}
 
   '@scalar/agent-chat@0.4.8':
     resolution: {integrity: sha512-cDOmLDZiF7Sa9qIKxzVo5KAv/3swvIHTVwUX4HMAnZ4DNWbkDGcK9kjGMYTguTFSIPfk4HX/CeYEyKImk97+eA==}
@@ -5283,8 +5301,8 @@ packages:
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
-  '@superfluid-finance/ethereum-contracts@1.14.1':
-    resolution: {integrity: sha512-0A555LG1RosaR1+IYVySuIme0xvWuA+rMxJdQrmL7uhyIwxIMbhPV3HWsZXw3R20B/Cf87bp5c2SdrBw8BFjSw==}
+  '@superfluid-finance/ethereum-contracts@1.15.0':
+    resolution: {integrity: sha512-e0lR6DfsuGmCV4w/RXAdJaabLPGoKAhSlGctGDiZieddH0EgNWJByNP3sv/CzM2JVt0hBYL8owczOA28/oXGJg==}
     peerDependencies:
       '@openzeppelin/contracts': ^5.0.0
       ethers: ^5.7.2
@@ -6527,6 +6545,10 @@ packages:
 
   asn1@0.2.6:
     resolution: {integrity: sha512-ix/FxPn0MDjeyJ7i/yoHGFt/EX6LyNbxSEhPPXODPL+KB0VPk86UYfL0lMdy+KCnv+fmvIzySwaK5COwqVbWTQ==}
+
+  asn1js@3.0.7:
+    resolution: {integrity: sha512-uLvq6KJu04qoQM6gvBfKFjlh6Gl0vOKQuR5cJMDHQkmwfMOQeN3F3SHCv9SNYSL+CRoHvOGFfllDlVz03GQjvQ==}
+    engines: {node: '>=12.0.0'}
 
   assert-plus@1.0.0:
     resolution: {integrity: sha512-NfJ4UzBCcQGLDlQq7nHxH+tv3kyZ0hHQqF5BO6J7tNJeP5do1llPr8dZ8zHonfhAu0PHAdMkSo+8o0wxg9lZWw==}
@@ -8865,8 +8887,8 @@ packages:
     engines: {node: '>=6'}
     deprecated: this library is no longer supported
 
-  hardhat@2.26.1:
-    resolution: {integrity: sha512-CXWuUaTtehxiHPCdlitntctfeYRgujmXkNX5gnrD5jdA6HhRQt+WWBZE/gHXbE29y/wDmmUL2d652rI0ctjqjw==}
+  hardhat@2.27.2:
+    resolution: {integrity: sha512-2N51AWD3Hg9T+4+A1zmJ70RkJgHzK+JYASrRtSmD3nVsoceYrFxwIJHUucw5fuy7Z9x9JTSMGO5dgCYe7MX8FQ==}
     hasBin: true
     peerDependencies:
       ts-node: '*'
@@ -11531,6 +11553,13 @@ packages:
   pure-rand@6.1.0:
     resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
 
+  pvtsutils@1.3.6:
+    resolution: {integrity: sha512-PLgQXQ6H2FWCaeRak8vvk1GW462lMxB5s3Jm673N82zI4vqtVUPuZdffdZbPDFRoU8kAhItWFtPCWiPpp4/EDg==}
+
+  pvutils@1.1.5:
+    resolution: {integrity: sha512-KTqnxsgGiQ6ZAzZCVlJH5eOjSnvlyEgx1m8bkRJfOhmGRqfo5KLvmAlACQkrjEtOQ4B7wF9TdSLIs9O90MX9xA==}
+    engines: {node: '>=16.0.0'}
+
   qrcode@1.5.3:
     resolution: {integrity: sha512-puyri6ApkEHYiVl4CFzo1tDkAZ+ATcnbJrJ6RiBM1Fhctdn/ix9MTE3hRph33omisEbC/2fcfemsseiKgBPKZg==}
     engines: {node: '>=10.13.0'}
@@ -12975,9 +13004,9 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  uWebSockets.js@https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/fcfc622a4286909593b7f390056d89e0ca3b56b9:
-    resolution: {tarball: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/fcfc622a4286909593b7f390056d89e0ca3b56b9}
-    version: 20.57.0
+  uWebSockets.js@https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/a80dda2d22ba32cf174ef78cc8d743e910a9be21:
+    resolution: {tarball: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/a80dda2d22ba32cf174ef78cc8d743e910a9be21}
+    version: 20.60.0
 
   ua-parser-js@1.0.41:
     resolution: {integrity: sha512-LbBDqdIC5s8iROCUjMbW1f5dJQTEFB1+KO9ogbvlb3nm9n4YHa5p4KTvFPWvh2Hs8gZMBuiB1/8+pdfe/tDPug==}
@@ -16901,7 +16930,7 @@ snapshots:
       yargs: 17.7.2
     optionalDependencies:
       node-libcurl: 4.1.0(encoding@0.1.13)
-      uWebSockets.js: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/fcfc622a4286909593b7f390056d89e0ca3b56b9
+      uWebSockets.js: https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/a80dda2d22ba32cf174ef78cc8d743e910a9be21
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -18505,29 +18534,29 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
 
-  '@nomicfoundation/edr-darwin-arm64@0.11.3': {}
+  '@nomicfoundation/edr-darwin-arm64@0.12.0-next.16': {}
 
-  '@nomicfoundation/edr-darwin-x64@0.11.3': {}
+  '@nomicfoundation/edr-darwin-x64@0.12.0-next.16': {}
 
-  '@nomicfoundation/edr-linux-arm64-gnu@0.11.3': {}
+  '@nomicfoundation/edr-linux-arm64-gnu@0.12.0-next.16': {}
 
-  '@nomicfoundation/edr-linux-arm64-musl@0.11.3': {}
+  '@nomicfoundation/edr-linux-arm64-musl@0.12.0-next.16': {}
 
-  '@nomicfoundation/edr-linux-x64-gnu@0.11.3': {}
+  '@nomicfoundation/edr-linux-x64-gnu@0.12.0-next.16': {}
 
-  '@nomicfoundation/edr-linux-x64-musl@0.11.3': {}
+  '@nomicfoundation/edr-linux-x64-musl@0.12.0-next.16': {}
 
-  '@nomicfoundation/edr-win32-x64-msvc@0.11.3': {}
+  '@nomicfoundation/edr-win32-x64-msvc@0.12.0-next.16': {}
 
-  '@nomicfoundation/edr@0.11.3':
+  '@nomicfoundation/edr@0.12.0-next.16':
     dependencies:
-      '@nomicfoundation/edr-darwin-arm64': 0.11.3
-      '@nomicfoundation/edr-darwin-x64': 0.11.3
-      '@nomicfoundation/edr-linux-arm64-gnu': 0.11.3
-      '@nomicfoundation/edr-linux-arm64-musl': 0.11.3
-      '@nomicfoundation/edr-linux-x64-gnu': 0.11.3
-      '@nomicfoundation/edr-linux-x64-musl': 0.11.3
-      '@nomicfoundation/edr-win32-x64-msvc': 0.11.3
+      '@nomicfoundation/edr-darwin-arm64': 0.12.0-next.16
+      '@nomicfoundation/edr-darwin-x64': 0.12.0-next.16
+      '@nomicfoundation/edr-linux-arm64-gnu': 0.12.0-next.16
+      '@nomicfoundation/edr-linux-arm64-musl': 0.12.0-next.16
+      '@nomicfoundation/edr-linux-x64-gnu': 0.12.0-next.16
+      '@nomicfoundation/edr-linux-x64-musl': 0.12.0-next.16
+      '@nomicfoundation/edr-win32-x64-msvc': 0.12.0-next.16
 
   '@nomicfoundation/solidity-analyzer-darwin-arm64@0.1.2':
     optional: true
@@ -18560,10 +18589,10 @@ snapshots:
       '@nomicfoundation/solidity-analyzer-linux-x64-musl': 0.1.2
       '@nomicfoundation/solidity-analyzer-win32-x64-msvc': 0.1.2
 
-  '@nomiclabs/hardhat-ethers@2.2.3(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(hardhat@2.26.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10))':
+  '@nomiclabs/hardhat-ethers@2.2.3(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(hardhat@2.27.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10))':
     dependencies:
       ethers: 5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
-      hardhat: 2.26.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
+      hardhat: 2.27.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
 
   '@npmcli/agent@2.2.2':
     dependencies:
@@ -19042,6 +19071,13 @@ snapshots:
       - monaco-editor
       - supports-color
       - typescript
+
+  '@peculiar/asn1-schema@2.6.0':
+    dependencies:
+      asn1js: 3.0.7
+      pvtsutils: 1.3.6
+      tslib: 2.8.1
+    optional: true
 
   '@phosphor-icons/core@2.1.1': {}
 
@@ -20168,6 +20204,36 @@ snapshots:
       '@protobuf-ts/runtime': 2.11.1
       typescript: 5.9.3
 
+  '@safe-global/api-kit@4.0.1(bufferutil@4.1.0)(encoding@0.1.13)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)':
+    dependencies:
+      '@safe-global/protocol-kit': 6.1.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)
+      '@safe-global/types-kit': 3.0.0(typescript@5.9.3)(zod@4.3.6)
+      node-fetch: 2.7.0(encoding@0.1.13)
+      viem: 2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - typescript
+      - utf-8-validate
+      - zod
+
+  '@safe-global/protocol-kit@6.1.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)':
+    dependencies:
+      '@safe-global/safe-deployments': 1.37.53
+      '@safe-global/safe-modules-deployments': 2.2.25
+      '@safe-global/types-kit': 3.0.0(typescript@5.9.3)(zod@4.3.6)
+      abitype: 1.2.3(typescript@5.9.3)(zod@4.3.6)
+      semver: 7.7.3
+      viem: 2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)
+    optionalDependencies:
+      '@noble/curves': 1.9.7
+      '@peculiar/asn1-schema': 2.6.0
+    transitivePeerDependencies:
+      - bufferutil
+      - typescript
+      - utf-8-validate
+      - zod
+
   '@safe-global/safe-apps-provider@0.18.6(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
       '@safe-global/safe-apps-sdk': 9.1.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
@@ -20208,7 +20274,20 @@ snapshots:
       - utf-8-validate
       - zod
 
+  '@safe-global/safe-deployments@1.37.53':
+    dependencies:
+      semver: 7.7.3
+
   '@safe-global/safe-gateway-typescript-sdk@3.23.1': {}
+
+  '@safe-global/safe-modules-deployments@2.2.25': {}
+
+  '@safe-global/types-kit@3.0.0(typescript@5.9.3)(zod@4.3.6)':
+    dependencies:
+      abitype: 1.2.3(typescript@5.9.3)(zod@4.3.6)
+    transitivePeerDependencies:
+      - typescript
+      - zod
 
   '@scalar/agent-chat@0.4.8(axios@1.13.2)(change-case@5.4.4)(idb-keyval@6.2.2)(qrcode@1.5.3)(tailwindcss@4.1.18)(typescript@5.9.3)':
     dependencies:
@@ -21556,16 +21635,17 @@ snapshots:
 
   '@standard-schema/spec@1.1.0': {}
 
-  '@superfluid-finance/ethereum-contracts@1.14.1(@openzeppelin/contracts@4.9.6)(@openzeppelin/test-helpers@0.5.16(bn.js@5.2.2)(bufferutil@4.1.0)(encoding@0.1.13)(utf-8-validate@5.0.10))(bufferutil@4.1.0)(encoding@0.1.13)(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(typescript@5.9.3)(utf-8-validate@5.0.10)':
+  '@superfluid-finance/ethereum-contracts@1.15.0(@openzeppelin/contracts@4.9.6)(@openzeppelin/test-helpers@0.5.16(bn.js@5.2.2)(bufferutil@4.1.0)(encoding@0.1.13)(utf-8-validate@5.0.10))(bufferutil@4.1.0)(encoding@0.1.13)(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)':
     dependencies:
       '@decentral.ee/web3-helpers': 0.5.3(@openzeppelin/test-helpers@0.5.16(bn.js@5.2.2)(bufferutil@4.1.0)(encoding@0.1.13)(utf-8-validate@5.0.10))
-      '@nomiclabs/hardhat-ethers': 2.2.3(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(hardhat@2.26.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10))
+      '@nomiclabs/hardhat-ethers': 2.2.3(ethers@5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(hardhat@2.27.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10))
       '@openzeppelin/contracts': 4.9.6
+      '@safe-global/api-kit': 4.0.1(bufferutil@4.1.0)(encoding@0.1.13)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)
       '@truffle/contract': 4.6.31(bufferutil@4.1.0)(encoding@0.1.13)(utf-8-validate@5.0.10)
       ethereumjs-tx: 2.1.2
       ethereumjs-util: 7.1.5
       ethers: 5.8.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
-      hardhat: 2.26.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
+      hardhat: 2.27.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - '@openzeppelin/test-helpers'
       - bufferutil
@@ -21574,6 +21654,7 @@ snapshots:
       - ts-node
       - typescript
       - utf-8-validate
+      - zod
 
   '@superfluid-finance/metadata@1.6.2': {}
 
@@ -24372,6 +24453,13 @@ snapshots:
   asn1@0.2.6:
     dependencies:
       safer-buffer: 2.1.2
+
+  asn1js@3.0.7:
+    dependencies:
+      pvtsutils: 1.3.6
+      pvutils: 1.1.5
+      tslib: 2.8.1
+    optional: true
 
   assert-plus@1.0.0: {}
 
@@ -27209,11 +27297,11 @@ snapshots:
       ajv: 6.12.6
       har-schema: 2.0.0
 
-  hardhat@2.26.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10):
+  hardhat@2.27.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10):
     dependencies:
       '@ethereumjs/util': 9.1.0
       '@ethersproject/abi': 5.8.0
-      '@nomicfoundation/edr': 0.11.3
+      '@nomicfoundation/edr': 0.12.0-next.16
       '@nomicfoundation/solidity-analyzer': 0.1.2
       '@sentry/node': 5.30.0
       adm-zip: 0.4.16
@@ -30417,6 +30505,14 @@ snapshots:
 
   pure-rand@6.1.0: {}
 
+  pvtsutils@1.3.6:
+    dependencies:
+      tslib: 2.8.1
+    optional: true
+
+  pvutils@1.1.5:
+    optional: true
+
   qrcode@1.5.3:
     dependencies:
       dijkstrajs: 1.0.3
@@ -32219,7 +32315,7 @@ snapshots:
 
   typescript@5.9.3: {}
 
-  uWebSockets.js@https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/fcfc622a4286909593b7f390056d89e0ca3b56b9:
+  uWebSockets.js@https://codeload.github.com/uNetworking/uWebSockets.js/tar.gz/a80dda2d22ba32cf174ef78cc8d743e910a9be21:
     optional: true
 
   ua-parser-js@1.0.41: {}
