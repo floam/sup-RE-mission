@@ -35,6 +35,8 @@ pnpm changeset:version
 pnpm changeset:publish
 ```
 
-## NPM Token
+## NPM Authentication
 
-The GitHub Actions workflow requires an `NPM_TOKEN` secret to be set in the repository settings for publishing.
+The GitHub Actions workflow uses [npm Trusted Publishing](https://docs.npmjs.com/generating-provenance-statements) (OIDC) to authenticate with npm. No NPM token secret is needed — GitHub Actions exchanges its OIDC identity token directly with npm. This also enables provenance attestation on published packages.
+
+The trust relationship is configured on npmjs.com under the `@sfpro/sdk` package settings.
