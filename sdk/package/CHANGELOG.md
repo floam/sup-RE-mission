@@ -1,5 +1,11 @@
 # @sfpro/sdk
 
+## 0.2.0
+
+### Minor Changes
+
+- 047db20: Update ABIs from @superfluid-finance/ethereum-contracts 1.15.0, adding yield backend support
+
 ## 0.1.11
 
 ### Patch Changes
