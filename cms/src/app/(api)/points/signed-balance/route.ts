@@ -1,4 +1,5 @@
 import { encodePacked, getAddress, isAddress, keccak256 } from "viem"
+import { applyPointsCap, getCampaignTotalPoints } from "@/domains/points/utils/points-cap"
 import { signMessageHash } from "@/domains/points/utils/signing"
 import { getPayloadInstance } from "@/payload"
 
@@ -65,6 +66,11 @@ export const GET = async (request: Request): Promise<Response> => {
 			// Balance doesn't exist, default to 0
 		}
 
+		// Apply points cap: limit to max(500, 5% of total campaign points)
+		const totalCampaignPoints = await getCampaignTotalPoints(payload, campaign.id)
+		const { points: cappedPoints, uncappedPoints } = applyPointsCap(points, totalCampaignPoints)
+		points = cappedPoints
+
 		// Create message hash: keccak256(encodePacked([address, points, campaignId, timestamp]))
 		const signatureTimestamp = Math.floor(Date.now() / 1000)
 		const checksumAddress = getAddress(accountLower)
@@ -85,6 +91,7 @@ export const GET = async (request: Request): Promise<Response> => {
 		return Response.json({
 			address: accountLower,
 			points,
+			uncappedPoints,
 			signatureTimestamp,
 			signature: signingResult.signature,
 			signer: signingResult.signer,

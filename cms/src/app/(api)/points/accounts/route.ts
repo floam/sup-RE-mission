@@ -35,10 +35,7 @@ export const GET = async (request: Request): Promise<Response> => {
 		let orderBy: (typeof VALID_ORDER_BY)[number] = "totalPoints"
 		if (orderByParam) {
 			if (!VALID_ORDER_BY.includes(orderByParam as (typeof VALID_ORDER_BY)[number])) {
-				return Response.json(
-					{ message: `orderBy must be one of: ${VALID_ORDER_BY.join(", ")}` },
-					{ status: 400 },
-				)
+				return Response.json({ message: `orderBy must be one of: ${VALID_ORDER_BY.join(", ")}` }, { status: 400 })
 			}
 			orderBy = orderByParam as (typeof VALID_ORDER_BY)[number]
 		}
