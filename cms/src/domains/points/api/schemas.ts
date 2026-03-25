@@ -43,6 +43,62 @@ export const ApiErrorSchema = z
 	})
 
 // ============================================
+// Campaign Metadata Endpoint Schemas
+// ============================================
+
+export const CampaignMetadataQuerySchema = z
+	.object({
+		campaignId: z.coerce.number().int().positive().openapi({
+			example: 42,
+			description: "Campaign ID",
+		}),
+	})
+	.openapi({
+		title: "CampaignMetadataQuery",
+		description: "Query parameters for campaign metadata endpoint",
+	})
+
+export const CampaignMetadataResponseSchema = z
+	.object({
+		campaignId: z.number().openapi({
+			example: 42,
+			description: "Campaign ID",
+		}),
+		name: z.string().openapi({
+			example: "My Campaign",
+			description: "Human-readable campaign name",
+		}),
+		slug: z.string().openapi({
+			example: "my-campaign",
+			description: "URL-friendly campaign identifier",
+		}),
+		totalPoints: z.number().openapi({
+			example: 150000,
+			description: "Total points distributed across all accounts",
+		}),
+		memberCount: z.number().openapi({
+			example: 342,
+			description: "Number of unique accounts with points",
+		}),
+		totalEvents: z.number().openapi({
+			example: 1205,
+			description: "Total number of point events recorded",
+		}),
+		lastEventAt: z.string().nullable().openapi({
+			example: "2026-03-25T14:30:00.000Z",
+			description: "ISO 8601 timestamp of the most recent event, or null if no events",
+		}),
+		createdAt: z.string().openapi({
+			example: "2026-01-15T10:00:00.000Z",
+			description: "ISO 8601 timestamp of when the campaign was created",
+		}),
+	})
+	.openapi({
+		title: "CampaignMetadataResponse",
+		description: "Campaign metadata with aggregate statistics",
+	})
+
+// ============================================
 // Balance Endpoint Schemas
 // ============================================
 

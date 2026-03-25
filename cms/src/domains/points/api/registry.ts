@@ -8,6 +8,8 @@ import {
 	CampaignAccountSchema,
 	CampaignAccountsQuerySchema,
 	CampaignAccountsResponseSchema,
+	CampaignMetadataQuerySchema,
+	CampaignMetadataResponseSchema,
 	EventBalanceQuerySchema,
 	EventBalanceResponseSchema,
 	EventsQuerySchema,
@@ -39,6 +41,7 @@ pointsRegistry.register("BalanceBatchResponse", BalanceBatchResponseSchema)
 pointsRegistry.register("EventBalanceResponse", EventBalanceResponseSchema)
 pointsRegistry.register("CampaignAccount", CampaignAccountSchema)
 pointsRegistry.register("CampaignAccountsResponse", CampaignAccountsResponseSchema)
+pointsRegistry.register("CampaignMetadataResponse", CampaignMetadataResponseSchema)
 pointsRegistry.register("ApiError", ApiErrorSchema)
 
 // Register security scheme
@@ -47,6 +50,65 @@ pointsRegistry.registerComponent("securitySchemes", "ApiKeyAuth", {
 	in: "header",
 	name: "X-API-Key",
 	description: "API key for authentication. Format: sfp_ followed by 64 hexadecimal characters.",
+})
+
+// ============================================
+// GET /points/campaign
+// ============================================
+pointsRegistry.registerPath({
+	method: "get",
+	path: "/points/campaign",
+	summary: "Get campaign metadata",
+	description:
+		"Retrieves campaign metadata including name, slug, and aggregate statistics (total points, member count, total events).",
+	tags: ["Campaign"],
+	request: {
+		query: CampaignMetadataQuerySchema,
+	},
+	responses: {
+		200: {
+			description: "Campaign metadata retrieved successfully",
+			content: {
+				"application/json": {
+					schema: CampaignMetadataResponseSchema,
+					example: {
+						campaignId: 42,
+						name: "My Campaign",
+						slug: "my-campaign",
+						totalPoints: 150000,
+						memberCount: 342,
+						totalEvents: 1205,
+						lastEventAt: "2026-03-25T14:30:00.000Z",
+						createdAt: "2026-01-15T10:00:00.000Z",
+					},
+				},
+			},
+		},
+		400: {
+			description: "Invalid request (missing or invalid campaignId)",
+			content: {
+				"application/json": {
+					schema: ApiErrorSchema,
+				},
+			},
+		},
+		404: {
+			description: "Campaign not found",
+			content: {
+				"application/json": {
+					schema: ApiErrorSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				"application/json": {
+					schema: ApiErrorSchema,
+				},
+			},
+		},
+	},
 })
 
 // ============================================
@@ -1030,6 +1092,10 @@ Existing on-chain contracts that verify Stack signatures will work with Superflu
 		],
 		tags: [
 			{
+				name: "Campaign",
+				description: "Query campaign metadata and statistics",
+			},
+			{
 				name: "Balance",
 				description: "Query point balances for accounts",
 			},
@@ -1049,7 +1115,7 @@ Existing on-chain contracts that verify Stack signatures will work with Superflu
 		"x-tagGroups": [
 			{
 				name: "Points API",
-				tags: ["Balance", "Signed Balance", "Events", "Push"],
+				tags: ["Campaign", "Balance", "Signed Balance", "Events", "Push"],
 			},
 		],
 	})
