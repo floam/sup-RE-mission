@@ -382,47 +382,51 @@ export const TokenPriceHistoryResponseSchema = z
 // Current price response schema
 export const CurrentPriceResponseSchema = z
 	.object({
-		token: z
-			.object({
-				id: z.string(),
-				address: z.string(),
-				chainId: z.number(),
-				symbol: z.string(),
-				name: z.string(),
-				decimals: z.number(),
-				isListed: z.boolean(),
-				isNativeAssetSuperToken: z.boolean(),
-				isPureSuperToken: z.boolean(),
-				isWrapperSuperToken: z.boolean(),
-				underlyingAddress: z.string().nullable(),
-				totalNumberOfHolders: z.number(),
-				totalNumberOfActiveStreams: z.number(),
-				totalNumberOfClosedStreams: z.number(),
-				lastUpdated: z.string().datetime(),
-			})
-			.openapi({
-				description: "Token metadata with statistics",
-			}),
+		chainId: z.number().int().positive().openapi({
+			example: 8453,
+			description: "Blockchain network ID",
+		}),
+		address: z.string().openapi({
+			example: "0x46fd5cfb4c12d87acd3a13e92baa53240c661d93",
+			description: "Token contract address",
+		}),
+		symbol: z.string().nullable().openapi({
+			example: "ETHx",
+			description: "Token symbol (null if token not found)",
+		}),
 		priceUsd: z.string().nullable().openapi({
-			example: "0.999",
+			example: "1987.42",
 			description: "Current price in USD as string for precision",
 		}),
-		timestamp: z.string().datetime().openapi({
+		fetchedAt: z.string().datetime().openapi({
 			example: "2025-01-07T12:00:00.000Z",
-			description: "When the price was fetched",
+			description: "When the price was fetched from CoinGecko",
 		}),
 		method: z.enum(["classic", "onchain", "none"]).openapi({
 			example: "classic",
 			description: "Method used to fetch the price",
 		}),
-		coingeckoId: z.string().optional().openapi({
-			example: "ethereum",
-			description: "CoinGecko ID used (for classic method)",
-		}),
 	})
 	.openapi({
 		title: "CurrentPriceResponse",
 		description: "Current token price information",
+	})
+
+// Batch price request schema
+export const BatchPriceRequestSchema = z
+	.object({
+		addresses: z
+			.array(z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Must be a valid Ethereum address"))
+			.min(1)
+			.max(50)
+			.openapi({
+				example: ["0x46fd5cfb4c12d87acd3a13e92baa53240c661d93", "0xd04383398dd2426297da660f9cca3d439af9ce1b"],
+				description: "Array of token contract addresses (max 50)",
+			}),
+	})
+	.openapi({
+		title: "BatchPriceRequest",
+		description: "Request body for batch price lookup",
 	})
 
 // Price history query parameters

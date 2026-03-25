@@ -29,7 +29,6 @@
 	},
 	"dependencies": {
 		"@asteasolutions/zod-to-openapi": "^7.3.4",
-		"@stackso/js-core": "^0.5.11",
 		"@coingecko/coingecko-typescript": "^2.5.0",
 		"@libsql/client": "^0.15.15",
 		"@payloadcms/db-vercel-postgres": "^3.74.0",
@@ -44,6 +43,7 @@
 		"@radix-ui/react-select": "^2.2.6",
 		"@radix-ui/react-slot": "^1.2.4",
 		"@scalar/api-reference-react": "^0.8.46",
+		"@stackso/js-core": "^0.5.11",
 		"@superfluid-finance/metadata": "^1.6.2",
 		"@superfluid-finance/tokenlist": "^5.38.0",
 		"@tailwindcss/postcss": "^4.1.18",
@@ -52,6 +52,7 @@
 		"@trigger.dev/sdk": "^4.3.3",
 		"@types/lodash-es": "^4.17.12",
 		"@uniswap/token-lists": "^1.0.0-beta.34",
+		"@upstash/redis": "^1.37.0",
 		"@vercel/blob": "^2.0.1",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
