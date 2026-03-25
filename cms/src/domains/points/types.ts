@@ -100,6 +100,20 @@ export const campaignAccountResponseSchema = z.object({
 
 export type CampaignAccountResponse = z.infer<typeof campaignAccountResponseSchema>
 
+// Campaign metadata response
+export const campaignMetadataResponseSchema = z.object({
+	campaignId: z.number(),
+	name: z.string(),
+	slug: z.string(),
+	totalPoints: z.number(),
+	memberCount: z.number(),
+	totalEvents: z.number(),
+	lastEventAt: z.string().nullable(),
+	createdAt: z.string(),
+})
+
+export type CampaignMetadataResponse = z.infer<typeof campaignMetadataResponseSchema>
+
 // Campaign accounts list response
 export const campaignAccountsResponseSchema = z.object({
 	accounts: z.array(campaignAccountResponseSchema),
