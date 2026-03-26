@@ -1,6 +1,5 @@
-import { count, eq, max } from "@payloadcms/db-vercel-postgres/drizzle"
+import { count, eq, max, sum } from "@payloadcms/db-vercel-postgres/drizzle"
 import type { CampaignMetadataResponse } from "@/domains/points/types"
-import { getCampaignTotalPoints } from "@/domains/points/utils/points-cap"
 import { getPayloadInstance } from "@/payload"
 import { point_balances, point_events } from "@/payload-drizzle-schema"
 
@@ -36,10 +35,10 @@ export const GET = async (request: Request): Promise<Response> => {
 
 		const campaign = campaignResult.docs[0]
 
-		const [totalPoints, balanceStats, eventStats] = await Promise.all([
-			getCampaignTotalPoints(payload, campaignId),
+		const [balanceStats, eventStats] = await Promise.all([
 			payload.db.drizzle
 				.select({
+					totalPoints: sum(point_balances.totalPoints),
 					memberCount: count(),
 					lastEventAt: max(point_balances.lastEventAt),
 				})
@@ -57,7 +56,7 @@ export const GET = async (request: Request): Promise<Response> => {
 			campaignId: campaign.id,
 			name: campaign.name,
 			slug: campaign.slug,
-			totalPoints,
+			totalPoints: Number(balanceStats[0]?.totalPoints ?? 0),
 			memberCount: balanceStats[0]?.memberCount ?? 0,
 			totalEvents: eventStats[0]?.totalEvents ?? 0,
 			lastEventAt: balanceStats[0]?.lastEventAt ?? null,
