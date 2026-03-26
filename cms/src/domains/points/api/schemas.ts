@@ -43,6 +43,62 @@ export const ApiErrorSchema = z
 	})
 
 // ============================================
+// Campaign Metadata Endpoint Schemas
+// ============================================
+
+export const CampaignMetadataQuerySchema = z
+	.object({
+		campaignId: z.coerce.number().int().positive().openapi({
+			example: 42,
+			description: "Campaign ID",
+		}),
+	})
+	.openapi({
+		title: "CampaignMetadataQuery",
+		description: "Query parameters for campaign metadata endpoint",
+	})
+
+export const CampaignMetadataResponseSchema = z
+	.object({
+		campaignId: z.number().openapi({
+			example: 42,
+			description: "Campaign ID",
+		}),
+		name: z.string().openapi({
+			example: "My Campaign",
+			description: "Human-readable campaign name",
+		}),
+		slug: z.string().openapi({
+			example: "my-campaign",
+			description: "URL-friendly campaign identifier",
+		}),
+		totalPoints: z.number().openapi({
+			example: 150000,
+			description: "Total points distributed across all accounts",
+		}),
+		memberCount: z.number().openapi({
+			example: 342,
+			description: "Number of unique accounts with points",
+		}),
+		totalEvents: z.number().openapi({
+			example: 1205,
+			description: "Total number of point events recorded",
+		}),
+		lastEventAt: z.string().nullable().openapi({
+			example: "2026-03-25T14:30:00.000Z",
+			description: "ISO 8601 timestamp of the most recent event, or null if no events",
+		}),
+		createdAt: z.string().openapi({
+			example: "2026-01-15T10:00:00.000Z",
+			description: "ISO 8601 timestamp of when the campaign was created",
+		}),
+	})
+	.openapi({
+		title: "CampaignMetadataResponse",
+		description: "Campaign metadata with aggregate statistics",
+	})
+
+// ============================================
 // Balance Endpoint Schemas
 // ============================================
 
@@ -91,6 +147,10 @@ export const PointBalanceSchema = z
 		points: z.number().openapi({
 			example: 1500,
 			description: "Total accumulated points",
+		}),
+		cappedPoints: z.number().openapi({
+			example: 500,
+			description: "Points after applying the per-account cap",
 		}),
 	})
 	.openapi({
@@ -475,7 +535,11 @@ export const SignedBalanceResponseSchema = z
 		}),
 		points: z.number().openapi({
 			example: 1500,
-			description: "Total accumulated points",
+			description: "Total accumulated points (capped)",
+		}),
+		uncappedPoints: z.number().openapi({
+			example: 2000,
+			description: "Total accumulated points before applying the per-account cap",
 		}),
 		signatureTimestamp: z.number().openapi({
 			example: 1704672000,
@@ -531,7 +595,11 @@ export const SignedBalanceBatchResponseSchema = z
 		}),
 		points: z.array(z.number()).openapi({
 			example: [100, 200, 300],
-			description: "Array of point balances matching campaign order",
+			description: "Array of point balances matching campaign order (capped)",
+		}),
+		uncappedPoints: z.array(z.number()).openapi({
+			example: [150, 200, 400],
+			description: "Array of uncapped point balances matching campaign order",
 		}),
 		signatureTimestamp: z.number().openapi({
 			example: 1704672000,
@@ -648,6 +716,10 @@ export const BalanceBatchResponseSchema = z
 		points: z.array(z.number()).openapi({
 			example: [100, 0, 300],
 			description: "Array of point balances matching campaign order (0 for missing campaigns)",
+		}),
+		cappedPoints: z.array(z.number()).openapi({
+			example: [100, 0, 300],
+			description: "Array of capped point balances matching campaign order",
 		}),
 		warnings: z
 			.array(BalanceBatchWarningSchema)
