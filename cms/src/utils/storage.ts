@@ -84,11 +84,11 @@ export function createStorageProvider(config: StorageConfig): StorageProvider {
 }
 
 export function getPricingStorageConfig(): StorageConfig {
-	const isProduction = process.env.NODE_ENV === "production"
+	const blobToken = process.env.SUPERFLUID_DATA_BLOB_READ_WRITE_TOKEN
 	return {
-		type: isProduction ? "blob" : "local",
+		type: blobToken ? "blob" : "local",
 		localPath: process.env.LOCAL_STORAGE_PATH || "./data",
-		blobReadWriteToken: process.env.SUPERFLUID_DATA_BLOB_READ_WRITE_TOKEN,
+		blobReadWriteToken: blobToken,
 	}
 }
 

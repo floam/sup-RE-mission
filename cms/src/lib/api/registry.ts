@@ -1,6 +1,8 @@
 import { OpenAPIRegistry, OpenApiGeneratorV31 } from "@asteasolutions/zod-to-openapi"
+import { z } from "zod"
 import {
 	ApiErrorSchema,
+	BatchPriceRequestSchema,
 	CurrentPriceResponseSchema,
 	PriceHistoryQuerySchema,
 	PricingQuerySchema,
@@ -23,6 +25,7 @@ registry.register("TokenList", TokenListSchema)
 registry.register("TokenPrice", TokenPriceSchema)
 registry.register("TokenPriceHistoryResponse", TokenPriceHistoryResponseSchema)
 registry.register("CurrentPriceResponse", CurrentPriceResponseSchema)
+registry.register("BatchPriceRequest", BatchPriceRequestSchema)
 registry.register("ApiError", ApiErrorSchema)
 
 // Register API paths
@@ -227,6 +230,73 @@ registry.registerPath({
 		},
 		404: {
 			description: "Token not found",
+			content: {
+				"application/json": {
+					schema: ApiErrorSchema,
+				},
+			},
+		},
+		503: {
+			description: "CoinGecko mappings not available",
+			content: {
+				"application/json": {
+					schema: ApiErrorSchema,
+				},
+			},
+		},
+		500: {
+			description: "Internal server error",
+			content: {
+				"application/json": {
+					schema: ApiErrorSchema,
+				},
+			},
+		},
+	},
+})
+
+// POST /prices/{chainId}/current - Batch fetch current prices
+registry.registerPath({
+	method: "post",
+	path: "/prices/{chainId}/current",
+	summary: "Batch fetch current token prices",
+	description:
+		"Fetches current prices for multiple tokens on a single chain using CoinGecko batch API. Returns an array of CurrentPriceResponse objects.",
+	tags: ["Prices"],
+	request: {
+		params: z.object({
+			chainId: z.string().openapi({
+				example: "8453",
+				description: "Blockchain network ID",
+			}),
+		}),
+		body: {
+			content: {
+				"application/json": {
+					schema: BatchPriceRequestSchema,
+				},
+			},
+		},
+	},
+	responses: {
+		200: {
+			description: "Array of current price responses",
+			content: {
+				"application/json": {
+					schema: z.array(CurrentPriceResponseSchema),
+				},
+			},
+		},
+		400: {
+			description: "Invalid parameters or request body",
+			content: {
+				"application/json": {
+					schema: ApiErrorSchema,
+				},
+			},
+		},
+		404: {
+			description: "Network token data not found",
 			content: {
 				"application/json": {
 					schema: ApiErrorSchema,
