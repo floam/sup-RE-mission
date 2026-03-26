@@ -1,5 +1,5 @@
 import { encodePacked, getAddress, isAddress, keccak256 } from "viem"
-import { applyPointsCap, getCampaignTotalPoints } from "@/domains/points/utils/points-cap"
+import { applyPointsCap } from "@/domains/points/utils/points-cap"
 import { signMessageHash } from "@/domains/points/utils/signing"
 import { getPayloadInstance } from "@/payload"
 
@@ -94,32 +94,22 @@ export const POST = async (request: Request): Promise<Response> => {
 			limit: MAX_CAMPAIGNS,
 		})
 
-		// Create a map of campaignId -> points
-		const balanceMap = new Map<number, number>()
+		// Create a map of campaignId -> { totalPoints, capped }
+		const balanceMap = new Map<number, { totalPoints: number; capped: boolean }>()
 		for (const balance of balanceResult.docs) {
 			// Extract campaign ID from the balance ID (format: campaignId:account)
 			const campaignId = typeof balance.campaign === "number" ? balance.campaign : balance.campaign?.id
 			if (campaignId != null) {
-				balanceMap.set(campaignId, balance.totalPoints)
+				balanceMap.set(campaignId, { totalPoints: balance.totalPoints, capped: balance.capped ?? false })
 			}
 		}
-
-		// Apply points cap per campaign: limit to max(500, 5% of total campaign points)
-		const totalPointsMap = new Map<number, number>()
-		await Promise.all(
-			validIds.map(async (id) => {
-				const total = await getCampaignTotalPoints(payload, id)
-				totalPointsMap.set(id, total)
-			}),
-		)
 
 		// Build points arrays in same order as requested campaigns
 		const pointsArray: number[] = []
 		const uncappedPointsArray: number[] = []
 		for (const id of validIds) {
-			const rawPoints = balanceMap.get(id) ?? 0
-			const totalCampaignPoints = totalPointsMap.get(id) ?? 0
-			const { points, uncappedPoints } = applyPointsCap(rawPoints, totalCampaignPoints)
+			const balance = balanceMap.get(id)
+			const { points, uncappedPoints } = applyPointsCap(balance?.totalPoints ?? 0, balance?.capped ?? false)
 			pointsArray.push(points)
 			uncappedPointsArray.push(uncappedPoints)
 		}

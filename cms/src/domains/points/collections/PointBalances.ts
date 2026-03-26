@@ -98,6 +98,14 @@ export const PointBalances: CollectionConfig = {
 			},
 		},
 		{
+			name: "capped",
+			type: "checkbox",
+			defaultValue: false,
+			admin: {
+				description: "When enabled, this account's points are capped to 1 for this campaign",
+			},
+		},
+		{
 			name: "lastEventAt",
 			type: "date",
 			admin: {
