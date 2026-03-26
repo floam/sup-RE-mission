@@ -946,6 +946,16 @@ X-API-Key: sfp_<64 hex characters>
 
 Events can include a \`uniqueId\` field for deduplication. If an event with the same \`uniqueId\` already exists for the same account and campaign, it will be skipped.
 
+### Points Cap
+
+Accounts can be marked as **capped** on a per-campaign basis. When an account is capped:
+
+- Balance endpoints return \`cappedPoints: 1\` (regardless of the actual balance)
+- Signed balance endpoints return \`points: 1\` and \`uncappedPoints\` with the true balance
+- The \`points\` field in unsigned balance responses is unaffected (always the true balance)
+
+The cap is a boolean flag managed via the admin panel on individual point balance records. It is not applied automatically.
+
 ## Migrating from Stack
 
 If you're migrating from [Stack.so](https://stack.so), here's how Superfluid Points API maps to Stack's SDK.
@@ -1076,9 +1086,32 @@ Existing on-chain contracts that verify Stack signatures will work with Superflu
 
 ## Changelog
 
+### 2026-03-26
+
+- **Points cap refactor**: Replaced percentage-based cap (5% of total campaign points) with a per-account boolean \`capped\` flag. Capped accounts now receive exactly 1 point. The flag is managed via the admin panel on individual point balance records.
+
+### 2026-03-25
+
+- **Campaign metadata endpoint**: Added \`GET /points/campaign\` for querying campaign name, slug, and aggregate statistics.
+- **CORS headers**: Added CORS headers to all public API endpoints.
+
+### 2026-02-03
+
+- **Event time field**: Added \`eventTime\` to point events for historical imports.
+- **Informational events**: Events can be marked as \`informational\` (no balance impact).
+
+### 2026-01-28
+
+- **Campaign permissions**: Users can be scoped to specific campaigns.
+
 ### 2026-01-26
 
-- **Error response format**: Changed from \`{ error: "..." }\` to \`{ message: "..." }\` to align with Next.js conventions. The \`message\` field is now the primary error field.`,
+- **Error response format**: Changed from \`{ error: "..." }\` to \`{ message: "..." }\` to align with Next.js conventions. The \`message\` field is now the primary error field.
+- **Leaderboard endpoint**: Added \`GET /points/accounts\` for querying campaign leaderboards.
+- **Event balance endpoint**: Added \`GET /points/event-balance\` for querying aggregated points by event type.
+- **Unsigned cap fields**: Added \`cappedPoints\` to balance endpoints and \`uncappedPoints\` to signed balance endpoints.
+- **Batch balance endpoint**: Added \`POST /points/balance-batch\` for querying multiple campaigns at once.
+- **Event deletion**: Deleting a point event now adjusts the account's balance accordingly.`,
 			contact: {
 				name: "Superfluid",
 				url: "https://superfluid.finance",

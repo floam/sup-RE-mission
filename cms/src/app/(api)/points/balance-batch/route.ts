@@ -1,5 +1,5 @@
 import { isAddress } from "viem"
-import { applyPointsCap, getCampaignTotalPoints } from "@/domains/points/utils/points-cap"
+import { applyPointsCap } from "@/domains/points/utils/points-cap"
 import { getPayloadInstance } from "@/payload"
 
 const MAX_CAMPAIGNS = 50
@@ -86,24 +86,22 @@ export const POST = async (request: Request): Promise<Response> => {
 			limit: MAX_CAMPAIGNS,
 		})
 
-		// Create a map of campaignId -> points
-		const balanceMap = new Map<number, number>()
+		// Create a map of campaignId -> { totalPoints, capped }
+		const balanceMap = new Map<number, { totalPoints: number; capped: boolean }>()
 		for (const balance of balanceResult.docs) {
 			// Extract campaign ID from the balance ID (format: campaignId:account)
 			const campaignId = typeof balance.campaign === "number" ? balance.campaign : balance.campaign?.id
 			if (campaignId != null) {
-				balanceMap.set(campaignId, balance.totalPoints)
+				balanceMap.set(campaignId, { totalPoints: balance.totalPoints, capped: balance.capped ?? false })
 			}
 		}
 
-		// Fetch total points per campaign in parallel for cap calculation
-		const totalPointsPerCampaign = await Promise.all(validIds.map((id) => getCampaignTotalPoints(payload, id)))
-
 		// Build points and cappedPoints arrays in same order as requested campaigns
 		// Missing campaigns get 0 points
-		const pointsArray = validIds.map((id) => balanceMap.get(id) ?? 0)
-		const cappedPointsArray = pointsArray.map((points, i) => {
-			const { points: cappedPoints } = applyPointsCap(points, totalPointsPerCampaign[i])
+		const pointsArray = validIds.map((id) => balanceMap.get(id)?.totalPoints ?? 0)
+		const cappedPointsArray = validIds.map((id) => {
+			const balance = balanceMap.get(id)
+			const { points: cappedPoints } = applyPointsCap(balance?.totalPoints ?? 0, balance?.capped ?? false)
 			return cappedPoints
 		})
 

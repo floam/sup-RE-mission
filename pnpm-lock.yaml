@@ -179,7 +179,7 @@ importers:
     devDependencies:
       '@graphprotocol/client-cli':
         specifier: ^3.0.7
-        version: 3.0.7(@envelop/core@5.4.0)(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/store@0.102.13)(@graphql-mesh/types@0.102.13)(@graphql-mesh/utils@0.102.13)(@graphql-tools/delegate@12.0.4(graphql@16.12.0))(@graphql-tools/merge@9.1.7(graphql@16.12.0))(@graphql-tools/utils@10.11.0(graphql@16.12.0))(@graphql-tools/wrap@10.1.4(graphql@16.12.0))(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(encoding@0.1.13)(graphql-tag@2.12.6(graphql@16.12.0))(graphql-yoga@5.18.0(graphql@16.12.0))(graphql@16.12.0)(utf-8-validate@5.0.10)
+        version: 3.0.7(@envelop/core@5.4.0)(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/store@0.104.7(graphql@16.12.0))(@graphql-mesh/types@0.104.18(graphql@16.12.0))(@graphql-mesh/utils@0.104.7(graphql@16.12.0))(@graphql-tools/delegate@12.0.4(graphql@16.12.0))(@graphql-tools/merge@9.1.7(graphql@16.12.0))(@graphql-tools/utils@11.0.0(graphql@16.12.0))(@graphql-tools/wrap@10.1.4(graphql@16.12.0))(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(encoding@0.1.13)(graphql-tag@2.12.6(graphql@16.12.0))(graphql-yoga@5.18.0(graphql@16.12.0))(graphql@16.12.0)(utf-8-validate@5.0.10)
       '@payloadcms/db-sqlite':
         specifier: ^3.74.0
         version: 3.74.0(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@upstash/redis@1.37.0)(@vercel/postgres@0.9.0)(bufferutil@4.1.0)(payload@3.74.0(bufferutil@4.1.0)(graphql@16.12.0)(typescript@5.9.3)(utf-8-validate@5.0.10))(pg@8.16.3)(utf-8-validate@5.0.10)
@@ -295,7 +295,7 @@ importers:
     devDependencies:
       '@graphprotocol/client-cli':
         specifier: ^3.0.7
-        version: 3.0.7(@envelop/core@5.4.0)(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/store@0.104.7(graphql@16.12.0))(@graphql-mesh/types@0.104.18(graphql@16.12.0))(@graphql-mesh/utils@0.104.7(graphql@16.12.0))(@graphql-tools/delegate@12.0.4(graphql@16.12.0))(@graphql-tools/merge@9.1.7(graphql@16.12.0))(@graphql-tools/utils@11.0.0(graphql@16.12.0))(@graphql-tools/wrap@10.1.4(graphql@16.12.0))(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(encoding@0.1.13)(graphql-tag@2.12.6(graphql@16.12.0))(graphql-yoga@5.18.0(graphql@16.12.0))(graphql@16.12.0)(utf-8-validate@6.0.6)
+        version: 3.0.7(@envelop/core@5.4.0)(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/store@0.102.13)(@graphql-mesh/types@0.102.13)(@graphql-mesh/utils@0.102.13)(@graphql-tools/delegate@12.0.4(graphql@16.12.0))(@graphql-tools/merge@9.1.7(graphql@16.12.0))(@graphql-tools/utils@10.11.0(graphql@16.12.0))(@graphql-tools/wrap@10.1.4(graphql@16.12.0))(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(encoding@0.1.13)(graphql-tag@2.12.6(graphql@16.12.0))(graphql-yoga@5.18.0(graphql@16.12.0))(graphql@16.12.0)(utf-8-validate@6.0.6)
       '@tailwindcss/postcss':
         specifier: ^4.1.18
         version: 4.1.18
@@ -653,7 +653,7 @@ importers:
     dependencies:
       '@wagmi/core':
         specifier: ^2 || ^3
-        version: 2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))
+        version: 2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))
       react:
         specifier: '>=18'
         version: 19.2.4
@@ -16579,15 +16579,15 @@ snapshots:
       - '@types/node'
       - ioredis
 
-  '@graphprotocol/client-cli@3.0.7(@envelop/core@5.4.0)(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/store@0.102.13)(@graphql-mesh/types@0.102.13)(@graphql-mesh/utils@0.102.13)(@graphql-tools/delegate@12.0.4(graphql@16.12.0))(@graphql-tools/merge@9.1.7(graphql@16.12.0))(@graphql-tools/utils@10.11.0(graphql@16.12.0))(@graphql-tools/wrap@10.1.4(graphql@16.12.0))(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(encoding@0.1.13)(graphql-tag@2.12.6(graphql@16.12.0))(graphql-yoga@5.18.0(graphql@16.12.0))(graphql@16.12.0)(utf-8-validate@5.0.10)':
+  '@graphprotocol/client-cli@3.0.7(@envelop/core@5.4.0)(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/store@0.102.13)(@graphql-mesh/types@0.102.13)(@graphql-mesh/utils@0.102.13)(@graphql-tools/delegate@12.0.4(graphql@16.12.0))(@graphql-tools/merge@9.1.7(graphql@16.12.0))(@graphql-tools/utils@10.11.0(graphql@16.12.0))(@graphql-tools/wrap@10.1.4(graphql@16.12.0))(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(encoding@0.1.13)(graphql-tag@2.12.6(graphql@16.12.0))(graphql-yoga@5.18.0(graphql@16.12.0))(graphql@16.12.0)(utf-8-validate@6.0.6)':
     dependencies:
       '@graphprotocol/client-add-source-name': 2.0.7(@graphql-mesh/types@0.102.13)(@graphql-tools/delegate@12.0.4(graphql@16.12.0))(@graphql-tools/utils@10.11.0(graphql@16.12.0))(@graphql-tools/wrap@10.1.4(graphql@16.12.0))(graphql@16.12.0)
       '@graphprotocol/client-auto-pagination': 2.0.7(@graphql-mesh/types@0.102.13)(@graphql-tools/delegate@12.0.4(graphql@16.12.0))(@graphql-tools/utils@10.11.0(graphql@16.12.0))(@graphql-tools/wrap@10.1.4(graphql@16.12.0))(graphql@16.12.0)
       '@graphprotocol/client-auto-type-merging': 2.0.7(@graphql-mesh/types@0.102.13)(@graphql-mesh/utils@0.102.13)(@graphql-tools/delegate@12.0.4(graphql@16.12.0))(graphql@16.12.0)
       '@graphprotocol/client-block-tracking': 2.0.6(@graphql-mesh/store@0.102.13)(@graphql-tools/delegate@12.0.4(graphql@16.12.0))(@types/node@24.10.9)(graphql@16.12.0)
       '@graphprotocol/client-polling-live': 2.0.1(@envelop/core@5.4.0)(@graphql-tools/merge@9.1.7(graphql@16.12.0))(graphql@16.12.0)
-      '@graphql-mesh/cli': 0.95.4(bufferutil@4.1.0)(encoding@0.1.13)(graphql-tag@2.12.6(graphql@16.12.0))(graphql-yoga@5.18.0(graphql@16.12.0))(graphql@16.12.0)(utf-8-validate@5.0.10)
-      '@graphql-mesh/graphql': 0.102.16(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/store@0.102.13)(@graphql-mesh/types@0.102.13)(@graphql-mesh/utils@0.102.13)(@graphql-tools/utils@10.11.0(graphql@16.12.0))(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(graphql@16.12.0)(tslib@2.8.1)(utf-8-validate@5.0.10)
+      '@graphql-mesh/cli': 0.95.4(bufferutil@4.1.0)(encoding@0.1.13)(graphql-tag@2.12.6(graphql@16.12.0))(graphql-yoga@5.18.0(graphql@16.12.0))(graphql@16.12.0)(utf-8-validate@6.0.6)
+      '@graphql-mesh/graphql': 0.102.16(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/store@0.102.13)(@graphql-mesh/types@0.102.13)(@graphql-mesh/utils@0.102.13)(@graphql-tools/utils@10.11.0(graphql@16.12.0))(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(graphql@16.12.0)(tslib@2.8.1)(utf-8-validate@6.0.6)
       graphql: 16.12.0
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -16614,15 +16614,15 @@ snapshots:
       - uWebSockets.js
       - utf-8-validate
 
-  '@graphprotocol/client-cli@3.0.7(@envelop/core@5.4.0)(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/store@0.104.7(graphql@16.12.0))(@graphql-mesh/types@0.104.18(graphql@16.12.0))(@graphql-mesh/utils@0.104.7(graphql@16.12.0))(@graphql-tools/delegate@12.0.4(graphql@16.12.0))(@graphql-tools/merge@9.1.7(graphql@16.12.0))(@graphql-tools/utils@11.0.0(graphql@16.12.0))(@graphql-tools/wrap@10.1.4(graphql@16.12.0))(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(encoding@0.1.13)(graphql-tag@2.12.6(graphql@16.12.0))(graphql-yoga@5.18.0(graphql@16.12.0))(graphql@16.12.0)(utf-8-validate@6.0.6)':
+  '@graphprotocol/client-cli@3.0.7(@envelop/core@5.4.0)(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/store@0.104.7(graphql@16.12.0))(@graphql-mesh/types@0.104.18(graphql@16.12.0))(@graphql-mesh/utils@0.104.7(graphql@16.12.0))(@graphql-tools/delegate@12.0.4(graphql@16.12.0))(@graphql-tools/merge@9.1.7(graphql@16.12.0))(@graphql-tools/utils@11.0.0(graphql@16.12.0))(@graphql-tools/wrap@10.1.4(graphql@16.12.0))(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(encoding@0.1.13)(graphql-tag@2.12.6(graphql@16.12.0))(graphql-yoga@5.18.0(graphql@16.12.0))(graphql@16.12.0)(utf-8-validate@5.0.10)':
     dependencies:
       '@graphprotocol/client-add-source-name': 2.0.7(@graphql-mesh/types@0.104.18(graphql@16.12.0))(@graphql-tools/delegate@12.0.4(graphql@16.12.0))(@graphql-tools/utils@11.0.0(graphql@16.12.0))(@graphql-tools/wrap@10.1.4(graphql@16.12.0))(graphql@16.12.0)
       '@graphprotocol/client-auto-pagination': 2.0.7(@graphql-mesh/types@0.104.18(graphql@16.12.0))(@graphql-tools/delegate@12.0.4(graphql@16.12.0))(@graphql-tools/utils@11.0.0(graphql@16.12.0))(@graphql-tools/wrap@10.1.4(graphql@16.12.0))(graphql@16.12.0)
       '@graphprotocol/client-auto-type-merging': 2.0.7(@graphql-mesh/types@0.104.18(graphql@16.12.0))(@graphql-mesh/utils@0.104.7(graphql@16.12.0))(@graphql-tools/delegate@12.0.4(graphql@16.12.0))(graphql@16.12.0)
       '@graphprotocol/client-block-tracking': 2.0.6(@graphql-mesh/store@0.104.7(graphql@16.12.0))(@graphql-tools/delegate@12.0.4(graphql@16.12.0))(@types/node@24.10.9)(graphql@16.12.0)
       '@graphprotocol/client-polling-live': 2.0.1(@envelop/core@5.4.0)(@graphql-tools/merge@9.1.7(graphql@16.12.0))(graphql@16.12.0)
-      '@graphql-mesh/cli': 0.95.4(bufferutil@4.1.0)(encoding@0.1.13)(graphql-tag@2.12.6(graphql@16.12.0))(graphql-yoga@5.18.0(graphql@16.12.0))(graphql@16.12.0)(utf-8-validate@6.0.6)
-      '@graphql-mesh/graphql': 0.102.16(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/store@0.104.7(graphql@16.12.0))(@graphql-mesh/types@0.104.18(graphql@16.12.0))(@graphql-mesh/utils@0.104.7(graphql@16.12.0))(@graphql-tools/utils@11.0.0(graphql@16.12.0))(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(graphql@16.12.0)(tslib@2.8.1)(utf-8-validate@6.0.6)
+      '@graphql-mesh/cli': 0.95.4(bufferutil@4.1.0)(encoding@0.1.13)(graphql-tag@2.12.6(graphql@16.12.0))(graphql-yoga@5.18.0(graphql@16.12.0))(graphql@16.12.0)(utf-8-validate@5.0.10)
+      '@graphql-mesh/graphql': 0.102.16(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/store@0.104.7(graphql@16.12.0))(@graphql-mesh/types@0.104.18(graphql@16.12.0))(@graphql-mesh/utils@0.104.7(graphql@16.12.0))(@graphql-tools/utils@11.0.0(graphql@16.12.0))(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(graphql@16.12.0)(tslib@2.8.1)(utf-8-validate@5.0.10)
       graphql: 16.12.0
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -17003,7 +17003,7 @@ snapshots:
       - '@types/node'
       - ioredis
 
-  '@graphql-mesh/graphql@0.102.16(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/store@0.102.13)(@graphql-mesh/types@0.102.13)(@graphql-mesh/utils@0.102.13)(@graphql-tools/utils@10.11.0(graphql@16.12.0))(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(graphql@16.12.0)(tslib@2.8.1)(utf-8-validate@5.0.10)':
+  '@graphql-mesh/graphql@0.102.16(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/store@0.102.13)(@graphql-mesh/types@0.102.13)(@graphql-mesh/utils@0.102.13)(@graphql-tools/utils@10.11.0(graphql@16.12.0))(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(graphql@16.12.0)(tslib@2.8.1)(utf-8-validate@6.0.6)':
     dependencies:
       '@graphql-mesh/cross-helpers': 0.4.11(graphql@16.12.0)
       '@graphql-mesh/store': 0.102.13(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/types@0.102.13)(@graphql-mesh/utils@0.102.13)(@graphql-tools/utils@10.11.0(graphql@16.12.0))(graphql@16.12.0)(tslib@2.8.1)
@@ -17012,7 +17012,7 @@ snapshots:
       '@graphql-mesh/utils': 0.102.13(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/types@0.102.13)(@graphql-tools/utils@10.11.0(graphql@16.12.0))(graphql@16.12.0)(tslib@2.8.1)
       '@graphql-tools/delegate': 10.2.23(graphql@16.12.0)
       '@graphql-tools/federation': 2.2.40(@types/node@24.10.9)(graphql@16.12.0)
-      '@graphql-tools/url-loader': 8.0.33(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(graphql@16.12.0)(utf-8-validate@5.0.10)
+      '@graphql-tools/url-loader': 8.0.33(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(graphql@16.12.0)(utf-8-validate@6.0.6)
       '@graphql-tools/utils': 10.11.0(graphql@16.12.0)
       graphql: 16.12.0
       lodash.get: 4.4.2
@@ -17025,7 +17025,7 @@ snapshots:
       - uWebSockets.js
       - utf-8-validate
 
-  '@graphql-mesh/graphql@0.102.16(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/store@0.104.7(graphql@16.12.0))(@graphql-mesh/types@0.104.18(graphql@16.12.0))(@graphql-mesh/utils@0.104.7(graphql@16.12.0))(@graphql-tools/utils@11.0.0(graphql@16.12.0))(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(graphql@16.12.0)(tslib@2.8.1)(utf-8-validate@6.0.6)':
+  '@graphql-mesh/graphql@0.102.16(@graphql-mesh/cross-helpers@0.4.11(graphql@16.12.0))(@graphql-mesh/store@0.104.7(graphql@16.12.0))(@graphql-mesh/types@0.104.18(graphql@16.12.0))(@graphql-mesh/utils@0.104.7(graphql@16.12.0))(@graphql-tools/utils@11.0.0(graphql@16.12.0))(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(graphql@16.12.0)(tslib@2.8.1)(utf-8-validate@5.0.10)':
     dependencies:
       '@graphql-mesh/cross-helpers': 0.4.11(graphql@16.12.0)
       '@graphql-mesh/store': 0.104.7(graphql@16.12.0)
@@ -17034,7 +17034,7 @@ snapshots:
       '@graphql-mesh/utils': 0.104.7(graphql@16.12.0)
       '@graphql-tools/delegate': 10.2.23(graphql@16.12.0)
       '@graphql-tools/federation': 2.2.40(@types/node@24.10.9)(graphql@16.12.0)
-      '@graphql-tools/url-loader': 8.0.33(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(graphql@16.12.0)(utf-8-validate@6.0.6)
+      '@graphql-tools/url-loader': 8.0.33(@types/node@24.10.9)(bufferutil@4.1.0)(crossws@0.3.5)(graphql@16.12.0)(utf-8-validate@5.0.10)
       '@graphql-tools/utils': 11.0.0(graphql@16.12.0)
       graphql: 16.12.0
       lodash.get: 4.4.2
@@ -23150,7 +23150,7 @@ snapshots:
       - wagmi
       - zod
 
-  '@wagmi/connectors@6.2.0(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(@wagmi/core@2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)))(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(wagmi@2.19.5(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(zod@4.3.6))(zod@4.3.6)':
+  '@wagmi/connectors@6.2.0(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(@wagmi/core@2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)))(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(wagmi@2.19.5(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(zod@4.3.6))(zod@4.3.6)':
     dependencies:
       '@base-org/account': 2.4.0(@types/react@19.2.10)(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(utf-8-validate@5.0.10)(zod@4.3.6)
       '@coinbase/wallet-sdk': 4.3.6(@types/react@19.2.10)(bufferutil@4.1.0)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(utf-8-validate@5.0.10)(zod@4.3.6)
@@ -23158,10 +23158,10 @@ snapshots:
       '@metamask/sdk': 0.33.1(bufferutil@4.1.0)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@safe-global/safe-apps-provider': 0.18.6(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)
       '@safe-global/safe-apps-sdk': 9.1.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)
-      '@wagmi/core': 2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))
+      '@wagmi/core': 2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))
       '@walletconnect/ethereum-provider': 2.21.1(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(bufferutil@4.1.0)(encoding@0.1.13)(react@19.2.4)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)
       cbw-sdk: '@coinbase/wallet-sdk@3.9.3'
-      porto: 0.2.35(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@wagmi/core@2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)))(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(wagmi@2.19.5(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(zod@4.3.6))
+      porto: 0.2.35(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@wagmi/core@2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)))(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(wagmi@2.19.5(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(zod@4.3.6))
       viem: 2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)
     optionalDependencies:
       typescript: 5.9.3
@@ -23238,6 +23238,21 @@ snapshots:
       eventemitter3: 5.0.1
       mipd: 0.0.7(typescript@5.9.3)
       viem: 2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+      zustand: 5.0.0(@types/react@19.2.10)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
+    optionalDependencies:
+      '@tanstack/query-core': 5.90.20
+      typescript: 5.9.3
+    transitivePeerDependencies:
+      - '@types/react'
+      - immer
+      - react
+      - use-sync-external-store
+
+  '@wagmi/core@2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))':
+    dependencies:
+      eventemitter3: 5.0.1
+      mipd: 0.0.7(typescript@5.9.3)
+      viem: 2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)
       zustand: 5.0.0(@types/react@19.2.10)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
     optionalDependencies:
       '@tanstack/query-core': 5.90.20
@@ -30330,26 +30345,6 @@ snapshots:
       - immer
       - use-sync-external-store
 
-  porto@0.2.35(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@wagmi/core@2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)))(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(wagmi@2.19.5(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(zod@4.3.6)):
-    dependencies:
-      '@wagmi/core': 2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))
-      hono: 4.11.7
-      idb-keyval: 6.2.2
-      mipd: 0.0.7(typescript@5.9.3)
-      ox: 0.9.17(typescript@5.9.3)(zod@4.3.6)
-      viem: 2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)
-      zod: 4.3.6
-      zustand: 5.0.9(@types/react@19.2.10)(react@19.2.4)(use-sync-external-store@1.4.0(react@19.2.4))
-    optionalDependencies:
-      '@tanstack/react-query': 5.90.20(react@19.2.4)
-      react: 19.2.4
-      typescript: 5.9.3
-      wagmi: 2.19.5(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(zod@4.3.6)
-    transitivePeerDependencies:
-      - '@types/react'
-      - immer
-      - use-sync-external-store
-
   porto@0.2.35(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@wagmi/core@2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)))(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))(wagmi@2.19.5(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76)):
     dependencies:
       '@wagmi/core': 2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))
@@ -30365,6 +30360,26 @@ snapshots:
       react: 19.2.4
       typescript: 5.9.3
       wagmi: 2.19.5(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76)
+    transitivePeerDependencies:
+      - '@types/react'
+      - immer
+      - use-sync-external-store
+
+  porto@0.2.35(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@wagmi/core@2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)))(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(wagmi@2.19.5(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(zod@4.3.6)):
+    dependencies:
+      '@wagmi/core': 2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))
+      hono: 4.11.7
+      idb-keyval: 6.2.2
+      mipd: 0.0.7(typescript@5.9.3)
+      ox: 0.9.17(typescript@5.9.3)(zod@4.3.6)
+      viem: 2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)
+      zod: 4.3.6
+      zustand: 5.0.9(@types/react@19.2.10)(react@19.2.4)(use-sync-external-store@1.4.0(react@19.2.4))
+    optionalDependencies:
+      '@tanstack/react-query': 5.90.20(react@19.2.4)
+      react: 19.2.4
+      typescript: 5.9.3
+      wagmi: 2.19.5(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(zod@4.3.6)
     transitivePeerDependencies:
       - '@types/react'
       - immer
@@ -32955,7 +32970,7 @@ snapshots:
   wagmi@2.19.5(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(zod@4.3.6):
     dependencies:
       '@tanstack/react-query': 5.90.20(react@19.2.4)
-      '@wagmi/connectors': 6.2.0(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(@wagmi/core@2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)))(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(wagmi@2.19.5(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(zod@4.3.6))(zod@4.3.6)
+      '@wagmi/connectors': 6.2.0(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(@wagmi/core@2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.6.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6)))(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(wagmi@2.19.5(@tanstack/query-core@5.90.20)(@tanstack/react-query@5.90.20(react@19.2.4))(@types/react@19.2.10)(@upstash/redis@1.37.0)(@vercel/blob@2.0.1)(bufferutil@4.1.0)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(react@19.2.4)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(zod@4.3.6))(zod@4.3.6)
       '@wagmi/core': 2.22.1(@tanstack/query-core@5.90.20)(@types/react@19.2.10)(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))
       react: 19.2.4
       use-sync-external-store: 1.4.0(react@19.2.4)

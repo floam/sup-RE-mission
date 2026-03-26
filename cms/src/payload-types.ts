@@ -488,6 +488,10 @@ export interface PointBalance {
 	 */
 	eventCount: number
 	/**
+	 * When enabled, this account's points are capped to 1 for this campaign
+	 */
+	capped?: boolean | null
+	/**
 	 * When the last point event was processed
 	 */
 	lastEventAt?: string | null
@@ -814,6 +818,7 @@ export interface PointBalancesSelect<T extends boolean = true> {
 	account?: T
 	totalPoints?: T
 	eventCount?: T
+	capped?: T
 	lastEventAt?: T
 	events?: T
 	updatedAt?: T
