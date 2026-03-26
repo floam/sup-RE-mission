@@ -149,8 +149,9 @@ export const PointBalanceSchema = z
 			description: "Total accumulated points",
 		}),
 		cappedPoints: z.number().openapi({
-			example: 500,
-			description: "Points after applying the per-account cap",
+			example: 1500,
+			description:
+				"Points after applying the per-account cap. Capped accounts receive 1 point; uncapped accounts keep their full balance.",
 		}),
 	})
 	.openapi({
@@ -535,11 +536,12 @@ export const SignedBalanceResponseSchema = z
 		}),
 		points: z.number().openapi({
 			example: 1500,
-			description: "Total accumulated points (capped)",
+			description:
+				"Total accumulated points after applying the per-account cap. Capped accounts receive 1 point; uncapped accounts keep their full balance.",
 		}),
 		uncappedPoints: z.number().openapi({
 			example: 2000,
-			description: "Total accumulated points before applying the per-account cap",
+			description: "Total accumulated points before applying the per-account cap (always the true balance)",
 		}),
 		signatureTimestamp: z.number().openapi({
 			example: 1704672000,
@@ -595,11 +597,12 @@ export const SignedBalanceBatchResponseSchema = z
 		}),
 		points: z.array(z.number()).openapi({
 			example: [100, 200, 300],
-			description: "Array of point balances matching campaign order (capped)",
+			description:
+				"Array of point balances matching campaign order (after per-account cap). Capped accounts receive 1 point.",
 		}),
 		uncappedPoints: z.array(z.number()).openapi({
 			example: [150, 200, 400],
-			description: "Array of uncapped point balances matching campaign order",
+			description: "Array of uncapped point balances matching campaign order (always the true balances)",
 		}),
 		signatureTimestamp: z.number().openapi({
 			example: 1704672000,
@@ -719,7 +722,8 @@ export const BalanceBatchResponseSchema = z
 		}),
 		cappedPoints: z.array(z.number()).openapi({
 			example: [100, 0, 300],
-			description: "Array of capped point balances matching campaign order",
+			description:
+				"Array of capped point balances matching campaign order. Capped accounts receive 1 point; uncapped accounts keep their full balance.",
 		}),
 		warnings: z
 			.array(BalanceBatchWarningSchema)

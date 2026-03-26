@@ -103,9 +103,9 @@ const adjustPointBalanceOnDelete: CollectionAfterDeleteHook<PointEvent> = async 
 			collection: "point-balances",
 			id: balance.id,
 			data: {
-				// NOTE: Deleting a large negative event from an account that was capped at 0
-				// may grant unintended points. E.g., if -1000 points brought balance from 100 to 0
-				// (capped), deleting that event would set balance to 0 - (-1000) = 1000, not 100.
+				// NOTE: Deleting a large negative event may grant unintended points.
+				// E.g., if -1000 points brought balance from 100 to 0, deleting that event
+				// would set balance to 0 - (-1000) = 1000, not 100.
 				totalPoints: Math.max(0, balance.totalPoints - points),
 				eventCount: Math.max(0, balance.eventCount - 1),
 				events: updatedEventIds,
