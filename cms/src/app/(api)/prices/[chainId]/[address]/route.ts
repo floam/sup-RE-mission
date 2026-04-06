@@ -1,3 +1,4 @@
+import sfMeta from "@superfluid-finance/metadata"
 import { getPayloadInstance } from "@/payload"
 import type { Chain } from "@/payload-types"
 import { createStorageProvider, getPricingStorageConfig } from "@/utils/storage"
@@ -49,6 +50,14 @@ export async function GET(request: Request, context: { params: Promise<{ chainId
 		const chainIdNum = parseInt(chainId, 10)
 		if (Number.isNaN(chainIdNum)) {
 			return Response.json({ error: "Invalid chainId", message: "chainId must be a number" }, { status: 400 })
+		}
+
+		// Reject testnet chains — price data is only generated for mainnets
+		if (sfMeta.testnets.some((n) => n.chainId === chainIdNum)) {
+			return Response.json(
+				{ error: "Testnet not supported", message: "Price data is not available for testnet networks" },
+				{ status: 400 },
+			)
 		}
 
 		// Validate address format

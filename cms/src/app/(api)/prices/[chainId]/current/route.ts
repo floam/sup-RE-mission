@@ -7,27 +7,15 @@ import { createStorageProvider, getPricingStorageConfig } from "@/utils/storage"
 
 const MAX_ADDRESSES = 50
 
-interface SuperTokenData {
+interface PriceTokenData {
 	address: string
 	chainId: number
 	symbol: string
-	name: string
-	decimals: number
-	isListed: boolean
-	isNativeAssetSuperToken: boolean
-	isPureSuperToken: boolean
-	isWrapperSuperToken: boolean
 	underlyingAddress: string | null
-	lastUpdated: string
+	isNativeAssetSuperToken: boolean
 }
 
-interface NetworkTokenData {
-	version: string
-	timestamp: string
-	network: { chainId: number; name: string; endpoint: string }
-	totalTokens: number
-	tokens: SuperTokenData[]
-}
+type PriceTokenIndex = Record<string, PriceTokenData>
 
 interface CoinGeckoMappings {
 	mappings: Record<string, Record<string, string>>
@@ -59,14 +47,26 @@ interface CurrentPriceResponse {
 	method: "classic" | "onchain" | "none"
 }
 
-const getCachedNetworkTokens = unstable_cache(
-	async (networkName: string): Promise<NetworkTokenData | null> => {
+const getCachedTokenIndex = unstable_cache(
+	async (networkName: string): Promise<PriceTokenIndex | null> => {
 		const storage = createStorageProvider(getPricingStorageConfig())
 		const raw = await storage.get(`super-tokens/latest/${networkName}.json`)
 		if (!raw) return null
-		return JSON.parse(raw) as NetworkTokenData
+		const parsed = JSON.parse(raw) as { tokens: Array<Record<string, unknown>> }
+		const index: PriceTokenIndex = {}
+		for (const t of parsed.tokens) {
+			const addr = (t.address as string).toLowerCase()
+			index[addr] = {
+				address: t.address as string,
+				chainId: t.chainId as number,
+				symbol: t.symbol as string,
+				underlyingAddress: (t.underlyingAddress as string | null) ?? null,
+				isNativeAssetSuperToken: (t.isNativeAssetSuperToken as boolean) ?? false,
+			}
+		}
+		return index
 	},
-	["network-tokens"],
+	["network-tokens-price-index"],
 	{ revalidate: 21600 }, // 6 hours
 )
 
@@ -127,7 +127,7 @@ async function fetchClassicBatchPrices(coingeckoIds: string[]): Promise<Map<stri
  * Batch-fetch prices for tokens via onchain/DEX API.
  * All addresses must be on the same platform (single chain).
  */
-async function fetchOnchainBatchPrices(tokens: SuperTokenData[], platformId: string): Promise<Map<string, string>> {
+async function fetchOnchainBatchPrices(tokens: PriceTokenData[], platformId: string): Promise<Map<string, string>> {
 	const client = getCoinGeckoClient()
 	const result = new Map<string, string>()
 
@@ -217,6 +217,14 @@ export async function POST(request: Request, context: { params: Promise<{ chainI
 			)
 		}
 
+		// Reject testnet chains — price data is only generated for mainnets
+		if (sfMeta.testnets.some((n) => n.chainId === chainIdNum)) {
+			return Response.json(
+				{ error: "Testnet not supported", message: "Price data is not available for testnet networks" },
+				{ status: 400 },
+			)
+		}
+
 		// Map chainId to network
 		const network = sfMeta.networks.find((n) => n.chainId === chainIdNum)
 		if (!network) {
@@ -227,12 +235,9 @@ export async function POST(request: Request, context: { params: Promise<{ chainI
 		}
 
 		// Load cached data
-		const [networkData, coingeckoMappings] = await Promise.all([
-			getCachedNetworkTokens(network.name),
-			getCachedMappings(),
-		])
+		const [tokenIndex, coingeckoMappings] = await Promise.all([getCachedTokenIndex(network.name), getCachedMappings()])
 
-		if (!networkData) {
+		if (!tokenIndex) {
 			return Response.json({ error: "No super token data found" }, { status: 404 })
 		}
 
@@ -243,12 +248,6 @@ export async function POST(request: Request, context: { params: Promise<{ chainI
 		const fetchedAt = new Date().toISOString()
 		const chainMappings = coingeckoMappings.mappings[chainIdNum.toString()] ?? {}
 		const platformId = coingeckoMappings.metadata?.chainIdToPlatformIds?.[chainIdNum.toString()]
-
-		// Build token index for fast lookups
-		const tokenIndex = new Map<string, SuperTokenData>()
-		for (const t of networkData.tokens) {
-			tokenIndex.set(t.address.toLowerCase(), t)
-		}
 
 		// Check cache for each address
 		const cache = getCacheProvider()
@@ -265,7 +264,7 @@ export async function POST(request: Request, context: { params: Promise<{ chainI
 				continue
 			}
 
-			const token = tokenIndex.get(addrLower)
+			const token = tokenIndex[addrLower]
 
 			if (!token) {
 				results.push({
@@ -292,12 +291,12 @@ export async function POST(request: Request, context: { params: Promise<{ chainI
 		}
 
 		// Group uncached tokens by pricing method
-		const classicTokens: { token: SuperTokenData; coingeckoId: string; resultIdx: number }[] = []
-		const onchainTokens: { token: SuperTokenData; resultIdx: number }[] = []
+		const classicTokens: { token: PriceTokenData; coingeckoId: string; resultIdx: number }[] = []
+		const onchainTokens: { token: PriceTokenData; resultIdx: number }[] = []
 
 		for (const idx of uncachedIndices) {
 			const addrLower = results[idx].address.toLowerCase()
-			const token = tokenIndex.get(addrLower)
+			const token = tokenIndex[addrLower]
 			if (!token) continue
 
 			const coingeckoId = chainMappings[addrLower]
@@ -320,7 +319,7 @@ export async function POST(request: Request, context: { params: Promise<{ chainI
 		])
 
 		// Fill in classic prices
-		for (const { token, coingeckoId, resultIdx } of classicTokens) {
+		for (const { coingeckoId, resultIdx } of classicTokens) {
 			results[resultIdx].method = "classic"
 			const price = classicPrices.get(coingeckoId)
 			if (price) {
