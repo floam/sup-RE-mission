@@ -1,32 +1,19 @@
 import CoinGecko from "@coingecko/coingecko-typescript"
 import sfMeta from "@superfluid-finance/metadata"
-import { find } from "lodash"
 import { unstable_cache } from "next/cache"
 import { zeroAddress } from "viem"
 import { getCacheProvider, PRICE_CACHE_TTL, priceCacheKey } from "@/utils/cache"
 import { createStorageProvider, getPricingStorageConfig } from "@/utils/storage"
 
-interface SuperTokenData {
+interface PriceTokenData {
 	address: string
 	chainId: number
 	symbol: string
-	name: string
-	decimals: number
-	isListed: boolean
-	isNativeAssetSuperToken: boolean
-	isPureSuperToken: boolean
-	isWrapperSuperToken: boolean
 	underlyingAddress: string | null
-	lastUpdated: string
+	isNativeAssetSuperToken: boolean
 }
 
-interface NetworkTokenData {
-	version: string
-	timestamp: string
-	network: { chainId: number; name: string; endpoint: string }
-	totalTokens: number
-	tokens: SuperTokenData[]
-}
+type PriceTokenIndex = Record<string, PriceTokenData>
 
 interface CoinGeckoMappings {
 	mappings: Record<string, Record<string, string>>
@@ -35,14 +22,26 @@ interface CoinGeckoMappings {
 	}
 }
 
-const getCachedNetworkTokens = unstable_cache(
-	async (networkName: string): Promise<NetworkTokenData | null> => {
+const getCachedTokenIndex = unstable_cache(
+	async (networkName: string): Promise<PriceTokenIndex | null> => {
 		const storage = createStorageProvider(getPricingStorageConfig())
 		const raw = await storage.get(`super-tokens/latest/${networkName}.json`)
 		if (!raw) return null
-		return JSON.parse(raw) as NetworkTokenData
+		const parsed = JSON.parse(raw) as { tokens: Array<Record<string, unknown>> }
+		const index: PriceTokenIndex = {}
+		for (const t of parsed.tokens) {
+			const addr = (t.address as string).toLowerCase()
+			index[addr] = {
+				address: t.address as string,
+				chainId: t.chainId as number,
+				symbol: t.symbol as string,
+				underlyingAddress: (t.underlyingAddress as string | null) ?? null,
+				isNativeAssetSuperToken: (t.isNativeAssetSuperToken as boolean) ?? false,
+			}
+		}
+		return index
 	},
-	["network-tokens"],
+	["network-tokens-price-index"],
 	{ revalidate: 21600 }, // 6 hours
 )
 
@@ -92,7 +91,7 @@ function getCoinGeckoClient() {
 	})
 }
 
-async function fetchClassicCurrentPrice(_token: SuperTokenData, coingeckoId: string): Promise<string | null> {
+async function fetchClassicCurrentPrice(_token: PriceTokenData, coingeckoId: string): Promise<string | null> {
 	const client = getCoinGeckoClient()
 
 	try {
@@ -115,7 +114,7 @@ async function fetchClassicCurrentPrice(_token: SuperTokenData, coingeckoId: str
 	}
 }
 
-async function fetchOnchainCurrentPrice(token: SuperTokenData, platformId: string): Promise<string | null> {
+async function fetchOnchainCurrentPrice(token: PriceTokenData, platformId: string): Promise<string | null> {
 	const client = getCoinGeckoClient()
 
 	// For onchain API, use underlying token address if available and not a native asset
@@ -145,7 +144,7 @@ async function fetchOnchainCurrentPrice(token: SuperTokenData, platformId: strin
 }
 
 async function fetchCurrentPrice(
-	token: SuperTokenData,
+	token: PriceTokenData,
 	coingeckoMappings: CoinGeckoMappings,
 ): Promise<CurrentPriceResponse> {
 	const fetchedAt = new Date().toISOString()
@@ -191,6 +190,14 @@ export async function GET(_request: Request, context: { params: Promise<{ chainI
 			)
 		}
 
+		// Reject testnet chains — price data is only generated for mainnets
+		if (sfMeta.testnets.some((n) => n.chainId === chainIdNum)) {
+			return Response.json(
+				{ error: "Testnet not supported", message: "Price data is not available for testnet networks" },
+				{ status: 400 },
+			)
+		}
+
 		// Map chainId to network name
 		const network = sfMeta.networks.find((n) => n.chainId === chainIdNum)
 		if (!network) {
@@ -200,14 +207,14 @@ export async function GET(_request: Request, context: { params: Promise<{ chainI
 			)
 		}
 
-		// Fetch per-network token data (cached 6 hours)
-		const networkData = await getCachedNetworkTokens(network.name)
-		if (!networkData) {
+		// Fetch stripped token index (cached 6 hours)
+		const tokenIndex = await getCachedTokenIndex(network.name)
+		if (!tokenIndex) {
 			return Response.json({ error: "No super token data found" }, { status: 404 })
 		}
 
-		// Find specific token in network data
-		const token = find(networkData.tokens, (t: SuperTokenData) => t.address.toLowerCase() === address.toLowerCase())
+		// Find specific token in index
+		const token = tokenIndex[address.toLowerCase()]
 
 		if (!token) {
 			return Response.json(
