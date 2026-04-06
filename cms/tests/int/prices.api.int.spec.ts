@@ -1,7 +1,8 @@
+// @vitest-environment node
 import { fetchLatestExtendedSuperTokenList } from "@superfluid-finance/tokenlist"
 import { beforeAll, describe, expect, it } from "vitest"
 
-const BASE_URL = "http://localhost:3000"
+const BASE_URL = (process.env.TEST_BASE_URL || "http://localhost:3000").replace(/\/+$/, "")
 
 // Control how many tokens to test. Default 5 for safe initial runs.
 // Set MAX_TOKENS=0 to test all listed tokens.
