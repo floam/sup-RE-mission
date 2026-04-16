@@ -5,6 +5,10 @@ import { orderBy } from "lodash-es"
 import { getPayloadInstance } from "@/payload"
 import type { Token } from "@/payload-types"
 
+export const revalidate = 900
+
+const CACHE_CONTROL = "public, s-maxage=900, stale-while-revalidate=1800"
+
 type UnderlyingTokenInfo = TokenInfo
 
 // Custom SuperTokenList that allows both SuperTokenInfo and UnderlyingTokenInfo
@@ -284,7 +288,9 @@ export const GET = async (request: Request) => {
 			},
 		}
 
-		return Response.json(tokenList)
+		return Response.json(tokenList, {
+			headers: { "Cache-Control": CACHE_CONTROL },
+		})
 	} catch (error) {
 		console.error("Failed to export tokenlist:", error)
 

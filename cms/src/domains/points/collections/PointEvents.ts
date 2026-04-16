@@ -24,7 +24,7 @@ const updatePointBalance: CollectionAfterChangeHook<PointEvent> = async ({ doc, 
 	// Skip balance update for informational events (e.g., migrated history)
 	if (doc.informational) return doc
 
-	const { campaign, account, points, id: eventId } = doc
+	const { campaign, account, points } = doc
 	const campaignId = typeof campaign === "object" ? campaign.id : campaign
 	const balanceId = `${campaignId}:${account}`
 
@@ -39,7 +39,6 @@ const updatePointBalance: CollectionAfterChangeHook<PointEvent> = async ({ doc, 
 
 	if (existing.docs.length > 0) {
 		const balance = existing.docs[0]
-		const existingEventIds = (balance.events as number[]) || []
 		await req.payload.update({
 			req,
 			collection: "point-balances",
@@ -48,7 +47,6 @@ const updatePointBalance: CollectionAfterChangeHook<PointEvent> = async ({ doc, 
 				totalPoints: Math.max(0, balance.totalPoints + points),
 				eventCount: balance.eventCount + 1,
 				lastEventAt: new Date().toISOString(),
-				events: [...existingEventIds, eventId],
 			},
 		})
 	} else {
@@ -62,7 +60,6 @@ const updatePointBalance: CollectionAfterChangeHook<PointEvent> = async ({ doc, 
 				totalPoints: Math.max(0, points),
 				eventCount: 1,
 				lastEventAt: new Date().toISOString(),
-				events: [eventId],
 			},
 		})
 	}
@@ -78,7 +75,7 @@ const adjustPointBalanceOnDelete: CollectionAfterDeleteHook<PointEvent> = async 
 	// Skip balance adjustment for informational events
 	if (doc.informational) return doc
 
-	const { campaign, account, points, id: eventId } = doc
+	const { campaign, account, points } = doc
 	const campaignId = typeof campaign === "object" ? campaign.id : campaign
 	const balanceId = `${campaignId}:${account}`
 
@@ -93,10 +90,6 @@ const adjustPointBalanceOnDelete: CollectionAfterDeleteHook<PointEvent> = async 
 
 	if (existing.docs.length > 0) {
 		const balance = existing.docs[0]
-		const existingEventIds = (balance.events as number[]) || []
-
-		// Remove the deleted event from the events array
-		const updatedEventIds = existingEventIds.filter((id) => id !== eventId)
 
 		await req.payload.update({
 			req,
@@ -108,7 +101,6 @@ const adjustPointBalanceOnDelete: CollectionAfterDeleteHook<PointEvent> = async 
 				// would set balance to 0 - (-1000) = 1000, not 100.
 				totalPoints: Math.max(0, balance.totalPoints - points),
 				eventCount: Math.max(0, balance.eventCount - 1),
-				events: updatedEventIds,
 			},
 		})
 	}

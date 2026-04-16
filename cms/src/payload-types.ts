@@ -495,10 +495,6 @@ export interface PointBalance {
 	 * When the last point event was processed
 	 */
 	lastEventAt?: string | null
-	/**
-	 * All point events that contributed to this balance
-	 */
-	events?: (number | PointEvent)[] | null
 	updatedAt: string
 	createdAt: string
 }
@@ -820,7 +816,6 @@ export interface PointBalancesSelect<T extends boolean = true> {
 	eventCount?: T
 	capped?: T
 	lastEventAt?: T
-	events?: T
 	updatedAt?: T
 	createdAt?: T
 }

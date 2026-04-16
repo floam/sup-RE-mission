@@ -68,6 +68,8 @@ export const POST = async (request: Request): Promise<Response> => {
 			collection: "campaigns",
 			where: { id: { in: validIds } },
 			limit: MAX_CAMPAIGNS,
+			depth: 0,
+			select: { id: true },
 		})
 
 		// Check all campaigns exist
@@ -92,6 +94,8 @@ export const POST = async (request: Request): Promise<Response> => {
 			collection: "point-balances",
 			where: { id: { in: balanceIds } },
 			limit: MAX_CAMPAIGNS,
+			depth: 0,
+			select: { campaign: true, totalPoints: true, capped: true },
 		})
 
 		// Create a map of campaignId -> { totalPoints, capped }

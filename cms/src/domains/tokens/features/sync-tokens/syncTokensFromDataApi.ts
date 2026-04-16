@@ -1,6 +1,6 @@
 import { getPayloadInstance } from "@/payload"
 import type { Token } from "@/payload-types"
-import { getExistingToken, getTokenTags, hasChanges, mergeTags, type TokenType, type TokenTypeInfo } from "."
+import { getAllExistingTokens, getTokenTags, hasChanges, mergeTags, type TokenType, type TokenTypeInfo } from "."
 
 // # Types
 interface DataApiToken {
@@ -68,6 +68,9 @@ export async function syncTokensFromDataApi() {
 
 	const payload = await getPayloadInstance()
 
+	// Preload all existing tokens once to avoid a per-token database round-trip
+	const existingTokensMap = await getAllExistingTokens(payload)
+
 	// Track statistics
 	const stats: SyncStats = {
 		created: 0,
@@ -81,8 +84,7 @@ export async function syncTokensFromDataApi() {
 	for (const dataApiToken of dataApiTokens) {
 		const { tokenType, underlyingAddress } = getTokenTypeFromDataApi(dataApiToken)
 
-		// On-demand lookup for each token
-		const existingToken = await getExistingToken(dataApiToken.address, dataApiToken.chainId, payload)
+		const existingToken = existingTokensMap.get(`${dataApiToken.chainId}:${dataApiToken.address.toLowerCase()}`) ?? null
 
 		// Determine appropriate tags for this token
 		const dataApiTags = getTokenTags(tokenType, dataApiToken.chainId)
@@ -134,7 +136,7 @@ export async function syncTokensFromDataApi() {
 		} else {
 			// Token doesn't exist, create it
 			try {
-				await payload.create({
+				const created = await payload.create({
 					collection: "tokens",
 					data: {
 						address: dataApiToken.address,
@@ -152,6 +154,7 @@ export async function syncTokensFromDataApi() {
 					},
 				})
 
+				existingTokensMap.set(`${dataApiToken.chainId}:${dataApiToken.address.toLowerCase()}`, created)
 				stats.created++
 			} catch (error) {
 				console.error(`Failed to create token ${dataApiToken.address} on chain ${dataApiToken.chainId}:`, error)

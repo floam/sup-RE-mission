@@ -3,6 +3,10 @@ import type { TokenResponse } from "@/domains/tokens/types"
 import { getPayloadInstance } from "@/payload"
 import type { Token } from "@/payload-types"
 
+export const revalidate = 900
+
+const CACHE_CONTROL = "public, s-maxage=900, stale-while-revalidate=1800"
+
 export async function GET(request: Request) {
 	try {
 		const url = new URL(request.url)
@@ -87,18 +91,23 @@ export async function GET(request: Request) {
 			}),
 		)
 
-		return Response.json({
-			docs: transformedTokens,
-			totalDocs,
-			limit,
-			totalPages,
-			page,
-			pagingCounter,
-			hasPrevPage,
-			hasNextPage,
-			prevPage,
-			nextPage,
-		})
+		return Response.json(
+			{
+				docs: transformedTokens,
+				totalDocs,
+				limit,
+				totalPages,
+				page,
+				pagingCounter,
+				hasPrevPage,
+				hasNextPage,
+				prevPage,
+				nextPage,
+			},
+			{
+				headers: { "Cache-Control": CACHE_CONTROL },
+			},
+		)
 	} catch (error) {
 		console.error("Error fetching tokens:", error)
 		return Response.json(

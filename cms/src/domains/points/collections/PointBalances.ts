@@ -116,15 +116,5 @@ export const PointBalances: CollectionConfig = {
 				},
 			},
 		},
-		{
-			name: "events",
-			type: "relationship",
-			relationTo: "point-events",
-			hasMany: true,
-			admin: {
-				readOnly: true,
-				description: "All point events that contributed to this balance",
-			},
-		},
 	],
 }
