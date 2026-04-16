@@ -7,7 +7,7 @@
  */
 
 import type {} from "@payloadcms/db-vercel-postgres"
-import { relations } from "@payloadcms/db-vercel-postgres/drizzle"
+import { relations, sql } from "@payloadcms/db-vercel-postgres/drizzle"
 import {
 	boolean,
 	foreignKey,
@@ -50,7 +50,7 @@ export const users_token_permissions_allowed_tags = pgTable(
 		index("users_token_permissions_allowed_tags_order_idx").on(columns._order),
 		index("users_token_permissions_allowed_tags_parent_id_idx").on(columns._parentID),
 		foreignKey({
-			columns: [columns._parentID],
+			columns: [columns["_parentID"]],
 			foreignColumns: [users.id],
 			name: "users_token_permissions_allowed_tags_parent_id_fk",
 		}).onDelete("cascade"),
@@ -69,7 +69,7 @@ export const users_token_permissions_allowed_addresses = pgTable(
 		index("users_token_permissions_allowed_addresses_order_idx").on(columns._order),
 		index("users_token_permissions_allowed_addresses_parent_id_idx").on(columns._parentID),
 		foreignKey({
-			columns: [columns._parentID],
+			columns: [columns["_parentID"]],
 			foreignColumns: [users.id],
 			name: "users_token_permissions_allowed_addresses_parent_id_fk",
 		}).onDelete("cascade"),
@@ -88,7 +88,7 @@ export const users_token_permissions_allowed_chain_ids = pgTable(
 		index("users_token_permissions_allowed_chain_ids_order_idx").on(columns._order),
 		index("users_token_permissions_allowed_chain_ids_parent_id_idx").on(columns._parentID),
 		foreignKey({
-			columns: [columns._parentID],
+			columns: [columns["_parentID"]],
 			foreignColumns: [users.id],
 			name: "users_token_permissions_allowed_chain_ids_parent_id_fk",
 		}).onDelete("cascade"),
@@ -107,7 +107,7 @@ export const users_campaign_permissions_allowed_campaign_ids = pgTable(
 		index("users_campaign_permissions_allowed_campaign_ids_order_idx").on(columns._order),
 		index("users_campaign_permissions_allowed_campaign_ids_parent_id_idx").on(columns._parentID),
 		foreignKey({
-			columns: [columns._parentID],
+			columns: [columns["_parentID"]],
 			foreignColumns: [users.id],
 			name: "users_campaign_permissions_allowed_campaign_ids_parent_id_fk",
 		}).onDelete("cascade"),
@@ -121,17 +121,13 @@ export const users_sessions = pgTable(
 		_parentID: integer("_parent_id").notNull(),
 		id: varchar("id").primaryKey(),
 		createdAt: timestamp("created_at", { mode: "string", withTimezone: true, precision: 3 }),
-		expiresAt: timestamp("expires_at", {
-			mode: "string",
-			withTimezone: true,
-			precision: 3,
-		}).notNull(),
+		expiresAt: timestamp("expires_at", { mode: "string", withTimezone: true, precision: 3 }).notNull(),
 	},
 	(columns) => [
 		index("users_sessions_order_idx").on(columns._order),
 		index("users_sessions_parent_id_idx").on(columns._parentID),
 		foreignKey({
-			columns: [columns._parentID],
+			columns: [columns["_parentID"]],
 			foreignColumns: [users.id],
 			name: "users_sessions_parent_id_fk",
 		}).onDelete("cascade"),
@@ -179,7 +175,7 @@ export const tokens_tags = pgTable(
 		index("tokens_tags_order_idx").on(columns.order),
 		index("tokens_tags_parent_idx").on(columns.parent),
 		foreignKey({
-			columns: [columns.parent],
+			columns: [columns["parent"]],
 			foreignColumns: [tokens.id],
 			name: "tokens_tags_parent_fk",
 		}).onDelete("cascade"),
@@ -223,7 +219,7 @@ export const chains_public_r_p_cs = pgTable(
 		index("chains_public_r_p_cs_order_idx").on(columns._order),
 		index("chains_public_r_p_cs_parent_id_idx").on(columns._parentID),
 		foreignKey({
-			columns: [columns._parentID],
+			columns: [columns["_parentID"]],
 			foreignColumns: [chains.id],
 			name: "chains_public_r_p_cs_parent_id_fk",
 		}).onDelete("cascade"),
@@ -242,7 +238,7 @@ export const chains_trusted_forwarders = pgTable(
 		index("chains_trusted_forwarders_order_idx").on(columns._order),
 		index("chains_trusted_forwarders_parent_id_idx").on(columns._parentID),
 		foreignKey({
-			columns: [columns._parentID],
+			columns: [columns["_parentID"]],
 			foreignColumns: [chains.id],
 			name: "chains_trusted_forwarders_parent_id_fk",
 		}).onDelete("cascade"),
@@ -384,11 +380,7 @@ export const point_events = pgTable(
 		points: numeric("points", { mode: "number" }).notNull(),
 		uniqueId: varchar("unique_id"),
 		informational: boolean("informational").default(false),
-		eventTime: timestamp("event_time", {
-			mode: "string",
-			withTimezone: true,
-			precision: 3,
-		}).notNull(),
+		eventTime: timestamp("event_time", { mode: "string", withTimezone: true, precision: 3 }).notNull(),
 		dedupKey: varchar("dedup_key"),
 		updatedAt: timestamp("updated_at", { mode: "string", withTimezone: true, precision: 3 }).defaultNow().notNull(),
 		createdAt: timestamp("created_at", { mode: "string", withTimezone: true, precision: 3 }).defaultNow().notNull(),
@@ -418,6 +410,7 @@ export const point_balances = pgTable(
 		account: varchar("account").notNull(),
 		totalPoints: numeric("total_points", { mode: "number" }).notNull().default(0),
 		eventCount: numeric("event_count", { mode: "number" }).notNull().default(0),
+		capped: boolean("capped").default(false),
 		lastEventAt: timestamp("last_event_at", { mode: "string", withTimezone: true, precision: 3 }),
 		updatedAt: timestamp("updated_at", { mode: "string", withTimezone: true, precision: 3 }).defaultNow().notNull(),
 		createdAt: timestamp("created_at", { mode: "string", withTimezone: true, precision: 3 }).defaultNow().notNull(),
@@ -427,33 +420,6 @@ export const point_balances = pgTable(
 		index("point_balances_account_idx").on(columns.account),
 		index("point_balances_updated_at_idx").on(columns.updatedAt),
 		index("point_balances_created_at_idx").on(columns.createdAt),
-	],
-)
-
-export const point_balances_rels = pgTable(
-	"point_balances_rels",
-	{
-		id: serial("id").primaryKey(),
-		order: integer("order"),
-		parent: varchar("parent_id").notNull(),
-		path: varchar("path").notNull(),
-		"point-eventsID": integer("point_events_id"),
-	},
-	(columns) => [
-		index("point_balances_rels_order_idx").on(columns.order),
-		index("point_balances_rels_parent_idx").on(columns.parent),
-		index("point_balances_rels_path_idx").on(columns.path),
-		index("point_balances_rels_point_events_id_idx").on(columns["point-eventsID"]),
-		foreignKey({
-			columns: [columns.parent],
-			foreignColumns: [point_balances.id],
-			name: "point_balances_rels_parent_fk",
-		}).onDelete("cascade"),
-		foreignKey({
-			columns: [columns["point-eventsID"]],
-			foreignColumns: [point_events.id],
-			name: "point_balances_rels_point_events_fk",
-		}).onDelete("cascade"),
 	],
 )
 
@@ -511,27 +477,27 @@ export const payload_locked_documents_rels = pgTable(
 		index("payload_locked_documents_rels_point_events_id_idx").on(columns["point-eventsID"]),
 		index("payload_locked_documents_rels_point_balances_id_idx").on(columns["point-balancesID"]),
 		foreignKey({
-			columns: [columns.parent],
+			columns: [columns["parent"]],
 			foreignColumns: [payload_locked_documents.id],
 			name: "payload_locked_documents_rels_parent_fk",
 		}).onDelete("cascade"),
 		foreignKey({
-			columns: [columns.usersID],
+			columns: [columns["usersID"]],
 			foreignColumns: [users.id],
 			name: "payload_locked_documents_rels_users_fk",
 		}).onDelete("cascade"),
 		foreignKey({
-			columns: [columns.tokensID],
+			columns: [columns["tokensID"]],
 			foreignColumns: [tokens.id],
 			name: "payload_locked_documents_rels_tokens_fk",
 		}).onDelete("cascade"),
 		foreignKey({
-			columns: [columns.chainsID],
+			columns: [columns["chainsID"]],
 			foreignColumns: [chains.id],
 			name: "payload_locked_documents_rels_chains_fk",
 		}).onDelete("cascade"),
 		foreignKey({
-			columns: [columns.campaignsID],
+			columns: [columns["campaignsID"]],
 			foreignColumns: [campaigns.id],
 			name: "payload_locked_documents_rels_campaigns_fk",
 		}).onDelete("cascade"),
@@ -589,12 +555,12 @@ export const payload_preferences_rels = pgTable(
 		index("payload_preferences_rels_path_idx").on(columns.path),
 		index("payload_preferences_rels_users_id_idx").on(columns.usersID),
 		foreignKey({
-			columns: [columns.parent],
+			columns: [columns["parent"]],
 			foreignColumns: [payload_preferences.id],
 			name: "payload_preferences_rels_parent_fk",
 		}).onDelete("cascade"),
 		foreignKey({
-			columns: [columns.usersID],
+			columns: [columns["usersID"]],
 			foreignColumns: [users.id],
 			name: "payload_preferences_rels_users_fk",
 		}).onDelete("cascade"),
@@ -741,26 +707,11 @@ export const relations_point_events = relations(point_events, ({ one }) => ({
 		relationName: "pushRequest",
 	}),
 }))
-export const relations_point_balances_rels = relations(point_balances_rels, ({ one }) => ({
-	parent: one(point_balances, {
-		fields: [point_balances_rels.parent],
-		references: [point_balances.id],
-		relationName: "_rels",
-	}),
-	"point-eventsID": one(point_events, {
-		fields: [point_balances_rels["point-eventsID"]],
-		references: [point_events.id],
-		relationName: "point-events",
-	}),
-}))
-export const relations_point_balances = relations(point_balances, ({ one, many }) => ({
+export const relations_point_balances = relations(point_balances, ({ one }) => ({
 	campaign: one(campaigns, {
 		fields: [point_balances.campaign],
 		references: [campaigns.id],
 		relationName: "campaign",
-	}),
-	_rels: many(point_balances_rels, {
-		relationName: "_rels",
 	}),
 }))
 export const relations_payload_kv = relations(payload_kv, () => ({}))
@@ -857,7 +808,6 @@ type DatabaseSchema = {
 	push_requests: typeof push_requests
 	point_events: typeof point_events
 	point_balances: typeof point_balances
-	point_balances_rels: typeof point_balances_rels
 	payload_kv: typeof payload_kv
 	payload_locked_documents: typeof payload_locked_documents
 	payload_locked_documents_rels: typeof payload_locked_documents_rels
@@ -879,7 +829,6 @@ type DatabaseSchema = {
 	relations_api_keys: typeof relations_api_keys
 	relations_push_requests: typeof relations_push_requests
 	relations_point_events: typeof relations_point_events
-	relations_point_balances_rels: typeof relations_point_balances_rels
 	relations_point_balances: typeof relations_point_balances
 	relations_payload_kv: typeof relations_payload_kv
 	relations_payload_locked_documents_rels: typeof relations_payload_locked_documents_rels
