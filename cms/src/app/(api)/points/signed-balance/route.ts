@@ -44,6 +44,8 @@ export const GET = async (request: Request): Promise<Response> => {
 			collection: "campaigns",
 			where: { id: { equals: campaignId } },
 			limit: 1,
+			depth: 0,
+			select: { id: true },
 		})
 
 		if (campaignResult.docs.length === 0) {
@@ -61,6 +63,8 @@ export const GET = async (request: Request): Promise<Response> => {
 			const balance = await payload.findByID({
 				collection: "point-balances",
 				id: balanceId,
+				depth: 0,
+				select: { totalPoints: true, capped: true },
 			})
 			points = balance.totalPoints
 			isCapped = balance.capped ?? false

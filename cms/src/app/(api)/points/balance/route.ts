@@ -39,6 +39,8 @@ export const GET = async (request: Request): Promise<Response> => {
 			collection: "campaigns",
 			where: { id: { equals: campaignId } },
 			limit: 1,
+			depth: 0,
+			select: { id: true },
 		})
 
 		if (campaignResult.docs.length === 0) {
@@ -52,6 +54,8 @@ export const GET = async (request: Request): Promise<Response> => {
 				and: [{ campaign: { equals: campaignId } }, { account: { equals: account } }],
 			},
 			limit: 1,
+			depth: 0,
+			select: { totalPoints: true, capped: true },
 		})
 
 		const balance = result.docs[0]
@@ -132,6 +136,8 @@ export const POST = async (request: Request): Promise<Response> => {
 			collection: "campaigns",
 			where: { id: { equals: campaignId } },
 			limit: 1,
+			depth: 0,
+			select: { id: true },
 		})
 
 		if (campaignResult.docs.length === 0) {
@@ -145,6 +151,8 @@ export const POST = async (request: Request): Promise<Response> => {
 				and: [{ campaign: { equals: campaignId } }, { account: { in: normalizedAccounts } }],
 			},
 			limit: normalizedAccounts.length,
+			depth: 0,
+			select: { account: true, totalPoints: true, capped: true },
 		})
 
 		// Build response mapping

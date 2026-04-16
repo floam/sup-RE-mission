@@ -5,6 +5,7 @@ import * as migration_20260128_003116_campaign_permissions from "./20260128_0031
 import * as migration_20260203_144022 from "./20260203_144022"
 import * as migration_20260203_174920 from "./20260203_174920"
 import * as migration_20260326_145642 from "./20260326_145642"
+import * as migration_20260416_100607 from "./20260416_100607"
 
 export const migrations = [
 	{
@@ -41,5 +42,10 @@ export const migrations = [
 		up: migration_20260326_145642.up,
 		down: migration_20260326_145642.down,
 		name: "20260326_145642",
+	},
+	{
+		up: migration_20260416_100607.up,
+		down: migration_20260416_100607.down,
+		name: "20260416_100607",
 	},
 ]

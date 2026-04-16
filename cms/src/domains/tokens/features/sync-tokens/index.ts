@@ -61,10 +61,10 @@ export async function getAllExistingTokens(payload?: Payload): Promise<Map<strin
 		page++
 	}
 
-	// Create a map for quick lookup by address and chainId
-	const existingTokensMap = new Map()
+	// Create a map keyed by composite ID (`${chainId}:${address.toLowerCase()}`)
+	const existingTokensMap = new Map<string, Token>()
 	existingTokens.forEach((token) => {
-		const key = `${token.address}-${token.chainId}`
+		const key = `${token.chainId}:${token.address.toLowerCase()}`
 		existingTokensMap.set(key, token)
 	})
 

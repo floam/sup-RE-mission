@@ -1,6 +1,6 @@
 import { getPayloadInstance } from "@/payload"
 import type { Token } from "@/payload-types"
-import { getExistingToken, hasChanges, mergeTags, shouldUpdateLogoUri } from "."
+import { getAllExistingTokens, hasChanges, mergeTags, shouldUpdateLogoUri } from "."
 
 // # Types
 interface StremeToken {
@@ -56,6 +56,11 @@ export async function syncFromStreme() {
 	const payload = await getPayloadInstance()
 	const pageSize = 200 // API returns 200 tokens per page
 
+	// Preload all existing tokens once to avoid a per-token database round-trip.
+	// New tokens created during this sync are tracked in this map so subsequent
+	// pages correctly treat them as existing.
+	const existingTokensMap = await getAllExistingTokens(payload)
+
 	// Track overall statistics
 	const stats: SyncStats = {
 		created: 0,
@@ -95,7 +100,7 @@ export async function syncFromStreme() {
 		console.log(`Fetched ${pageTokens.length} tokens on page ${page}. Total fetched: ${totalFetched}`)
 
 		// Process this page immediately
-		const pageStats = await processStremePage(pageTokens, payload)
+		const pageStats = await processStremePage(pageTokens, payload, existingTokensMap)
 		stats.created += pageStats.created
 		stats.updated += pageStats.updated
 		stats.skipped += pageStats.skipped
@@ -133,6 +138,7 @@ export async function syncFromStreme() {
 async function processStremePage(
 	stremeTokens: StremeToken[],
 	payload: Awaited<ReturnType<typeof getPayloadInstance>>,
+	existingTokensMap: Map<string, Token>,
 ): Promise<SyncStats> {
 	const stats: SyncStats = {
 		created: 0,
@@ -142,8 +148,8 @@ async function processStremePage(
 	}
 
 	for (const stremeToken of stremeTokens) {
-		// On-demand lookup for each token
-		const existingToken = await getExistingToken(stremeToken.contract_address, stremeToken.chain_id, payload)
+		const compositeId = `${stremeToken.chain_id}:${stremeToken.contract_address.toLowerCase()}`
+		const existingToken = existingTokensMap.get(compositeId) ?? null
 
 		if (existingToken) {
 			// Token exists, update with Streme information
@@ -189,7 +195,7 @@ async function processStremePage(
 		} else {
 			// Token doesn't exist, create it
 			try {
-				await payload.create({
+				const created = await payload.create({
 					collection: "tokens",
 					data: {
 						address: stremeToken.contract_address,
@@ -206,6 +212,7 @@ async function processStremePage(
 					},
 				})
 
+				existingTokensMap.set(compositeId, created)
 				stats.created++
 			} catch (error) {
 				console.error(
