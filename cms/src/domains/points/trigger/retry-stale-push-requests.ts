@@ -6,6 +6,7 @@ import type { processPushRequest } from "./process-push-request"
 const MIN_AGE_MINUTES = 15
 const DEFAULT_MAX_AGE_HOURS = 2
 const MAX_AGE_HOURS_CAP = 168 // 7 days
+const MAX_TRIGGERS_PER_RUN = 1000 // trigger.dev batchTrigger hard limit
 
 function clampMaxAgeHours(input: number | undefined): number {
 	if (input === undefined || !Number.isFinite(input) || input <= 0) return DEFAULT_MAX_AGE_HOURS
@@ -29,32 +30,28 @@ async function runRetryStaleRequests({ maxAgeHours }: { maxAgeHours: number }) {
 				{ createdAt: { greater_than: maxAgeCutoff.toISOString() } },
 			],
 		},
-		limit: 100,
+		limit: MAX_TRIGGERS_PER_RUN,
+		sort: "-createdAt",
 		depth: 0,
 	})
 
+	const totalFound = staleRequests.totalDocs
+	const capped = totalFound > staleRequests.docs.length
+
 	if (staleRequests.docs.length === 0) {
 		console.log("No stale push requests found")
-		return { retriggered: 0, total: 0, maxAgeHours }
+		return { retriggered: 0, total: 0, maxAgeHours, capped: false }
 	}
 
-	console.log(`Found ${staleRequests.docs.length} stale push requests`)
+	console.log(`Found ${totalFound} stale push requests${capped ? ` (capped at ${MAX_TRIGGERS_PER_RUN})` : ""}`)
 
-	let retriggeredCount = 0
-	for (const request of staleRequests.docs) {
-		try {
-			await tasks.trigger<typeof processPushRequest>("process-push-request", {
-				pushRequestId: request.id,
-			})
-			retriggeredCount++
-			console.log(`Retriggered push request ${request.id}`)
-		} catch (error) {
-			console.error(`Failed to retrigger push request ${request.id}:`, error)
-		}
-	}
+	await tasks.batchTrigger<typeof processPushRequest>(
+		"process-push-request",
+		staleRequests.docs.map((r) => ({ payload: { pushRequestId: r.id } })),
+	)
 
-	console.log(`Retriggered ${retriggeredCount} stale push requests`)
-	return { retriggered: retriggeredCount, total: staleRequests.docs.length, maxAgeHours }
+	console.log(`Retriggered ${staleRequests.docs.length} stale push requests`)
+	return { retriggered: staleRequests.docs.length, total: totalFound, maxAgeHours, capped }
 }
 
 /**
