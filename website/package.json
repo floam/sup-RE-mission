@@ -9,16 +9,16 @@
 		"start": "next start"
 	},
 	"dependencies": {
-		"next": "^16.0.8",
-		"react": "^19.2.4",
-		"react-dom": "^19.2.4"
+		"next": "^16.2.4",
+		"react": "^19.2.5",
+		"react-dom": "^19.2.5"
 	},
 	"devDependencies": {
-		"@tailwindcss/postcss": "^4.1.18",
-		"@types/node": "^24.10.9",
-		"@types/react": "^19.2.10",
+		"@tailwindcss/postcss": "^4.2.2",
+		"@types/node": "^24.12.2",
+		"@types/react": "^19.2.14",
 		"@types/react-dom": "^19.2.3",
-		"tailwindcss": "^4.1.18",
+		"tailwindcss": "^4.2.2",
 		"typescript": "^5.9.3"
 	}
 }
