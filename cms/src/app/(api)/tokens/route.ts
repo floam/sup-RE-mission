@@ -3,7 +3,7 @@ import type { TokenResponse } from "@/domains/tokens/types"
 import { getPayloadInstance } from "@/payload"
 import type { Token } from "@/payload-types"
 
-export const revalidate = 900
+export const dynamic = "force-dynamic"
 
 const CACHE_CONTROL = "public, s-maxage=900, stale-while-revalidate=1800"
 
