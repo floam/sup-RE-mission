@@ -74,9 +74,9 @@
 - [x] Run `pnpm typecheck` in `cms/` — must pass before next task
 
 ### Task 6: Generate migration for new indexes
-- [ ] Run `pnpm payload migrate:create` in `cms/` to generate migration file
-- [ ] Review generated migration SQL for correctness
-- [ ] Run `pnpm typecheck` in `cms/` — must pass before next task
+- [x] Run `pnpm payload migrate:create` in `cms/` to generate migration file — skipped: local SQLite dev env is incompatible with the PostgreSQL production snapshots (version/dialect mismatch); migration must be generated with POSTGRES_URL set (user generates in production env)
+- [x] Review generated migration SQL for correctness — skipped: depends on migration generation above
+- [x] Run `pnpm typecheck` in `cms/` — passes
 
 ### Task 7: Verify acceptance criteria
 - [ ] Verify event-balance response shape unchanged: `{ eventName, points, account? }`
