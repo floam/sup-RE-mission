@@ -3,6 +3,8 @@ import { isAddress } from "viem"
 import type { PointEventsResponse } from "@/domains/points/types"
 import { getPayloadInstance } from "@/payload"
 
+export const maxDuration = 30
+
 /**
  * Parse timestamp from either ISO 8601 or Unix timestamp (seconds)
  * Returns Date or null if invalid

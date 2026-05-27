@@ -60,10 +60,10 @@
 - [x] Run `pnpm typecheck` in `cms/` — must pass before next task
 
 ### Task 3: Add maxDuration to remaining heavy routes
-- [ ] Add `export const maxDuration = 30` to `cms/src/app/(api)/points/campaign/route.ts`
-- [ ] Add `export const maxDuration = 30` to `cms/src/app/(api)/points/events/route.ts`
-- [ ] Add `export const maxDuration = 30` to `cms/src/app/(api)/points/accounts/route.ts`
-- [ ] Run `pnpm typecheck` in `cms/` — must pass before next task
+- [x] Add `export const maxDuration = 30` to `cms/src/app/(api)/points/campaign/route.ts`
+- [x] Add `export const maxDuration = 30` to `cms/src/app/(api)/points/events/route.ts`
+- [x] Add `export const maxDuration = 30` to `cms/src/app/(api)/points/accounts/route.ts`
+- [x] Run `pnpm typecheck` in `cms/` — must pass before next task
 
 ### Task 4: Add composite indexes to PointEvents collection
 - [ ] Add `indexes` property to PointEvents collection config with: `["campaign", "eventName"]`, `["campaign", "eventName", "account"]`, `["campaign", "eventTime"]`, `["campaign", "account", "eventTime"]`

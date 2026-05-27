@@ -1,6 +1,8 @@
 import type { CampaignAccountsResponse } from "@/domains/points/types"
 import { getPayloadInstance } from "@/payload"
 
+export const maxDuration = 30
+
 const VALID_ORDER_BY = ["totalPoints", "eventCount", "lastEventAt"] as const
 
 /**
