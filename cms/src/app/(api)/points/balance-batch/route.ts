@@ -2,6 +2,8 @@ import { isAddress } from "viem"
 import { applyPointsCap } from "@/domains/points/utils/points-cap"
 import { getPayloadInstance } from "@/payload"
 
+export const maxDuration = 30
+
 const MAX_CAMPAIGNS = 50
 
 /**

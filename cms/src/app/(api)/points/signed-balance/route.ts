@@ -3,6 +3,8 @@ import { applyPointsCap } from "@/domains/points/utils/points-cap"
 import { signMessageHash } from "@/domains/points/utils/signing"
 import { getPayloadInstance } from "@/payload"
 
+export const maxDuration = 30
+
 /**
  * GET /points/signed-balance?campaignId=42&account=0x...
  *
