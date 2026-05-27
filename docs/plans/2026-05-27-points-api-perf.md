@@ -70,8 +70,8 @@
 - [x] Run `pnpm typecheck` in `cms/` — must pass before next task
 
 ### Task 5: Add composite indexes to PointBalances collection
-- [ ] Add `indexes` property to PointBalances collection config with: `["campaign", "account"]`, `["campaign", "totalPoints"]`, `["campaign", "eventCount"]`, `["campaign", "lastEventAt"]`
-- [ ] Run `pnpm typecheck` in `cms/` — must pass before next task
+- [x] Add `indexes` property to PointBalances collection config with: `["campaign", "account"]`, `["campaign", "totalPoints"]`, `["campaign", "eventCount"]`, `["campaign", "lastEventAt"]`
+- [x] Run `pnpm typecheck` in `cms/` — must pass before next task
 
 ### Task 6: Generate migration for new indexes
 - [ ] Run `pnpm payload migrate:create` in `cms/` to generate migration file
