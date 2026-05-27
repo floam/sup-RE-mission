@@ -66,8 +66,8 @@
 - [x] Run `pnpm typecheck` in `cms/` — must pass before next task
 
 ### Task 4: Add composite indexes to PointEvents collection
-- [ ] Add `indexes` property to PointEvents collection config with: `["campaign", "eventName"]`, `["campaign", "eventName", "account"]`, `["campaign", "eventTime"]`, `["campaign", "account", "eventTime"]`
-- [ ] Run `pnpm typecheck` in `cms/` — must pass before next task
+- [x] Add `indexes` property to PointEvents collection config with: `["campaign", "eventName"]`, `["campaign", "eventName", "account"]`, `["campaign", "eventTime"]`, `["campaign", "account", "eventTime"]`
+- [x] Run `pnpm typecheck` in `cms/` — must pass before next task
 
 ### Task 5: Add composite indexes to PointBalances collection
 - [ ] Add `indexes` property to PointBalances collection config with: `["campaign", "account"]`, `["campaign", "totalPoints"]`, `["campaign", "eventCount"]`, `["campaign", "lastEventAt"]`
