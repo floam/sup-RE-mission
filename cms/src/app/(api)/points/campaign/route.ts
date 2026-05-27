@@ -3,6 +3,8 @@ import type { CampaignMetadataResponse } from "@/domains/points/types"
 import { getPayloadInstance } from "@/payload"
 import { point_balances, point_events } from "@/payload-drizzle-schema"
 
+export const maxDuration = 30
+
 /**
  * GET /points/campaign?campaignId=42
  * Query campaign metadata: name, slug, aggregate stats.

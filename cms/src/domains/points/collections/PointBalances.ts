@@ -4,6 +4,12 @@ import { addressSchema, validateWithZod } from "../../../utils/validation"
 
 export const PointBalances: CollectionConfig = {
 	slug: "point-balances",
+	indexes: [
+		{ fields: ["campaign", "account"] },
+		{ fields: ["campaign", "totalPoints"] },
+		{ fields: ["campaign", "eventCount"] },
+		{ fields: ["campaign", "lastEventAt"] },
+	],
 	admin: {
 		useAsTitle: "id",
 		defaultColumns: ["campaign", "account", "totalPoints", "eventCount", "lastEventAt"],

@@ -1,7 +1,8 @@
-import type { Where } from "payload"
+import { and, eq, sum } from "@payloadcms/db-vercel-postgres/drizzle"
 import { isAddress } from "viem"
 import type { EventBalanceResponse } from "@/domains/points/types"
 import { getPayloadInstance } from "@/payload"
+import { point_events } from "@/payload-drizzle-schema"
 
 /**
  * GET /points/event-balance?campaignId=42&eventName=swap
@@ -11,6 +12,8 @@ import { getPayloadInstance } from "@/payload"
  * - With account: Returns sum for that account
  * - Without account: Returns sum across all accounts
  */
+export const maxDuration = 30
+
 export const GET = async (request: Request): Promise<Response> => {
 	try {
 		const url = new URL(request.url)
@@ -59,22 +62,19 @@ export const GET = async (request: Request): Promise<Response> => {
 			return Response.json({ message: "Campaign not found" }, { status: 404 })
 		}
 
-		// Build query conditions
-		const conditions: Where[] = [{ campaign: { equals: campaignId } }, { eventName: { equals: eventName } }]
+		// Build Drizzle conditions for DB-side SUM aggregation
+		const conditions = [eq(point_events.campaign, campaignId), eq(point_events.eventName, eventName)]
 
-		// Add account filter only if provided
 		if (account) {
-			conditions.push({ account: { equals: account } })
+			conditions.push(eq(point_events.account, account))
 		}
 
-		// Query point events and aggregate
-		const result = await payload.find({
-			collection: "point-events",
-			where: { and: conditions },
-			limit: 10000, // Reasonable upper bound
-		})
+		const result = await payload.db.drizzle
+			.select({ totalPoints: sum(point_events.points) })
+			.from(point_events)
+			.where(and(...conditions))
 
-		const points = result.docs.reduce((sum, doc) => sum + doc.points, 0)
+		const points = Number(result[0]?.totalPoints ?? 0)
 
 		// Build response - always include eventName, include account only if provided
 		const response: EventBalanceResponse = { eventName, points }

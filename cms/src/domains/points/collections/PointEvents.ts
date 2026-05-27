@@ -115,6 +115,12 @@ export const PointEvents: CollectionConfig = {
 		defaultColumns: ["campaign", "eventName", "points", "account", "createdAt"],
 		group: "Points",
 	},
+	indexes: [
+		{ fields: ["campaign", "eventName"] },
+		{ fields: ["campaign", "eventName", "account"] },
+		{ fields: ["campaign", "eventTime"] },
+		{ fields: ["campaign", "account", "eventTime"] },
+	],
 	access: {
 		read: AccessControl.campaignChildAccess,
 		// Internal creation only - no direct API access

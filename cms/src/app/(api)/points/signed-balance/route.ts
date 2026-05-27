@@ -3,6 +3,8 @@ import { applyPointsCap } from "@/domains/points/utils/points-cap"
 import { signMessageHash } from "@/domains/points/utils/signing"
 import { getPayloadInstance } from "@/payload"
 
+export const maxDuration = 30
+
 /**
  * GET /points/signed-balance?campaignId=42&account=0x...
  *
@@ -59,17 +61,16 @@ export const GET = async (request: Request): Promise<Response> => {
 		let points = 0
 		let isCapped = false
 
-		try {
-			const balance = await payload.findByID({
-				collection: "point-balances",
-				id: balanceId,
-				depth: 0,
-				select: { totalPoints: true, capped: true },
-			})
+		const balance = await payload.findByID({
+			collection: "point-balances",
+			id: balanceId,
+			depth: 0,
+			select: { totalPoints: true, capped: true },
+			disableErrors: true,
+		})
+		if (balance !== null) {
 			points = balance.totalPoints
 			isCapped = balance.capped ?? false
-		} catch {
-			// Balance doesn't exist, default to 0
 		}
 
 		// Apply points cap: capped accounts get 1 point

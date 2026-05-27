@@ -3,6 +3,8 @@ import type { PointBalanceResponse, PointBalancesResponse } from "@/domains/poin
 import { applyPointsCap } from "@/domains/points/utils/points-cap"
 import { getPayloadInstance } from "@/payload"
 
+export const maxDuration = 30
+
 /**
  * GET /points/balance?campaignId=42&account=0x...
  * Query points for a single account.

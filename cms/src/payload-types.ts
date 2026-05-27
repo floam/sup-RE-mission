@@ -13,860 +13,873 @@
  * via the `definition` "supportedTimezones".
  */
 export type SupportedTimezones =
-	| "Pacific/Midway"
-	| "Pacific/Niue"
-	| "Pacific/Honolulu"
-	| "Pacific/Rarotonga"
-	| "America/Anchorage"
-	| "Pacific/Gambier"
-	| "America/Los_Angeles"
-	| "America/Tijuana"
-	| "America/Denver"
-	| "America/Phoenix"
-	| "America/Chicago"
-	| "America/Guatemala"
-	| "America/New_York"
-	| "America/Bogota"
-	| "America/Caracas"
-	| "America/Santiago"
-	| "America/Buenos_Aires"
-	| "America/Sao_Paulo"
-	| "Atlantic/South_Georgia"
-	| "Atlantic/Azores"
-	| "Atlantic/Cape_Verde"
-	| "Europe/London"
-	| "Europe/Berlin"
-	| "Africa/Lagos"
-	| "Europe/Athens"
-	| "Africa/Cairo"
-	| "Europe/Moscow"
-	| "Asia/Riyadh"
-	| "Asia/Dubai"
-	| "Asia/Baku"
-	| "Asia/Karachi"
-	| "Asia/Tashkent"
-	| "Asia/Calcutta"
-	| "Asia/Dhaka"
-	| "Asia/Almaty"
-	| "Asia/Jakarta"
-	| "Asia/Bangkok"
-	| "Asia/Shanghai"
-	| "Asia/Singapore"
-	| "Asia/Tokyo"
-	| "Asia/Seoul"
-	| "Australia/Brisbane"
-	| "Australia/Sydney"
-	| "Pacific/Guam"
-	| "Pacific/Noumea"
-	| "Pacific/Auckland"
-	| "Pacific/Fiji"
+  | 'Pacific/Midway'
+  | 'Pacific/Niue'
+  | 'Pacific/Honolulu'
+  | 'Pacific/Rarotonga'
+  | 'America/Anchorage'
+  | 'Pacific/Gambier'
+  | 'America/Los_Angeles'
+  | 'America/Tijuana'
+  | 'America/Denver'
+  | 'America/Phoenix'
+  | 'America/Chicago'
+  | 'America/Guatemala'
+  | 'America/New_York'
+  | 'America/Bogota'
+  | 'America/Caracas'
+  | 'America/Santiago'
+  | 'America/Buenos_Aires'
+  | 'America/Sao_Paulo'
+  | 'Atlantic/South_Georgia'
+  | 'Atlantic/Azores'
+  | 'Atlantic/Cape_Verde'
+  | 'Europe/London'
+  | 'Europe/Berlin'
+  | 'Africa/Lagos'
+  | 'Europe/Athens'
+  | 'Africa/Cairo'
+  | 'Europe/Moscow'
+  | 'Asia/Riyadh'
+  | 'Asia/Dubai'
+  | 'Asia/Baku'
+  | 'Asia/Karachi'
+  | 'Asia/Tashkent'
+  | 'Asia/Calcutta'
+  | 'Asia/Dhaka'
+  | 'Asia/Almaty'
+  | 'Asia/Jakarta'
+  | 'Asia/Bangkok'
+  | 'Asia/Shanghai'
+  | 'Asia/Singapore'
+  | 'Asia/Tokyo'
+  | 'Asia/Seoul'
+  | 'Australia/Brisbane'
+  | 'Australia/Sydney'
+  | 'Pacific/Guam'
+  | 'Pacific/Noumea'
+  | 'Pacific/Auckland'
+  | 'Pacific/Fiji';
 
 export interface Config {
-	auth: {
-		users: UserAuthOperations
-	}
-	blocks: {}
-	collections: {
-		users: User
-		tokens: Token
-		chains: Chain
-		campaigns: Campaign
-		"api-keys": ApiKey
-		"push-requests": PushRequest
-		"point-events": PointEvent
-		"point-balances": PointBalance
-		"payload-kv": PayloadKv
-		"payload-locked-documents": PayloadLockedDocument
-		"payload-preferences": PayloadPreference
-		"payload-migrations": PayloadMigration
-	}
-	collectionsJoins: {}
-	collectionsSelect: {
-		users: UsersSelect<false> | UsersSelect<true>
-		tokens: TokensSelect<false> | TokensSelect<true>
-		chains: ChainsSelect<false> | ChainsSelect<true>
-		campaigns: CampaignsSelect<false> | CampaignsSelect<true>
-		"api-keys": ApiKeysSelect<false> | ApiKeysSelect<true>
-		"push-requests": PushRequestsSelect<false> | PushRequestsSelect<true>
-		"point-events": PointEventsSelect<false> | PointEventsSelect<true>
-		"point-balances": PointBalancesSelect<false> | PointBalancesSelect<true>
-		"payload-kv": PayloadKvSelect<false> | PayloadKvSelect<true>
-		"payload-locked-documents": PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>
-		"payload-preferences": PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>
-		"payload-migrations": PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>
-	}
-	db: {
-		defaultIDType: number
-	}
-	fallbackLocale: null
-	globals: {}
-	globalsSelect: {}
-	locale: null
-	user: User & {
-		collection: "users"
-	}
-	jobs: {
-		tasks: unknown
-		workflows: unknown
-	}
+  auth: {
+    users: UserAuthOperations;
+  };
+  blocks: {};
+  collections: {
+    users: User;
+    tokens: Token;
+    chains: Chain;
+    campaigns: Campaign;
+    'api-keys': ApiKey;
+    'push-requests': PushRequest;
+    'point-events': PointEvent;
+    'point-balances': PointBalance;
+    'payload-kv': PayloadKv;
+    'payload-locked-documents': PayloadLockedDocument;
+    'payload-preferences': PayloadPreference;
+    'payload-migrations': PayloadMigration;
+  };
+  collectionsJoins: {};
+  collectionsSelect: {
+    users: UsersSelect<false> | UsersSelect<true>;
+    tokens: TokensSelect<false> | TokensSelect<true>;
+    chains: ChainsSelect<false> | ChainsSelect<true>;
+    campaigns: CampaignsSelect<false> | CampaignsSelect<true>;
+    'api-keys': ApiKeysSelect<false> | ApiKeysSelect<true>;
+    'push-requests': PushRequestsSelect<false> | PushRequestsSelect<true>;
+    'point-events': PointEventsSelect<false> | PointEventsSelect<true>;
+    'point-balances': PointBalancesSelect<false> | PointBalancesSelect<true>;
+    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
+    'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
+    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
+    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
+  };
+  db: {
+    defaultIDType: number;
+  };
+  fallbackLocale: null;
+  globals: {};
+  globalsSelect: {};
+  locale: null;
+  widgets: {
+    collections: CollectionsWidget;
+  };
+  user: User;
+  jobs: {
+    tasks: unknown;
+    workflows: unknown;
+  };
 }
 export interface UserAuthOperations {
-	forgotPassword: {
-		email: string
-		password: string
-	}
-	login: {
-		email: string
-		password: string
-	}
-	registerFirstUser: {
-		email: string
-		password: string
-	}
-	unlock: {
-		email: string
-		password: string
-	}
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
-	id: number
-	name?: string | null
-	role: "admin" | "editor" | "viewer"
-	/**
-	 * Configure token editing permissions for editors
-	 */
-	tokenPermissions?: {
-		/**
-		 * If checked, user can edit all tokens. If unchecked, restrictions below apply.
-		 */
-		canEditAllTokens?: boolean | null
-		/**
-		 * User can edit tokens with ANY of these tags
-		 */
-		allowedTags?:
-			| {
-					tag: string
-					id?: string | null
-			  }[]
-			| null
-		/**
-		 * User can edit tokens from ANY of these addresses
-		 */
-		allowedAddresses?:
-			| {
-					address: string
-					id?: string | null
-			  }[]
-			| null
-		/**
-		 * User can edit tokens on ANY of these chains
-		 */
-		allowedChainIds?:
-			| {
-					chainId: number
-					id?: string | null
-			  }[]
-			| null
-	}
-	/**
-	 * Configure which campaigns this user can access
-	 */
-	campaignPermissions?: {
-		/**
-		 * If checked, user can access all campaigns. If unchecked, only assigned campaigns.
-		 */
-		canAccessAllCampaigns?: boolean | null
-		/**
-		 * Campaign IDs this user can access
-		 */
-		allowedCampaignIds?:
-			| {
-					campaignId: number
-					id?: string | null
-			  }[]
-			| null
-	}
-	updatedAt: string
-	createdAt: string
-	email: string
-	resetPasswordToken?: string | null
-	resetPasswordExpiration?: string | null
-	salt?: string | null
-	hash?: string | null
-	loginAttempts?: number | null
-	lockUntil?: string | null
-	sessions?:
-		| {
-				id: string
-				createdAt?: string | null
-				expiresAt: string
-		  }[]
-		| null
-	password?: string | null
+  id: number;
+  name?: string | null;
+  role: 'admin' | 'editor' | 'viewer';
+  /**
+   * Configure token editing permissions for editors
+   */
+  tokenPermissions?: {
+    /**
+     * If checked, user can edit all tokens. If unchecked, restrictions below apply.
+     */
+    canEditAllTokens?: boolean | null;
+    /**
+     * User can edit tokens with ANY of these tags
+     */
+    allowedTags?:
+      | {
+          tag: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * User can edit tokens from ANY of these addresses
+     */
+    allowedAddresses?:
+      | {
+          address: string;
+          id?: string | null;
+        }[]
+      | null;
+    /**
+     * User can edit tokens on ANY of these chains
+     */
+    allowedChainIds?:
+      | {
+          chainId: number;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * Configure which campaigns this user can access
+   */
+  campaignPermissions?: {
+    /**
+     * If checked, user can access all campaigns. If unchecked, only assigned campaigns.
+     */
+    canAccessAllCampaigns?: boolean | null;
+    /**
+     * Campaign IDs this user can access
+     */
+    allowedCampaignIds?:
+      | {
+          campaignId: number;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tokens".
  */
 export interface Token {
-	id: string
-	/**
-	 * The blockchain network ID for this token (legacy field, will be migrated)
-	 */
-	chainId: number
-	address: string
-	name: string
-	decimals: number
-	symbol: string
-	/**
-	 * URL of the token logo image
-	 */
-	logoUri?: string | null
-	/**
-	 * Whether the token is listed on the Resolver
-	 */
-	isListed?: boolean | null
-	coingeckoId?: string | null
-	/**
-	 * Select tags to categorize this token
-	 */
-	tags?: ("streme" | "testnet" | "underlying" | "supertoken")[] | null
-	tokenType: "underlyingToken" | "pureSuperToken" | "nativeAssetSuperToken" | "wrapperSuperToken"
-	/**
-	 * Required for Wrapper Super Tokens, optional for Native Asset Super Tokens, forbidden for Pure Super Tokens and Underlying Tokens
-	 */
-	underlyingAddress?: string | null
-	order: number
-	/**
-	 * Any additional notes about the token
-	 */
-	note?: string | null
-	updatedAt: string
-	createdAt: string
+  id: string;
+  /**
+   * The blockchain network ID for this token (legacy field, will be migrated)
+   */
+  chainId: number;
+  address: string;
+  name: string;
+  decimals: number;
+  symbol: string;
+  /**
+   * URL of the token logo image
+   */
+  logoUri?: string | null;
+  /**
+   * Whether the token is listed on the Resolver
+   */
+  isListed?: boolean | null;
+  coingeckoId?: string | null;
+  /**
+   * Select tags to categorize this token
+   */
+  tags?: ('streme' | 'testnet' | 'underlying' | 'supertoken')[] | null;
+  tokenType: 'underlyingToken' | 'pureSuperToken' | 'nativeAssetSuperToken' | 'wrapperSuperToken';
+  /**
+   * Required for Wrapper Super Tokens, optional for Native Asset Super Tokens, forbidden for Pure Super Tokens and Underlying Tokens
+   */
+  underlyingAddress?: string | null;
+  order: number;
+  /**
+   * Any additional notes about the token
+   */
+  note?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "chains".
  */
 export interface Chain {
-	id: number
-	humanReadableName: string
-	/**
-	 * Superfluid canonical network name
-	 */
-	canonicalName: string
-	shortName: string
-	uppercaseName: string
-	isDeprecated: boolean
-	isTestnet: boolean
-	nativeTokenSymbol: string
-	nativeTokenWrapper: string
-	contractsV1: {
-		resolver: string
-		host: string
-		governance?: string | null
-		cfaV1: string
-		cfaV1Forwarder: string
-		idaV1: string
-		gdaV1?: string | null
-		gdaV1Forwarder?: string | null
-		superTokenFactory: string
-		superfluidLoader: string
-		toga?: string | null
-		batchLiquidator?: string | null
-		superSpreader?: string | null
-		existentialNFTCloneFactory?: string | null
-		macroForwarder?: string | null
-	}
-	startBlockV1: number
-	logsQueryRange: number
-	/**
-	 * Block explorer URL
-	 */
-	explorer: string
-	subgraphV1?: {
-		cliName?: string | null
-		hostedEndpoint?: string | null
-	}
-	automations?: {
-		vestingScheduler?: string | null
-		vestingSchedulerV2?: string | null
-		vestingSchedulerV3?: string | null
-		flowScheduler?: string | null
-		manager?: string | null
-		wrapStrategy?: string | null
-		subgraphVestingEndpoint?: string | null
-		subgraphFlowSchedulerEndpoint?: string | null
-		subgraphAutoWrapEndpoint?: string | null
-	}
-	publicRPCs?:
-		| {
-				url: string
-				id?: string | null
-		  }[]
-		| null
-	coinGeckoId?: string | null
-	/**
-	 * List of additional trusted forwarders
-	 */
-	trustedForwarders?:
-		| {
-				address: string
-				id?: string | null
-		  }[]
-		| null
-	updatedAt: string
-	createdAt: string
+  id: number;
+  humanReadableName: string;
+  /**
+   * Superfluid canonical network name
+   */
+  canonicalName: string;
+  shortName: string;
+  uppercaseName: string;
+  isDeprecated: boolean;
+  isTestnet: boolean;
+  nativeTokenSymbol: string;
+  nativeTokenWrapper: string;
+  contractsV1: {
+    resolver: string;
+    host: string;
+    governance?: string | null;
+    cfaV1: string;
+    cfaV1Forwarder: string;
+    idaV1: string;
+    gdaV1?: string | null;
+    gdaV1Forwarder?: string | null;
+    superTokenFactory: string;
+    superfluidLoader: string;
+    toga?: string | null;
+    batchLiquidator?: string | null;
+    superSpreader?: string | null;
+    existentialNFTCloneFactory?: string | null;
+    macroForwarder?: string | null;
+  };
+  startBlockV1: number;
+  logsQueryRange: number;
+  /**
+   * Block explorer URL
+   */
+  explorer: string;
+  subgraphV1?: {
+    cliName?: string | null;
+    hostedEndpoint?: string | null;
+  };
+  automations?: {
+    vestingScheduler?: string | null;
+    vestingSchedulerV2?: string | null;
+    vestingSchedulerV3?: string | null;
+    flowScheduler?: string | null;
+    manager?: string | null;
+    wrapStrategy?: string | null;
+    subgraphVestingEndpoint?: string | null;
+    subgraphFlowSchedulerEndpoint?: string | null;
+    subgraphAutoWrapEndpoint?: string | null;
+  };
+  publicRPCs?:
+    | {
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  coinGeckoId?: string | null;
+  /**
+   * List of additional trusted forwarders
+   */
+  trustedForwarders?:
+    | {
+        address: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "campaigns".
  */
 export interface Campaign {
-	/**
-	 * Unique numeric identifier for this campaign
-	 */
-	id: number
-	/**
-	 * Human-readable name for this campaign
-	 */
-	name: string
-	/**
-	 * URL-friendly identifier (lowercase, hyphens only)
-	 */
-	slug: string
-	updatedAt: string
-	createdAt: string
+  /**
+   * Unique numeric identifier for this campaign
+   */
+  id: number;
+  /**
+   * Human-readable name for this campaign
+   */
+  name: string;
+  /**
+   * URL-friendly identifier (lowercase, hyphens only)
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "api-keys".
  */
 export interface ApiKey {
-	id: number
-	/**
-	 * Identifier for this API key (e.g., "Frontend Integration")
-	 */
-	name: string
-	/**
-	 * The campaign this API key belongs to
-	 */
-	campaign: number | Campaign
-	/**
-	 * Full API key - copy this value (only shown after creation)
-	 */
-	rawKey?: string | null
-	keyHash?: string | null
-	/**
-	 * First 12 characters of the key for identification
-	 */
-	keyPrefix?: string | null
-	/**
-	 * Active keys can be used for API requests
-	 */
-	status: "active" | "revoked"
-	/**
-	 * Last time this key was used for an API request
-	 */
-	lastUsedAt?: string | null
-	updatedAt: string
-	createdAt: string
+  id: number;
+  /**
+   * Identifier for this API key (e.g., "Frontend Integration")
+   */
+  name: string;
+  /**
+   * The campaign this API key belongs to
+   */
+  campaign: number | Campaign;
+  /**
+   * Full API key - copy this value (only shown after creation)
+   */
+  rawKey?: string | null;
+  keyHash?: string | null;
+  /**
+   * First 12 characters of the key for identification
+   */
+  keyPrefix?: string | null;
+  /**
+   * Active keys can be used for API requests
+   */
+  status: 'active' | 'revoked';
+  /**
+   * Last time this key was used for an API request
+   */
+  lastUsedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "push-requests".
  */
 export interface PushRequest {
-	id: number
-	/**
-	 * The campaign this push request belongs to
-	 */
-	campaign: number | Campaign
-	/**
-	 * Full validated request payload for audit trail and reprocessing
-	 */
-	payload:
-		| {
-				[k: string]: unknown
-		  }
-		| unknown[]
-		| string
-		| number
-		| boolean
-		| null
-	/**
-	 * Number of events in the payload
-	 */
-	eventCount: number
-	/**
-	 * Processing status of this push request
-	 */
-	status: "pending" | "processing" | "completed" | "failed"
-	/**
-	 * Error message if processing failed
-	 */
-	error?: string | null
-	/**
-	 * When this push request finished processing
-	 */
-	processedAt?: string | null
-	updatedAt: string
-	createdAt: string
+  id: number;
+  /**
+   * The campaign this push request belongs to
+   */
+  campaign: number | Campaign;
+  /**
+   * Full validated request payload for audit trail and reprocessing
+   */
+  payload:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  /**
+   * Number of events in the payload
+   */
+  eventCount: number;
+  /**
+   * Processing status of this push request
+   */
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  /**
+   * Error message if processing failed
+   */
+  error?: string | null;
+  /**
+   * When this push request finished processing
+   */
+  processedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "point-events".
  */
 export interface PointEvent {
-	id: number
-	/**
-	 * The campaign this event belongs to
-	 */
-	campaign: number | Campaign
-	/**
-	 * The push request that created this event (for audit trail)
-	 */
-	pushRequest?: (number | null) | PushRequest
-	/**
-	 * Type of event (e.g., "swap", "stream_created")
-	 */
-	eventName: string
-	/**
-	 * Wallet address (normalized to lowercase)
-	 */
-	account: string
-	/**
-	 * Points awarded (can be positive or negative)
-	 */
-	points: number
-	/**
-	 * Deduplication key (unique per campaign + account)
-	 */
-	uniqueId?: string | null
-	/**
-	 * If true, this event is recorded for history only and does not affect the account balance
-	 */
-	informational?: boolean | null
-	/**
-	 * When the event occurred (defaults to creation time, can be set for historical imports)
-	 */
-	eventTime: string
-	/**
-	 * Computed deduplication key: campaignId:account:uniqueId
-	 */
-	dedupKey?: string | null
-	updatedAt: string
-	createdAt: string
+  id: number;
+  /**
+   * The campaign this event belongs to
+   */
+  campaign: number | Campaign;
+  /**
+   * The push request that created this event (for audit trail)
+   */
+  pushRequest?: (number | null) | PushRequest;
+  /**
+   * Type of event (e.g., "swap", "stream_created")
+   */
+  eventName: string;
+  /**
+   * Wallet address (normalized to lowercase)
+   */
+  account: string;
+  /**
+   * Points awarded (can be positive or negative)
+   */
+  points: number;
+  /**
+   * Deduplication key (unique per campaign + account)
+   */
+  uniqueId?: string | null;
+  /**
+   * If true, this event is recorded for history only and does not affect the account balance
+   */
+  informational?: boolean | null;
+  /**
+   * When the event occurred (defaults to creation time, can be set for historical imports)
+   */
+  eventTime: string;
+  /**
+   * Computed deduplication key: campaignId:account:uniqueId
+   */
+  dedupKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "point-balances".
  */
 export interface PointBalance {
-	/**
-	 * Composite ID: campaignId:account
-	 */
-	id: string
-	/**
-	 * The campaign this balance belongs to
-	 */
-	campaign: number | Campaign
-	/**
-	 * Wallet address (normalized to lowercase)
-	 */
-	account: string
-	/**
-	 * Aggregated total points for this account in this campaign
-	 */
-	totalPoints: number
-	/**
-	 * Number of point events for this account
-	 */
-	eventCount: number
-	/**
-	 * When enabled, this account's points are capped to 1 for this campaign
-	 */
-	capped?: boolean | null
-	/**
-	 * When the last point event was processed
-	 */
-	lastEventAt?: string | null
-	updatedAt: string
-	createdAt: string
+  /**
+   * Composite ID: campaignId:account
+   */
+  id: string;
+  /**
+   * The campaign this balance belongs to
+   */
+  campaign: number | Campaign;
+  /**
+   * Wallet address (normalized to lowercase)
+   */
+  account: string;
+  /**
+   * Aggregated total points for this account in this campaign
+   */
+  totalPoints: number;
+  /**
+   * Number of point events for this account
+   */
+  eventCount: number;
+  /**
+   * When enabled, this account's points are capped to 1 for this campaign
+   */
+  capped?: boolean | null;
+  /**
+   * When the last point event was processed
+   */
+  lastEventAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-	id: number
-	key: string
-	data:
-		| {
-				[k: string]: unknown
-		  }
-		| unknown[]
-		| string
-		| number
-		| boolean
-		| null
+  id: number;
+  key: string;
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-	id: number
-	document?:
-		| ({
-				relationTo: "users"
-				value: number | User
-		  } | null)
-		| ({
-				relationTo: "tokens"
-				value: string | Token
-		  } | null)
-		| ({
-				relationTo: "chains"
-				value: number | Chain
-		  } | null)
-		| ({
-				relationTo: "campaigns"
-				value: number | Campaign
-		  } | null)
-		| ({
-				relationTo: "api-keys"
-				value: number | ApiKey
-		  } | null)
-		| ({
-				relationTo: "push-requests"
-				value: number | PushRequest
-		  } | null)
-		| ({
-				relationTo: "point-events"
-				value: number | PointEvent
-		  } | null)
-		| ({
-				relationTo: "point-balances"
-				value: string | PointBalance
-		  } | null)
-	globalSlug?: string | null
-	user: {
-		relationTo: "users"
-		value: number | User
-	}
-	updatedAt: string
-	createdAt: string
+  id: number;
+  document?:
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null)
+    | ({
+        relationTo: 'tokens';
+        value: string | Token;
+      } | null)
+    | ({
+        relationTo: 'chains';
+        value: number | Chain;
+      } | null)
+    | ({
+        relationTo: 'campaigns';
+        value: number | Campaign;
+      } | null)
+    | ({
+        relationTo: 'api-keys';
+        value: number | ApiKey;
+      } | null)
+    | ({
+        relationTo: 'push-requests';
+        value: number | PushRequest;
+      } | null)
+    | ({
+        relationTo: 'point-events';
+        value: number | PointEvent;
+      } | null)
+    | ({
+        relationTo: 'point-balances';
+        value: string | PointBalance;
+      } | null);
+  globalSlug?: string | null;
+  user: {
+    relationTo: 'users';
+    value: number | User;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-	id: number
-	user: {
-		relationTo: "users"
-		value: number | User
-	}
-	key?: string | null
-	value?:
-		| {
-				[k: string]: unknown
-		  }
-		| unknown[]
-		| string
-		| number
-		| boolean
-		| null
-	updatedAt: string
-	createdAt: string
+  id: number;
+  user: {
+    relationTo: 'users';
+    value: number | User;
+  };
+  key?: string | null;
+  value?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-	id: number
-	name?: string | null
-	batch?: number | null
-	updatedAt: string
-	createdAt: string
+  id: number;
+  name?: string | null;
+  batch?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-	name?: T
-	role?: T
-	tokenPermissions?:
-		| T
-		| {
-				canEditAllTokens?: T
-				allowedTags?:
-					| T
-					| {
-							tag?: T
-							id?: T
-					  }
-				allowedAddresses?:
-					| T
-					| {
-							address?: T
-							id?: T
-					  }
-				allowedChainIds?:
-					| T
-					| {
-							chainId?: T
-							id?: T
-					  }
-		  }
-	campaignPermissions?:
-		| T
-		| {
-				canAccessAllCampaigns?: T
-				allowedCampaignIds?:
-					| T
-					| {
-							campaignId?: T
-							id?: T
-					  }
-		  }
-	updatedAt?: T
-	createdAt?: T
-	email?: T
-	resetPasswordToken?: T
-	resetPasswordExpiration?: T
-	salt?: T
-	hash?: T
-	loginAttempts?: T
-	lockUntil?: T
-	sessions?:
-		| T
-		| {
-				id?: T
-				createdAt?: T
-				expiresAt?: T
-		  }
+  name?: T;
+  role?: T;
+  tokenPermissions?:
+    | T
+    | {
+        canEditAllTokens?: T;
+        allowedTags?:
+          | T
+          | {
+              tag?: T;
+              id?: T;
+            };
+        allowedAddresses?:
+          | T
+          | {
+              address?: T;
+              id?: T;
+            };
+        allowedChainIds?:
+          | T
+          | {
+              chainId?: T;
+              id?: T;
+            };
+      };
+  campaignPermissions?:
+    | T
+    | {
+        canAccessAllCampaigns?: T;
+        allowedCampaignIds?:
+          | T
+          | {
+              campaignId?: T;
+              id?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tokens_select".
  */
 export interface TokensSelect<T extends boolean = true> {
-	id?: T
-	chainId?: T
-	address?: T
-	name?: T
-	decimals?: T
-	symbol?: T
-	logoUri?: T
-	isListed?: T
-	coingeckoId?: T
-	tags?: T
-	tokenType?: T
-	underlyingAddress?: T
-	order?: T
-	note?: T
-	updatedAt?: T
-	createdAt?: T
+  id?: T;
+  chainId?: T;
+  address?: T;
+  name?: T;
+  decimals?: T;
+  symbol?: T;
+  logoUri?: T;
+  isListed?: T;
+  coingeckoId?: T;
+  tags?: T;
+  tokenType?: T;
+  underlyingAddress?: T;
+  order?: T;
+  note?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "chains_select".
  */
 export interface ChainsSelect<T extends boolean = true> {
-	id?: T
-	humanReadableName?: T
-	canonicalName?: T
-	shortName?: T
-	uppercaseName?: T
-	isDeprecated?: T
-	isTestnet?: T
-	nativeTokenSymbol?: T
-	nativeTokenWrapper?: T
-	contractsV1?:
-		| T
-		| {
-				resolver?: T
-				host?: T
-				governance?: T
-				cfaV1?: T
-				cfaV1Forwarder?: T
-				idaV1?: T
-				gdaV1?: T
-				gdaV1Forwarder?: T
-				superTokenFactory?: T
-				superfluidLoader?: T
-				toga?: T
-				batchLiquidator?: T
-				superSpreader?: T
-				existentialNFTCloneFactory?: T
-				macroForwarder?: T
-		  }
-	startBlockV1?: T
-	logsQueryRange?: T
-	explorer?: T
-	subgraphV1?:
-		| T
-		| {
-				cliName?: T
-				hostedEndpoint?: T
-		  }
-	automations?:
-		| T
-		| {
-				vestingScheduler?: T
-				vestingSchedulerV2?: T
-				vestingSchedulerV3?: T
-				flowScheduler?: T
-				manager?: T
-				wrapStrategy?: T
-				subgraphVestingEndpoint?: T
-				subgraphFlowSchedulerEndpoint?: T
-				subgraphAutoWrapEndpoint?: T
-		  }
-	publicRPCs?:
-		| T
-		| {
-				url?: T
-				id?: T
-		  }
-	coinGeckoId?: T
-	trustedForwarders?:
-		| T
-		| {
-				address?: T
-				id?: T
-		  }
-	updatedAt?: T
-	createdAt?: T
+  id?: T;
+  humanReadableName?: T;
+  canonicalName?: T;
+  shortName?: T;
+  uppercaseName?: T;
+  isDeprecated?: T;
+  isTestnet?: T;
+  nativeTokenSymbol?: T;
+  nativeTokenWrapper?: T;
+  contractsV1?:
+    | T
+    | {
+        resolver?: T;
+        host?: T;
+        governance?: T;
+        cfaV1?: T;
+        cfaV1Forwarder?: T;
+        idaV1?: T;
+        gdaV1?: T;
+        gdaV1Forwarder?: T;
+        superTokenFactory?: T;
+        superfluidLoader?: T;
+        toga?: T;
+        batchLiquidator?: T;
+        superSpreader?: T;
+        existentialNFTCloneFactory?: T;
+        macroForwarder?: T;
+      };
+  startBlockV1?: T;
+  logsQueryRange?: T;
+  explorer?: T;
+  subgraphV1?:
+    | T
+    | {
+        cliName?: T;
+        hostedEndpoint?: T;
+      };
+  automations?:
+    | T
+    | {
+        vestingScheduler?: T;
+        vestingSchedulerV2?: T;
+        vestingSchedulerV3?: T;
+        flowScheduler?: T;
+        manager?: T;
+        wrapStrategy?: T;
+        subgraphVestingEndpoint?: T;
+        subgraphFlowSchedulerEndpoint?: T;
+        subgraphAutoWrapEndpoint?: T;
+      };
+  publicRPCs?:
+    | T
+    | {
+        url?: T;
+        id?: T;
+      };
+  coinGeckoId?: T;
+  trustedForwarders?:
+    | T
+    | {
+        address?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "campaigns_select".
  */
 export interface CampaignsSelect<T extends boolean = true> {
-	id?: T
-	name?: T
-	slug?: T
-	updatedAt?: T
-	createdAt?: T
+  id?: T;
+  name?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "api-keys_select".
  */
 export interface ApiKeysSelect<T extends boolean = true> {
-	name?: T
-	campaign?: T
-	rawKey?: T
-	keyHash?: T
-	keyPrefix?: T
-	status?: T
-	lastUsedAt?: T
-	updatedAt?: T
-	createdAt?: T
+  name?: T;
+  campaign?: T;
+  rawKey?: T;
+  keyHash?: T;
+  keyPrefix?: T;
+  status?: T;
+  lastUsedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "push-requests_select".
  */
 export interface PushRequestsSelect<T extends boolean = true> {
-	campaign?: T
-	payload?: T
-	eventCount?: T
-	status?: T
-	error?: T
-	processedAt?: T
-	updatedAt?: T
-	createdAt?: T
+  campaign?: T;
+  payload?: T;
+  eventCount?: T;
+  status?: T;
+  error?: T;
+  processedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "point-events_select".
  */
 export interface PointEventsSelect<T extends boolean = true> {
-	campaign?: T
-	pushRequest?: T
-	eventName?: T
-	account?: T
-	points?: T
-	uniqueId?: T
-	informational?: T
-	eventTime?: T
-	dedupKey?: T
-	updatedAt?: T
-	createdAt?: T
+  campaign?: T;
+  pushRequest?: T;
+  eventName?: T;
+  account?: T;
+  points?: T;
+  uniqueId?: T;
+  informational?: T;
+  eventTime?: T;
+  dedupKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "point-balances_select".
  */
 export interface PointBalancesSelect<T extends boolean = true> {
-	id?: T
-	campaign?: T
-	account?: T
-	totalPoints?: T
-	eventCount?: T
-	capped?: T
-	lastEventAt?: T
-	updatedAt?: T
-	createdAt?: T
+  id?: T;
+  campaign?: T;
+  account?: T;
+  totalPoints?: T;
+  eventCount?: T;
+  capped?: T;
+  lastEventAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
-	key?: T
-	data?: T
+  key?: T;
+  data?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents_select".
  */
 export interface PayloadLockedDocumentsSelect<T extends boolean = true> {
-	document?: T
-	globalSlug?: T
-	user?: T
-	updatedAt?: T
-	createdAt?: T
+  document?: T;
+  globalSlug?: T;
+  user?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences_select".
  */
 export interface PayloadPreferencesSelect<T extends boolean = true> {
-	user?: T
-	key?: T
-	value?: T
-	updatedAt?: T
-	createdAt?: T
+  user?: T;
+  key?: T;
+  value?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations_select".
  */
 export interface PayloadMigrationsSelect<T extends boolean = true> {
-	name?: T
-	batch?: T
-	updatedAt?: T
-	createdAt?: T
+  name?: T;
+  batch?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collections_widget".
+ */
+export interface CollectionsWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
-	[k: string]: unknown
+  [k: string]: unknown;
 }
 
-declare module "payload" {
-	export interface GeneratedTypes extends Config {}
+
+declare module 'payload' {
+  export interface GeneratedTypes extends Config {}
 }
