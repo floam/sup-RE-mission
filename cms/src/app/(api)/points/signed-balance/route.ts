@@ -59,17 +59,16 @@ export const GET = async (request: Request): Promise<Response> => {
 		let points = 0
 		let isCapped = false
 
-		try {
-			const balance = await payload.findByID({
-				collection: "point-balances",
-				id: balanceId,
-				depth: 0,
-				select: { totalPoints: true, capped: true },
-			})
+		const balance = await payload.findByID({
+			collection: "point-balances",
+			id: balanceId,
+			depth: 0,
+			select: { totalPoints: true, capped: true },
+			disableErrors: true,
+		})
+		if (balance !== null) {
 			points = balance.totalPoints
 			isCapped = balance.capped ?? false
-		} catch {
-			// Balance doesn't exist, default to 0
 		}
 
 		// Apply points cap: capped accounts get 1 point

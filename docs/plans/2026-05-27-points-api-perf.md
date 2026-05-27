@@ -55,9 +55,9 @@
 - [x] Run `pnpm typecheck` in `cms/` — must pass before next task
 
 ### Task 2: Fix signed-balance error handling
-- [ ] Replace bare `catch {}` (lines 62-73) with `disableErrors: true` on the `findByID` call: `const balance = await payload.findByID({ ..., disableErrors: true })`
-- [ ] Handle `null` return as zero balance (not-found case), let real DB errors propagate to the outer catch
-- [ ] Run `pnpm typecheck` in `cms/` — must pass before next task
+- [x] Replace bare `catch {}` (lines 62-73) with `disableErrors: true` on the `findByID` call: `const balance = await payload.findByID({ ..., disableErrors: true })`
+- [x] Handle `null` return as zero balance (not-found case), let real DB errors propagate to the outer catch
+- [x] Run `pnpm typecheck` in `cms/` — must pass before next task
 
 ### Task 3: Add maxDuration to remaining heavy routes
 - [ ] Add `export const maxDuration = 30` to `cms/src/app/(api)/points/campaign/route.ts`
