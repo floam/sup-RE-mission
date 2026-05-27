@@ -79,10 +79,10 @@
 - [x] Run `pnpm typecheck` in `cms/` — passes
 
 ### Task 7: Verify acceptance criteria
-- [ ] Verify event-balance response shape unchanged: `{ eventName, points, account? }`
-- [ ] Verify signed-balance still returns signed zero for non-existent balances
-- [ ] Run full test suite: `pnpm test:int` in `cms/` (pre-existing failures in tokens/prices tests, no points test regressions)
-- [ ] Run linter: `pnpm check` from repo root (warnings only, no errors)
+- [x] Verify event-balance response shape unchanged: `{ eventName, points, account? }`
+- [x] Verify signed-balance still returns signed zero for non-existent balances
+- [x] Run full test suite: `pnpm test:int` in `cms/` (pre-existing failures in tokens/prices tests, no points test regressions)
+- [x] Run linter: `pnpm check` from repo root (warnings only, no errors)
 
 ## Technical Details
 - **Drizzle SUM pattern** (from `campaign/route.ts`): `payload.db.drizzle.select({ totalPoints: sum(point_events.points) }).from(point_events).where(and(...))`
