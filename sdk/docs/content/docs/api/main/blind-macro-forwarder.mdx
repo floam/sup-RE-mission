@@ -1,0 +1,159 @@
+---
+title: Blind Macro Forwarder
+description: API reference for the Blind Macro Forwarder (BlindMacroForwarder)
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+The Blind Macro Forwarder is the minimal, legacy macro forwarder (formerly `MacroForwarder`). It executes user-defined "macro" contracts as a single atomic batch of protocol operations. Unlike the [Clear Macro Forwarder](/docs/api/main/clear-macro-forwarder), there is no EIP-712 clear signing or relaying — the **caller is the operator**, and approves the macro's calldata directly.
+
+Its address is sourced from the metadata `contractsV1.macroForwarder` key and is the same deterministic address across all supported networks.
+
+## Contract Addresses
+
+```ts twoslash
+import { blindMacroForwarderAddress } from "@sfpro/sdk/abi"
+import { mainnet } from "viem/chains"
+
+// Get Blind Macro Forwarder address for a specific chain
+const forwarderAddress = blindMacroForwarderAddress[mainnet.id]
+```
+
+## Read Functions
+
+### buildBatchOperations
+
+Simulate a macro and return the batch operations it would execute. Useful for previewing or encoding a macro call before sending it.
+
+<Tabs items={["/hook", "/abi", "/action"]}>
+<Tab value="/hook">
+```tsx twoslash
+import { useReadBlindMacroForwarder } from "@sfpro/sdk/hook" // [!code focus]
+
+const { data: operations } = useReadBlindMacroForwarder({ // [!code focus]
+  functionName: "buildBatchOperations", // [!code focus]
+  args: ["0x...", "0x..."] // Macro contract address, encoded params // [!code focus]
+}) // [!code focus]
+```
+</Tab>
+
+<Tab value="/abi">
+```ts twoslash
+import { blindMacroForwarderAbi, blindMacroForwarderAddress } from "@sfpro/sdk/abi" // [!code focus]
+import { createPublicClient, http } from "viem"
+import { mainnet } from "viem/chains"
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+
+const operations = await client.readContract({ // [!code focus]
+  address: blindMacroForwarderAddress[mainnet.id], // [!code focus]
+  abi: blindMacroForwarderAbi, // [!code focus]
+  functionName: "buildBatchOperations", // [!code focus]
+  args: [ // [!code focus]
+    "0x...", // Macro contract address // [!code focus]
+    "0x..."  // Encoded macro params // [!code focus]
+  ] // [!code focus]
+}) // [!code focus]
+```
+</Tab>
+
+<Tab value="/action">
+```ts twoslash
+import { readBlindMacroForwarder } from "@sfpro/sdk/action" // [!code focus]
+import { createConfig } from "@wagmi/core"
+import { http } from "viem"
+import { mainnet } from "viem/chains"
+
+const config = createConfig({
+  chains: [mainnet],
+  transports: { [mainnet.id]: http() }
+})
+
+const operations = await readBlindMacroForwarder(config, { // [!code focus]
+  chainId: mainnet.id, // [!code focus]
+  functionName: "buildBatchOperations", // [!code focus]
+  args: ["0x...", "0x..."] // Macro contract address, encoded params // [!code focus]
+}) // [!code focus]
+```
+</Tab>
+</Tabs>
+
+## Write Functions
+
+### runMacro
+
+Run a user-defined macro: the forwarder builds the macro's operations and forwards them to the Host as an atomic batch call. Any native value sent is forwarded along with the operations. The caller is the operator of the batch.
+
+<Tabs items={["/hook", "/abi", "/action"]}>
+<Tab value="/hook">
+```tsx twoslash
+import { useWriteBlindMacroForwarder } from "@sfpro/sdk/hook" // [!code focus]
+
+const { writeContract: runMacro } = useWriteBlindMacroForwarder({ // [!code focus]
+  functionName: "runMacro", // [!code focus]
+  args: ["0x...", "0x..."] // Macro contract address, encoded params // [!code focus]
+}) // [!code focus]
+```
+</Tab>
+
+<Tab value="/abi">
+```ts twoslash
+import { blindMacroForwarderAbi, blindMacroForwarderAddress } from "@sfpro/sdk/abi" // [!code focus]
+import { createWalletClient, http } from "viem"
+import { mainnet } from "viem/chains"
+import { privateKeyToAccount } from "viem/accounts"
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+const walletClient = createWalletClient({
+  account,
+  chain: mainnet,
+  transport: http()
+})
+
+const hash = await walletClient.writeContract({ // [!code focus]
+  address: blindMacroForwarderAddress[mainnet.id], // [!code focus]
+  abi: blindMacroForwarderAbi, // [!code focus]
+  functionName: "runMacro", // [!code focus]
+  args: [ // [!code focus]
+    "0x...", // Macro contract address // [!code focus]
+    "0x..."  // Encoded macro params // [!code focus]
+  ] // [!code focus]
+}) // [!code focus]
+```
+</Tab>
+
+<Tab value="/action">
+```ts twoslash
+import { writeBlindMacroForwarder } from "@sfpro/sdk/action" // [!code focus]
+import { createConfig } from "@wagmi/core"
+import { createWalletClient, http } from "viem"
+import { mainnet } from "viem/chains"
+import { privateKeyToAccount } from "viem/accounts"
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+const config = createConfig({
+  chains: [mainnet],
+  client({ chain }) {
+    return createWalletClient({ account, chain, transport: http() })
+  },
+})
+
+const hash = await writeBlindMacroForwarder(config, { // [!code focus]
+  chainId: mainnet.id, // [!code focus]
+  functionName: "runMacro", // [!code focus]
+  args: ["0x...", "0x..."] // Macro contract address, encoded params // [!code focus]
+}) // [!code focus]
+```
+</Tab>
+</Tabs>
+
+## Key Notes
+
+- **Blind vs clear signing**: The caller approves the macro's calldata directly and is the operator of the batch. For human-readable EIP-712 signing, third-party relaying, and Permit2 support, use the [Clear Macro Forwarder](/docs/api/main/clear-macro-forwarder) instead.
+- **User-defined macros**: The first argument is the address of a macro contract that builds the batch operations from the encoded `params`.
+- **Atomic execution**: `runMacro` forwards all operations to the Host in a single batch call, so they succeed or revert together.
+- **Events**: The contract emits `MacroExecuted` — subscribe with `useWatchBlindMacroForwarderEvent` (`/hook`) or `watchBlindMacroForwarderEvent` (`/action`).
+- **Address source**: Powered by metadata `contractsV1.macroForwarder`, deployed at the same deterministic address on every supported network.

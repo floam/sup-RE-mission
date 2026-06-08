@@ -45,6 +45,12 @@ import TOGA from "@superfluid-finance/ethereum-contracts/build/hardhat/contracts
 import BatchLiquidator from "@superfluid-finance/ethereum-contracts/build/hardhat/contracts/utils/BatchLiquidator.sol/BatchLiquidator.json" with {
 	type: "json",
 };
+import ClearMacroForwarderV1WithPermit2 from "@superfluid-finance/ethereum-contracts/build/hardhat/contracts/utils/ClearMacroForwarderV1WithPermit2.sol/ClearMacroForwarderV1WithPermit2.json" with {
+	type: "json",
+};
+import BlindMacroForwarder from "@superfluid-finance/ethereum-contracts/build/hardhat/contracts/utils/BlindMacroForwarder.sol/BlindMacroForwarder.json" with {
+	type: "json",
+};
 
 // # SUP contracts
 import Locker from "./abis/FluidLocker.json" with {
@@ -119,6 +125,10 @@ const CfaForwarderWithCfaErrors = uniqErrors((CFAv1Forwarder.abi as Abi).concat(
 
 const GdaForwarderWithGdaErrors = uniqErrors((GDAv1Forwarder.abi as Abi).concat(gdaErrors));
 
+const ClearMacroForwarderWithAllErrors = uniqErrors((ClearMacroForwarderV1WithPermit2.abi as Abi).concat(allErrors));
+
+const BlindMacroForwarderWithAllErrors = uniqErrors((BlindMacroForwarder.abi as Abi).concat(allErrors));
+
 // Combine Native Asset Super Token with Wrapper Super Token to enable a simpler SDK API.
 // The Pure Super Token is already included.
 
@@ -188,6 +198,20 @@ export default defineConfig({
 					abi: GdaForwarderWithGdaErrors,
 					name: "gdaForwarder",
 					address: getAddressesFromMetadata((network) => network.contractsV1.gdaV1Forwarder),
+				},
+				{
+					// Public SDK name uses Superfluid "Clear" branding; this is ClearMacroForwarderV1WithPermit2.
+					// Address comes from metadata `contractsV1.clearMacroForwarderV1WithPermit2`.
+					abi: ClearMacroForwarderWithAllErrors,
+					name: "clearMacroForwarder",
+					address: getAddressesFromMetadata((network) => network.contractsV1.clearMacroForwarderV1WithPermit2),
+				},
+				{
+					// The blind macro forwarder (renamed legacy MacroForwarder); caller is the operator, no clear signing.
+					// Address comes from metadata `contractsV1.macroForwarder`.
+					abi: BlindMacroForwarderWithAllErrors,
+					name: "blindMacroForwarder",
+					address: getAddressesFromMetadata((network) => network.contractsV1.macroForwarder),
 				},
 				{
 					abi: SuperfluidPool.abi as Abi,
