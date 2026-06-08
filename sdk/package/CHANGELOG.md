@@ -1,5 +1,12 @@
 # @sfpro/sdk
 
+## 0.2.1
+
+### Patch Changes
+
+- 22af298: Add Blind Macro Forwarder (`blindMacroForwarder`, `BlindMacroForwarder`) ABI, address, hooks, and actions.
+- 22af298: Add Clear Macro Forwarder (`clearMacroForwarder`, `ClearMacroForwarderV1WithPermit2`) ABI, address, hooks, and actions.
+
 ## 0.2.0
 
 ### Minor Changes
