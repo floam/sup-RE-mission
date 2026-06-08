@@ -1,0 +1,221 @@
+---
+title: Clear Macro Forwarder
+description: API reference for the Clear Macro Forwarder (ClearMacroForwarderV1WithPermit2)
+---
+
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+The Clear Macro Forwarder executes user-defined "macro" contracts as an atomic batch of protocol operations, using **clear (human-readable) EIP-712 signing**. Unlike the blind forwarder, the signer approves a structured, displayable payload, and the signed macro can be **relayed by a third party** — `runMacro` takes the `signer` and their `signature` as explicit arguments, so the relayer's wallet is not the operator. It also supports **Permit2** for token approvals (`runPermit2AndMacro`).
+
+The on-chain contract is `ClearMacroForwarderV1WithPermit2`; its address is sourced from the metadata `contractsV1.clearMacroForwarderV1WithPermit2` key and is the same deterministic address across all supported networks.
+
+## Contract Addresses
+
+```ts twoslash
+import { clearMacroForwarderAddress } from "@sfpro/sdk/abi"
+import { mainnet } from "viem/chains"
+
+// Get Clear Macro Forwarder address for a specific chain
+const forwarderAddress = clearMacroForwarderAddress[mainnet.id]
+```
+
+## Read Functions
+
+### getNonce
+
+Get the current nonce for a signer (and nonce key), used to build a replay-protected EIP-712 payload.
+
+<Tabs items={["/hook", "/abi", "/action"]}>
+<Tab value="/hook">
+```tsx twoslash
+import { useReadClearMacroForwarder } from "@sfpro/sdk/hook" // [!code focus]
+
+const { data: nonce } = useReadClearMacroForwarder({ // [!code focus]
+  functionName: "getNonce", // [!code focus]
+  args: ["0x...", 0n] // Signer address, nonce key // [!code focus]
+}) // [!code focus]
+```
+</Tab>
+
+<Tab value="/abi">
+```ts twoslash
+import { clearMacroForwarderAbi, clearMacroForwarderAddress } from "@sfpro/sdk/abi" // [!code focus]
+import { createPublicClient, http } from "viem"
+import { mainnet } from "viem/chains"
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+
+const nonce = await client.readContract({ // [!code focus]
+  address: clearMacroForwarderAddress[mainnet.id], // [!code focus]
+  abi: clearMacroForwarderAbi, // [!code focus]
+  functionName: "getNonce", // [!code focus]
+  args: [ // [!code focus]
+    "0x...", // Signer address // [!code focus]
+    0n       // Nonce key // [!code focus]
+  ] // [!code focus]
+}) // [!code focus]
+```
+</Tab>
+
+<Tab value="/action">
+```ts twoslash
+import { readClearMacroForwarder } from "@sfpro/sdk/action" // [!code focus]
+import { createConfig } from "@wagmi/core"
+import { http } from "viem"
+import { mainnet } from "viem/chains"
+
+const config = createConfig({
+  chains: [mainnet],
+  transports: { [mainnet.id]: http() }
+})
+
+const nonce = await readClearMacroForwarder(config, { // [!code focus]
+  chainId: mainnet.id, // [!code focus]
+  functionName: "getNonce", // [!code focus]
+  args: ["0x...", 0n] // Signer address, nonce key // [!code focus]
+}) // [!code focus]
+```
+</Tab>
+</Tabs>
+
+### getDigest
+
+Get the EIP-712 digest for a macro and its encoded payload. The signer signs this digest to authorize the macro.
+
+<Tabs items={["/hook", "/abi", "/action"]}>
+<Tab value="/hook">
+```tsx twoslash
+import { useReadClearMacroForwarder } from "@sfpro/sdk/hook" // [!code focus]
+
+const { data: digest } = useReadClearMacroForwarder({ // [!code focus]
+  functionName: "getDigest", // [!code focus]
+  args: ["0x...", "0x..."] // Macro contract address, encoded payload // [!code focus]
+}) // [!code focus]
+```
+</Tab>
+
+<Tab value="/abi">
+```ts twoslash
+import { clearMacroForwarderAbi, clearMacroForwarderAddress } from "@sfpro/sdk/abi" // [!code focus]
+import { createPublicClient, http } from "viem"
+import { mainnet } from "viem/chains"
+
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http()
+})
+
+const digest = await client.readContract({ // [!code focus]
+  address: clearMacroForwarderAddress[mainnet.id], // [!code focus]
+  abi: clearMacroForwarderAbi, // [!code focus]
+  functionName: "getDigest", // [!code focus]
+  args: [ // [!code focus]
+    "0x...", // Macro contract address // [!code focus]
+    "0x..."  // Encoded payload // [!code focus]
+  ] // [!code focus]
+}) // [!code focus]
+```
+</Tab>
+
+<Tab value="/action">
+```ts twoslash
+import { readClearMacroForwarder } from "@sfpro/sdk/action" // [!code focus]
+import { createConfig } from "@wagmi/core"
+import { http } from "viem"
+import { mainnet } from "viem/chains"
+
+const config = createConfig({
+  chains: [mainnet],
+  transports: { [mainnet.id]: http() }
+})
+
+const digest = await readClearMacroForwarder(config, { // [!code focus]
+  chainId: mainnet.id, // [!code focus]
+  functionName: "getDigest", // [!code focus]
+  args: ["0x...", "0x..."] // Macro contract address, encoded payload // [!code focus]
+}) // [!code focus]
+```
+</Tab>
+</Tabs>
+
+## Write Functions
+
+### runMacro
+
+Run a clear-signed macro on behalf of `signer`. The macro contract builds the batch operations from `encodedPayload`, the forwarder verifies the signer's EIP-712 `signature`, and forwards the operations to the Host atomically. The caller (relayer) does not need to be the signer.
+
+<Tabs items={["/hook", "/abi", "/action"]}>
+<Tab value="/hook">
+```tsx twoslash
+import { useWriteClearMacroForwarder } from "@sfpro/sdk/hook" // [!code focus]
+
+const { writeContract: runMacro } = useWriteClearMacroForwarder({ // [!code focus]
+  functionName: "runMacro", // [!code focus]
+  args: ["0x...", "0x...", "0x...", "0x..."] // Macro, encoded payload, signer, signature // [!code focus]
+}) // [!code focus]
+```
+</Tab>
+
+<Tab value="/abi">
+```ts twoslash
+import { clearMacroForwarderAbi, clearMacroForwarderAddress } from "@sfpro/sdk/abi" // [!code focus]
+import { createWalletClient, http } from "viem"
+import { mainnet } from "viem/chains"
+import { privateKeyToAccount } from "viem/accounts"
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+const walletClient = createWalletClient({
+  account,
+  chain: mainnet,
+  transport: http()
+})
+
+const hash = await walletClient.writeContract({ // [!code focus]
+  address: clearMacroForwarderAddress[mainnet.id], // [!code focus]
+  abi: clearMacroForwarderAbi, // [!code focus]
+  functionName: "runMacro", // [!code focus]
+  args: [ // [!code focus]
+    "0x...", // Macro contract address // [!code focus]
+    "0x...", // Encoded payload // [!code focus]
+    "0x...", // Signer address // [!code focus]
+    "0x..."  // EIP-712 signature // [!code focus]
+  ] // [!code focus]
+}) // [!code focus]
+```
+</Tab>
+
+<Tab value="/action">
+```ts twoslash
+import { writeClearMacroForwarder } from "@sfpro/sdk/action" // [!code focus]
+import { createConfig } from "@wagmi/core"
+import { createWalletClient, http } from "viem"
+import { mainnet } from "viem/chains"
+import { privateKeyToAccount } from "viem/accounts"
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`)
+const config = createConfig({
+  chains: [mainnet],
+  client({ chain }) {
+    return createWalletClient({ account, chain, transport: http() })
+  },
+})
+
+const hash = await writeClearMacroForwarder(config, { // [!code focus]
+  chainId: mainnet.id, // [!code focus]
+  functionName: "runMacro", // [!code focus]
+  args: ["0x...", "0x...", "0x...", "0x..."] // Macro, encoded payload, signer, signature // [!code focus]
+}) // [!code focus]
+```
+</Tab>
+</Tabs>
+
+## Key Notes
+
+- **Clear vs blind signing**: The signer approves a human-readable EIP-712 payload (the "clear" forwarder), rather than opaque calldata. Use `getDigest`/`getNonce`/`encodeParams` to build the payload to sign.
+- **Third-party relaying**: `runMacro` takes `signer` and `signature` explicitly, so any relayer can submit a macro that was authorized by another account.
+- **Permit2**: `runPermit2AndMacro` bundles a Permit2 token approval with the macro execution in a single transaction.
+- **Events**: The contract emits `MacroExecuted`, `EIP712DomainChanged`, and `Permit2UpgradeExecuted` — subscribe with `useWatchClearMacroForwarderEvent` (`/hook`) or `watchClearMacroForwarderEvent` (`/action`).
+- **Address source**: Powered by metadata `contractsV1.clearMacroForwarderV1WithPermit2`, deployed at the same deterministic address on every supported network.

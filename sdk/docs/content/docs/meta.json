@@ -17,6 +17,8 @@
 		"api/main/super-token",
 		"api/main/cfa-forwarder",
 		"api/main/gda-forwarder",
+		"api/main/clear-macro-forwarder",
+		"api/main/blind-macro-forwarder",
 		"api/main/gda-pool",
 		"---API Reference: Core---",
 		"api/core/host",
