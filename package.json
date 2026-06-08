@@ -9,7 +9,7 @@
 	"scripts": {
 		"build": "turbo build",
 		"changeset": "changeset",
-		"changeset:publish": "pnpm build --filter=@sfpro/sdk && changeset publish --access public",
+		"changeset:publish": "pnpm build --filter=@sfpro/sdk && changeset publish",
 		"changeset:version": "changeset version",
 		"check": "biome check --write .",
 		"check:ci": "biome check --write --no-errors-on-unmatched .",
