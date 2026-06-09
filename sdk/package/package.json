@@ -110,7 +110,7 @@
 	},
 	"devDependencies": {
 		"@superfluid-finance/ethereum-contracts": "^1.15.1",
-		"@superfluid-finance/metadata": "1.6.4-dev.2fa7d88.0",
+		"@superfluid-finance/metadata": "^1.6.3",
 		"@types/node": "^24.13.1",
 		"@wagmi/cli": "^2.10.0",
 		"dotenv": "^17.4.2",
