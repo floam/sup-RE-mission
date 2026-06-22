@@ -90,6 +90,18 @@ import superfluidMetadata from "@superfluid-finance/metadata";
 const type = process.env.TYPE?.toLowerCase();
 const category = process.env.CATEGORY?.toLowerCase();
 
+// Testnets run a `TestGovernance` contract that @superfluid-finance/metadata does not list under
+// contractsV1.governance. It shares the full functional interface with SuperfluidGovernanceII
+// (34 methods), so the SuperfluidGovernanceII ABI works against these instances for all SDK use.
+// Sourced on-chain via host.getGovernance(); drop an entry if/when metadata starts publishing it.
+const testnetGovernanceAddresses: Record<number, Address> = {
+	43113: "0xD0b6A4A3bE43265BEe638E4840755a3D7cC8A962", // avalanche-fuji
+	11155111: "0x9539B21cC67844417E80aE168bc28c831E7Ed271", // eth-sepolia
+	11155420: "0x24fDCc8386f9949DCFF792fF3fbB3dD0526C11aD", // optimism-sepolia
+	534351: "0xac4eF44848b6AE6BEdd12E0e3F806cAf4d333cdd", // scroll-sepolia
+	84532: "0x3BDd82FFbCcB9DBD0c233Ecd950642edbF60D667", // base-sepolia
+};
+
 // # Superfluid error codes
 const tokenErrors = uniqErrors((erc20Abi as Abi).concat(SuperToken.abi as Abi).filter((x) => x.type === "error"));
 
@@ -254,7 +266,10 @@ export default defineConfig({
 				{
 					abi: SuperfluidGovernanceII.abi as Abi,
 					name: "governance",
-					address: getAddressesFromMetadata((network) => network.contractsV1.governance),
+					address: {
+						...testnetGovernanceAddresses,
+						...getAddressesFromMetadata((network) => network.contractsV1.governance),
+					},
 				},
 				{
 					abi: BatchLiquidator.abi as Abi,

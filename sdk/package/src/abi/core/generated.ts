@@ -1854,8 +1854,13 @@ export const gdaConfig = { address: gdaAddress, abi: gdaAbi } as const
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x55F7758dd99d5e185f4CC08d4Ad95B71f598264D)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x0170FFCC75d178d426EBad5b1a31451d00Ddbd0D)
  * - [__View Contract on Celo Celo Explorer__](https://celoscan.io/address/0x0170FFCC75d178d426EBad5b1a31451d00Ddbd0D)
+ * - [__View Contract on Avalanche Fuji Snow Trace__](https://testnet.snowtrace.io/address/0xD0b6A4A3bE43265BEe638E4840755a3D7cC8A962)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xF74390BabA510ec2fE196c2e02B037380d7a6F12)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x3BDd82FFbCcB9DBD0c233Ecd950642edbF60D667)
+ * - [__View Contract on Scroll Sepolia Scrollscan__](https://sepolia.scrollscan.com/address/0xac4eF44848b6AE6BEdd12E0e3F806cAf4d333cdd)
  * - [__View Contract on Scroll Scrollscan__](https://scrollscan.com/address/0xC2C9a709A6744816b3712D520BD314fe610AEa33)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9539B21cC67844417E80aE168bc28c831E7Ed271)
+ * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x24fDCc8386f9949DCFF792fF3fbB3dD0526C11aD)
  * - [__View Contract on Degen Degen Chain Explorer__](https://explorer.degen.tips/address/0x4D420e94328bF1AEA1b525FDE9e498ADBe60f9B1)
  */
 export const governanceAbi = [
@@ -2638,8 +2643,13 @@ export const governanceAbi = [
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x55F7758dd99d5e185f4CC08d4Ad95B71f598264D)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x0170FFCC75d178d426EBad5b1a31451d00Ddbd0D)
  * - [__View Contract on Celo Celo Explorer__](https://celoscan.io/address/0x0170FFCC75d178d426EBad5b1a31451d00Ddbd0D)
+ * - [__View Contract on Avalanche Fuji Snow Trace__](https://testnet.snowtrace.io/address/0xD0b6A4A3bE43265BEe638E4840755a3D7cC8A962)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xF74390BabA510ec2fE196c2e02B037380d7a6F12)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x3BDd82FFbCcB9DBD0c233Ecd950642edbF60D667)
+ * - [__View Contract on Scroll Sepolia Scrollscan__](https://sepolia.scrollscan.com/address/0xac4eF44848b6AE6BEdd12E0e3F806cAf4d333cdd)
  * - [__View Contract on Scroll Scrollscan__](https://scrollscan.com/address/0xC2C9a709A6744816b3712D520BD314fe610AEa33)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9539B21cC67844417E80aE168bc28c831E7Ed271)
+ * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x24fDCc8386f9949DCFF792fF3fbB3dD0526C11aD)
  * - [__View Contract on Degen Degen Chain Explorer__](https://explorer.degen.tips/address/0x4D420e94328bF1AEA1b525FDE9e498ADBe60f9B1)
  */
 export const governanceAddress = {
@@ -2651,8 +2661,13 @@ export const governanceAddress = {
   8453: '0x55F7758dd99d5e185f4CC08d4Ad95B71f598264D',
   42161: '0x0170FFCC75d178d426EBad5b1a31451d00Ddbd0D',
   42220: '0x0170FFCC75d178d426EBad5b1a31451d00Ddbd0D',
+  43113: '0xD0b6A4A3bE43265BEe638E4840755a3D7cC8A962',
   43114: '0xF74390BabA510ec2fE196c2e02B037380d7a6F12',
+  84532: '0x3BDd82FFbCcB9DBD0c233Ecd950642edbF60D667',
+  534351: '0xac4eF44848b6AE6BEdd12E0e3F806cAf4d333cdd',
   534352: '0xC2C9a709A6744816b3712D520BD314fe610AEa33',
+  11155111: '0x9539B21cC67844417E80aE168bc28c831E7Ed271',
+  11155420: '0x24fDCc8386f9949DCFF792fF3fbB3dD0526C11aD',
   666666666: '0x4D420e94328bF1AEA1b525FDE9e498ADBe60f9B1',
 } as const
 
@@ -2665,8 +2680,13 @@ export const governanceAddress = {
  * - [__View Contract on Base Basescan__](https://basescan.org/address/0x55F7758dd99d5e185f4CC08d4Ad95B71f598264D)
  * - [__View Contract on Arbitrum One Arbiscan__](https://arbiscan.io/address/0x0170FFCC75d178d426EBad5b1a31451d00Ddbd0D)
  * - [__View Contract on Celo Celo Explorer__](https://celoscan.io/address/0x0170FFCC75d178d426EBad5b1a31451d00Ddbd0D)
+ * - [__View Contract on Avalanche Fuji Snow Trace__](https://testnet.snowtrace.io/address/0xD0b6A4A3bE43265BEe638E4840755a3D7cC8A962)
  * - [__View Contract on Avalanche Snow Trace__](https://snowtrace.io/address/0xF74390BabA510ec2fE196c2e02B037380d7a6F12)
+ * - [__View Contract on Base Sepolia Basescan__](https://sepolia.basescan.org/address/0x3BDd82FFbCcB9DBD0c233Ecd950642edbF60D667)
+ * - [__View Contract on Scroll Sepolia Scrollscan__](https://sepolia.scrollscan.com/address/0xac4eF44848b6AE6BEdd12E0e3F806cAf4d333cdd)
  * - [__View Contract on Scroll Scrollscan__](https://scrollscan.com/address/0xC2C9a709A6744816b3712D520BD314fe610AEa33)
+ * - [__View Contract on Sepolia Etherscan__](https://sepolia.etherscan.io/address/0x9539B21cC67844417E80aE168bc28c831E7Ed271)
+ * - [__View Contract on Op Sepolia Blockscout__](https://optimism-sepolia.blockscout.com/address/0x24fDCc8386f9949DCFF792fF3fbB3dD0526C11aD)
  * - [__View Contract on Degen Degen Chain Explorer__](https://explorer.degen.tips/address/0x4D420e94328bF1AEA1b525FDE9e498ADBe60f9B1)
  */
 export const governanceConfig = {
