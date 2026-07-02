@@ -6,10 +6,10 @@ import { promisify } from "node:util"
 /*
  * Exports observed point event names from the public CMS API.
  *
- * Campaign enumeration uses the public POST /points/balance-batch endpoint in
- * chunks up to --max-campaign-id (default 9999) because hidden programs may
- * exist above the season ranges that are visible in the UI. Requests are
- * parallelized over HTTP/2 and cached.
+ * Campaign enumeration starts from the claim.superfluid.org Next.js server
+ * action used by the claim UI, then cross-checks the public POST
+ * /points/balance-batch endpoint in chunks up to --max-campaign-id (default
+ * 9999). Requests are parallelized over HTTP/2 and cached.
  */
 
 type CampaignMetadata = {
@@ -50,6 +50,13 @@ type BalanceBatchResponse = {
 	warnings?: { campaignId: number; message: string }[]
 }
 
+type ClaimProgramApp = {
+	appId: string
+	name: string
+	season?: string
+	program?: { id: number }
+}
+
 type CampaignSummary = CampaignMetadata & {
 	events: Map<string, EventSummary>
 	enumerationMode: "full" | "first-and-final-page-sample"
@@ -67,6 +74,8 @@ type DiscoveryDetails = {
 	source: string
 	backendSchema: string
 	backendCampaignIds: number[]
+	claimRouteProgramIds: number[]
+	balanceBatchCampaignIds: number[]
 	explicitCampaignIds: number[] | null
 	resolvedCampaignIds: number[]
 	missingFromCms: number[]
@@ -75,6 +84,8 @@ type DiscoveryDetails = {
 	cacheHits: number
 	cacheWrites: number
 	backendDiscoveryError?: string
+	claimRouteError?: string
+	claimRouteNote: string
 	batchEndpointNote: string
 	pointsSubgraphNote: string
 }
@@ -84,6 +95,8 @@ type JsonCache = Record<string, unknown>
 const DEFAULT_OUTPUT_PATH = path.resolve(process.cwd(), "../website/public/point-event-names.html")
 const DEFAULT_CACHE_PATH = path.resolve(process.cwd(), ".cache/point-event-names.json")
 const DEFAULT_BASE_URL = "https://cms.superfluid.pro"
+const DEFAULT_CLAIM_URL = "https://claim.superfluid.org"
+const CLAIM_PROGRAM_APPS_ACTION = "0050c3f0d604f9162ceb3faa2d83005031b4be6b5f"
 const PAGE_SIZE = 100
 const DEFAULT_MAX_CAMPAIGN_ID = 9999
 const DEFAULT_CONCURRENCY = 96
@@ -236,6 +249,65 @@ async function postJson<T>(url: string, body: unknown, cache: JsonCache, stats: 
 	return json
 }
 
+async function postText(
+	url: string,
+	body: string,
+	headers: string[],
+	cache: JsonCache,
+	stats: { hits: number; writes: number },
+) {
+	const cacheKey = `POST_TEXT ${url} ${headers.join("|")} ${body}`
+	if (cache[cacheKey]) {
+		stats.hits++
+		return cache[cacheKey] as string
+	}
+	const headerArgs = headers.flatMap((header) => ["--header", header])
+	const { stdout } = await execFileAsync(
+		"curl",
+		[
+			"--fail-with-body",
+			"--silent",
+			"--show-error",
+			"--compressed",
+			"--http2",
+			"--connect-timeout",
+			"5",
+			"--max-time",
+			"20",
+			...headerArgs,
+			"--data-raw",
+			body,
+			url,
+		],
+		{ maxBuffer: 1024 * 1024 * 50 },
+	)
+	cache[cacheKey] = stdout
+	stats.writes++
+	return stdout
+}
+
+function parseClaimProgramAppsFlightResponse(response: string) {
+	const payloadLine = response.split("\n").find((line) => /^1:/.test(line.trim()))
+	if (!payloadLine) throw new Error("Claim route response did not include a program app payload line")
+	return JSON.parse(payloadLine.replace(/^1:/, "")) as ClaimProgramApp[]
+}
+
+async function fetchClaimRouteProgramApps(claimUrl: string, cache: JsonCache, stats: { hits: number; writes: number }) {
+	const response = await postText(
+		claimUrl,
+		"[]",
+		[
+			`next-action: ${CLAIM_PROGRAM_APPS_ACTION}`,
+			"content-type: text/plain;charset=UTF-8",
+			"accept: text/x-component",
+			"user-agent: superfluid-pro-event-name-exporter/1.0",
+		],
+		cache,
+		stats,
+	)
+	return parseClaimProgramAppsFlightResponse(response)
+}
+
 async function fetchCampaign(
 	baseUrl: string,
 	campaignId: number,
@@ -301,12 +373,29 @@ async function discoverExistingCampaignIdsWithBalanceBatch(
 	return allIds.filter((id) => !missingIds.has(id))
 }
 
+async function discoverClaimRouteProgramIds(cache: JsonCache, stats: { hits: number; writes: number }) {
+	const claimUrl = (getArgValue("claim-url") || DEFAULT_CLAIM_URL).replace(/\/+$/, "")
+	const programApps = await fetchClaimRouteProgramApps(claimUrl, cache, stats)
+	return uniqSorted(
+		programApps
+			.map((app) => app.program?.id)
+			.filter((id): id is number => typeof id === "number" && Number.isInteger(id) && id > 0),
+	)
+}
+
+function uniqSorted(ids: number[]) {
+	return Array.from(new Set(ids)).sort((a, b) => a - b)
+}
+
 async function discoverCampaigns(baseUrl: string, cache: JsonCache, stats: { hits: number; writes: number }) {
 	const explicitCampaignIds = parseNumberListArg("campaign-ids")
 	const maxCampaignId = parseNumberArg("max-campaign-id", DEFAULT_MAX_CAMPAIGN_ID)
 	const concurrency = parseNumberArg("concurrency", DEFAULT_CONCURRENCY)
 	let backendCampaignIds: number[] = []
+	let claimRouteProgramIds: number[] = []
+	let balanceBatchCampaignIds: number[] = []
 	let backendDiscoveryError: string | undefined
+	let claimRouteError: string | undefined
 
 	try {
 		backendCampaignIds = await discoverCampaignIdsFromCmsBackend()
@@ -314,9 +403,20 @@ async function discoverCampaigns(baseUrl: string, cache: JsonCache, stats: { hit
 		backendDiscoveryError = error instanceof Error ? error.message : String(error)
 	}
 
-	const ids =
-		explicitCampaignIds ||
-		(await discoverExistingCampaignIdsWithBalanceBatch(baseUrl, maxCampaignId, cache, stats, concurrency))
+	try {
+		claimRouteProgramIds = await discoverClaimRouteProgramIds(cache, stats)
+	} catch (error) {
+		claimRouteError = error instanceof Error ? error.message : String(error)
+	}
+
+	balanceBatchCampaignIds = await discoverExistingCampaignIdsWithBalanceBatch(
+		baseUrl,
+		maxCampaignId,
+		cache,
+		stats,
+		concurrency,
+	)
+	const ids = explicitCampaignIds || uniqSorted([...claimRouteProgramIds, ...balanceBatchCampaignIds])
 	const campaigns = await mapConcurrent(ids, concurrency, (campaignId) =>
 		fetchCampaign(baseUrl, campaignId, cache, stats),
 	)
@@ -324,16 +424,18 @@ async function discoverCampaigns(baseUrl: string, cache: JsonCache, stats: { hit
 		.filter((campaign): campaign is CampaignMetadata => !!campaign)
 		.sort((a, b) => a.campaignId - b.campaignId)
 	const resolvedCampaignIds = resolvedCampaigns.map((campaign) => campaign.campaignId)
-	const missingFromCms = explicitCampaignIds?.filter((id) => !resolvedCampaignIds.includes(id)) || []
+	const missingFromCms = ids.filter((id) => !resolvedCampaignIds.includes(id))
 
 	return {
 		campaigns: resolvedCampaigns,
 		discoveryDetails: {
 			source: explicitCampaignIds
-				? "explicit-campaign-ids-with-public-cms-cross-check"
-				: `parallel-post-balance-batch-discovery-1-to-${maxCampaignId}`,
+				? "explicit-campaign-ids-with-claim-route-and-public-cms-cross-check"
+				: `claim-route-plus-parallel-post-balance-batch-discovery-1-to-${maxCampaignId}`,
 			backendSchema: 'Payload collection "campaigns" / table "campaigns" / id numeric',
 			backendCampaignIds,
+			claimRouteProgramIds,
+			balanceBatchCampaignIds,
 			explicitCampaignIds,
 			resolvedCampaignIds,
 			missingFromCms,
@@ -342,8 +444,11 @@ async function discoverCampaigns(baseUrl: string, cache: JsonCache, stats: { hit
 			cacheHits: stats.hits,
 			cacheWrites: stats.writes,
 			backendDiscoveryError,
+			claimRouteError,
+			claimRouteNote:
+				"Uses the same Next.js server action as claim.superfluid.org getProgramApps to list onchain program IDs, then cross-checks those IDs against the offchain CMS /points/campaign endpoint.",
 			batchEndpointNote:
-				"Checked the backend API registry: POST batch endpoints exist for balances/signatures, but there is no public POST campaign-metadata batch endpoint, so hidden campaign discovery uses /points/balance-batch in chunks of 50 to find existing IDs, then fetches metadata from /points/campaign only for IDs that exist.",
+				"Checked the backend API registry: POST batch endpoints exist for balances/signatures, but there is no public POST campaign-metadata batch endpoint, so hidden campaign discovery also uses /points/balance-batch in chunks of 50 to find existing offchain CMS IDs through the configured maximum.",
 			pointsSubgraphNote:
 				"No separate point-event subgraph endpoint was found in this repo/config; event names are sampled or fetched from the offchain CMS /points/events endpoint.",
 		} satisfies DiscoveryDetails,
@@ -450,7 +555,7 @@ async function exportPointEventNames(outputPath = parseOutputPath()) {
 	const generatedAt = new Date().toISOString()
 	const totalEvents = summaries.reduce((sum, campaign) => sum + campaign.observedEvents, 0)
 	const totalNames = summaries.reduce((sum, campaign) => sum + campaign.events.size, 0)
-	const discoveryHtml = `<section><h2>Campaign enumeration</h2><table><tbody><tr><th>Source used</th><td>${escapeHtml(discoveryDetails.source)}</td></tr><tr><th>Backend schema</th><td><code>${escapeHtml(discoveryDetails.backendSchema)}</code>${discoveryDetails.backendDiscoveryError ? `<br><span class="muted">Backend discovery failed: ${escapeHtml(discoveryDetails.backendDiscoveryError)}</span>` : ""}</td></tr><tr><th>Public CMS scan range</th><td><code>1..${discoveryDetails.maxCampaignId}</code></td></tr><tr><th>Cache</th><td><code>${escapeHtml(discoveryDetails.cachePath)}</code> · ${discoveryDetails.cacheHits} hits · ${discoveryDetails.cacheWrites} writes</td></tr><tr><th>Backend campaign IDs</th><td>${discoveryDetails.backendCampaignIds.length ? discoveryDetails.backendCampaignIds.map((id) => `<code>${id}</code>`).join(", ") : '<span class="muted">None available in this run.</span>'}</td></tr><tr><th>Explicit campaign IDs</th><td>${discoveryDetails.explicitCampaignIds?.length ? discoveryDetails.explicitCampaignIds.map((id) => `<code>${id}</code>`).join(", ") : '<span class="muted">Not used.</span>'}</td></tr><tr><th>Resolved offchain CMS IDs</th><td>${discoveryDetails.resolvedCampaignIds.map((id) => `<code>${id}</code>`).join(", ")}</td></tr><tr><th>Missing from offchain CMS</th><td>${discoveryDetails.missingFromCms.length ? discoveryDetails.missingFromCms.map((id) => `<code>${id}</code>`).join(", ") : '<span class="muted">None.</span>'}</td></tr><tr><th>POST batch endpoint check</th><td>${escapeHtml(discoveryDetails.batchEndpointNote)}</td></tr><tr><th>Point-event subgraph cross-check</th><td>${escapeHtml(discoveryDetails.pointsSubgraphNote)}</td></tr></tbody></table></section>`
+	const discoveryHtml = `<section><h2>Campaign enumeration</h2><table><tbody><tr><th>Source used</th><td>${escapeHtml(discoveryDetails.source)}</td></tr><tr><th>Backend schema</th><td><code>${escapeHtml(discoveryDetails.backendSchema)}</code>${discoveryDetails.backendDiscoveryError ? `<br><span class="muted">Backend discovery failed: ${escapeHtml(discoveryDetails.backendDiscoveryError)}</span>` : ""}</td></tr><tr><th>Claim app route</th><td>${escapeHtml(discoveryDetails.claimRouteNote)}${discoveryDetails.claimRouteError ? `<br><span class="muted">Claim route failed: ${escapeHtml(discoveryDetails.claimRouteError)}</span>` : ""}</td></tr><tr><th>Public CMS scan range</th><td><code>1..${discoveryDetails.maxCampaignId}</code></td></tr><tr><th>Cache</th><td><code>${escapeHtml(discoveryDetails.cachePath)}</code> · ${discoveryDetails.cacheHits} hits · ${discoveryDetails.cacheWrites} writes</td></tr><tr><th>Backend campaign IDs</th><td>${discoveryDetails.backendCampaignIds.length ? discoveryDetails.backendCampaignIds.map((id) => `<code>${id}</code>`).join(", ") : '<span class="muted">None available in this run.</span>'}</td></tr><tr><th>Claim route program IDs</th><td>${discoveryDetails.claimRouteProgramIds.length ? discoveryDetails.claimRouteProgramIds.map((id) => `<code>${id}</code>`).join(", ") : '<span class="muted">None available in this run.</span>'}</td></tr><tr><th>Balance-batch campaign IDs</th><td>${discoveryDetails.balanceBatchCampaignIds.length ? discoveryDetails.balanceBatchCampaignIds.map((id) => `<code>${id}</code>`).join(", ") : '<span class="muted">None available in this run.</span>'}</td></tr><tr><th>Explicit campaign IDs</th><td>${discoveryDetails.explicitCampaignIds?.length ? discoveryDetails.explicitCampaignIds.map((id) => `<code>${id}</code>`).join(", ") : '<span class="muted">Not used.</span>'}</td></tr><tr><th>Resolved offchain CMS IDs</th><td>${discoveryDetails.resolvedCampaignIds.map((id) => `<code>${id}</code>`).join(", ")}</td></tr><tr><th>Missing from offchain CMS</th><td>${discoveryDetails.missingFromCms.length ? discoveryDetails.missingFromCms.map((id) => `<code>${id}</code>`).join(", ") : '<span class="muted">None.</span>'}</td></tr><tr><th>POST batch endpoint check</th><td>${escapeHtml(discoveryDetails.batchEndpointNote)}</td></tr><tr><th>Point-event subgraph cross-check</th><td>${escapeHtml(discoveryDetails.pointsSubgraphNote)}</td></tr></tbody></table></section>`
 
 	const campaignSections = summaries
 		.map((campaign) => {
@@ -468,7 +573,7 @@ async function exportPointEventNames(outputPath = parseOutputPath()) {
 		})
 		.join("\n")
 
-	const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Point event names by campaign</title><style>body{font-family:Inter,Arial,sans-serif;line-height:1.5;margin:2rem;color:#101828;background:#fff}main{max-width:1100px;margin:auto}h1{margin-bottom:.25rem}section{margin-top:2.5rem}table{width:100%;border-collapse:collapse;margin-top:1rem}th,td{border:1px solid #d0d5dd;padding:.65rem;text-align:left;vertical-align:top}th{background:#f2f4f7}code{background:#f9fafb;border:1px solid #eaecf0;border-radius:4px;padding:.1rem .25rem}.muted{color:#667085;font-weight:400}ul{margin:0;padding-left:1.25rem}</style></head><body><main><h1>Point event names by campaign</h1><p class="muted">Generated ${escapeHtml(generatedAt)} from <code>${escapeHtml(baseUrl)}</code>. Campaigns are discovered by parallel cached POSTs to <code>/points/balance-batch</code> in chunks of 50 through <code>${discoveryDetails.maxCampaignId}</code>. Season 6+ campaigns and configured in-progress pre-season-6 campaigns (<code>${fullPreSeason6CampaignIds.join(",")}</code>) fetch all event pages; finished pre-season-6 campaigns fetch only the first 100 and final 100 events. Hash-like trailing suffixes matching <code>-(?:0x)?[a-f0-9]{8,}</code> are coalesced to <code>-{hash}</code>.</p><p>${summaries.length} campaigns, ${totalNames} coalesced event names, ${totalEvents} observed point events.</p>${discoveryHtml}${campaignSections}</main></body></html>\n`
+	const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Point event names by campaign</title><style>body{font-family:Inter,Arial,sans-serif;line-height:1.5;margin:2rem;color:#101828;background:#fff}main{max-width:1100px;margin:auto}h1{margin-bottom:.25rem}section{margin-top:2.5rem}table{width:100%;border-collapse:collapse;margin-top:1rem}th,td{border:1px solid #d0d5dd;padding:.65rem;text-align:left;vertical-align:top}th{background:#f2f4f7}code{background:#f9fafb;border:1px solid #eaecf0;border-radius:4px;padding:.1rem .25rem}.muted{color:#667085;font-weight:400}ul{margin:0;padding-left:1.25rem}</style></head><body><main><h1>Point event names by campaign</h1><p class="muted">Generated ${escapeHtml(generatedAt)} from <code>${escapeHtml(baseUrl)}</code>. Campaigns are discovered from the claim app's <code>getProgramApps</code> Next.js route and cross-checked by parallel cached POSTs to <code>/points/balance-batch</code> in chunks of 50 through <code>${discoveryDetails.maxCampaignId}</code>. Season 6+ campaigns and configured in-progress pre-season-6 campaigns (<code>${fullPreSeason6CampaignIds.join(",")}</code>) fetch all event pages; finished pre-season-6 campaigns fetch only the first 100 and final 100 events. Hash-like trailing suffixes matching <code>-(?:0x)?[a-f0-9]{8,}</code> are coalesced to <code>-{hash}</code>.</p><p>${summaries.length} campaigns, ${totalNames} coalesced event names, ${totalEvents} observed point events.</p>${discoveryHtml}${campaignSections}</main></body></html>\n`
 
 	await mkdir(path.dirname(outputPath), { recursive: true })
 	await writeFile(outputPath, html)
