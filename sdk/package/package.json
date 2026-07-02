@@ -106,7 +106,8 @@
 		"test": "vitest run",
 		"test:unit": "vitest run --project unit",
 		"test:live": "vitest run --project live",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsc --noEmit",
+		"investigate:sup-nonces": "node scripts/investigate-sup-nonces.js"
 	},
 	"devDependencies": {
 		"@superfluid-finance/ethereum-contracts": "^1.15.1",
