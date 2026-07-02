@@ -25,7 +25,8 @@
 		"trigger:login": "pnpm dlx trigger.dev@latest login",
 		"trigger:deploy": "pnpm dlx trigger.dev@latest deploy",
 		"typecheck": "tsc --noEmit",
-		"cleanup:duplicate-tags": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/cleanup-duplicate-tags.ts"
+		"cleanup:duplicate-tags": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/cleanup-duplicate-tags.ts",
+		"export:point-event-names": "cross-env NODE_OPTIONS=--no-deprecation tsx src/scripts/export-point-event-names.ts"
 	},
 	"dependencies": {
 		"@asteasolutions/zod-to-openapi": "^7.3.4",
