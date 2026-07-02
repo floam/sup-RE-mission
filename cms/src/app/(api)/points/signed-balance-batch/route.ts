@@ -1,4 +1,5 @@
 import { encodePacked, getAddress, isAddress, keccak256 } from "viem"
+import { createClaimVoucherTimestamp } from "@/domains/points/utils/claim-voucher"
 import { applyPointsCap } from "@/domains/points/utils/points-cap"
 import { signMessageHash } from "@/domains/points/utils/signing"
 import { getPayloadInstance } from "@/payload"
@@ -121,7 +122,7 @@ export const POST = async (request: Request): Promise<Response> => {
 		}
 
 		// Create message hash: keccak256(encodePacked([address, points[], campaigns[], timestamp]))
-		const signatureTimestamp = Math.floor(Date.now() / 1000)
+		const { signatureTimestamp, signatureExpiresAt, signatureMaxAgeSeconds } = createClaimVoucherTimestamp()
 		const checksumAddress = getAddress(accountLower)
 		const messageHash = keccak256(
 			encodePacked(
@@ -148,6 +149,8 @@ export const POST = async (request: Request): Promise<Response> => {
 			points: pointsArray,
 			uncappedPoints: uncappedPointsArray,
 			signatureTimestamp,
+			signatureExpiresAt,
+			signatureMaxAgeSeconds,
 			signature: signingResult.signature,
 			signer: signingResult.signer,
 		})
