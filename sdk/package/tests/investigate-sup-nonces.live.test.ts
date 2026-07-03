@@ -41,8 +41,6 @@ describe("investigate:sup-nonces live smoke test", () => {
 				s6GardensCampaignId,
 				"--lookback-days",
 				"3",
-				"--min-age-hours",
-				"48",
 				"--chunk-size",
 				"10000",
 				"--json",
@@ -53,9 +51,14 @@ describe("investigate:sup-nonces live smoke test", () => {
 		const output = JSON.parse(stdout)
 		expect(output.user.toLowerCase()).toBe(leader.account.toLowerCase())
 		expect(output.targetProgramIds).toEqual([s6GardensCampaignId])
-		expect(output.minimumAgeHours).toBe(48)
+		expect(output.minimumAgeHours).toBeNull()
+		expect(output.resultLimit).toBe(10)
 		expect(output.lockerCreated).toBeTypeOf("boolean")
 		expect(output.matches).toEqual(expect.any(Array))
+		expect(output.matches.length).toBeLessThanOrEqual(output.resultLimit)
+		for (let i = 1; i < output.matches.length; i += 1) {
+			expect(BigInt(output.matches[i - 1].ageSeconds)).toBeGreaterThanOrEqual(BigInt(output.matches[i].ageSeconds))
+		}
 		if (output.lockerCreated) {
 			expect(output.logsScanned).toBeTypeOf("number")
 			expect(output.claimTransactionsScanned).toBeTypeOf("number")
