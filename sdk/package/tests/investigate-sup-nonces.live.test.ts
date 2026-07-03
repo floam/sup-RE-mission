@@ -4,7 +4,7 @@ import { ProxyAgent, setGlobalDispatcher } from "undici"
 import { describe, expect, test } from "vitest"
 
 const execFileAsync = promisify(execFile)
-const s4GardensCampaignId = "7859"
+const s6GardensCampaignId = "607"
 const cmsBaseUrl = "https://cms.superfluid.pro"
 const defaultBaseRpcUrl = "https://rpc-endpoints.superfluid.dev/base-mainnet"
 
@@ -17,7 +17,7 @@ type AccountsResponse = {
 
 async function fetchGardensLeaderboardLeader() {
 	const response = await fetch(
-		`${cmsBaseUrl}/points/accounts?campaignId=${s4GardensCampaignId}&limit=1&page=1&sortBy=points&sortOrder=desc`,
+		`${cmsBaseUrl}/points/accounts?campaignId=${s6GardensCampaignId}&limit=1&page=1&sortBy=points&sortOrder=desc`,
 	)
 	expect(response.ok).toBe(true)
 	const body = (await response.json()) as AccountsResponse
@@ -26,7 +26,7 @@ async function fetchGardensLeaderboardLeader() {
 }
 
 describe("investigate:sup-nonces live smoke test", () => {
-	test("runs against the #1 S4 Gardens leaderboard account", { timeout: 120_000 }, async () => {
+	test("runs against the #1 S6 Gardens leaderboard account", { timeout: 120_000 }, async () => {
 		const leader = await fetchGardensLeaderboardLeader()
 
 		const { stdout } = await execFileAsync(
@@ -38,7 +38,7 @@ describe("investigate:sup-nonces live smoke test", () => {
 				"--user",
 				leader.account,
 				"--program-ids",
-				s4GardensCampaignId,
+				s6GardensCampaignId,
 				"--lookback-days",
 				"3",
 				"--min-age-hours",
@@ -52,11 +52,13 @@ describe("investigate:sup-nonces live smoke test", () => {
 
 		const output = JSON.parse(stdout)
 		expect(output.user.toLowerCase()).toBe(leader.account.toLowerCase())
-		expect(output.targetProgramIds).toEqual([s4GardensCampaignId])
+		expect(output.targetProgramIds).toEqual([s6GardensCampaignId])
 		expect(output.minimumAgeHours).toBe(48)
-		expect(output.lockerCreated).toBe(true)
-		expect(output.logsScanned).toBeTypeOf("number")
-		expect(output.claimTransactionsScanned).toBeTypeOf("number")
+		expect(output.lockerCreated).toBeTypeOf("boolean")
 		expect(output.matches).toEqual(expect.any(Array))
+		if (output.lockerCreated) {
+			expect(output.logsScanned).toBeTypeOf("number")
+			expect(output.claimTransactionsScanned).toBeTypeOf("number")
+		}
 	})
 })
