@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { ProxyAgent, setGlobalDispatcher } from "undici"
 import {
 	createPublicClient,
 	decodeEventLog,
@@ -15,8 +16,18 @@ const baseLockerFactoryAddress = "0xA6694cAB43713287F7735dADc940b555db9d39D9"
 const secondsPerHour = 60 * 60
 const defaultMinimumAgeHours = 48
 const defaultLookbackDays = 30
-const defaultLogChunkSize = 50_000n
+const defaultLogChunkSize = 10_000n
+const defaultBaseRpcUrl = "https://rpc-endpoints.superfluid.dev/base-mainnet"
 const claimFunctionNames = new Set(["claim", "claimAndStake", "disconnectAndClaim", "disconnectAndClaimAndStake"])
+
+function configureProxyFromEnvironment() {
+	const proxyUrl =
+		process.env.HTTPS_PROXY ?? process.env.https_proxy ?? process.env.HTTP_PROXY ?? process.env.http_proxy
+	if (!proxyUrl) return
+	setGlobalDispatcher(new ProxyAgent(proxyUrl))
+}
+
+configureProxyFromEnvironment()
 
 const lockerFactoryAbi = [
 	{
@@ -136,7 +147,7 @@ Required:
   --program-ids <ids>            Comma-separated program IDs, e.g. 7856,7859.
 
 Options:
-  --rpc-url <url>                Base RPC URL. Defaults to BASE_RPC_URL, RPC_URL, or https://mainnet.base.org.
+  --rpc-url <url>                Base RPC URL. Defaults to BASE_RPC_URL, RPC_URL, or ${defaultBaseRpcUrl}.
   --from-block <number>          First block to scan. Defaults to latest minus --lookback-days.
   --to-block <number|latest>     Last block to scan. Defaults to latest.
   --lookback-days <days>         Used when --from-block is omitted. Default: ${defaultLookbackDays}.
@@ -262,7 +273,7 @@ async function main() {
 	if (!user) throw new Error("--user is required")
 	const programIds = parseProgramIds(options["program-ids"])
 	const targetProgramIds = new Set(programIds.map((id) => id.toString()))
-	const rpcUrl = options["rpc-url"] ?? process.env.BASE_RPC_URL ?? process.env.RPC_URL ?? "https://mainnet.base.org"
+	const rpcUrl = options["rpc-url"] ?? process.env.BASE_RPC_URL ?? process.env.RPC_URL ?? defaultBaseRpcUrl
 	const minimumAgeSeconds = BigInt(Number(options["min-age-hours"] ?? defaultMinimumAgeHours) * secondsPerHour)
 	const lookbackDays = Number(options["lookback-days"] ?? defaultLookbackDays)
 	const chunkSize = BigInt(options["chunk-size"] ?? defaultLogChunkSize)
