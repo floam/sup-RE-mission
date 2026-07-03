@@ -21,25 +21,6 @@ That is because the contract-side nonce rule only answers: "is this voucher newe
 
 This makes off-chain corrections non-final once a high balance has been signed. In a small `+5/-5` case the value may be small, but the bug class is significant: a larger temporary data-source error, sybil burst, or mistaken allocation can be crystallized on-chain by any user who saved the inflated signed voucher.
 
-## Why the June 24 Gardens claim matters
-
-The observed submitted call was:
-
-```text
-claim(uint256,uint256,uint256,bytes)
-
-arg0 programId:           607        0x25f
-arg1 totalProgramUnits:   99         0x63
-arg2 nonce:               1782301486 0x6a3bc32e
-arg3 stackSignature:      65-byte ECDSA signature
-```
-
-`1782301486` is not two months in the future. Interpreted as a Unix timestamp in seconds, it is `2026-06-24T11:44:46Z`, which matches a June 24 submission/request time.
-
-That actually supports the finding: the value in the on-chain `nonce` slot is behaving exactly like the CMS `signatureTimestamp`. The timestamp is being reused as a nonce. The problem is not that this specific timestamp is future-dated; the problem is that a timestamp-only monotonic nonce does not revoke stale balances after a later CMS correction.
-
-The future-looking values in Gardens Season 6 metadata are separate program streaming dates. For example, the claim app metadata reviewed for Gardens Season 6 showed `fundingStartDate = 1780414401` (`2026-06-02T23:33:21Z`) and `fundingEndDate = 1788190401` (`2026-08-31T23:33:21Z`). Those describe the funding window, not the claim voucher nonce.
-
 ## Concrete stale-voucher scenario
 
 Using BouncyCastle as a simplified example:
@@ -110,12 +91,6 @@ Practical impact is bounded by:
 - whether the user already submitted a newer claim,
 - whether the signer is rotated before stale vouchers are submitted, and
 - whether the program has already completed or exhausted its distributable amount.
-
-## Bounty-worthiness
-
-I would submit this as a valid reward-accounting integrity issue. It is not only a UI inconsistency and not only a CMS display bug. The stale CMS state can be transformed into an on-chain claim if it was signed before correction and still satisfies the nonce rule.
-
-Suggested severity: medium by default, potentially high if a proof of concept demonstrates meaningful SUP extraction from an active funded program or a realistic large correction.
 
 ## Recommended mitigations
 
