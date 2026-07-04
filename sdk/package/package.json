@@ -110,8 +110,7 @@
 		"test:unit": "vitest run --project unit",
 		"test:live": "vitest run --project live",
 		"typecheck": "tsc --noEmit",
-		"investigate:sup-nonces": "node scripts/investigate-sup-nonces.js",
-		"check:package": "attw --pack --profile esm-only && publint"
+		"investigate:sup-nonces": "node scripts/investigate-sup-nonces.js"
 	},
 	"devDependencies": {
 		"@arethetypeswrong/cli": "^0.18.4",
