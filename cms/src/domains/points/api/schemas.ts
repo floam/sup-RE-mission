@@ -545,7 +545,15 @@ export const SignedBalanceResponseSchema = z
 		}),
 		signatureTimestamp: z.number().openapi({
 			example: 1704672000,
-			description: "Unix timestamp when the signature was generated",
+			description: "Unix timestamp used as the on-chain monotonic nonce when the signature was generated",
+		}),
+		signatureExpiresAt: z.number().openapi({
+			example: 1704672300,
+			description: "Unix timestamp after which clients must discard this short-lived claim voucher",
+		}),
+		signatureMaxAgeSeconds: z.number().openapi({
+			example: 300,
+			description: "Maximum client-side age, in seconds, for this claim voucher",
 		}),
 		signature: z.string().openapi({
 			example: "0x8afc2c13c4ed315fcff3f93e4be66815ef259042c789f7e30be2a6160a5fc70f...",
@@ -606,7 +614,15 @@ export const SignedBalanceBatchResponseSchema = z
 		}),
 		signatureTimestamp: z.number().openapi({
 			example: 1704672000,
-			description: "Unix timestamp when the signature was generated",
+			description: "Unix timestamp used as the on-chain monotonic nonce when the signature was generated",
+		}),
+		signatureExpiresAt: z.number().openapi({
+			example: 1704672300,
+			description: "Unix timestamp after which clients must discard this short-lived claim voucher",
+		}),
+		signatureMaxAgeSeconds: z.number().openapi({
+			example: 300,
+			description: "Maximum client-side age, in seconds, for this claim voucher",
 		}),
 		signature: z.string().openapi({
 			example: "0x8afc2c13c4ed315fcff3f93e4be66815ef259042c789f7e30be2a6160a5fc70f...",

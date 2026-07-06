@@ -447,7 +447,7 @@ The message hash is computed as:
 keccak256(encodePacked([address, points, campaignId, timestamp]))
 \`\`\`
 
-This can be verified on-chain using ECDSA recovery.`,
+This can be verified on-chain using ECDSA recovery. Treat returned vouchers as short-lived: the contract only enforces a monotonic nonce, so clients must discard signatures after \`signatureExpiresAt\`.`,
 	tags: ["Signed Balance"],
 	request: {
 		query: SignedBalanceQuerySchema,
@@ -462,6 +462,8 @@ This can be verified on-chain using ECDSA recovery.`,
 						address: "0x1234567890abcdef1234567890abcdef12345678",
 						points: 1500,
 						signatureTimestamp: 1704672000,
+						signatureExpiresAt: 1704672300,
+						signatureMaxAgeSeconds: 300,
 						signature:
 							"0x8afc2c13c4ed315fcff3f93e4be66815ef259042c789f7e30be2a6160a5fc70f1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1c",
 						signer: "0xBc2cfCd4c615Ff1d06f1d07b37E3652b15bd40A2",
@@ -511,7 +513,7 @@ The message hash is computed as:
 keccak256(encodePacked([address, uint256[] points, uint256[] campaignIds, uint256 timestamp]))
 \`\`\`
 
-This produces a single signature that covers all campaigns, allowing batch verification on-chain.`,
+This produces a single signature that covers all campaigns, allowing batch verification on-chain. Treat returned vouchers as short-lived: the contract only enforces a monotonic nonce, so clients must discard signatures after \`signatureExpiresAt\`.`,
 	tags: ["Signed Balance"],
 	request: {
 		body: {
@@ -538,6 +540,8 @@ This produces a single signature that covers all campaigns, allowing batch verif
 						campaignIds: [1, 2, 3],
 						points: [100, 200, 300],
 						signatureTimestamp: 1704672000,
+						signatureExpiresAt: 1704672300,
+						signatureMaxAgeSeconds: 300,
 						signature:
 							"0x8afc2c13c4ed315fcff3f93e4be66815ef259042c789f7e30be2a6160a5fc70f1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1c",
 						signer: "0xBc2cfCd4c615Ff1d06f1d07b37E3652b15bd40A2",
