@@ -13,8 +13,8 @@ import { base } from "viem/chains"
 const baseProgramManagerAddress = "0x1e32cf099992E9D3b17eDdDFFfeb2D07AED95C6a"
 const baseLockerFactoryAddress = "0xA6694cAB43713287F7735dADc940b555db9d39D9"
 const secondsPerHour = 60 * 60
-const defaultMinimumAgeHours = 48
 const defaultLookbackDays = 30
+const defaultResultLimit = 10
 const defaultLogChunkSize = 10_000n
 const defaultBaseRpcUrl = "https://rpc-endpoints.superfluid.dev/base-mainnet"
 const claimFunctionNames = new Set(["claim", "claimAndStake", "disconnectAndClaim", "disconnectAndClaimAndStake"])
@@ -154,7 +154,7 @@ const claimEventAbi = [
 function usage() {
 	return `Usage: pnpm --dir sdk/package investigate:sup-nonces --user <address> --program-ids <ids> [options]
 
-Find successful SUP FluidLocker claim transactions whose calldata nonce is older than the configured age threshold.
+Find successful SUP FluidLocker claim transactions and report the largest transaction-age deltas first.
 
 Required:
   --user <address>               Locker owner address.
@@ -165,7 +165,8 @@ Options:
   --from-block <number>          First block to scan. Defaults to latest minus --lookback-days.
   --to-block <number|latest>     Last block to scan. Defaults to latest.
   --lookback-days <days>         Used when --from-block is omitted. Default: ${defaultLookbackDays}.
-  --min-age-hours <hours>        Only report transactions older than this. Default: ${defaultMinimumAgeHours}.
+  --limit <count>                Maximum decoded claim transactions to report after sorting by age. Default: ${defaultResultLimit}.
+  --min-age-hours <hours>        Optional lower bound before age sorting. Omit to rank all decoded claims.
   --chunk-size <blocks>          eth_getLogs chunk size. Default: ${defaultLogChunkSize}.
   --json                         Emit machine-readable JSON only.
   --help                         Show this help.
@@ -288,8 +289,15 @@ async function main() {
 	if (!user) throw new Error("--user is required")
 	const programIds = parseProgramIds(options["program-ids"])
 	const targetProgramIds = new Set(programIds.map((id) => id.toString()))
-	const rpcUrl = options["rpc-url"] ?? process.env.BASE_RPC_URL ?? process.env.RPC_URL ?? defaultBaseRpcUrl
-	const minimumAgeSeconds = BigInt(Number(options["min-age-hours"] ?? defaultMinimumAgeHours) * secondsPerHour)
+	const rpcUrl =
+		options["rpc-url"] ??
+		getEnvironmentVariable("BASE_RPC_URL") ??
+		getEnvironmentVariable("RPC_URL") ??
+		defaultBaseRpcUrl
+	const minimumAgeHours = options["min-age-hours"] === undefined ? undefined : Number(options["min-age-hours"])
+	const minimumAgeSeconds = BigInt((minimumAgeHours ?? 0) * secondsPerHour)
+	const resultLimit = Number(options.limit ?? defaultResultLimit)
+	if (!Number.isInteger(resultLimit) || resultLimit < 1) throw new Error("--limit must be a positive integer")
 	const lookbackDays = Number(options["lookback-days"] ?? defaultLookbackDays)
 	const chunkSize = BigInt(options["chunk-size"] ?? defaultLogChunkSize)
 
@@ -335,7 +343,8 @@ async function main() {
 		toBlock,
 		latestBlockNumber,
 		latestBlockTimestamp: latestBlock.timestamp,
-		minimumAgeHours: Number(options["min-age-hours"] ?? defaultMinimumAgeHours),
+		minimumAgeHours: minimumAgeHours ?? null,
+		resultLimit,
 	}
 
 	if (!isCreated) {
@@ -375,6 +384,7 @@ async function main() {
 			transactionHash,
 			blockNumber: transaction.blockNumber,
 			blockTimestamp,
+			ageSeconds,
 			ageHours: Number(formatUnits(ageSeconds, 0)) / secondsPerHour,
 			functionName: parsed.functionName,
 			programIds: claimArgs.programIds,
@@ -386,8 +396,15 @@ async function main() {
 		})
 	}
 
-	matches.sort((a, b) => Number(a.blockNumber - b.blockNumber))
-	const output = { ...summary, logsScanned: logs.length, claimTransactionsScanned: programsByTransaction.size, matches }
+	matches.sort((a, b) => Number(b.ageSeconds - a.ageSeconds) || Number(b.blockNumber - a.blockNumber))
+	const largestTimeDeltas = matches.slice(0, resultLimit)
+	const output = {
+		...summary,
+		logsScanned: logs.length,
+		claimTransactionsScanned: programsByTransaction.size,
+		decodedTargetClaims: matches.length,
+		matches: largestTimeDeltas,
+	}
 
 	if (options.json) {
 		console.log(toJson(output))
@@ -397,13 +414,13 @@ async function main() {
 	console.log(`SUP nonce investigation on Base for ${user}`)
 	console.log(`Locker: ${lockerAddress} (${isCreated ? "created" : "not created"})`)
 	console.log(
-		`Scanned blocks ${fromBlock}..${toBlock}; ${logs.length} claim logs; ${matches.length} matches older than ${output.minimumAgeHours}h.`,
+		`Scanned blocks ${fromBlock}..${toBlock}; ${logs.length} claim logs; ${matches.length} decoded target claims; showing ${largestTimeDeltas.length} largest time deltas.`,
 	)
 	console.log("Current on-chain nonces:")
 	for (const [programId, nonce] of Object.entries(currentNonces)) console.log(`  program ${programId}: ${nonce}`)
 	if (matches.length === 0) return
-	console.log("\nMatches:")
-	for (const match of matches) {
+	console.log("\nLargest time deltas:")
+	for (const match of largestTimeDeltas) {
 		const date = new Date(Number(match.blockTimestamp) * 1000).toISOString()
 		console.log(`- ${match.transactionHash}`)
 		console.log(`  block: ${match.blockNumber} (${date}, ${match.ageHours.toFixed(2)}h old)`)
