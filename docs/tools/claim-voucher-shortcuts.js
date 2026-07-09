@@ -185,20 +185,21 @@ javascript: (async () => {
 			runtime.accountSource = "none"
 			return ""
 		}
+		const visible = normalizeAddress(document.body.innerText || "")
+		if (visible) {
+			runtime.accountSource = "page text"
+			return visible
+		}
 		for (const storage of [localStorage, sessionStorage]) {
 			for (let i = 0; i < storage.length; i++) {
 				const key = storage.key(i)
+				if (!key || key.startsWith("sf.claim.voucherTool.")) continue
 				const account = normalizeAddress(`${key}\n${storage.getItem(key)}`)
 				if (account) {
 					runtime.accountSource = "page storage"
 					return account
 				}
 			}
-		}
-		const visible = normalizeAddress(document.body.innerText || "")
-		if (visible) {
-			runtime.accountSource = "page text"
-			return visible
 		}
 		runtime.accountSource = "default account"
 		return normalizeAddress(DEFAULT_ACCOUNT)
@@ -288,10 +289,9 @@ javascript: (async () => {
 		)
 			throw new Error("Unexpected CMS signed-balance-batch response shape")
 		const claimTransaction = {
-			type: programIds.length === 1 ? "single" : "batch",
-			programId: programIds.length === 1 ? programIds[0] : undefined,
-			programIds: programIds.length > 1 ? programIds : undefined,
-			totalProgramUnits: programIds.length === 1 ? totalProgramUnits[0] : totalProgramUnits,
+			type: "batch",
+			programIds,
+			totalProgramUnits,
 			nonce: String(signed.signatureTimestamp),
 			stackSignature: String(signed.signature),
 		}
@@ -304,6 +304,7 @@ javascript: (async () => {
 			nonce: String(signed.signatureTimestamp),
 			signature: String(signed.signature),
 			signer: String(signed.signer || ""),
+			expiresAt: Number(signed.signatureExpiresAt || signed.expiresAt || 0) || undefined,
 			claimTransaction,
 			rawSignedBalance: jsonClone(signed),
 		}
@@ -323,11 +324,23 @@ javascript: (async () => {
 		saveAccountCache(account, cache)
 		return voucher
 	}
-	const latestNonce = (account) => {
-		const nonces = (accountCache(account).vouchers || []).map((v) => asBig(v.nonce)).filter((v) => v > 0n)
+	const idsOverlap = (left = [], right = []) => {
+		const rightSet = new Set(right.map(String))
+		return left.map(String).some((id) => rightSet.has(id))
+	}
+	const latestNonceForVoucher = (account, voucher) => {
+		const nonces = (accountCache(account).vouchers || [])
+			.filter((entry) => idsOverlap(entry.programIds || [], voucher?.programIds || []))
+			.map((entry) => asBig(entry.nonce))
+			.filter((nonce) => nonce > 0n)
 		return nonces.length ? nonces.reduce((a, b) => (a > b ? a : b)) : null
 	}
-	const isStale = (account, voucher) => latestNonce(account) != null && asBig(voucher?.nonce) < latestNonce(account)
+	const isStale = (account, voucher) =>
+		latestNonceForVoucher(account, voucher) != null && asBig(voucher?.nonce) < latestNonceForVoucher(account, voucher)
+	const isExpired = (voucher) => {
+		const expiresAt = Number(voucher?.expiresAt || voucher?.rawSignedBalance?.signatureExpiresAt || 0)
+		return expiresAt > 0 && expiresAt <= Date.now() / 1000
+	}
 	const matchesIdsAndCurrentTotals = (account, voucher, ids) => {
 		if (!voucher || idsKey(voucher.programIds || []) !== idsKey(ids)) return false
 		if (isStale(account, voucher)) return false
@@ -370,6 +383,9 @@ javascript: (async () => {
 		window.fetch = async (input, init) => {
 			const url = typeof input === "string" ? input : input?.url || ""
 			if (window.__sfVoucherArmedVoucher && /\/api\/points\/claim\?/.test(url)) {
+				const requestedAccount = normalizeAddress(new URL(url, location.href).searchParams.get("accountAddress"))
+				if (requestedAccount && requestedAccount !== window.__sfVoucherArmedVoucher.account)
+					return window.__sfVoucherOriginalFetch(input, init)
 				runtime.armedHits += 1
 				log(
 					"served armed voucher",
@@ -416,8 +432,9 @@ javascript: (async () => {
 		const account = await currentAccount()
 		const ids = selectedProgramIdsFor(account)
 		const voucher = matchingSubsetVoucher(account, ids) || (await fetchCmsBatch(account, ids))
-		accountCache(account).selectedVoucherKey = voucher.key
-		saveAccountCache(account, accountCache(account))
+		const cache = accountCache(account)
+		cache.selectedVoucherKey = voucher.key
+		saveAccountCache(account, cache)
 		await render()
 	}
 	const armSelected = async (click) => {
@@ -425,12 +442,14 @@ javascript: (async () => {
 		const voucher = selectedVoucherFor(account)
 		if (!voucher) return alert("Select a voucher first.")
 		if (isStale(account, voucher)) return alert("Selected voucher is stale. Fetch exact selected first.")
+		if (voucher.kind === "cms-batch" && isExpired(voucher))
+			return alert("Selected CMS voucher is expired. Fetch exact selected first.")
 		const ids = selectedProgramIdsFor(account)
 		if (!matchesIdsAndCurrentTotals(account, voucher, ids))
 			return alert(
 				"Selected voucher does not match the selected campaigns and current offchain totals. Fetch exact selected first.",
 			)
-		window.__sfVoucherArmedVoucher = voucher
+		window.__sfVoucherArmedVoucher = { ...voucher, account }
 		const beforeHits = runtime.armedHits
 		log("armed voucher", voucher.programIds.join(","), "nonce", voucher.nonce)
 		if (click) {
