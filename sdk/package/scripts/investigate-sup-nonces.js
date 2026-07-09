@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import { ProxyAgent, setGlobalDispatcher } from "undici"
 import {
 	createPublicClient,
 	decodeEventLog,
@@ -20,14 +19,29 @@ const defaultLogChunkSize = 10_000n
 const defaultBaseRpcUrl = "https://rpc-endpoints.superfluid.dev/base-mainnet"
 const claimFunctionNames = new Set(["claim", "claimAndStake", "disconnectAndClaim", "disconnectAndClaimAndStake"])
 
-function configureProxyFromEnvironment() {
-	const proxyUrl =
-		process.env.HTTPS_PROXY ?? process.env.https_proxy ?? process.env.HTTP_PROXY ?? process.env.http_proxy
-	if (!proxyUrl) return
-	setGlobalDispatcher(new ProxyAgent(proxyUrl))
+function getEnvironmentVariable(name) {
+	return typeof process === "undefined" ? undefined : process.env[name]
 }
 
-configureProxyFromEnvironment()
+function getRuntimeArguments() {
+	if (typeof process !== "undefined" && Array.isArray(process.argv)) return process.argv.slice(2)
+	if (Array.isArray(globalThis.arguments)) return globalThis.arguments
+	return []
+}
+
+async function configureProxyFromEnvironment() {
+	const proxyUrl =
+		getEnvironmentVariable("HTTPS_PROXY") ??
+		getEnvironmentVariable("https_proxy") ??
+		getEnvironmentVariable("HTTP_PROXY") ??
+		getEnvironmentVariable("http_proxy")
+	if (!proxyUrl) return
+
+	// Keep undici out of browser-platform bundles for JavaScriptCore/a-Shell artifacts.
+	const importUndici = new Function("specifier", "return import(specifier)")
+	const { ProxyAgent, setGlobalDispatcher } = await importUndici("undici")
+	setGlobalDispatcher(new ProxyAgent(proxyUrl))
+}
 
 const lockerFactoryAbi = [
 	{
@@ -264,7 +278,8 @@ function collectClaimTransactionsFromLogs(logs) {
 }
 
 async function main() {
-	const options = parseArgs(process.argv.slice(2))
+	await configureProxyFromEnvironment()
+	const options = parseArgs(getRuntimeArguments())
 	if (options.help) {
 		console.log(usage())
 		return
@@ -274,7 +289,11 @@ async function main() {
 	if (!user) throw new Error("--user is required")
 	const programIds = parseProgramIds(options["program-ids"])
 	const targetProgramIds = new Set(programIds.map((id) => id.toString()))
-	const rpcUrl = options["rpc-url"] ?? process.env.BASE_RPC_URL ?? process.env.RPC_URL ?? defaultBaseRpcUrl
+	const rpcUrl =
+		options["rpc-url"] ??
+		getEnvironmentVariable("BASE_RPC_URL") ??
+		getEnvironmentVariable("RPC_URL") ??
+		defaultBaseRpcUrl
 	const minimumAgeHours = options["min-age-hours"] === undefined ? undefined : Number(options["min-age-hours"])
 	const minimumAgeSeconds = BigInt((minimumAgeHours ?? 0) * secondsPerHour)
 	const resultLimit = Number(options.limit ?? defaultResultLimit)
@@ -414,5 +433,5 @@ async function main() {
 
 main().catch((error) => {
 	console.error(error instanceof Error ? error.message : error)
-	process.exitCode = 1
+	if (typeof process !== "undefined") process.exitCode = 1
 })
