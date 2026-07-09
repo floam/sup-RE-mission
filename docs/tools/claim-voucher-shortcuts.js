@@ -142,18 +142,13 @@ javascript: (async () => {
 		seen.add(provider)
 		providers.push({ provider, info })
 	}
-	const isRabbyProvider = ({ provider, info }) =>
-		!!provider?.isRabby || /rabby/i.test(info?.name || "") || /rabby/i.test(info?.rdns || "")
-	const providerLabel = ({ provider, info }) =>
-		info?.name || (provider?.isRabby ? "Rabby" : provider?.isMetaMask ? "MetaMask" : "Injected wallet")
+	const providerLabel = ({ provider, info }) => info?.name || (provider?.isMetaMask ? "MetaMask" : "Injected wallet")
 	const discoverProviders = async () => {
 		const providers = []
 		const seen = new Set()
 		for (const provider of window.ethereum?.providers || []) addProvider(providers, seen, provider)
 		addProvider(providers, seen, window.ethereum?.selectedProvider)
 		addProvider(providers, seen, window.ethereum)
-		addProvider(providers, seen, window.rabby)
-		addProvider(providers, seen, window.rabbyWallet)
 		await new Promise((resolve) => {
 			const onProvider = (event) => addProvider(providers, seen, event.detail?.provider, event.detail?.info)
 			window.addEventListener("eip6963:announceProvider", onProvider)
@@ -163,8 +158,7 @@ javascript: (async () => {
 				resolve()
 			}, 250)
 		})
-		providers.sort((a, b) => Number(isRabbyProvider(b)) - Number(isRabbyProvider(a)))
-		runtime.providers = providers.map((entry) => ({ label: providerLabel(entry), rabby: isRabbyProvider(entry) }))
+		runtime.providers = providers.map((entry) => ({ label: providerLabel(entry) }))
 		return providers
 	}
 	const providerAccounts = async (provider, request) => {
@@ -535,7 +529,7 @@ javascript: (async () => {
 		const selectedDelta = rows
 			.filter((row) => selectedIds.includes(rowId(row)))
 			.reduce((sum, row) => sum + rowDelta(row), 0n)
-		body.innerHTML = `${error ? `<p class="err">${h(error)}</p>` : ""}<div class="grid"><div>Account<br><code>${h(account)}</code></div><div>Account source<br><b class="${runtime.accountSource === "wallet provider" ? "ok" : "warn"}">${h(runtime.accountSource)}</b></div><div>Can claim<br><b class="${states?.canClaim ? "ok" : "muted"}">${h(String(!!states?.canClaim))}</b></div><div>Selected<br><b>${h(selectedIds.length)}</b> campaign(s)<br><span class="muted">delta ${selectedDelta >= 0n ? "+" : ""}${h(formatBig(selectedDelta))}</span></div><div>Exact selected voucher<br><b class="${exactVoucher ? "ok" : "warn"}">${exactVoucher ? "cached/current" : selectedIds.length ? "missing" : "n/a"}</b></div><div>Armed<br><b class="${window.__sfVoucherArmedVoucher ? "ok" : "muted"}">${window.__sfVoucherArmedVoucher ? `nonce ${h(window.__sfVoucherArmedVoucher.nonce)}` : "no"}</b><br><span class="muted">hits ${h(runtime.armedHits)}</span></div></div><p class="muted">Updated: ${cache.updatedAt ? h(age(cache.updatedAt)) : "never"}<br>Providers: ${h(runtime.providers.map((p) => `${p.label}${p.rabby ? " (Rabby)" : ""}`).join(", ") || "none")}<br>Mystery box: <code>${h(mystery ? JSON.stringify(mystery).slice(0, 220) : "n/a")}</code></p><div class="actions"><button data-act="refresh">Refresh states</button><button data-act="connect">Connect wallet</button><button data-act="manual-account">Manual account</button>${manualAccount() ? `<button class="danger" data-act="clear-manual">Clear manual</button>` : ""}<button class="primary" data-act="fetch-exact">Fetch exact selected</button><button data-act="fetch-reference">Fetch claim-app reference</button></div><h4>Campaign deltas <span class="muted">(voucher signs full offchain totals)</span></h4>${
+		body.innerHTML = `${error ? `<p class="err">${h(error)}</p>` : ""}<div class="grid"><div>Account<br><code>${h(account)}</code></div><div>Account source<br><b class="${runtime.accountSource === "wallet provider" ? "ok" : "warn"}">${h(runtime.accountSource)}</b></div><div>Can claim<br><b class="${states?.canClaim ? "ok" : "muted"}">${h(String(!!states?.canClaim))}</b></div><div>Selected<br><b>${h(selectedIds.length)}</b> campaign(s)<br><span class="muted">delta ${selectedDelta >= 0n ? "+" : ""}${h(formatBig(selectedDelta))}</span></div><div>Exact selected voucher<br><b class="${exactVoucher ? "ok" : "warn"}">${exactVoucher ? "cached/current" : selectedIds.length ? "missing" : "n/a"}</b></div><div>Armed<br><b class="${window.__sfVoucherArmedVoucher ? "ok" : "muted"}">${window.__sfVoucherArmedVoucher ? `nonce ${h(window.__sfVoucherArmedVoucher.nonce)}` : "no"}</b><br><span class="muted">hits ${h(runtime.armedHits)}</span></div></div><p class="muted">Updated: ${cache.updatedAt ? h(age(cache.updatedAt)) : "never"}<br>Providers: ${h(runtime.providers.map((p) => p.label).join(", ") || "none")}<br>Mystery box: <code>${h(mystery ? JSON.stringify(mystery).slice(0, 220) : "n/a")}</code></p><div class="actions"><button data-act="refresh">Refresh states</button><button data-act="connect">Connect wallet</button><button data-act="manual-account">Manual account</button>${manualAccount() ? `<button class="danger" data-act="clear-manual">Clear manual</button>` : ""}<button class="primary" data-act="fetch-exact">Fetch exact selected</button><button data-act="fetch-reference">Fetch claim-app reference</button></div><h4>Campaign deltas <span class="muted">(voucher signs full offchain totals)</span></h4>${
 			rows.length
 				? rows
 						.map((row) => {
