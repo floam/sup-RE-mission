@@ -19,7 +19,7 @@ The CMS batch endpoint supports both multi-campaign and one-campaign subsets, so
 
 Campaign rows use the observed `{ programId, offchainPoints, onchainPoints, isOnchainOutdated }` shape. The UI displays `offchainPoints - onchainPoints` as the delta, but the signed voucher uses the full target `offchainPoints` values.
 
-A cached voucher is considered reusable only when it has the same selected campaign ID set, is not stale by nonce, and still matches the current full offchain totals for every selected campaign. Lower cached nonces are marked stale only when a higher nonce exists for an overlapping campaign on the same account, because nonce validity is campaign-scoped. CMS vouchers also keep their `signatureExpiresAt` value and cannot be armed after expiry.
+A cached voucher is considered reusable only when it has the same selected campaign ID set, is not stale by nonce, and still matches the current full offchain totals for every selected campaign. Lower cached nonces are marked stale only when a higher nonce exists for an overlapping campaign on the same account, because nonce validity is campaign-scoped. The tool does not expire vouchers by wall-clock time; CMS `signatureTimestamp` values are treated as the monotonic claim nonce/timestamp.
 
 When no wallet or manual account override is available, account detection prefers visible claim-page text before generic page storage and skips this tool's own `localStorage` keys so an old voucher cache cannot select a different account. Armed vouchers are tied to the account used at arm time, and the fetch interceptor only serves them to matching `/api/points/claim?accountAddress=...` requests.
 

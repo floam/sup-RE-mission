@@ -1,7 +1,7 @@
 // biome-ignore lint/suspicious/noConfusingLabels: Shortcuts/bookmarklet payload intentionally starts with javascript:.
 javascript: (async () => {
 	const APP_ID = "sf-claim-voucher-tool"
-	const TOOL_VERSION = "5.0.0-exact-batch-only"
+	const TOOL_VERSION = "5.0.1-nonce-only"
 	const LS_KEY = "sf.claim.voucherTool.cache.v5"
 	const MANUAL_ACCOUNT_KEY = "sf.claim.voucherTool.manualAccount.v1"
 	const CLAIM_ORIGIN = "https://claim.superfluid.org"
@@ -304,7 +304,6 @@ javascript: (async () => {
 			nonce: String(signed.signatureTimestamp),
 			signature: String(signed.signature),
 			signer: String(signed.signer || ""),
-			expiresAt: Number(signed.signatureExpiresAt || signed.expiresAt || 0) || undefined,
 			claimTransaction,
 			rawSignedBalance: jsonClone(signed),
 		}
@@ -337,10 +336,6 @@ javascript: (async () => {
 	}
 	const isStale = (account, voucher) =>
 		latestNonceForVoucher(account, voucher) != null && asBig(voucher?.nonce) < latestNonceForVoucher(account, voucher)
-	const isExpired = (voucher) => {
-		const expiresAt = Number(voucher?.expiresAt || voucher?.rawSignedBalance?.signatureExpiresAt || 0)
-		return expiresAt > 0 && expiresAt <= Date.now() / 1000
-	}
 	const matchesIdsAndCurrentTotals = (account, voucher, ids) => {
 		if (!voucher || idsKey(voucher.programIds || []) !== idsKey(ids)) return false
 		if (isStale(account, voucher)) return false
@@ -442,8 +437,6 @@ javascript: (async () => {
 		const voucher = selectedVoucherFor(account)
 		if (!voucher) return alert("Select a voucher first.")
 		if (isStale(account, voucher)) return alert("Selected voucher is stale. Fetch exact selected first.")
-		if (voucher.kind === "cms-batch" && isExpired(voucher))
-			return alert("Selected CMS voucher is expired. Fetch exact selected first.")
 		const ids = selectedProgramIdsFor(account)
 		if (!matchesIdsAndCurrentTotals(account, voucher, ids))
 			return alert(
