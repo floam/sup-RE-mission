@@ -56,6 +56,20 @@ If the action ID stops working, fetch `https://claim.superfluid.org`, download i
 - Report these sets separately: claim route IDs, balance-batch IDs, resolved CMS IDs, and missing-from-CMS IDs.
 - For point-event names, only resolved CMS campaigns can be enumerated with `/points/events`.
 
+## Check which campaigns have had funding start already
+
+1. Use CMS campaign metadata as the primary source for funding-start checks. Fetch it with `GET https://cms.superfluid.pro/points/campaign?campaignId=<id>` for each campaign ID that exists.
+2. Before relying on any field, confirm the exact funding-start field name from CMS source, schema, or documented route output. Do not infer that a similarly named field is authoritative without checking the CMS implementation or schema/docs first.
+3. Compare the confirmed funding-start timestamp against the current UTC time (`new Date()` / `date -u`). Treat a campaign as funding started only when the confirmed timestamp is present, parseable, and less than or equal to current UTC time.
+4. Treat missing, undocumented, ambiguous, or unparseable funding-start fields as `unknown`, not `false`.
+5. If checking many IDs, use `POST /points/balance-batch` only for existence discovery, then fetch `/points/campaign` metadata for the existing campaign IDs before classifying funding status.
+6. When useful, report campaigns in three groups:
+   - funding started
+   - funding not started
+   - unknown because metadata lacks a confirmed funding-start field
+
+Unknown response shape needed: the exact CMS campaign funding-start response field is not currently documented in this skill. Agents must verify the field name from CMS source/schema/docs before using it.
+
 ## Performance defaults
 
 - Use HTTP/2 curl requests when Node fetch cannot reach the network in the agent environment.

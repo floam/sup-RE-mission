@@ -8,6 +8,20 @@
 
 `/points/balance-batch` accepts up to 50 campaign IDs and an account. Use the zero address when only checking existence. Missing campaigns are returned in `warnings`.
 
+## Check which campaigns have had funding start already
+
+- Use CMS campaign metadata as the primary source: `GET https://cms.superfluid.pro/points/campaign?campaignId=<id>`.
+- Confirm the exact funding-start field name from CMS source, schema, or documented route output before using it. Do not classify campaigns from guessed field names.
+- Compare the confirmed timestamp with current UTC time. A campaign belongs in `funding started` only when the confirmed timestamp is present, parseable, and `<=` now in UTC; it belongs in `funding not started` when the confirmed timestamp is present, parseable, and `>` now in UTC.
+- Treat missing, undocumented, ambiguous, or unparseable funding-start fields as `unknown`, not `false`.
+- For many candidate IDs, use `POST /points/balance-batch` only to discover which campaign IDs exist, then fetch `/points/campaign` metadata for those existing IDs before checking funding status.
+- Report three groups when needed:
+  - funding started
+  - funding not started
+  - unknown because metadata lacks a confirmed funding-start field
+
+Unknown response shape needed: the exact CMS campaign funding-start response field is not currently documented here. Verify the field name from CMS source/schema/docs before using it.
+
 ## Claim app Next.js action
 
 - Host: `https://claim.superfluid.org/`
