@@ -12,6 +12,20 @@ description: Research and implement Superfluid points / SPR campaign discovery, 
 3. Cross-check both sources before concluding a campaign/program is missing.
 4. Prefer batched endpoints and caching; do not brute-force `GET /points/campaign` one ID at a time unless no batch route is available.
 
+## Source hierarchy
+
+When researching Superfluid points / SPR campaigns, prefer sources in this order:
+
+1. CMS route handlers/source code in this fork.
+2. CMS schemas, types, fixtures, tests, and OpenAPI artifacts.
+3. Committed docs/audits, especially `docs/audits/2026-06-30-spr-campaigns-claim-endpoints.md`.
+4. Live CMS endpoint responses when the task allows network access.
+5. Reverse-engineered `claim.superfluid.org` and `campaigns.superfluid.org` bundle notes.
+6. Public app-local routes.
+7. Explicitly-labeled inference.
+
+When answering campaign ID, funding-start, leaderboard, or account-placement questions, cite or name the source category used. If multiple categories disagree, call out the conflict and prefer the highest-ranking applicable source.
+
 ## Known useful endpoints
 
 - `GET https://cms.superfluid.pro/points/campaign?campaignId=<id>` returns offchain CMS campaign metadata if the campaign exists.
