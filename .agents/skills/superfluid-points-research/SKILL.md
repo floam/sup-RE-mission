@@ -49,6 +49,24 @@ The response is React Flight text. The line beginning with `1:` contains a JSON 
 
 If the action ID stops working, fetch `https://claim.superfluid.org`, download its `/_next/static/...js` chunks, and search for `getProgramApps`, `createServerReference`, `programApps`, `/api/points/states`, or `/api/points/claim` to find the new server action ID and related routes.
 
+## Get position of an account on a leaderboard
+
+Use this procedure for account position, place, rank, or leaderboard lookups. Campaign lookups require `campaignId`.
+
+1. Validate and normalize the account address.
+2. For campaign placement, confirm the campaign exists with `GET https://cms.superfluid.pro/points/campaign?campaignId=<id>`.
+3. For campaign placement, use `GET https://cms.superfluid.pro/points/accounts?campaignId=<id>&account=<account>`. The returned `accounts[]` list is the sorted campaign leaderboard for the request.
+4. For overall placement, use `GET https://claim.superfluid.org/api/leaderboard`.
+5. Use server-provided `rank`, `place`, or list order. Do not recompute ranks from raw point events unless CMS code or docs define the ranking algorithm, tie handling, capped points behavior, and excluded events.
+
+Campaign example:
+
+```text
+https://cms.superfluid.pro/points/accounts?campaignId=699&account=0xdBb811EC62338db94858Ec21ef1d56B658111922
+```
+
+Known campaign fields: `accounts[]`, `accounts[].account`, `accounts[].totalPoints`, `accounts[].eventCount`, and `accounts[].lastEventAt`. Also document any returned `rank`, `place`, `points`, `cappedPoints`, or equivalent fields when present.
+
 ## Important interpretation
 
 - Claim route program IDs are onchain claim programs; not all of them resolve in `/points/campaign`.
