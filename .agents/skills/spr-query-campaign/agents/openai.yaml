@@ -1,0 +1,3 @@
+display_name: spr-query-campaign
+short_description: Query one specific Superfluid Points Rewards campaign/program across CMS, claim-app, SUP subgraph, protocol subgraph, and onchain/RPC. Use for “query SPR campaign”, campaign ID lookups, season attribution, active/ended status, pool address, flow, members, point events, and claimability details for a single ID.
+default_prompt: Use this skill for spr-query-campaign workflows.

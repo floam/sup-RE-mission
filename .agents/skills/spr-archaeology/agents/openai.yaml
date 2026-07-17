@@ -1,0 +1,3 @@
+display_name: spr-archaeology
+short_description: Research historical or hidden Superfluid Points Rewards traces, old campaigns, pre-S5 programs, missing CMS IDs, onchain-only SUP programs, claim/campaign app bundles, GitHub repos, subgraphs, and undocumented APIs. Use for SPR archaeology, old campaign IDs, reverse engineering, public bundle audits, and cross-source discrepancies.
+default_prompt: Use this skill for spr-archaeology workflows.

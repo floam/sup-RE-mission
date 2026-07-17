@@ -1,0 +1,3 @@
+display_name: spr-claim-points
+short_description: Inspect or build Superfluid Points Rewards claim flows, claim point states, signed balances, claim vouchers, claim-app /api/points/states and /api/points/claim, CMS signed-balance-batch, and claim-voucher tooling. Use for claiming points, voucher payloads, stale onchain units, canClaim, and selected campaign claim transactions.
+default_prompt: Use this skill for spr-claim-points workflows.

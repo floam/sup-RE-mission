@@ -1,0 +1,3 @@
+display_name: spr-enumerate-campaigns
+short_description: Enumerate currently relevant Superfluid Points Rewards (SPR/SUP) campaigns/programs, focusing on Season 5+ and not-ended campaigns, including late-launch exceptions such as S5 Streme/Warplet Gobbler. Use for active campaign tables, season attribution, claim-app program catalogs, SUP subgraph lifecycle checks, CMS campaign discovery, and excluding pre-S5 or ended programs.
+default_prompt: Use this skill for spr-enumerate-campaigns workflows.
