@@ -2,18 +2,21 @@
 
 `claim-voucher-shortcuts.js` is a Safari Shortcuts-compatible JavaScript payload for `https://claim.superfluid.org`.
 
-The injector displays claim-app point-state deltas, lets the user include or exclude positive outdated campaigns, fetches an exact CMS signed voucher for the selected campaign subset, caches vouchers in `localStorage`, and arms a selected voucher by intercepting the claim app's `/api/points/claim` lookup.
+The injector displays claim-app point-state deltas with campaign names/seasons from the public claim programs catalog, lets the user include or exclude positive outdated campaigns, fetches an exact CMS signed voucher for the selected campaign subset, caches vouchers in `localStorage`, and arms a selected voucher by intercepting the claim app's `/api/points/claim` lookup.
 
 ## Canonical endpoints
 
-The script intentionally uses only the live claim host and the CMS batch signed-balance endpoint:
+The script intentionally uses only the live claim host and the CMS batch signed-balance endpoint for voucher signing:
 
 1. `GET https://claim.superfluid.org/api/points/states?accountAddress=<address>`
-2. `GET https://claim.superfluid.org/api/points/claim?accountAddress=<address>` for optional reference/debug only
-3. `GET https://claim.superfluid.org/api/mystery-box/check?address=<address>` for optional UI/debug only
-4. `POST https://cms.superfluid.pro/points/signed-balance-batch` for actual selected-subset vouchers
+2. `GET https://claim.superfluid.org/api/programs` for campaign labels, seasons, app IDs, pool addresses, and claim-app `onchainInfo`
+3. `GET https://claim.superfluid.org/api/points/claim?accountAddress=<address>` for optional reference/debug only
+4. `GET https://claim.superfluid.org/api/mystery-box/check?address=<address>` for optional UI/debug only
+5. `POST https://cms.superfluid.pro/points/signed-balance-batch` for actual selected-subset vouchers
 
 The CMS batch endpoint supports both multi-campaign and one-campaign subsets, so there are no `/points/signed-balance` or `/points/signed-balances` fallbacks. Even a one-campaign CMS batch response is submitted as a batch-shaped claim transaction because the CMS batch endpoint signs array-typed payloads.
+
+The tool does not POST to the SUP or protocol subgraphs when signing. Those subgraphs are useful for research and campaign discovery, but the voucher payload must stay aligned with the claim state rows and CMS signed-balance response.
 
 ## Voucher and cache correctness
 

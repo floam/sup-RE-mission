@@ -1,7 +1,7 @@
 // biome-ignore lint/suspicious/noConfusingLabels: Shortcuts/bookmarklet payload intentionally starts with javascript:.
 javascript: (async () => {
 	const APP_ID = "sf-claim-voucher-tool"
-	const TOOL_VERSION = "5.0.1-nonce-only"
+	const TOOL_VERSION = "5.1.0-program-catalog"
 	const LS_KEY = "sf.claim.voucherTool.cache.v5"
 	const MANUAL_ACCOUNT_KEY = "sf.claim.voucherTool.manualAccount.v1"
 	const CLAIM_ORIGIN = "https://claim.superfluid.org"
@@ -10,6 +10,7 @@ javascript: (async () => {
 	const ADDRESS_RE = /0x[a-fA-F0-9]{40}/
 	const MAX_VOUCHERS_PER_ACCOUNT = 160
 	const FETCH_TIMEOUT_MS = 20000
+	const PROGRAMS_TTL_MS = 10 * 60 * 1000
 
 	window.__sfVoucherToolState ||= { armedHits: 0, logs: [], providers: [], accountSource: "" }
 	const runtime = window.__sfVoucherToolState
@@ -92,6 +93,8 @@ javascript: (async () => {
 		vouchers: [],
 		states: null,
 		mystery: null,
+		programApps: [],
+		programAppsUpdatedAt: 0,
 		updatedAt: 0,
 	})
 	const getCache = () => {
@@ -208,6 +211,7 @@ javascript: (async () => {
 	const claimUrl = (path) => new URL(path, CLAIM_ORIGIN).toString()
 	const claimStateUrl = (account) => claimUrl(`/api/points/states?accountAddress=${encodeURIComponent(account)}`)
 	const claimVoucherUrl = (account) => claimUrl(`/api/points/claim?accountAddress=${encodeURIComponent(account)}`)
+	const claimProgramsUrl = () => claimUrl("/api/programs")
 	const mysteryUrl = (account) => claimUrl(`/api/mystery-box/check?address=${encodeURIComponent(account)}`)
 	const signedBalanceBatchUrl = () => `${CMS_BASE}/points/signed-balance-batch`
 
@@ -257,6 +261,36 @@ javascript: (async () => {
 			voucher.nonce,
 			voucher.signature.slice(0, 18),
 		].join("|")
+	const getProgramId = (app) => String(app?.program?.id ?? "")
+	const programAppsById = (apps = []) => {
+		const byId = {}
+		for (const app of apps || []) {
+			const id = getProgramId(app)
+			if (!id) continue
+			byId[id] ||= []
+			byId[id].push(app)
+		}
+		return byId
+	}
+	const rowProgramApps = (account, row) => programAppsById(accountCache(account).programApps)[rowId(row)] || []
+	const rowProgramLabel = (account, row) => {
+		const apps = rowProgramApps(account, row)
+		if (!apps.length) return `Campaign ${rowId(row)}`
+		const seasons = [...new Set(apps.map((app) => app.season).filter(Boolean))].sort()
+		const names = [...new Set(apps.map((app) => app.name).filter(Boolean))]
+		const appIds = [...new Set(apps.map((app) => app.appId).filter(Boolean))]
+		return `${seasons.length ? `S${seasons.join("/")}: ` : ""}${names.join(" / ")} ${appIds.length ? `(${appIds.join(", ")})` : ""}`
+	}
+	const rowProgramMeta = (account, row) => {
+		const apps = rowProgramApps(account, row)
+		const info = apps.find((app) => app.program?.onchainInfo)?.program?.onchainInfo
+		if (!info) return ""
+		const parts = []
+		if (info.poolAddress) parts.push(`pool ${String(info.poolAddress).slice(0, 8)}…`)
+		if (info.totalMembers != null) parts.push(`${info.totalMembers} members`)
+		if (info.isFundingFinished != null) parts.push(info.isFundingFinished ? "finished" : "active/pending")
+		return parts.join(" · ")
+	}
 
 	const normalizeClaimVoucher = (claimData, source) => {
 		const tx = claimData?.claimTransaction
@@ -352,6 +386,21 @@ javascript: (async () => {
 
 	const getStates = (account) => fetchJsonish(claimStateUrl(account))
 	const getMysteryBox = (account) => fetchJsonish(mysteryUrl(account)).catch((error) => ({ error: error.message }))
+	const fetchProgramApps = () => fetchJsonish(claimProgramsUrl()).then((apps) => (Array.isArray(apps) ? apps : []))
+	const getProgramApps = async (account, { forceRefresh = false } = {}) => {
+		const cache = accountCache(account)
+		if (
+			!forceRefresh &&
+			cache.programApps?.length &&
+			Date.now() - Number(cache.programAppsUpdatedAt || 0) < PROGRAMS_TTL_MS
+		)
+			return cache.programApps
+		const programApps = await fetchProgramApps()
+		cache.programApps = programApps
+		cache.programAppsUpdatedAt = Date.now()
+		saveAccountCache(account, cache)
+		return programApps
+	}
 	const fetchClaimVoucher = async (account) =>
 		saveVoucher(account, normalizeClaimVoucher(await fetchJsonish(claimVoucherUrl(account)), "claim-api-reference"))
 	const fetchCmsBatch = async (account, ids) => {
@@ -406,13 +455,19 @@ javascript: (async () => {
 	const refreshData = async (account) => {
 		let states
 		let mystery
+		let programApps = accountCache(account).programApps || []
 		let error = ""
 		try {
-			states = await getStates(account)
-			mystery = await getMysteryBox(account)
+			;[states, mystery, programApps] = await Promise.all([
+				getStates(account),
+				getMysteryBox(account),
+				getProgramApps(account, { forceRefresh: true }),
+			])
 			const cache = accountCache(account)
 			cache.states = states
 			cache.mystery = mystery
+			cache.programApps = programApps
+			cache.programAppsUpdatedAt = Date.now()
 			cache.updatedAt = Date.now()
 			for (const row of sortedRows(states).filter(isPositiveOutdated)) cache.selectedPrograms[rowId(row)] ??= true
 			saveAccountCache(account, cache)
@@ -496,6 +551,10 @@ javascript: (async () => {
 					if (account != null) setManualAccount(account)
 					await render({ forceRefresh: true })
 				}
+				if (action === "clear-manual") {
+					setManualAccount("")
+					await render({ forceRefresh: true })
+				}
 				if (action === "fetch-exact") await fetchExactSelected()
 				if (action === "fetch-reference") await fetchClaimVoucher(await currentAccount()).then(() => render())
 				if (action === "arm") await armSelected(false)
@@ -509,6 +568,15 @@ javascript: (async () => {
 					if (voucher) await copyText(responseForVoucher(voucher))
 				}
 				if (action === "export") await copyText(JSON.stringify({ [LS_KEY]: getCache() }, null, 2))
+				if (action === "import") {
+					const raw = prompt("Paste exported voucher cache JSON:")
+					if (raw) {
+						const imported = JSON.parse(raw)
+						const nextCache = imported[LS_KEY] || imported
+						setCache(nextCache)
+						await render({ forceRefresh: false })
+					}
+				}
 				if (action === "clear") {
 					const account = await currentAccount()
 					if (confirm(`Clear cache for ${account}?`)) saveAccountCache(account, emptyAccountCache())
@@ -532,6 +600,10 @@ javascript: (async () => {
 			forceRefresh || !cacheBefore.states || Date.now() - Number(cacheBefore.updatedAt || 0) > 30000
 				? await refreshData(account)
 				: { states: cacheBefore.states, mystery: cacheBefore.mystery, error: "" }
+		if (!accountCache(account).programAppsUpdatedAt)
+			getProgramApps(account)
+				.then(() => render())
+				.catch(log)
 		const cache = accountCache(account)
 		const rows = sortedRows(states)
 		const selectedIds = selectedProgramIdsFor(account)
@@ -541,13 +613,14 @@ javascript: (async () => {
 		const selectedDelta = rows
 			.filter((row) => selectedIds.includes(rowId(row)))
 			.reduce((sum, row) => sum + rowDelta(row), 0n)
-		body.innerHTML = `${error ? `<p class="err">${h(error)}</p>` : ""}<div class="grid"><div>Account<br><code>${h(account)}</code></div><div>Account source<br><b class="${runtime.accountSource === "wallet provider" ? "ok" : "warn"}">${h(runtime.accountSource)}</b></div><div>Can claim<br><b class="${states?.canClaim ? "ok" : "muted"}">${h(String(!!states?.canClaim))}</b></div><div>Selected<br><b>${h(selectedIds.length)}</b> campaign(s)<br><span class="muted">delta ${selectedDelta >= 0n ? "+" : ""}${h(formatBig(selectedDelta))}</span></div><div>Exact selected voucher<br><b class="${exactVoucher ? "ok" : "warn"}">${exactVoucher ? "cached/current" : selectedIds.length ? "missing" : "n/a"}</b></div><div>Armed<br><b class="${window.__sfVoucherArmedVoucher ? "ok" : "muted"}">${window.__sfVoucherArmedVoucher ? `nonce ${h(window.__sfVoucherArmedVoucher.nonce)}` : "no"}</b><br><span class="muted">hits ${h(runtime.armedHits)}</span></div></div><p class="muted">Updated: ${cache.updatedAt ? h(age(cache.updatedAt)) : "never"}<br>Providers: ${h(runtime.providers.map((p) => p.label).join(", ") || "none")}<br>Mystery box: <code>${h(mystery ? JSON.stringify(mystery).slice(0, 220) : "n/a")}</code></p><div class="actions"><button data-act="refresh">Refresh states</button><button data-act="connect">Connect wallet</button><button data-act="manual-account">Manual account</button>${manualAccount() ? `<button class="danger" data-act="clear-manual">Clear manual</button>` : ""}<button class="primary" data-act="fetch-exact">Fetch exact selected</button><button data-act="fetch-reference">Fetch claim-app reference</button></div><h4>Campaign deltas <span class="muted">(voucher signs full offchain totals)</span></h4>${
+		body.innerHTML = `${error ? `<p class="err">${h(error)}</p>` : ""}<div class="grid"><div>Account<br><code>${h(account)}</code></div><div>Account source<br><b class="${runtime.accountSource === "wallet provider" ? "ok" : "warn"}">${h(runtime.accountSource)}</b></div><div>Can claim<br><b class="${states?.canClaim ? "ok" : "muted"}">${h(String(!!states?.canClaim))}</b></div><div>Selected<br><b>${h(selectedIds.length)}</b> campaign(s)<br><span class="muted">delta ${selectedDelta >= 0n ? "+" : ""}${h(formatBig(selectedDelta))}</span></div><div>Exact selected voucher<br><b class="${exactVoucher ? "ok" : "warn"}">${exactVoucher ? "cached/current" : selectedIds.length ? "missing" : "n/a"}</b></div><div>Armed<br><b class="${window.__sfVoucherArmedVoucher ? "ok" : "muted"}">${window.__sfVoucherArmedVoucher ? `nonce ${h(window.__sfVoucherArmedVoucher.nonce)}` : "no"}</b><br><span class="muted">hits ${h(runtime.armedHits)}</span></div></div><p class="muted">Updated: ${cache.updatedAt ? h(age(cache.updatedAt)) : "never"}<br>Program catalog: ${h((cache.programApps || []).length)} apps${cache.programAppsUpdatedAt ? ` · ${h(age(cache.programAppsUpdatedAt))}` : ""}<br>Providers: ${h(runtime.providers.map((p) => p.label).join(", ") || "none")}<br>Mystery box: <code>${h(mystery ? JSON.stringify(mystery).slice(0, 220) : "n/a")}</code></p><div class="actions"><button data-act="refresh">Refresh states</button><button data-act="connect">Connect wallet</button><button data-act="manual-account">Manual account</button>${manualAccount() ? `<button class="danger" data-act="clear-manual">Clear manual</button>` : ""}<button class="primary" data-act="fetch-exact">Fetch exact selected</button><button data-act="fetch-reference">Fetch claim-app reference</button></div><h4>Campaign deltas <span class="muted">(voucher signs full offchain totals)</span></h4>${
 			rows.length
 				? rows
 						.map((row) => {
 							const id = rowId(row)
 							const delta = rowDelta(row)
-							return `<label class="row"><input type="checkbox" data-program-check="${h(id)}" ${cache.selectedPrograms[id] ? "checked" : ""}><span>Campaign <code>${h(id)}</code><br><span class="muted">onchain</span> ${h(formatBig(rowOnchain(row)))}<br><span class="muted">offchain</span> ${h(formatBig(rowOffchain(row)))}</span><b class="${delta > 0n ? "ok" : delta < 0n ? "warn" : "muted"}">${delta >= 0n ? "+" : ""}${h(formatBig(delta))}</b></label>`
+							const meta = rowProgramMeta(account, row)
+							return `<label class="row"><input type="checkbox" data-program-check="${h(id)}" ${cache.selectedPrograms[id] ? "checked" : ""}><span>${h(rowProgramLabel(account, row))}<br><span class="muted">Program</span> <code>${h(id)}</code>${meta ? `<br><span class="muted">${h(meta)}</span>` : ""}<br><span class="muted">onchain</span> ${h(formatBig(rowOnchain(row)))}<br><span class="muted">offchain</span> ${h(formatBig(rowOffchain(row)))}</span><b class="${delta > 0n ? "ok" : delta < 0n ? "warn" : "muted"}">${delta >= 0n ? "+" : ""}${h(formatBig(delta))}</b></label>`
 						})
 						.join("")
 				: `<p class="muted">No outdated point states found.</p>`
