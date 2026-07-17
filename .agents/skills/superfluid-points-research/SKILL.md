@@ -34,6 +34,10 @@ When answering campaign ID, funding-start, leaderboard, or account-placement que
 - `GET https://claim.superfluid.org/api/programs` returns claim-app program metadata as `{ json: ProgramApp[] }`. Use it before the legacy Next.js server action. Important fields: `appId`, `name`, `season`, `category`, `program.id`, `program.onchainInfo.poolAddress`, `fundingFlowRate`, `fundingStartDate`, `fundingEndDate`, `totalAllocated`, `totalClaimed`, `isFundingStarted`, `isFundingFinished`, and `totalMembers`.
 - `GET https://cms.superfluid.pro/points/campaign?campaignId=<id>` returns offchain CMS campaign metadata if the campaign exists.
 - `GET https://cms.superfluid.pro/points/events?campaignId=<id>&limit=100&page=<page>` returns point events plus pagination.
+- `GET https://claim.superfluid.org/api/points/states?accountAddress=<address>` returns SuperJSON as `{ json: { accountAddress, lockerAddress, programPointStates, canClaim } }`. Observed state rows use `{ programId, offchainPoints, onchainPoints, isOnchainOutdated }`.
+  - Treat `offchainPoints` as the CMS signed/capped target units for that account/program. In live probes, it matched CMS `/points/balance-batch` `cappedPoints` / signed-batch `points`, not uncapped raw `points` from `/points/balance-batch`.
+  - Treat `onchainPoints` as current onchain pool member units for the account locker/member in that program. `isOnchainOutdated` means the signed CMS target differs from current onchain units and the user can claim/update.
+  - The claim frontend bundle only calls this route; the route implementation is not in the client bundle. Reconstruct it by joining CMS capped balances with onchain pool-member units from the locker/program pools.
 - `POST https://cms.superfluid.pro/points/balance-batch` accepts up to 50 IDs:
 
 ```json
@@ -140,6 +144,7 @@ Known campaign fields: `accounts[]`, `accounts[].account`, `accounts[].totalPoin
 For `docs/tools/claim-voucher-shortcuts.js` and related docs:
 
 1. Keep voucher signing through `POST https://cms.superfluid.pro/points/signed-balance-batch`. The CMS batch endpoint signs selected campaign subsets and supports one or many campaigns.
+   - `signed-balance-batch.points` are the signed target units. When `uncappedPoints` is present, keep it diagnostic-only; do not submit it as `totalProgramUnits`.
 2. Use `GET https://claim.superfluid.org/api/points/states?accountAddress=<address>` for account point-state rows.
 3. Use `GET https://claim.superfluid.org/api/programs` for program names, seasons, app IDs, pool addresses, and claim-app `onchainInfo` in the UI. Do not use the SUP/protocol subgraphs for the actual signed voucher payload.
 4. Use `GET https://claim.superfluid.org/api/points/claim?accountAddress=<address>` only as optional reference/debug data.
