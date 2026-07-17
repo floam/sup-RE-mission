@@ -6,10 +6,11 @@ import { promisify } from "node:util"
 /*
  * Exports observed point event names from the public CMS API.
  *
- * Campaign enumeration starts from the claim.superfluid.org Next.js server
- * action used by the claim UI, then cross-checks the public POST
+ * Campaign enumeration starts from claim.superfluid.org's public programs API
+ * and the onchain SUP Goldsky subgraph, then cross-checks the public POST
  * /points/balance-batch endpoint in chunks up to --max-campaign-id (default
- * 9999). Requests are parallelized over HTTP/2 and cached.
+ * 9999). It also enriches onchain programs with the Base protocol subgraph's
+ * GDA pool state. Requests are parallelized over HTTP/2 and cached.
  */
 
 type CampaignMetadata = {
@@ -53,8 +54,76 @@ type BalanceBatchResponse = {
 type ClaimProgramApp = {
 	appId: string
 	name: string
+	category?: string
 	season?: string
-	program?: { id: number }
+	program?: {
+		id: number
+		onchainInfo?: {
+			poolAddress?: string
+			fundingFlowRate?: string | number | bigint
+			subsidyFlowRate?: string | number | bigint
+			fundingStartDate?: string | number | bigint
+			fundingEndDate?: string | number | bigint
+			programDuration?: string | number | bigint
+			totalAllocated?: string | number | bigint
+			totalClaimed?: string | number | bigint
+			totalClaimedTimestamp?: number
+			isFundingStarted?: boolean
+			isFundingFinished?: boolean
+			totalMembers?: number
+		}
+	}
+}
+
+type ClaimProgramsApiResponse = {
+	json: ClaimProgramApp[]
+}
+
+type SupProgram = {
+	id: string
+	distributionPool: string
+	fundingAmount: string
+	subsidyAmount: string
+	earlyEndDate: string
+	endDate: string
+	stoppedDate: string
+	cancellationDate: string
+	returnedDeposit: string
+	blockTimestamp: string
+	transactionHash: string
+}
+
+type SupProgramsGraphqlResponse = {
+	data?: {
+		programs: SupProgram[]
+		_meta?: { block?: { number?: number; timestamp?: number } }
+	}
+	errors?: unknown[]
+}
+
+type ProtocolPool = {
+	id: string
+	flowRate: string
+	totalMembers: number
+	totalUnits: string
+	totalAmountDistributedUntilUpdatedAt: string
+	updatedAtTimestamp: string
+}
+
+type ProtocolPoolsGraphqlResponse = {
+	data?: {
+		pools: ProtocolPool[]
+		_meta?: { block?: { number?: number; timestamp?: number } }
+	}
+	errors?: unknown[]
+}
+
+type CampaignDiscoveryRecord = {
+	id: number
+	claimApps: ClaimProgramApp[]
+	cmsExists: boolean
+	supProgram?: SupProgram
+	protocolPool?: ProtocolPool
 }
 
 type CampaignSummary = CampaignMetadata & {
@@ -75,19 +144,31 @@ type DiscoveryDetails = {
 	backendSchema: string
 	backendCampaignIds: number[]
 	claimRouteProgramIds: number[]
+	claimApiProgramIds: number[]
+	supSubgraphProgramIds: number[]
 	balanceBatchCampaignIds: number[]
+	allDiscoveredIds: number[]
 	explicitCampaignIds: number[] | null
 	resolvedCampaignIds: number[]
 	missingFromCms: number[]
+	onchainOnlyIds: number[]
+	cmsOnlyIds: number[]
 	maxCampaignId: number
 	cachePath: string
 	cacheHits: number
 	cacheWrites: number
 	backendDiscoveryError?: string
 	claimRouteError?: string
+	claimApiError?: string
+	supSubgraphError?: string
+	protocolSubgraphError?: string
 	claimRouteNote: string
+	claimApiNote: string
+	supSubgraphNote: string
+	protocolSubgraphNote: string
 	batchEndpointNote: string
 	pointsSubgraphNote: string
+	records: CampaignDiscoveryRecord[]
 }
 
 type JsonCache = Record<string, unknown>
@@ -96,6 +177,9 @@ const DEFAULT_OUTPUT_PATH = path.resolve(process.cwd(), "../website/public/point
 const DEFAULT_CACHE_PATH = path.resolve(process.cwd(), ".cache/point-event-names.json")
 const DEFAULT_BASE_URL = "https://cms.superfluid.pro"
 const DEFAULT_CLAIM_URL = "https://claim.superfluid.org"
+const DEFAULT_SUP_SUBGRAPH_URL =
+	"https://api.goldsky.com/api/public/project_clsnd6xsoma5j012qepvucfpp/subgraphs/sup/v2/gn"
+const DEFAULT_PROTOCOL_SUBGRAPH_URL = "https://subgraph-endpoints.superfluid.dev/base-mainnet/protocol-v1"
 const CLAIM_PROGRAM_APPS_ACTION = "0050c3f0d604f9162ceb3faa2d83005031b4be6b5f"
 const PAGE_SIZE = 100
 const DEFAULT_MAX_CAMPAIGN_ID = 9999
@@ -308,6 +392,144 @@ async function fetchClaimRouteProgramApps(claimUrl: string, cache: JsonCache, st
 	return parseClaimProgramAppsFlightResponse(response)
 }
 
+async function fetchClaimApiProgramApps(claimUrl: string, cache: JsonCache, stats: { hits: number; writes: number }) {
+	const response = await fetchJson<ClaimProgramsApiResponse>(`${claimUrl}/api/programs`, cache, stats)
+	return response.json
+}
+
+function parseBigIntish(value: string | number | bigint | undefined) {
+	if (value === undefined) return 0n
+	if (typeof value === "bigint") return value
+	if (typeof value === "number") return BigInt(Math.trunc(value))
+	const sanitized = value.startsWith("$n") ? value.slice(2) : value
+	return BigInt(sanitized || "0")
+}
+
+function parseTimestampSeconds(value: string | number | bigint | undefined) {
+	const parsed = parseBigIntish(value)
+	return parsed > 0n && parsed <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(parsed) : null
+}
+
+function formatDateFromSeconds(value: string | number | bigint | undefined) {
+	const timestamp = parseTimestampSeconds(value)
+	return timestamp ? new Date(timestamp * 1000).toISOString().slice(0, 10) : ""
+}
+
+function formatSupPerMonth(flowRate: string | number | bigint | undefined) {
+	const rate = parseBigIntish(flowRate)
+	if (rate === 0n) return "0"
+	const monthlyWei = rate * 2_592_000n
+	const wholeSup = monthlyWei / 1_000_000_000_000_000_000n
+	return `${wholeSup.toLocaleString("en-US")}/mo`
+}
+
+function renderIdList(ids: number[]) {
+	return ids.length ? ids.map((id) => `<code>${id}</code>`).join(", ") : '<span class="muted">None.</span>'
+}
+
+function renderCampaignDiscoveryRows(records: CampaignDiscoveryRecord[]) {
+	return records
+		.map((record) => {
+			const seasons = Array.from(new Set(record.claimApps.map((app) => app.season).filter(Boolean))).sort()
+			const seasonLabel = seasons.length
+				? `S${seasons.join("/")}`
+				: record.supProgram
+					? record.cmsExists
+						? "CMS+onchain"
+						: "onchain-only"
+					: record.cmsExists
+						? "CMS-only"
+						: "unknown"
+			const apps = record.claimApps
+				.map((app) => `<code>${escapeHtml(app.appId)}</code> (${escapeHtml(app.name)})`)
+				.join("<br>")
+			const pool = record.protocolPool
+			const supProgram = record.supProgram
+			return `<tr><td><code>${record.id}</code></td><td>${escapeHtml(seasonLabel)}</td><td>${apps || '<span class="muted">—</span>'}</td><td>${record.cmsExists ? "yes" : "no"}</td><td>${supProgram ? "yes" : "no"}</td><td>${pool ? escapeHtml(formatSupPerMonth(pool.flowRate)) : '<span class="muted">—</span>'}</td><td>${escapeHtml(formatDateFromSeconds(supProgram?.endDate))}</td><td>${escapeHtml(formatDateFromSeconds(supProgram?.stoppedDate))}</td><td>${pool ? escapeHtml(pool.totalMembers) : '<span class="muted">—</span>'}</td></tr>`
+		})
+		.join("")
+}
+
+async function fetchSupSubgraphPrograms(cache: JsonCache, stats: { hits: number; writes: number }) {
+	const supSubgraphUrl = getArgValue("sup-subgraph-url") || DEFAULT_SUP_SUBGRAPH_URL
+	const programs: SupProgram[] = []
+	let lastId = ""
+
+	while (true) {
+		const response = await postJson<SupProgramsGraphqlResponse>(
+			supSubgraphUrl,
+			{
+				query: `query SupPrograms($lastId: String!) {
+					programs(first: 1000, orderBy: id, orderDirection: asc, where: { id_gt: $lastId }) {
+						id
+						distributionPool
+						fundingAmount
+						subsidyAmount
+						earlyEndDate
+						endDate
+						stoppedDate
+						cancellationDate
+						returnedDeposit
+						blockTimestamp
+						transactionHash
+					}
+					_meta { block { number timestamp } }
+				}`,
+				variables: { lastId },
+			},
+			cache,
+			stats,
+		)
+		if (response.errors?.length) throw new Error(`SUP subgraph returned errors: ${JSON.stringify(response.errors)}`)
+		const page = response.data?.programs || []
+		if (page.length === 0) break
+		programs.push(...page)
+		lastId = page.at(-1)?.id || lastId
+	}
+
+	return programs
+}
+
+async function fetchProtocolPools(
+	poolAddresses: string[],
+	cache: JsonCache,
+	stats: { hits: number; writes: number },
+	concurrency: number,
+) {
+	const protocolSubgraphUrl = getArgValue("protocol-subgraph-url") || DEFAULT_PROTOCOL_SUBGRAPH_URL
+	const uniquePools = Array.from(new Set(poolAddresses.map((pool) => pool.toLowerCase()).filter(Boolean))).sort()
+	const chunks = Array.from({ length: Math.ceil(uniquePools.length / 100) }, (_, index) =>
+		uniquePools.slice(index * 100, index * 100 + 100),
+	)
+	const responses = await mapConcurrent(chunks, concurrency, (pools) =>
+		postJson<ProtocolPoolsGraphqlResponse>(
+			protocolSubgraphUrl,
+			{
+				query: `query ProtocolPools($pools: [ID!]!) {
+					pools(first: 1000, where: { id_in: $pools }) {
+						id
+						flowRate
+						totalMembers
+						totalUnits
+						totalAmountDistributedUntilUpdatedAt
+						updatedAtTimestamp
+					}
+					_meta { block { number timestamp } }
+				}`,
+				variables: { pools },
+			},
+			cache,
+			stats,
+		),
+	)
+	const pools = responses.flatMap((response) => {
+		if (response.errors?.length)
+			throw new Error(`Protocol subgraph returned errors: ${JSON.stringify(response.errors)}`)
+		return response.data?.pools || []
+	})
+	return new Map(pools.map((pool) => [pool.id.toLowerCase(), pool]))
+}
+
 async function fetchCampaign(
 	baseUrl: string,
 	campaignId: number,
@@ -383,8 +605,30 @@ async function discoverClaimRouteProgramIds(cache: JsonCache, stats: { hits: num
 	)
 }
 
+async function discoverClaimApiProgramApps(cache: JsonCache, stats: { hits: number; writes: number }) {
+	const claimUrl = (getArgValue("claim-url") || DEFAULT_CLAIM_URL).replace(/\/+$/, "")
+	return fetchClaimApiProgramApps(claimUrl, cache, stats)
+}
+
 function uniqSorted(ids: number[]) {
 	return Array.from(new Set(ids)).sort((a, b) => a - b)
+}
+
+function getClaimProgramId(app: ClaimProgramApp) {
+	const id = app.program?.id
+	return typeof id === "number" && Number.isInteger(id) && id > 0 ? id : null
+}
+
+function mapClaimAppsByProgramId(apps: ClaimProgramApp[]) {
+	const appsByProgramId = new Map<number, ClaimProgramApp[]>()
+	for (const app of apps) {
+		const id = getClaimProgramId(app)
+		if (!id) continue
+		const appsForProgram = appsByProgramId.get(id) || []
+		appsForProgram.push(app)
+		appsByProgramId.set(id, appsForProgram)
+	}
+	return appsByProgramId
 }
 
 async function discoverCampaigns(baseUrl: string, cache: JsonCache, stats: { hits: number; writes: number }) {
@@ -393,9 +637,17 @@ async function discoverCampaigns(baseUrl: string, cache: JsonCache, stats: { hit
 	const concurrency = parseNumberArg("concurrency", DEFAULT_CONCURRENCY)
 	let backendCampaignIds: number[] = []
 	let claimRouteProgramIds: number[] = []
+	let claimApiProgramApps: ClaimProgramApp[] = []
+	let claimApiProgramIds: number[] = []
+	let supSubgraphPrograms: SupProgram[] = []
+	let supSubgraphProgramIds: number[] = []
+	let protocolPools = new Map<string, ProtocolPool>()
 	let balanceBatchCampaignIds: number[] = []
 	let backendDiscoveryError: string | undefined
 	let claimRouteError: string | undefined
+	let claimApiError: string | undefined
+	let supSubgraphError: string | undefined
+	let protocolSubgraphError: string | undefined
 
 	try {
 		backendCampaignIds = await discoverCampaignIdsFromCmsBackend()
@@ -409,6 +661,38 @@ async function discoverCampaigns(baseUrl: string, cache: JsonCache, stats: { hit
 		claimRouteError = error instanceof Error ? error.message : String(error)
 	}
 
+	try {
+		claimApiProgramApps = await discoverClaimApiProgramApps(cache, stats)
+		claimApiProgramIds = uniqSorted(
+			claimApiProgramApps.map(getClaimProgramId).filter((id): id is number => typeof id === "number"),
+		)
+	} catch (error) {
+		claimApiError = error instanceof Error ? error.message : String(error)
+	}
+
+	try {
+		supSubgraphPrograms = await fetchSupSubgraphPrograms(cache, stats)
+		supSubgraphProgramIds = uniqSorted(
+			supSubgraphPrograms
+				.map((program) => Number.parseInt(program.id, 10))
+				.filter((id) => Number.isInteger(id) && id > 0),
+		)
+	} catch (error) {
+		supSubgraphError = error instanceof Error ? error.message : String(error)
+	}
+
+	try {
+		const poolAddresses = [
+			...supSubgraphPrograms.map((program) => program.distributionPool),
+			...claimApiProgramApps
+				.map((app) => app.program?.onchainInfo?.poolAddress)
+				.filter((pool): pool is string => !!pool),
+		]
+		protocolPools = await fetchProtocolPools(poolAddresses, cache, stats, Math.min(concurrency, 16))
+	} catch (error) {
+		protocolSubgraphError = error instanceof Error ? error.message : String(error)
+	}
+
 	balanceBatchCampaignIds = await discoverExistingCampaignIdsWithBalanceBatch(
 		baseUrl,
 		maxCampaignId,
@@ -416,7 +700,13 @@ async function discoverCampaigns(baseUrl: string, cache: JsonCache, stats: { hit
 		stats,
 		concurrency,
 	)
-	const ids = explicitCampaignIds || uniqSorted([...claimRouteProgramIds, ...balanceBatchCampaignIds])
+	const allDiscoveredIds = uniqSorted([
+		...claimRouteProgramIds,
+		...claimApiProgramIds,
+		...supSubgraphProgramIds,
+		...balanceBatchCampaignIds,
+	])
+	const ids = explicitCampaignIds || allDiscoveredIds
 	const campaigns = await mapConcurrent(ids, concurrency, (campaignId) =>
 		fetchCampaign(baseUrl, campaignId, cache, stats),
 	)
@@ -425,32 +715,73 @@ async function discoverCampaigns(baseUrl: string, cache: JsonCache, stats: { hit
 		.sort((a, b) => a.campaignId - b.campaignId)
 	const resolvedCampaignIds = resolvedCampaigns.map((campaign) => campaign.campaignId)
 	const missingFromCms = ids.filter((id) => !resolvedCampaignIds.includes(id))
+	const claimAppsByProgramId = mapClaimAppsByProgramId(claimApiProgramApps)
+	const supProgramsById = new Map(
+		supSubgraphPrograms
+			.map((program) => [Number.parseInt(program.id, 10), program] as const)
+			.filter(([id]) => Number.isInteger(id) && id > 0),
+	)
+	const balanceBatchCampaignIdSet = new Set(balanceBatchCampaignIds)
+	const records = ids.map((id) => {
+		const supProgram = supProgramsById.get(id)
+		const claimPool = claimAppsByProgramId.get(id)?.find((app) => app.program?.onchainInfo?.poolAddress)?.program
+			?.onchainInfo?.poolAddress
+		const poolAddress = supProgram?.distributionPool || claimPool
+		return {
+			id,
+			claimApps: claimAppsByProgramId.get(id) || [],
+			cmsExists: balanceBatchCampaignIdSet.has(id),
+			supProgram,
+			protocolPool: poolAddress ? protocolPools.get(poolAddress.toLowerCase()) : undefined,
+		} satisfies CampaignDiscoveryRecord
+	})
+	const onchainOnlyIds = records
+		.filter((record) => record.supProgram && !record.cmsExists && record.claimApps.length === 0)
+		.map((record) => record.id)
+	const cmsOnlyIds = records
+		.filter((record) => record.cmsExists && !record.supProgram && record.claimApps.length === 0)
+		.map((record) => record.id)
 
 	return {
 		campaigns: resolvedCampaigns,
 		discoveryDetails: {
 			source: explicitCampaignIds
-				? "explicit-campaign-ids-with-claim-route-and-public-cms-cross-check"
-				: `claim-route-plus-parallel-post-balance-batch-discovery-1-to-${maxCampaignId}`,
+				? "explicit-campaign-ids-with-claim-api-sup-subgraph-and-public-cms-cross-check"
+				: `claim-api-plus-sup-subgraph-plus-parallel-post-balance-batch-discovery-1-to-${maxCampaignId}`,
 			backendSchema: 'Payload collection "campaigns" / table "campaigns" / id numeric',
 			backendCampaignIds,
 			claimRouteProgramIds,
+			claimApiProgramIds,
+			supSubgraphProgramIds,
 			balanceBatchCampaignIds,
+			allDiscoveredIds,
 			explicitCampaignIds,
 			resolvedCampaignIds,
 			missingFromCms,
+			onchainOnlyIds,
+			cmsOnlyIds,
 			maxCampaignId,
 			cachePath: path.resolve(getArgValue("cache") || DEFAULT_CACHE_PATH),
 			cacheHits: stats.hits,
 			cacheWrites: stats.writes,
 			backendDiscoveryError,
 			claimRouteError,
+			claimApiError,
+			supSubgraphError,
+			protocolSubgraphError,
 			claimRouteNote:
-				"Uses the same Next.js server action as claim.superfluid.org getProgramApps to list onchain program IDs, then cross-checks those IDs against the offchain CMS /points/campaign endpoint.",
+				"Legacy fallback: uses the same Next.js server action as claim.superfluid.org getProgramApps to list onchain program IDs.",
+			claimApiNote:
+				"Uses https://claim.superfluid.org/api/programs for first-class claim-app program metadata, including seasons, app IDs, pool addresses, and claim-app onchainInfo.",
+			supSubgraphNote:
+				"Uses the SUP Goldsky subgraph to enumerate onchain emission Program entities and lifecycle fields such as distributionPool, endDate, stoppedDate, and cancellationDate.",
+			protocolSubgraphNote:
+				"Uses the Base protocol-v1 subgraph to enrich discovered SUP pools with current indexed GDA pool flow rate, total members, units, and distributed amount. Pool updatedAtTimestamp is not treated as last-SUP-flow time.",
 			batchEndpointNote:
 				"Checked the backend API registry: POST batch endpoints exist for balances/signatures, but there is no public POST campaign-metadata batch endpoint, so hidden campaign discovery also uses /points/balance-batch in chunks of 50 to find existing offchain CMS IDs through the configured maximum.",
 			pointsSubgraphNote:
 				"No separate point-event subgraph endpoint was found in this repo/config; event names are sampled or fetched from the offchain CMS /points/events endpoint.",
+			records,
 		} satisfies DiscoveryDetails,
 	}
 }
@@ -555,7 +886,7 @@ async function exportPointEventNames(outputPath = parseOutputPath()) {
 	const generatedAt = new Date().toISOString()
 	const totalEvents = summaries.reduce((sum, campaign) => sum + campaign.observedEvents, 0)
 	const totalNames = summaries.reduce((sum, campaign) => sum + campaign.events.size, 0)
-	const discoveryHtml = `<section><h2>Campaign enumeration</h2><table><tbody><tr><th>Source used</th><td>${escapeHtml(discoveryDetails.source)}</td></tr><tr><th>Backend schema</th><td><code>${escapeHtml(discoveryDetails.backendSchema)}</code>${discoveryDetails.backendDiscoveryError ? `<br><span class="muted">Backend discovery failed: ${escapeHtml(discoveryDetails.backendDiscoveryError)}</span>` : ""}</td></tr><tr><th>Claim app route</th><td>${escapeHtml(discoveryDetails.claimRouteNote)}${discoveryDetails.claimRouteError ? `<br><span class="muted">Claim route failed: ${escapeHtml(discoveryDetails.claimRouteError)}</span>` : ""}</td></tr><tr><th>Public CMS scan range</th><td><code>1..${discoveryDetails.maxCampaignId}</code></td></tr><tr><th>Cache</th><td><code>${escapeHtml(discoveryDetails.cachePath)}</code> · ${discoveryDetails.cacheHits} hits · ${discoveryDetails.cacheWrites} writes</td></tr><tr><th>Backend campaign IDs</th><td>${discoveryDetails.backendCampaignIds.length ? discoveryDetails.backendCampaignIds.map((id) => `<code>${id}</code>`).join(", ") : '<span class="muted">None available in this run.</span>'}</td></tr><tr><th>Claim route program IDs</th><td>${discoveryDetails.claimRouteProgramIds.length ? discoveryDetails.claimRouteProgramIds.map((id) => `<code>${id}</code>`).join(", ") : '<span class="muted">None available in this run.</span>'}</td></tr><tr><th>Balance-batch campaign IDs</th><td>${discoveryDetails.balanceBatchCampaignIds.length ? discoveryDetails.balanceBatchCampaignIds.map((id) => `<code>${id}</code>`).join(", ") : '<span class="muted">None available in this run.</span>'}</td></tr><tr><th>Explicit campaign IDs</th><td>${discoveryDetails.explicitCampaignIds?.length ? discoveryDetails.explicitCampaignIds.map((id) => `<code>${id}</code>`).join(", ") : '<span class="muted">Not used.</span>'}</td></tr><tr><th>Resolved offchain CMS IDs</th><td>${discoveryDetails.resolvedCampaignIds.map((id) => `<code>${id}</code>`).join(", ")}</td></tr><tr><th>Missing from offchain CMS</th><td>${discoveryDetails.missingFromCms.length ? discoveryDetails.missingFromCms.map((id) => `<code>${id}</code>`).join(", ") : '<span class="muted">None.</span>'}</td></tr><tr><th>POST batch endpoint check</th><td>${escapeHtml(discoveryDetails.batchEndpointNote)}</td></tr><tr><th>Point-event subgraph cross-check</th><td>${escapeHtml(discoveryDetails.pointsSubgraphNote)}</td></tr></tbody></table></section>`
+	const discoveryHtml = `<section><h2>Campaign enumeration</h2><table><tbody><tr><th>Source used</th><td>${escapeHtml(discoveryDetails.source)}</td></tr><tr><th>Backend schema</th><td><code>${escapeHtml(discoveryDetails.backendSchema)}</code>${discoveryDetails.backendDiscoveryError ? `<br><span class="muted">Backend discovery failed: ${escapeHtml(discoveryDetails.backendDiscoveryError)}</span>` : ""}</td></tr><tr><th>Claim programs API</th><td>${escapeHtml(discoveryDetails.claimApiNote)}${discoveryDetails.claimApiError ? `<br><span class="muted">Claim API failed: ${escapeHtml(discoveryDetails.claimApiError)}</span>` : ""}</td></tr><tr><th>SUP subgraph</th><td>${escapeHtml(discoveryDetails.supSubgraphNote)}${discoveryDetails.supSubgraphError ? `<br><span class="muted">SUP subgraph failed: ${escapeHtml(discoveryDetails.supSubgraphError)}</span>` : ""}</td></tr><tr><th>Protocol subgraph</th><td>${escapeHtml(discoveryDetails.protocolSubgraphNote)}${discoveryDetails.protocolSubgraphError ? `<br><span class="muted">Protocol subgraph failed: ${escapeHtml(discoveryDetails.protocolSubgraphError)}</span>` : ""}</td></tr><tr><th>Claim app route</th><td>${escapeHtml(discoveryDetails.claimRouteNote)}${discoveryDetails.claimRouteError ? `<br><span class="muted">Claim route failed: ${escapeHtml(discoveryDetails.claimRouteError)}</span>` : ""}</td></tr><tr><th>Public CMS scan range</th><td><code>1..${discoveryDetails.maxCampaignId}</code></td></tr><tr><th>Cache</th><td><code>${escapeHtml(discoveryDetails.cachePath)}</code> · ${discoveryDetails.cacheHits} hits · ${discoveryDetails.cacheWrites} writes</td></tr><tr><th>Backend campaign IDs</th><td>${renderIdList(discoveryDetails.backendCampaignIds)}</td></tr><tr><th>Claim API program IDs</th><td>${renderIdList(discoveryDetails.claimApiProgramIds)}</td></tr><tr><th>Claim route program IDs</th><td>${renderIdList(discoveryDetails.claimRouteProgramIds)}</td></tr><tr><th>SUP subgraph program IDs</th><td>${renderIdList(discoveryDetails.supSubgraphProgramIds)}</td></tr><tr><th>Balance-batch campaign IDs</th><td>${renderIdList(discoveryDetails.balanceBatchCampaignIds)}</td></tr><tr><th>All discovered IDs</th><td>${renderIdList(discoveryDetails.allDiscoveredIds)}</td></tr><tr><th>Explicit campaign IDs</th><td>${discoveryDetails.explicitCampaignIds?.length ? renderIdList(discoveryDetails.explicitCampaignIds) : '<span class="muted">Not used.</span>'}</td></tr><tr><th>Resolved offchain CMS IDs</th><td>${renderIdList(discoveryDetails.resolvedCampaignIds)}</td></tr><tr><th>Missing from offchain CMS</th><td>${renderIdList(discoveryDetails.missingFromCms)}</td></tr><tr><th>Onchain-only IDs</th><td>${renderIdList(discoveryDetails.onchainOnlyIds)}</td></tr><tr><th>CMS-only IDs</th><td>${renderIdList(discoveryDetails.cmsOnlyIds)}</td></tr><tr><th>POST batch endpoint check</th><td>${escapeHtml(discoveryDetails.batchEndpointNote)}</td></tr><tr><th>Point-event subgraph cross-check</th><td>${escapeHtml(discoveryDetails.pointsSubgraphNote)}</td></tr></tbody></table><h3>All discovered claim/CMS/onchain IDs</h3><table><thead><tr><th>ID</th><th>Attribution</th><th>Claim apps</th><th>CMS</th><th>SUP subgraph</th><th>Pool flow</th><th>End</th><th>Stopped</th><th>Pool members</th></tr></thead><tbody>${renderCampaignDiscoveryRows(discoveryDetails.records)}</tbody></table></section>`
 
 	const campaignSections = summaries
 		.map((campaign) => {
@@ -573,7 +904,7 @@ async function exportPointEventNames(outputPath = parseOutputPath()) {
 		})
 		.join("\n")
 
-	const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Point event names by campaign</title><style>body{font-family:Inter,Arial,sans-serif;line-height:1.5;margin:2rem;color:#101828;background:#fff}main{max-width:1100px;margin:auto}h1{margin-bottom:.25rem}section{margin-top:2.5rem}table{width:100%;border-collapse:collapse;margin-top:1rem}th,td{border:1px solid #d0d5dd;padding:.65rem;text-align:left;vertical-align:top}th{background:#f2f4f7}code{background:#f9fafb;border:1px solid #eaecf0;border-radius:4px;padding:.1rem .25rem}.muted{color:#667085;font-weight:400}ul{margin:0;padding-left:1.25rem}</style></head><body><main><h1>Point event names by campaign</h1><p class="muted">Generated ${escapeHtml(generatedAt)} from <code>${escapeHtml(baseUrl)}</code>. Campaigns are discovered from the claim app's <code>getProgramApps</code> Next.js route and cross-checked by parallel cached POSTs to <code>/points/balance-batch</code> in chunks of 50 through <code>${discoveryDetails.maxCampaignId}</code>. Season 6+ campaigns and configured in-progress pre-season-6 campaigns (<code>${fullPreSeason6CampaignIds.join(",")}</code>) fetch all event pages; finished pre-season-6 campaigns fetch only the first 100 and final 100 events. Hash-like trailing suffixes matching <code>-(?:0x)?[a-f0-9]{8,}</code> are coalesced to <code>-{hash}</code>.</p><p>${summaries.length} campaigns, ${totalNames} coalesced event names, ${totalEvents} observed point events.</p>${discoveryHtml}${campaignSections}</main></body></html>\n`
+	const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Point event names by campaign</title><style>body{font-family:Inter,Arial,sans-serif;line-height:1.5;margin:2rem;color:#101828;background:#fff}main{max-width:1100px;margin:auto}h1{margin-bottom:.25rem}section{margin-top:2.5rem}table{width:100%;border-collapse:collapse;margin-top:1rem}th,td{border:1px solid #d0d5dd;padding:.65rem;text-align:left;vertical-align:top}th{background:#f2f4f7}code{background:#f9fafb;border:1px solid #eaecf0;border-radius:4px;padding:.1rem .25rem}.muted{color:#667085;font-weight:400}ul{margin:0;padding-left:1.25rem}</style></head><body><main><h1>Point event names by campaign</h1><p class="muted">Generated ${escapeHtml(generatedAt)} from <code>${escapeHtml(baseUrl)}</code>. Campaigns are discovered from the claim app's public <code>/api/programs</code> endpoint, the SUP Goldsky subgraph, the legacy <code>getProgramApps</code> Next.js route, and parallel cached POSTs to <code>/points/balance-batch</code> in chunks of 50 through <code>${discoveryDetails.maxCampaignId}</code>. Onchain programs are enriched from the Base protocol-v1 subgraph; pool update timestamps are intentionally not treated as last-SUP-flow times. Season 6+ campaigns and configured in-progress pre-season-6 campaigns (<code>${fullPreSeason6CampaignIds.join(",")}</code>) fetch all event pages; finished pre-season-6 campaigns fetch only the first 100 and final 100 events. Hash-like trailing suffixes matching <code>-(?:0x)?[a-f0-9]{8,}</code> are coalesced to <code>-{hash}</code>.</p><p>${summaries.length} CMS campaigns, ${totalNames} coalesced event names, ${totalEvents} observed point events.</p>${discoveryHtml}${campaignSections}</main></body></html>\n`
 
 	await mkdir(path.dirname(outputPath), { recursive: true })
 	await writeFile(outputPath, html)
