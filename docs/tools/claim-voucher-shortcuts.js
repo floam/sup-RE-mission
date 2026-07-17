@@ -1,7 +1,7 @@
 // biome-ignore lint/suspicious/noConfusingLabels: Shortcuts/bookmarklet payload intentionally starts with javascript:.
 javascript: (async () => {
 	const APP_ID = "sf-claim-voucher-tool"
-	const TOOL_VERSION = "5.1.0-program-catalog"
+	const TOOL_VERSION = "5.2.0-state-probe"
 	const LS_KEY = "sf.claim.voucherTool.cache.v5"
 	const MANUAL_ACCOUNT_KEY = "sf.claim.voucherTool.manualAccount.v1"
 	const CLAIM_ORIGIN = "https://claim.superfluid.org"
@@ -93,6 +93,7 @@ javascript: (async () => {
 		vouchers: [],
 		states: null,
 		mystery: null,
+		cmsBalanceProbe: null,
 		programApps: [],
 		programAppsUpdatedAt: 0,
 		updatedAt: 0,
@@ -213,6 +214,7 @@ javascript: (async () => {
 	const claimVoucherUrl = (account) => claimUrl(`/api/points/claim?accountAddress=${encodeURIComponent(account)}`)
 	const claimProgramsUrl = () => claimUrl("/api/programs")
 	const mysteryUrl = (account) => claimUrl(`/api/mystery-box/check?address=${encodeURIComponent(account)}`)
+	const balanceBatchUrl = () => `${CMS_BASE}/points/balance-batch`
 	const signedBalanceBatchUrl = () => `${CMS_BASE}/points/signed-balance-batch`
 
 	const stateRows = (states) => states?.programPointStates || []
@@ -339,6 +341,7 @@ javascript: (async () => {
 			signature: String(signed.signature),
 			signer: String(signed.signer || ""),
 			claimTransaction,
+			uncappedPoints: (signed?.uncappedPoints || []).map(String),
 			rawSignedBalance: jsonClone(signed),
 		}
 		voucher.key = voucherKey(voucher)
@@ -478,6 +481,44 @@ javascript: (async () => {
 		}
 		return { states, mystery, error }
 	}
+
+	const fetchCmsBalanceProbe = async (account) => {
+		const rows = stateRows(accountCache(account).states)
+		const campaignIds = rows.map((row) => Number(rowId(row))).filter((id) => Number.isInteger(id) && id > 0)
+		if (!campaignIds.length) throw new Error("Refresh states before probing CMS balances.")
+		const probe = await fetchJsonish(balanceBatchUrl(), {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({ account, campaignIds }),
+		})
+		const cache = accountCache(account)
+		cache.cmsBalanceProbe = { ...jsonClone(probe), savedAt: Date.now() }
+		saveAccountCache(account, cache)
+		const cappedById = Object.fromEntries(
+			(probe.cappedPoints || probe.points || []).map((points, index) => [
+				String(probe.campaignIds?.[index]),
+				String(points),
+			]),
+		)
+		const rawById = Object.fromEntries(
+			(probe.points || []).map((points, index) => [String(probe.campaignIds?.[index]), String(points)]),
+		)
+		const mismatches = rows
+			.map((row) => ({
+				id: rowId(row),
+				state: String(row.offchainPoints),
+				capped: cappedById[rowId(row)],
+				raw: rawById[rowId(row)],
+			}))
+			.filter((entry) => entry.capped != null && entry.state !== entry.capped)
+		log(
+			"CMS balance probe",
+			`${campaignIds.length} ids`,
+			mismatches.length ? { mismatches } : "states match capped CMS balances",
+		)
+		return probe
+	}
+
 	const fetchExactSelected = async () => {
 		const account = await currentAccount()
 		const ids = selectedProgramIdsFor(account)
@@ -557,6 +598,7 @@ javascript: (async () => {
 				}
 				if (action === "fetch-exact") await fetchExactSelected()
 				if (action === "fetch-reference") await fetchClaimVoucher(await currentAccount()).then(() => render())
+				if (action === "probe-states") await fetchCmsBalanceProbe(await currentAccount()).then(() => render())
 				if (action === "arm") await armSelected(false)
 				if (action === "arm-click") await armSelected(true)
 				if (action === "disarm") {
@@ -613,7 +655,7 @@ javascript: (async () => {
 		const selectedDelta = rows
 			.filter((row) => selectedIds.includes(rowId(row)))
 			.reduce((sum, row) => sum + rowDelta(row), 0n)
-		body.innerHTML = `${error ? `<p class="err">${h(error)}</p>` : ""}<div class="grid"><div>Account<br><code>${h(account)}</code></div><div>Account source<br><b class="${runtime.accountSource === "wallet provider" ? "ok" : "warn"}">${h(runtime.accountSource)}</b></div><div>Can claim<br><b class="${states?.canClaim ? "ok" : "muted"}">${h(String(!!states?.canClaim))}</b></div><div>Selected<br><b>${h(selectedIds.length)}</b> campaign(s)<br><span class="muted">delta ${selectedDelta >= 0n ? "+" : ""}${h(formatBig(selectedDelta))}</span></div><div>Exact selected voucher<br><b class="${exactVoucher ? "ok" : "warn"}">${exactVoucher ? "cached/current" : selectedIds.length ? "missing" : "n/a"}</b></div><div>Armed<br><b class="${window.__sfVoucherArmedVoucher ? "ok" : "muted"}">${window.__sfVoucherArmedVoucher ? `nonce ${h(window.__sfVoucherArmedVoucher.nonce)}` : "no"}</b><br><span class="muted">hits ${h(runtime.armedHits)}</span></div></div><p class="muted">Updated: ${cache.updatedAt ? h(age(cache.updatedAt)) : "never"}<br>Program catalog: ${h((cache.programApps || []).length)} apps${cache.programAppsUpdatedAt ? ` · ${h(age(cache.programAppsUpdatedAt))}` : ""}<br>Providers: ${h(runtime.providers.map((p) => p.label).join(", ") || "none")}<br>Mystery box: <code>${h(mystery ? JSON.stringify(mystery).slice(0, 220) : "n/a")}</code></p><div class="actions"><button data-act="refresh">Refresh states</button><button data-act="connect">Connect wallet</button><button data-act="manual-account">Manual account</button>${manualAccount() ? `<button class="danger" data-act="clear-manual">Clear manual</button>` : ""}<button class="primary" data-act="fetch-exact">Fetch exact selected</button><button data-act="fetch-reference">Fetch claim-app reference</button></div><h4>Campaign deltas <span class="muted">(voucher signs full offchain totals)</span></h4>${
+		body.innerHTML = `${error ? `<p class="err">${h(error)}</p>` : ""}<div class="grid"><div>Account<br><code>${h(account)}</code></div><div>Account source<br><b class="${runtime.accountSource === "wallet provider" ? "ok" : "warn"}">${h(runtime.accountSource)}</b></div><div>Can claim<br><b class="${states?.canClaim ? "ok" : "muted"}">${h(String(!!states?.canClaim))}</b></div><div>Selected<br><b>${h(selectedIds.length)}</b> campaign(s)<br><span class="muted">delta ${selectedDelta >= 0n ? "+" : ""}${h(formatBig(selectedDelta))}</span></div><div>Exact selected voucher<br><b class="${exactVoucher ? "ok" : "warn"}">${exactVoucher ? "cached/current" : selectedIds.length ? "missing" : "n/a"}</b></div><div>Armed<br><b class="${window.__sfVoucherArmedVoucher ? "ok" : "muted"}">${window.__sfVoucherArmedVoucher ? `nonce ${h(window.__sfVoucherArmedVoucher.nonce)}` : "no"}</b><br><span class="muted">hits ${h(runtime.armedHits)}</span></div></div><p class="muted">Updated: ${cache.updatedAt ? h(age(cache.updatedAt)) : "never"}<br>Program catalog: ${h((cache.programApps || []).length)} apps${cache.programAppsUpdatedAt ? ` · ${h(age(cache.programAppsUpdatedAt))}` : ""}<br>Providers: ${h(runtime.providers.map((p) => p.label).join(", ") || "none")}<br>Mystery box: <code>${h(mystery ? JSON.stringify(mystery).slice(0, 220) : "n/a")}</code><br>CMS balance probe: <code>${h(cache.cmsBalanceProbe ? `${(cache.cmsBalanceProbe.campaignIds || []).length} ids · ${age(cache.cmsBalanceProbe.savedAt)}` : "not run")}</code></p><div class="actions"><button data-act="refresh">Refresh states</button><button data-act="connect">Connect wallet</button><button data-act="manual-account">Manual account</button>${manualAccount() ? `<button class="danger" data-act="clear-manual">Clear manual</button>` : ""}<button class="primary" data-act="fetch-exact">Fetch exact selected</button><button data-act="fetch-reference">Fetch claim-app reference</button><button data-act="probe-states">Probe CMS states</button></div><h4>Campaign deltas <span class="muted">(voucher signs full offchain totals)</span></h4>${
 			rows.length
 				? rows
 						.map((row) => {
@@ -631,7 +673,7 @@ javascript: (async () => {
 							const stale = isStale(account, voucher)
 							const current = matchesIdsAndCurrentTotals(account, voucher, voucher.programIds || [])
 							const selectedExact = exactVoucher?.key === voucher.key
-							return `<label class="voucher"><input type="radio" name="sf-voucher-select" value="${h(voucher.key)}" ${cache.selectedVoucherKey === voucher.key ? "checked" : ""}> <b>#${h(index + 1)}</b> <span class="${stale ? "warn" : "ok"}">${stale ? "stale nonce" : "nonce ok/latest"}</span> ${selectedExact ? `<span class="ok">exact selected</span>` : current ? `<span class="ok">current totals</span>` : `<span class="warn">old totals?</span>`}<br>Kind: <code>${h(voucher.kind)}</code><br>Source: <code>${h(voucher.source)}</code><br>Campaigns: <code>${h((voucher.programIds || []).join(", "))}</code><br>Signed units: <code>${h((voucher.totalProgramUnits || []).join(", "))}</code><br>Nonce: <code>${h(voucher.nonce)}</code><br>Saved: <code>${h(voucher.savedAt ? age(voucher.savedAt) : "unknown")}</code><br>Signer: <code>${h(voucher.signer || "unknown")}</code><br>Sig: <code>${h(String(voucher.signature || "").slice(0, 34))}…</code></label>`
+							return `<label class="voucher"><input type="radio" name="sf-voucher-select" value="${h(voucher.key)}" ${cache.selectedVoucherKey === voucher.key ? "checked" : ""}> <b>#${h(index + 1)}</b> <span class="${stale ? "warn" : "ok"}">${stale ? "stale nonce" : "nonce ok/latest"}</span> ${selectedExact ? `<span class="ok">exact selected</span>` : current ? `<span class="ok">current totals</span>` : `<span class="warn">old totals?</span>`}<br>Kind: <code>${h(voucher.kind)}</code><br>Source: <code>${h(voucher.source)}</code><br>Campaigns: <code>${h((voucher.programIds || []).join(", "))}</code><br>Signed units: <code>${h((voucher.totalProgramUnits || []).join(", "))}</code>${voucher.uncappedPoints?.length ? `<br>Uncapped: <code>${h(voucher.uncappedPoints.join(", "))}</code>` : ""}<br>Nonce: <code>${h(voucher.nonce)}</code><br>Saved: <code>${h(voucher.savedAt ? age(voucher.savedAt) : "unknown")}</code><br>Signer: <code>${h(voucher.signer || "unknown")}</code><br>Sig: <code>${h(String(voucher.signature || "").slice(0, 34))}…</code></label>`
 						})
 						.join("")
 				: `<p class="muted">No vouchers cached yet.</p>`
