@@ -1,0 +1,126 @@
+import type { CollectionConfig } from "payload"
+import { AccessControl } from "../../../utils/AccessControl"
+import { addressSchema, validateWithZod } from "../../../utils/validation"
+
+export const PointBalances: CollectionConfig = {
+	slug: "point-balances",
+	indexes: [
+		{ fields: ["campaign", "account"] },
+		{ fields: ["campaign", "totalPoints"] },
+		{ fields: ["campaign", "eventCount"] },
+		{ fields: ["campaign", "lastEventAt"] },
+	],
+	admin: {
+		useAsTitle: "id",
+		defaultColumns: ["campaign", "account", "totalPoints", "eventCount", "lastEventAt"],
+		group: "Points",
+	},
+	access: {
+		// Public API access (no user = API request), but scope admin panel view
+		read: ({ req: { user } }) => {
+			if (!user) return true
+			return AccessControl.campaignChildAccess({ req: { user } } as Parameters<
+				typeof AccessControl.campaignChildAccess
+			>[0])
+		},
+		// Internal creation/update only
+		create: AccessControl.adminOnly,
+		update: AccessControl.adminOnly,
+		delete: AccessControl.adminOnly,
+		admin: AccessControl.viewerOrAbove,
+	},
+	fields: [
+		{
+			name: "id",
+			label: "ID",
+			type: "text",
+			required: true,
+			unique: true,
+			admin: {
+				readOnly: true,
+				description: "Composite ID: campaignId:account",
+			},
+			hooks: {
+				beforeChange: [
+					({ value, data, operation }) => {
+						if (operation === "create" || operation === "update") {
+							const campaignId = typeof data?.campaign === "object" ? data.campaign.id : data?.campaign
+							return `${campaignId}:${data?.account}`.toLowerCase()
+						}
+						return value
+					},
+				],
+			},
+		},
+		{
+			name: "campaign",
+			type: "relationship",
+			relationTo: "campaigns",
+			required: true,
+			hasMany: false,
+			index: true,
+			admin: {
+				description: "The campaign this balance belongs to",
+			},
+		},
+		{
+			name: "account",
+			type: "text",
+			required: true,
+			index: true,
+			validate: (value: unknown) => validateWithZod(addressSchema, value),
+			hooks: {
+				beforeChange: [
+					({ value }) => {
+						if (typeof value === "string") {
+							return value.toLowerCase()
+						}
+						return value
+					},
+				],
+			},
+			admin: {
+				description: "Wallet address (normalized to lowercase)",
+			},
+		},
+		{
+			name: "totalPoints",
+			type: "number",
+			required: true,
+			defaultValue: 0,
+			admin: {
+				readOnly: true,
+				description: "Aggregated total points for this account in this campaign",
+			},
+		},
+		{
+			name: "eventCount",
+			type: "number",
+			required: true,
+			defaultValue: 0,
+			admin: {
+				readOnly: true,
+				description: "Number of point events for this account",
+			},
+		},
+		{
+			name: "capped",
+			type: "checkbox",
+			defaultValue: false,
+			admin: {
+				description: "When enabled, this account's points are capped to 1 for this campaign",
+			},
+		},
+		{
+			name: "lastEventAt",
+			type: "date",
+			admin: {
+				readOnly: true,
+				description: "When the last point event was processed",
+				date: {
+					pickerAppearance: "dayAndTime",
+				},
+			},
+		},
+	],
+}

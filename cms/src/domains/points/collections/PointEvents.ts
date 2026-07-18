@@ -1,0 +1,257 @@
+import type { CollectionAfterChangeHook, CollectionAfterDeleteHook, CollectionConfig } from "payload"
+import { z } from "zod"
+import type { PointEvent } from "../../../payload-types"
+import { AccessControl } from "../../../utils/AccessControl"
+import { addressSchema, validateWithZod } from "../../../utils/validation"
+
+// Event name validation
+const eventNameSchema = z
+	.string()
+	.min(1, "Event name is required")
+	.max(100, "Event name must be 100 characters or less")
+
+// Points validation (integer, can be positive or negative)
+const pointsSchema = z.number().int("Points must be an integer")
+
+/**
+ * After creating a PointEvent, automatically update the corresponding PointBalance.
+ * This hook inherits the transaction context from the parent operation via `req`.
+ * If the balance update fails, the entire event creation is rolled back.
+ */
+const updatePointBalance: CollectionAfterChangeHook<PointEvent> = async ({ doc, req, operation }) => {
+	if (operation !== "create") return doc
+
+	// Skip balance update for informational events (e.g., migrated history)
+	if (doc.informational) return doc
+
+	const { campaign, account, points } = doc
+	const campaignId = typeof campaign === "object" ? campaign.id : campaign
+	const balanceId = `${campaignId}:${account}`
+
+	// Find existing balance (inherits transaction from req)
+	const existing = await req.payload.find({
+		req, // Pass req to use same transaction
+		collection: "point-balances",
+		where: { id: { equals: balanceId } },
+		limit: 1,
+		depth: 0,
+	})
+
+	if (existing.docs.length > 0) {
+		const balance = existing.docs[0]
+		await req.payload.update({
+			req,
+			collection: "point-balances",
+			id: balance.id,
+			data: {
+				totalPoints: Math.max(0, balance.totalPoints + points),
+				eventCount: balance.eventCount + 1,
+				lastEventAt: new Date().toISOString(),
+			},
+		})
+	} else {
+		await req.payload.create({
+			req,
+			collection: "point-balances",
+			data: {
+				id: balanceId,
+				campaign: campaignId,
+				account,
+				totalPoints: Math.max(0, points),
+				eventCount: 1,
+				lastEventAt: new Date().toISOString(),
+			},
+		})
+	}
+
+	return doc
+}
+
+/**
+ * After deleting a PointEvent, adjust the corresponding PointBalance.
+ * This reverses the effect of the original event on the balance.
+ */
+const adjustPointBalanceOnDelete: CollectionAfterDeleteHook<PointEvent> = async ({ doc, req }) => {
+	// Skip balance adjustment for informational events
+	if (doc.informational) return doc
+
+	const { campaign, account, points } = doc
+	const campaignId = typeof campaign === "object" ? campaign.id : campaign
+	const balanceId = `${campaignId}:${account}`
+
+	// Find existing balance
+	const existing = await req.payload.find({
+		req,
+		collection: "point-balances",
+		where: { id: { equals: balanceId } },
+		limit: 1,
+		depth: 0,
+	})
+
+	if (existing.docs.length > 0) {
+		const balance = existing.docs[0]
+
+		await req.payload.update({
+			req,
+			collection: "point-balances",
+			id: balance.id,
+			data: {
+				// NOTE: Deleting a large negative event may grant unintended points.
+				// E.g., if -1000 points brought balance from 100 to 0, deleting that event
+				// would set balance to 0 - (-1000) = 1000, not 100.
+				totalPoints: Math.max(0, balance.totalPoints - points),
+				eventCount: Math.max(0, balance.eventCount - 1),
+			},
+		})
+	}
+
+	return doc
+}
+
+export const PointEvents: CollectionConfig = {
+	slug: "point-events",
+	admin: {
+		useAsTitle: "eventName",
+		defaultColumns: ["campaign", "eventName", "points", "account", "createdAt"],
+		group: "Points",
+	},
+	indexes: [
+		{ fields: ["campaign", "eventName"] },
+		{ fields: ["campaign", "eventName", "account"] },
+		{ fields: ["campaign", "eventTime"] },
+		{ fields: ["campaign", "account", "eventTime"] },
+	],
+	access: {
+		read: AccessControl.campaignChildAccess,
+		// Internal creation only - no direct API access
+		create: AccessControl.adminOnly,
+		update: AccessControl.adminOnly,
+		delete: AccessControl.adminOnly,
+		admin: AccessControl.viewerOrAbove,
+	},
+	hooks: {
+		afterChange: [updatePointBalance],
+		afterDelete: [adjustPointBalanceOnDelete],
+	},
+	fields: [
+		{
+			name: "campaign",
+			type: "relationship",
+			relationTo: "campaigns",
+			required: true,
+			hasMany: false,
+			index: true,
+			admin: {
+				description: "The campaign this event belongs to",
+			},
+		},
+		{
+			name: "pushRequest",
+			type: "relationship",
+			relationTo: "push-requests",
+			hasMany: false,
+			index: true,
+			admin: {
+				description: "The push request that created this event (for audit trail)",
+			},
+		},
+		{
+			name: "eventName",
+			type: "text",
+			required: true,
+			index: true,
+			validate: (value: unknown) => validateWithZod(eventNameSchema, value),
+			admin: {
+				description: 'Type of event (e.g., "swap", "stream_created")',
+			},
+		},
+		{
+			name: "account",
+			type: "text",
+			required: true,
+			index: true,
+			validate: (value: unknown) => validateWithZod(addressSchema, value),
+			hooks: {
+				beforeChange: [
+					({ value }) => {
+						if (typeof value === "string") {
+							return value.toLowerCase()
+						}
+						return value
+					},
+				],
+			},
+			admin: {
+				description: "Wallet address (normalized to lowercase)",
+			},
+		},
+		{
+			name: "points",
+			type: "number",
+			required: true,
+			validate: (value: unknown) => validateWithZod(pointsSchema, value),
+			admin: {
+				description: "Points awarded (can be positive or negative)",
+			},
+		},
+		{
+			name: "uniqueId",
+			type: "text",
+			index: true,
+			admin: {
+				description: "Deduplication key (unique per campaign + account)",
+			},
+		},
+		{
+			name: "informational",
+			type: "checkbox",
+			defaultValue: false,
+			admin: {
+				description: "If true, this event is recorded for history only and does not affect the account balance",
+			},
+		},
+		{
+			name: "eventTime",
+			type: "date",
+			required: true,
+			index: true,
+			admin: {
+				description: "When the event occurred (defaults to creation time, can be set for historical imports)",
+				date: {
+					pickerAppearance: "dayAndTime",
+				},
+			},
+			hooks: {
+				beforeChange: [
+					({ value, operation }) => {
+						// If no value provided on create, default to now
+						if (operation === "create" && !value) {
+							return new Date().toISOString()
+						}
+						return value
+					},
+				],
+			},
+		},
+		{
+			name: "dedupKey",
+			type: "text",
+			unique: true,
+			admin: {
+				readOnly: true,
+				description: "Computed deduplication key: campaignId:account:uniqueId",
+			},
+			hooks: {
+				beforeChange: [
+					({ data }) => {
+						// Only compute if uniqueId is provided
+						if (!data?.uniqueId) return null
+
+						const campaignId = typeof data.campaign === "object" ? data.campaign.id : data.campaign
+						return `${campaignId}:${data.account}:${data.uniqueId}`.toLowerCase()
+					},
+				],
+			},
+		},
+	],
+}

@@ -1,0 +1,190 @@
+import type { Where } from "payload"
+import { isAddress } from "viem"
+import type { PointEventsResponse } from "@/domains/points/types"
+import { getPayloadInstance } from "@/payload"
+
+export const maxDuration = 30
+
+/**
+ * Parse timestamp from either ISO 8601 or Unix timestamp (seconds)
+ * Returns Date or null if invalid
+ */
+function parseTimestamp(value: string): Date | null {
+	// Try Unix timestamp first (all digits)
+	if (/^\d+$/.test(value)) {
+		const seconds = parseInt(value, 10)
+		const date = new Date(seconds * 1000)
+		return Number.isNaN(date.getTime()) ? null : date
+	}
+	// Try ISO 8601
+	const date = new Date(value)
+	return Number.isNaN(date.getTime()) ? null : date
+}
+
+/**
+ * GET /points/events?campaignId=42
+ * Query events with filters: account, eventName, startTime, endTime, limit, page
+ *
+ * Examples:
+ * - /points/events?campaignId=42
+ * - /points/events?campaignId=42&account=0x1234...
+ * - /points/events?campaignId=42&eventName=swap
+ * - /points/events?campaignId=42&startTime=2024-03-23T00:00:00.000Z
+ * - /points/events?campaignId=42&startTime=1711152000&endTime=1735689599
+ * - /points/events?campaignId=42&account=0x1234...&eventName=swap&limit=50&page=2
+ */
+export const GET = async (request: Request): Promise<Response> => {
+	try {
+		const url = new URL(request.url)
+
+		// Get campaignId parameter (required, must be numeric)
+		const campaignIdParam = url.searchParams.get("campaignId")
+		if (!campaignIdParam) {
+			return Response.json({ message: "Missing required query parameter: campaignId" }, { status: 400 })
+		}
+
+		const campaignId = parseInt(campaignIdParam, 10)
+		if (Number.isNaN(campaignId) || campaignId <= 0) {
+			return Response.json({ message: "campaignId must be a positive integer" }, { status: 400 })
+		}
+
+		// Verify campaign exists
+		const payload = await getPayloadInstance()
+		const campaignResult = await payload.find({
+			collection: "campaigns",
+			where: { id: { equals: campaignId } },
+			limit: 1,
+		})
+
+		if (campaignResult.docs.length === 0) {
+			return Response.json({ message: "Campaign not found" }, { status: 404 })
+		}
+
+		const campaign = campaignResult.docs[0]
+		const accountParam = url.searchParams.get("account")
+		const eventNameParam = url.searchParams.get("eventName")
+		const limitParam = url.searchParams.get("limit")
+		const pageParam = url.searchParams.get("page")
+
+		// Parse and validate limit
+		let limit = 50 // default
+		if (limitParam) {
+			const parsed = Number.parseInt(limitParam, 10)
+			if (Number.isNaN(parsed) || parsed < 1 || parsed > 100) {
+				return Response.json({ message: "limit must be between 1 and 100" }, { status: 400 })
+			}
+			limit = parsed
+		}
+
+		// Parse and validate page
+		let page = 1 // default
+		if (pageParam) {
+			const parsed = Number.parseInt(pageParam, 10)
+			if (Number.isNaN(parsed) || parsed < 1) {
+				return Response.json({ message: "page must be a positive integer" }, { status: 400 })
+			}
+			page = parsed
+		}
+
+		// Parse and validate timestamp filters
+		const startTimeParam = url.searchParams.get("startTime")
+		const endTimeParam = url.searchParams.get("endTime")
+
+		let startTime: Date | undefined
+		let endTime: Date | undefined
+
+		if (startTimeParam) {
+			const parsed = parseTimestamp(startTimeParam)
+			if (!parsed) {
+				return Response.json(
+					{
+						error:
+							"Invalid startTime format. Use ISO 8601 (e.g., 2024-03-23T00:00:00.000Z) or Unix timestamp in seconds (e.g., 1711152000)",
+					},
+					{ status: 400 },
+				)
+			}
+			startTime = parsed
+		}
+
+		if (endTimeParam) {
+			const parsed = parseTimestamp(endTimeParam)
+			if (!parsed) {
+				return Response.json(
+					{
+						error:
+							"Invalid endTime format. Use ISO 8601 (e.g., 2024-03-23T00:00:00.000Z) or Unix timestamp in seconds (e.g., 1711152000)",
+					},
+					{ status: 400 },
+				)
+			}
+			endTime = parsed
+		}
+
+		if (startTime && endTime && startTime > endTime) {
+			return Response.json({ error: "startTime must be before or equal to endTime" }, { status: 400 })
+		}
+
+		// Validate account if provided
+		if (accountParam && !isAddress(accountParam)) {
+			return Response.json({ message: "Invalid Ethereum address" }, { status: 400 })
+		}
+
+		// Build where clause
+		const conditions: Where[] = [{ campaign: { equals: campaign.id } }]
+
+		if (accountParam) {
+			conditions.push({ account: { equals: accountParam.toLowerCase() } })
+		}
+
+		if (eventNameParam) {
+			conditions.push({ eventName: { equals: eventNameParam } })
+		}
+
+		if (startTime) {
+			conditions.push({ eventTime: { greater_than_equal: startTime.toISOString() } })
+		}
+
+		if (endTime) {
+			conditions.push({ eventTime: { less_than_equal: endTime.toISOString() } })
+		}
+
+		const result = await payload.find({
+			collection: "point-events",
+			where: { and: conditions },
+			limit,
+			page,
+			sort: "-eventTime",
+		})
+
+		const response: PointEventsResponse = {
+			events: result.docs.map((event) => ({
+				id: event.id,
+				eventName: event.eventName,
+				account: event.account,
+				points: event.points,
+				uniqueId: event.uniqueId ?? null,
+				createdAt: event.eventTime, // Use eventTime, not createdAt
+			})),
+			pagination: {
+				page: result.page ?? 1,
+				limit: result.limit,
+				totalDocs: result.totalDocs,
+				totalPages: result.totalPages,
+				hasNextPage: result.hasNextPage,
+				hasPrevPage: result.hasPrevPage,
+			},
+		}
+
+		return Response.json(response)
+	} catch (error) {
+		console.error("Failed to query events:", error)
+
+		return Response.json(
+			{
+				message: error instanceof Error ? error.message : "Failed to query events",
+			},
+			{ status: 500 },
+		)
+	}
+}
