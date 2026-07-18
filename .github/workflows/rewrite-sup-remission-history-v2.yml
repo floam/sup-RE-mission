@@ -1,0 +1,47 @@
+name: Rewrite SUP Re:Mission history v2
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - .history/rewrite-trigger-v2
+
+permissions:
+  contents: write
+
+jobs:
+  rewrite:
+    if: github.head_ref == 'rewrite-sup-remission-history-v2'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout trigger
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Extract rebuild script
+        run: |
+          python .history/extract-rebuild.py
+          python -m py_compile /tmp/rebuild.py
+
+      - name: Fetch retained investigation history
+        run: |
+          git fetch --no-tags origin \
+            +refs/pull/18/head:refs/recovery/pr18 \
+            +refs/pull/19/head:refs/recovery/pr19
+          git cat-file -e 23dbcf601046c143399e5cb85aca94da7422ef7b^{commit}
+          git cat-file -e 0abcb4534dfe92c77011effca8a3709ae5c06280^{commit}
+
+      - name: Rebuild history and workbench layout
+        env:
+          SOURCE_GIT_DIR: ${{ github.workspace }}/.git
+          OUTPUT_GIT_DIR: /tmp/sup-remission-rebuilt.git
+        run: python /tmp/rebuild.py
+
+      - name: Force-push rewritten main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git --git-dir=/tmp/sup-remission-rebuilt.git push --force "$remote" refs/heads/main:refs/heads/main
+          git push "$remote" --delete rewrite-sup-remission-history-v2 || true
