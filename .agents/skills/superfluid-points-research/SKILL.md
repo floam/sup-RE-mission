@@ -7,12 +7,13 @@ description: Research and implement Superfluid points / SPR campaign discovery, 
 
 ## Core workflow
 
-1. Treat `cms.superfluid.pro` as the source for offchain point-event data and CMS campaign metadata.
-2. Treat `https://claim.superfluid.org/api/programs` as the preferred claim-app catalog for app IDs, seasons, display names, program IDs, pool addresses, allocations, and claim-app `onchainInfo`.
-3. Treat the SUP Goldsky subgraph as the source for onchain emission `Program` existence and lifecycle fields.
-4. Treat the Base protocol subgraph or RPC as the source for GDA pool state. Prefer RPC for current real-time balances/flows; use subgraphs for enumeration and indexed event/lifecycle data.
-5. Cross-check claim API, SUP subgraph, CMS, and `/points/balance-batch` before concluding a campaign/program is missing.
-6. Prefer batched endpoints and caching; do not brute-force `GET /points/campaign` one ID at a time unless no batch route is available.
+1. Treat the SUP Goldsky subgraph as the authoritative enumerator for onchain emission `Program` existence and lifecycle fields.
+2. Use direct Base RPC to verify `FluidEPProgramManager.getProgramPool(programId)` and, for current state, pool `getTotalFlowRate`.
+3. Use the Base protocol subgraph for bulk GDA pool enrichment: indexed pool state, members, units, and distributions.
+4. Treat `https://claim.superfluid.org/api/programs` as attribution only: app IDs, seasons, display names, claim-app `onchainInfo`, and other human-readable metadata. Do not use it as the primary source for onchain program existence.
+5. Treat `cms.superfluid.pro` `/points/*` routes as the source for offchain point-event data and CMS campaign metadata where that metadata exists.
+6. Cross-check SUP subgraph, RPC, protocol subgraph, claim API, CMS, and `/points/balance-batch` before concluding a campaign/program is missing.
+7. Prefer batched endpoints and caching; do not brute-force `GET /points/campaign` one ID at a time unless no batch route is available.
 
 ## Source hierarchy
 
@@ -81,7 +82,7 @@ Base protocol pool state is available from:
 https://subgraph-endpoints.superfluid.dev/base-mainnet/protocol-v1
 ```
 
-Use `pools(where: { id_in: [...] })` for indexed GDA pool fields such as `flowRate`, `totalMembers`, `totalUnits`, `totalAmountDistributedUntilUpdatedAt`, and `updatedAtTimestamp`. Do **not** interpret `Pool.updatedAtTimestamp` as "last SUP flowed"; member/unit updates also change it. For current real-time flow/balance state, prefer Base RPC calls to `FluidEPProgramManager.getProgramPool(programId)` and pool methods such as `getTotalFlowRate`.
+After SUP `Program` enumeration, verify pools by direct RPC against `FluidEPProgramManager.getProgramPool(programId)`. Use `pools(where: { id_in: [...] })` for indexed GDA pool fields such as `flowRate`, `totalMembers`, `totalUnits`, `totalAmountDistributedUntilUpdatedAt`, and `updatedAtTimestamp`. Do **not** interpret `Pool.updatedAtTimestamp` as "last SUP flowed"; member/unit updates also change it. For current real-time flow/balance state, prefer Base RPC calls to `FluidEPProgramManager.getProgramPool(programId)` and pool methods such as `getTotalFlowRate`.
 
 Known Base program manager:
 

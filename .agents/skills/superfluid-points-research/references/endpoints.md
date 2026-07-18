@@ -9,6 +9,22 @@ This reference is for SPR/points campaign discovery, campaign metadata, point-ev
 - **claim-app-local**: Observed in the `claim.superfluid.org` bundle as `/api/*` or as a Next.js server action; implementation is outside this repository.
 - **external**: Third-party or separately deployed service used by a public app.
 
+
+## Campaign-history source layering
+
+Use this order when building authoritative campaign history:
+
+| Layer                                   | Source                                         |
+| :-------------------------------------- | :--------------------------------------------- |
+| Existence of onchain emission program   | SUP Goldsky subgraph `Program` entities/events |
+| Pool address                            | SUP subgraph plus direct RPC `getProgramPool`  |
+| Current flow                            | Direct RPC pool `getTotalFlowRate`             |
+| Indexed pool state/members/units        | Base protocol subgraph                         |
+| Season/name/app metadata                | Claim `/api/programs`                          |
+| Offchain points/campaign event metadata | CMS `/points/*`                                |
+
+Claim-app program metadata is attribution, not the primary existence source. CMS campaign IDs can identify offchain-only campaigns and event metadata, but CMS absence does not disprove an onchain emission program observed in the SUP subgraph.
+
 ## CMS-backed points API
 
 ### Get campaign metadata
