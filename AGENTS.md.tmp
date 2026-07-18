@@ -1,0 +1,12 @@
+# Repository guidance
+
+This repository is intentionally limited to the Superfluid claim-voucher Shortcuts injector and the `superfluid-points-research` skill.
+
+For points, campaign, claim, event-name, or nonce work:
+
+1. Read `.agents/skills/superfluid-points-research/SKILL.md`.
+2. Read `POINTS-RESEARCH-CONTEXT.md` and load only the files mapped to the task.
+3. Treat `investigations/reference/cms/` as preserved source snapshots, not a runnable CMS application.
+4. Assume the general Superfluid skill is installed separately for protocol-wide ABIs, subgraphs, SDK usage, and architecture.
+
+Do not reintroduce the upstream website, CMS application, SDK package, documentation sites, release machinery, or monorepo tooling unless a specific investigation requires a narrowly scoped file.
