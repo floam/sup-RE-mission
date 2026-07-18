@@ -156,3 +156,7 @@ For `docs/tools/claim-voucher-shortcuts.js` and related docs:
 - Cache successful HTTP responses in a local JSON cache.
 - Scan `/points/balance-batch` with chunks of 50 and bounded concurrency.
 - For finished pre-Season-6 campaigns, sampling first and final `limit=100` pages may be enough for exploratory event-name reports; for Season 6+ and known in-progress older campaigns, fetch all pages.
+
+## Context loading
+
+When this skill activates, open `references/context-index.md` before substantial research or implementation. It maps task categories to audits, generated point-event evidence, executable tools, and exact CMS source files. Files outside `SKILL.md` are not guaranteed to enter context merely because they exist, so follow that map explicitly and load the relevant evidence before drawing conclusions.
