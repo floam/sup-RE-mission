@@ -1,12 +1,12 @@
 # Superfluid points endpoint notes
 
-This reference is for SPR/points campaign discovery, campaign metadata, point-event enumeration, claim-program lookup, and leaderboard-related routes. It separates the CMS-backed routes in this repository from routes observed in the deployed `claim.superfluid.org` and `campaigns.superfluid.org` bundles.
+This reference is for SPR/points campaign discovery, campaign metadata, point-event enumeration, claim-program lookup, and leaderboard-related routes. It separates CMS-backed routes from routes observed in the deployed `claim.superfluid.org` and `campaigns.superfluid.org` bundles.
 
 ## Source classification
 
-- **CMS-backed**: Implemented by `cms/src/app/(api)/points/*` in this repository and served by `https://cms.superfluid.pro` as `/points/*`.
+- **CMS-backed**: Served by `https://cms.superfluid.pro` as `/points/*`; behavior here is documented from public responses and prior source inspection.
 - **campaigns-app-local**: Observed in the `campaigns.superfluid.org` bundle as `/api/*`; may proxy a CMS route or be implemented by that Next.js app.
-- **claim-app-local**: Observed in the `claim.superfluid.org` bundle as `/api/*` or as a Next.js server action; implementation was not found in this repository.
+- **claim-app-local**: Observed in the `claim.superfluid.org` bundle as `/api/*` or as a Next.js server action; implementation is outside this repository.
 - **external**: Third-party or separately deployed service used by a public app.
 
 ## CMS-backed points API

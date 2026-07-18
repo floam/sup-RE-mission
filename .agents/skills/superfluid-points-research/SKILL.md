@@ -18,14 +18,12 @@ description: Research and implement Superfluid points / SPR campaign discovery, 
 
 When researching Superfluid points / SPR campaigns, prefer sources in this order:
 
-1. CMS route handlers/source code in this fork.
-2. CMS schemas, types, fixtures, tests, and OpenAPI artifacts.
-3. Committed docs/audits, especially `docs/audits/2026-06-30-spr-campaigns-claim-endpoints.md`.
-4. Live CMS endpoint responses when the task allows network access.
-5. Live claim API (`/api/programs`) and SUP/protocol subgraph responses.
-6. Reverse-engineered `claim.superfluid.org` and `campaigns.superfluid.org` bundle notes.
-7. Public app-local routes.
-8. Explicitly-labeled inference.
+1. Live CMS, claim-app, SUP subgraph, protocol subgraph, and RPC responses.
+2. Committed research notes and captured evidence under `research/`.
+3. The endpoint reference in this skill and the locally authored tools under `tools/`.
+4. Narrow external source fragments documented in `PROVENANCE.md`.
+5. Reverse-engineered public app bundles and app-local routes.
+6. Explicitly labeled inference.
 
 When answering campaign ID, funding-start, leaderboard, or account-placement questions, cite or name the source category used. If multiple categories disagree, call out the conflict and prefer the highest-ranking applicable source.
 
@@ -141,7 +139,7 @@ Known campaign fields: `accounts[]`, `accounts[].account`, `accounts[].totalPoin
 
 ## Claim voucher tooling
 
-For `docs/tools/claim-voucher-shortcuts.js` and related docs:
+For `tools/claim-voucher/injector.js` and its README:
 
 1. Keep voucher signing through `POST https://cms.superfluid.pro/points/signed-balance-batch`. The CMS batch endpoint signs selected campaign subsets and supports one or many campaigns.
    - `signed-balance-batch.points` are the signed target units. When `uncappedPoints` is present, keep it diagnostic-only; do not submit it as `totalProgramUnits`.
@@ -156,3 +154,14 @@ For `docs/tools/claim-voucher-shortcuts.js` and related docs:
 - Cache successful HTTP responses in a local JSON cache.
 - Scan `/points/balance-batch` with chunks of 50 and bounded concurrency.
 - For finished pre-Season-6 campaigns, sampling first and final `limit=100` pages may be enough for exploratory event-name reports; for Season 6+ and known in-progress older campaigns, fetch all pages.
+
+
+## Repository map
+
+Open `RESEARCH-MAP.md` before substantial work. It maps questions to the smallest useful set of research notes, evidence, and executable tools.
+
+## Official Superfluid skill boundary
+
+The official `superfluid` skill is expected to be installed beside this skill. Use it for protocol-wide contract ABIs, selectors, deployed-address catalogs, architecture, generic SDK usage, standard subgraph guidance, and reusable protocol helper scripts.
+
+Do not copy those materials into this repository. Add a narrow external fragment only when an investigation must modify it or pin an exact source version, and record its repository, path, commit, reason, and local changes in `PROVENANCE.md`.

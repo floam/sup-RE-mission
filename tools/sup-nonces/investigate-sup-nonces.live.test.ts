@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process"
+import { fileURLToPath } from "node:url"
 import { promisify } from "node:util"
 import { ProxyAgent, setGlobalDispatcher } from "undici"
 import { describe, expect, test } from "vitest"
@@ -32,7 +33,7 @@ describe("investigate:sup-nonces live smoke test", () => {
 		const { stdout } = await execFileAsync(
 			"node",
 			[
-				"scripts/investigate-sup-nonces.js",
+				fileURLToPath(new URL("./investigate-sup-nonces.js", import.meta.url)),
 				"--rpc-url",
 				process.env.BASE_RPC_URL ?? process.env.RPC_URL ?? defaultBaseRpcUrl,
 				"--user",
@@ -45,7 +46,7 @@ describe("investigate:sup-nonces live smoke test", () => {
 				"10000",
 				"--json",
 			],
-			{ cwd: new URL("..", import.meta.url), maxBuffer: 1024 * 1024 * 10 },
+			{ maxBuffer: 1024 * 1024 * 10 },
 		)
 
 		const output = JSON.parse(stdout)

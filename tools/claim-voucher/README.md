@@ -1,6 +1,6 @@
 # Superfluid claim voucher Shortcuts injector
 
-`claim-voucher-shortcuts.js` is a Safari Shortcuts-compatible JavaScript payload for `https://claim.superfluid.org`.
+`injector.js` is a Safari Shortcuts-compatible JavaScript payload for `https://claim.superfluid.org`.
 
 The injector displays claim-app point-state deltas with campaign names/seasons from the public claim programs catalog, lets the user include or exclude positive outdated campaigns, fetches an exact CMS signed voucher for the selected campaign subset, caches vouchers in `localStorage`, and arms a selected voucher by intercepting the claim app's `/api/points/claim` lookup.
 

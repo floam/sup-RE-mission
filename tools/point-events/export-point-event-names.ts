@@ -173,7 +173,7 @@ type DiscoveryDetails = {
 
 type JsonCache = Record<string, unknown>
 
-const DEFAULT_OUTPUT_PATH = path.resolve(process.cwd(), "../website/public/point-event-names.html")
+const DEFAULT_OUTPUT_PATH = path.resolve(process.cwd(), "tools/point-events/point-event-names.html")
 const DEFAULT_CACHE_PATH = path.resolve(process.cwd(), ".cache/point-event-names.json")
 const DEFAULT_BASE_URL = "https://cms.superfluid.pro"
 const DEFAULT_CLAIM_URL = "https://claim.superfluid.org"

@@ -152,7 +152,7 @@ const claimEventAbi = [
 ]
 
 function usage() {
-	return `Usage: pnpm --dir sdk/package investigate:sup-nonces --user <address> --program-ids <ids> [options]
+	return `Usage: npm run investigate:nonces -- --user <address> --program-ids <ids> [options]
 
 Find successful SUP FluidLocker claim transactions and report the largest transaction-age deltas first.
 
