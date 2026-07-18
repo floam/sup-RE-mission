@@ -1,0 +1,25 @@
+{
+  "name": "superfluid-points-investigations",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Claim-voucher injector and focused Superfluid points investigation tools",
+  "scripts": {
+    "export:point-events": "tsx cms/src/scripts/export-point-event-names.ts",
+    "investigate:nonces": "node sdk/package/scripts/investigate-sup-nonces.js",
+    "test:nonces": "vitest run sdk/package/tests/investigate-sup-nonces.live.test.ts",
+    "bundle:nonces": "esbuild sdk/package/scripts/investigate-sup-nonces.js --bundle --platform=browser --target=es2020 --outfile=investigate-sup-nonces.bundle.js"
+  },
+  "dependencies": {
+    "viem": "^2.52.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0",
+    "tsx": "^4.22.4",
+    "undici": "^7.24.4",
+    "vitest": "^4.1.8"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
