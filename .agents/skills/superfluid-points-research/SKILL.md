@@ -159,4 +159,4 @@ For `docs/tools/claim-voucher-shortcuts.js` and related docs:
 
 ## Context loading
 
-When this skill activates, open `references/context-index.md` before substantial research or implementation. It maps task categories to audits, generated point-event evidence, executable tools, and exact CMS source files. Files outside `SKILL.md` are not guaranteed to enter context merely because they exist, so follow that map explicitly and load the relevant evidence before drawing conclusions.
+When this skill activates, open `POINTS-RESEARCH-CONTEXT.md` at the repository root before substantial research or implementation. It maps task categories to audits, generated point-event evidence, executable tools, and exact CMS source files. Files outside `SKILL.md` are not guaranteed to enter context merely because they exist, so follow that map explicitly and load the relevant evidence before drawing conclusions.
