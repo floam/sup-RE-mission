@@ -3,18 +3,43 @@ import subprocess
 
 repo = "/tmp/superfluid-overlay.git"
 index = "/tmp/sup-remission-no-workflow.index"
+try:
+    os.unlink(index)
+except FileNotFoundError:
+    pass
 env = os.environ.copy()
 env["GIT_INDEX_FILE"] = index
-subprocess.run(["git", f"--git-dir={repo}", "read-tree", "main"], env=env, check=True)
+subprocess.run(["git", f"--git-dir={repo}", "read-tree", "--empty"], env=env, check=True)
+rows = subprocess.check_output(
+    ["git", f"--git-dir={repo}", "ls-tree", "-r", "main"],
+    text=True,
+).splitlines()
+rows = [
+    row
+    for row in rows
+    if not row.endswith("\t.github/workflows/build-sup-nonce-bundle.yml")
+]
 subprocess.run(
-    ["git", f"--git-dir={repo}", "update-index", "--force-remove", ".github/workflows/build-sup-nonce-bundle.yml"],
+    ["git", f"--git-dir={repo}", "update-index", "--index-info"],
     env=env,
+    input="\n".join(rows) + "\n",
+    text=True,
     check=True,
 )
-tree = subprocess.check_output(["git", f"--git-dir={repo}", "write-tree"], env=env, text=True).strip()
-parent = subprocess.check_output(["git", f"--git-dir={repo}", "rev-parse", "main^"], text=True).strip()
+tree = subprocess.check_output(
+    ["git", f"--git-dir={repo}", "write-tree"],
+    env=env,
+    text=True,
+).strip()
+parent = subprocess.check_output(
+    ["git", f"--git-dir={repo}", "rev-parse", "main^"],
+    text=True,
+).strip()
 fmt = "%an%x00%ae%x00%aI%x00%cn%x00%ce%x00%cI%x00%B"
-parts = subprocess.check_output(["git", f"--git-dir={repo}", "show", "-s", f"--format={fmt}", "main"], text=True).split("\x00", 6)
+parts = subprocess.check_output(
+    ["git", f"--git-dir={repo}", "show", "-s", f"--format={fmt}", "main"],
+    text=True,
+).split("\x00", 6)
 commit_env = os.environ.copy()
 commit_env.update({
     "GIT_AUTHOR_NAME": parts[0],
@@ -30,5 +55,8 @@ commit = subprocess.check_output(
     text=True,
     env=commit_env,
 ).strip()
-subprocess.run(["git", f"--git-dir={repo}", "update-ref", "refs/heads/main", commit], check=True)
+subprocess.run(
+    ["git", f"--git-dir={repo}", "update-ref", "refs/heads/main", commit],
+    check=True,
+)
 print(commit)
