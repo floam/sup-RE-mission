@@ -4,6 +4,7 @@ on:
   pull_request:
     types:
       - opened
+      - synchronize
   workflow_dispatch:
 
 permissions:
@@ -26,6 +27,23 @@ jobs:
             +refs/pull/19/head:refs/recovery/pr19
           git cat-file -e 23dbcf601046c143399e5cb85aca94da7422ef7b^{commit}
           git cat-file -e dfc6159ea8584026ed713217da91199dc4e283cb^{commit}
+
+      - name: Exclude workflow files from token-limited rewrite
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('.history/rebuild_overlay.py')
+          text = path.read_text()
+          text = text.replace(
+              '    return path != "pnpm-lock.yaml"',
+              '    if path.startswith(".github/workflows/"):\n        return False\n    return path != "pnpm-lock.yaml"',
+          )
+          text = text.replace(
+              'state.pop("sdk/package/package.json", None)',
+              'state.pop("sdk/package/package.json", None)\nstate.pop(".github/workflows/investigate-sup-nonces-bundle.yml", None)',
+          )
+          path.write_text(text)
+          PY
 
       - name: Rebuild sparse historical overlay
         run: python .history/rebuild_overlay.py
