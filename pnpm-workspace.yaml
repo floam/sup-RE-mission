@@ -1,7 +1,0 @@
-packages:
-  - 'mcp/*'
-  - 'sdk/*'
-  - 'sdk/examples/*'
-  - 'website'
-  - 'cms'
-  - 'data'

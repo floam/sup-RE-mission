@@ -1,1 +1,0 @@
-export { fetchCoingeckoIds } from "./fetchCoingeckoIds"

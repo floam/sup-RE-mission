@@ -459,7 +459,7 @@ async function fetchSupSubgraphPrograms(cache: JsonCache, stats: { hits: number;
 		const response = await postJson<SupProgramsGraphqlResponse>(
 			supSubgraphUrl,
 			{
-				query: `query SupPrograms($lastId: String!) {
+				query: `query SupPrograms($lastId: ID!) {
 					programs(first: 1000, orderBy: id, orderDirection: asc, where: { id_gt: $lastId }) {
 						id
 						distributionPool
@@ -721,7 +721,7 @@ async function discoverCampaigns(baseUrl: string, cache: JsonCache, stats: { hit
 			.map((program) => [Number.parseInt(program.id, 10), program] as const)
 			.filter(([id]) => Number.isInteger(id) && id > 0),
 	)
-	const balanceBatchCampaignIdSet = new Set(balanceBatchCampaignIds)
+	const resolvedCampaignIdSet = new Set(resolvedCampaignIds)
 	const records = ids.map((id) => {
 		const supProgram = supProgramsById.get(id)
 		const claimPool = claimAppsByProgramId.get(id)?.find((app) => app.program?.onchainInfo?.poolAddress)?.program
@@ -730,14 +730,12 @@ async function discoverCampaigns(baseUrl: string, cache: JsonCache, stats: { hit
 		return {
 			id,
 			claimApps: claimAppsByProgramId.get(id) || [],
-			cmsExists: balanceBatchCampaignIdSet.has(id),
+			cmsExists: resolvedCampaignIdSet.has(id),
 			supProgram,
 			protocolPool: poolAddress ? protocolPools.get(poolAddress.toLowerCase()) : undefined,
 		} satisfies CampaignDiscoveryRecord
 	})
-	const onchainOnlyIds = records
-		.filter((record) => record.supProgram && !record.cmsExists && record.claimApps.length === 0)
-		.map((record) => record.id)
+	const onchainOnlyIds = records.filter((record) => record.supProgram && !record.cmsExists).map((record) => record.id)
 	const cmsOnlyIds = records
 		.filter((record) => record.cmsExists && !record.supProgram && record.claimApps.length === 0)
 		.map((record) => record.id)

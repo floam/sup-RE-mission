@@ -1,13 +1,12 @@
-# Repository agent guidance
+# Repository guidance
 
-Read `CLAUDE.md` for repository-wide structure, commands, conventions, and files to avoid.
+This repository is intentionally limited to the Superfluid claim-voucher Shortcuts injector and the `superfluid-points-research` skill.
 
-## Superfluid points and SPR work
+For points, campaign, claim, event-name, or nonce work:
 
-For tasks involving Superfluid points, SPR campaigns, claim programs, point events, claim vouchers, leaderboards, hidden campaign discovery, or SUP nonce research:
+1. Read `.agents/skills/superfluid-points-research/SKILL.md`.
+2. Read `POINTS-RESEARCH-CONTEXT.md` and load only the files mapped to the task.
+3. Treat the retained `cms/`, `sdk/`, and `website/` paths as partial investigation snapshots and tools, not runnable upstream applications.
+4. Assume the general Superfluid skill is installed separately for protocol-wide ABIs, subgraphs, SDK usage, and architecture.
 
-1. Load `.agents/skills/superfluid-points-research/SKILL.md`.
-2. Open `POINTS-RESEARCH-CONTEXT.md` and load the task-specific research, scripts, generated evidence, and implementation files it identifies.
-3. Use the adjacent general `.agents/skills/superfluid` skill for protocol-wide ABIs, selectors, subgraph schemas, SDK guidance, and generic Superfluid architecture.
-
-Do not assume supporting research documents or scripts enter context merely because they exist in the repository. Follow the root context map before drawing conclusions or changing implementation.
+Do not reintroduce the upstream website, CMS application, SDK package, documentation sites, release machinery, or monorepo tooling unless a specific investigation requires a narrowly scoped file.
