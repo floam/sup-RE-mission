@@ -1,0 +1,51 @@
+name: Restore sparse overlay history
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    if: github.event.head_commit.message == 'chore: restore sparse overlay history'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout trigger commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Fetch retained pre-rewrite objects
+        run: |
+          git fetch --no-tags origin \
+            +refs/pull/18/head:refs/recovery/pr18 \
+            +refs/pull/19/head:refs/recovery/pr19
+          git cat-file -e 23dbcf601046c143399e5cb85aca94da7422ef7b^{commit}
+          git cat-file -e dfc6159ea8584026ed713217da91199dc4e283cb^{commit}
+
+      - name: Rebuild sparse historical overlay
+        run: python .history/rebuild_overlay.py
+
+      - name: Remove obsolete branch and tag refs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git ls-remote --heads "$remote" | awk '{sub("refs/heads/", "", $2); print $2}' | while read -r branch; do
+            if [ "$branch" != main ]; then
+              git push "$remote" --delete "$branch" || true
+            fi
+          done
+          git ls-remote --tags --refs "$remote" | awk '{sub("refs/tags/", "", $2); print $2}' | while read -r tag; do
+            git push "$remote" --delete "refs/tags/$tag" || true
+          done
+
+      - name: Force-push restored main history
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          remote="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git --git-dir=/tmp/superfluid-overlay.git push --force "$remote" refs/heads/main:refs/heads/main
