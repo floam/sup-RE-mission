@@ -1,0 +1,49 @@
+name: Recover claim app sources
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/recover-claim-sources.yml"
+      - "tools/claim-source-recovery/**"
+      - "package.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recover:
+    name: Capture and reconstruct deployed sources
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Recover live sources
+        run: npm run recover:claim-sources -- --out recovered/claim.superfluid.org
+
+      - name: Record recovery summary
+        shell: bash
+        run: |
+          node -e 'const m=require("./recovered/claim.superfluid.org/manifest.json"); console.log(`## Claim source recovery\n\n- Routes: ${m.summary.routes}\n- Assets: ${m.summary.successfulAssets}/${m.summary.assets}\n- Published source-map originals: ${m.summary.sourceMappedOriginals}\n- Synthesized webpack modules: ${m.summary.synthesizedModules}\n- Failed assets: ${m.summary.failedAssets}`)' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Package recovery
+        run: zip -qr claim-superfluid-source-recovery.zip recovered/claim.superfluid.org
+
+      - name: Upload recovered sources
+        uses: actions/upload-artifact@v4
+        with:
+          name: claim-superfluid-source-recovery
+          path: claim-superfluid-source-recovery.zip
+          if-no-files-found: error
+          retention-days: 30
