@@ -1,4 +1,4 @@
-# SUP Re:Mission
+# SUPREmission 
 
 A hacking and research workbench for Superfluid points, claim programs, campaign discovery, point events, claim vouchers, and SUP nonce behavior.
 
