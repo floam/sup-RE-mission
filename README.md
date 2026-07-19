@@ -1,6 +1,6 @@
 # SUPREmission 
 
-A hacking and research workbench for Superfluid points, claim programs, campaign discovery, point events, claim vouchers, and SUP nonce behavior.
+A hacking and research workbench for Superfluid points, emission programs, campaign discovery, point events, claim vouchers, and SUP nonce behavior.
 
 ## What is here
 
