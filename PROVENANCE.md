@@ -44,3 +44,21 @@ For every future vendored file or substantial copied fragment, record:
 3. reason it must live here instead of the official skill;
 4. local modifications;
 5. how to refresh or verify it.
+
+## Claim-app source recovery
+
+`research/claim-app-sources/use-claim-transaction.recovered.ts` is a
+repository-authored, human-readable semantic reconstruction of part of the public
+claim app client. It was derived on 2026-07-19 from deployment
+`dpl_CSoxxmednYKCCZSxAMCUZxSP89CC`, specifically the public chunk
+`/_next/static/chunks/9443-ee8d2452e07f5651.js` (Sentry debug ID
+`131b676a-515c-4305-b4d2-ed8d8eef7317`). The deployment did not publish a usable
+source map: requesting the `.map` URL returned the JavaScript payload. No minified
+JavaScript, whole external source file, or third-party generated GraphQL client code
+is committed. The reconstruction preserves the observed endpoint paths, query
+conditions, method choices, and argument ordering, while naming and type boundaries
+are local synthesis. `chunk-inventory.md` and `source-catalog.md` record all 40
+HTML-referenced chunks and all Sentry-exposed application filenames from the same
+capture; they contain metadata only. Refresh them with
+`tools/claim-app-sources/recover-claim-app-sources.mjs` and record any changed chunk
+identity here.

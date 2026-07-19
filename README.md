@@ -23,3 +23,13 @@ npm run bundle:nonces
 ```
 
 The official Superfluid skill is expected to be installed separately for general protocol knowledge and reusable protocol references.
+
+## Claim-app source recovery
+
+Human-readable reconstructions of client claim logic are in
+[`research/claim-app-sources/`](research/claim-app-sources/). Refresh deployment
+metadata without storing minified chunks with:
+
+```bash
+node tools/claim-app-sources/recover-claim-app-sources.mjs
+```
