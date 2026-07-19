@@ -29,20 +29,39 @@ jobs:
         run: npm install
 
       - name: Recover live sources
-        run: npm run recover:claim-sources -- --out recovered/claim.superfluid.org
-
-      - name: Record recovery summary
+        id: recover
         shell: bash
         run: |
-          node -e 'const m=require("./recovered/claim.superfluid.org/manifest.json"); console.log(`## Claim source recovery\n\n- Routes: ${m.summary.routes}\n- Assets: ${m.summary.successfulAssets}/${m.summary.assets}\n- Published source-map originals: ${m.summary.sourceMappedOriginals}\n- Synthesized webpack modules: ${m.summary.synthesizedModules}\n- Failed assets: ${m.summary.failedAssets}`)' >> "$GITHUB_STEP_SUMMARY"
+          set +e
+          mkdir -p recovered/claim.superfluid.org
+          npm run recover:claim-sources -- --out recovered/claim.superfluid.org 2>&1 | tee recovered/claim.superfluid.org/recovery.log
+          status=${PIPESTATUS[0]}
+          echo "exit_status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Record recovery summary
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f recovered/claim.superfluid.org/manifest.json ]]; then
+            node -e 'const m=require("./recovered/claim.superfluid.org/manifest.json"); console.log(`## Claim source recovery\n\n- Routes: ${m.summary.routes}\n- Assets: ${m.summary.successfulAssets}/${m.summary.assets}\n- Published source-map originals: ${m.summary.sourceMappedOriginals}\n- Synthesized webpack modules: ${m.summary.synthesizedModules}\n- Failed assets: ${m.summary.failedAssets}`)' >> "$GITHUB_STEP_SUMMARY"
+          else
+            printf '## Claim source recovery\n\nRecovery exited with status %s before producing a manifest. See recovery.log in the artifact.\n' '${{ steps.recover.outputs.exit_status }}' >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Package recovery
+        if: always()
         run: zip -qr claim-superfluid-source-recovery.zip recovered/claim.superfluid.org
 
-      - name: Upload recovered sources
+      - name: Upload recovered sources and diagnostics
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: claim-superfluid-source-recovery
           path: claim-superfluid-source-recovery.zip
           if-no-files-found: error
           retention-days: 30
+
+      - name: Fail when recovery failed
+        if: steps.recover.outputs.exit_status != '0'
+        run: exit 1
