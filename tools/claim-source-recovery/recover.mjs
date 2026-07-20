@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { createHash } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { parse } from "acorn";
@@ -145,10 +145,16 @@ async function loadRoute(options, route) {
 async function loadAsset(options, url) {
   if (!options.captureDir) return fetchText(url);
   const filename = path.join(options.captureDir, "assets", assetFileName(url));
+  const pathname = new URL(url).pathname;
+  const contentType = pathname.endsWith(".css")
+    ? "text/css"
+    : pathname.endsWith(".map")
+      ? "application/json"
+      : "application/javascript";
   return {
     text: await readFile(filename, "utf8"),
     finalUrl: url,
-    contentType: url.includes(".map") ? "application/json" : "application/javascript",
+    contentType,
     headers: {},
   };
 }
@@ -390,6 +396,13 @@ async function processJavaScript(options, outputRoot, url, js) {
 async function main() {
   const options = parseArgs(process.argv);
   const outputRoot = path.resolve(options.outDir);
+  // Preserve externally-written diagnostics such as recovery.log, while ensuring a
+  // rerun cannot mix recovered source files from different deployments.
+  await Promise.all(
+    ["raw", "beautified", "original", "synthesized", "manifest.json", "README.md"].map((entry) =>
+      rm(path.join(outputRoot, entry), { recursive: true, force: true }),
+    ),
+  );
   await mkdir(outputRoot, { recursive: true });
 
   const queue = [];
@@ -480,7 +493,12 @@ async function main() {
     routes: routeRecords,
     assets,
     summary: {
-      routes: routeRecords.length,
+      attemptedRoutes: routeRecords.length,
+      successfulRoutes: routeRecords.filter((route) => !route.error).length,
+      failedRoutes: routeRecords.filter((route) => route.error).length,
+      // Keep this legacy field successful-only so "Routes" never counts an
+      // error-only route record as a captured page.
+      routes: routeRecords.filter((route) => !route.error).length,
       assets: assets.length,
       successfulAssets: assets.filter((asset) => !asset.error).length,
       failedAssets: assets.filter((asset) => asset.error).length,
@@ -501,10 +519,13 @@ async function main() {
   await writeFile(path.join(outputRoot, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
   await writeFile(
     path.join(outputRoot, "README.md"),
-    `# claim.superfluid.org source recovery\n\nGenerated: ${manifest.generatedAt}\n\n- Routes captured: ${manifest.summary.routes}\n- Assets recovered: ${manifest.summary.successfulAssets}/${manifest.summary.assets}\n- Source-map originals: ${manifest.summary.sourceMappedOriginals}\n- Synthesized webpack modules: ${manifest.summary.synthesizedModules}\n\nSee \`manifest.json\` for per-file provenance and hashes.\n`,
+    `# claim.superfluid.org source recovery\n\nGenerated: ${manifest.generatedAt}\n\n- Routes captured: ${manifest.summary.successfulRoutes}/${manifest.summary.attemptedRoutes}\n- Failed routes: ${manifest.summary.failedRoutes}\n- Assets recovered: ${manifest.summary.successfulAssets}/${manifest.summary.assets}\n- Source-map originals: ${manifest.summary.sourceMappedOriginals}\n- Synthesized webpack modules: ${manifest.summary.synthesizedModules}\n\nSee \`manifest.json\` for per-file provenance and hashes.\n`,
   );
 
   console.log(JSON.stringify(manifest.summary));
+  if (manifest.summary.failedAssets > 0) {
+    process.exitCode = 1;
+  }
 }
 
 main().catch((error) => {

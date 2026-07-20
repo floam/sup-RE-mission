@@ -44,7 +44,7 @@ jobs:
         shell: bash
         run: |
           if [[ -f recovered/claim.superfluid.org/manifest.json ]]; then
-            node -e 'const m=require("./recovered/claim.superfluid.org/manifest.json"); console.log(`## Claim source recovery\n\n- Routes: ${m.summary.routes}\n- Assets: ${m.summary.successfulAssets}/${m.summary.assets}\n- Published source-map originals: ${m.summary.sourceMappedOriginals}\n- Synthesized webpack modules: ${m.summary.synthesizedModules}\n- Failed assets: ${m.summary.failedAssets}`)' >> "$GITHUB_STEP_SUMMARY"
+            node -e 'const m=require("./recovered/claim.superfluid.org/manifest.json"); console.log(`## Claim source recovery\n\n- Routes captured: ${m.summary.successfulRoutes}/${m.summary.attemptedRoutes}\n- Failed routes: ${m.summary.failedRoutes}\n- Assets: ${m.summary.successfulAssets}/${m.summary.assets}\n- Published source-map originals: ${m.summary.sourceMappedOriginals}\n- Synthesized webpack modules: ${m.summary.synthesizedModules}\n- Failed assets: ${m.summary.failedAssets}`)' >> "$GITHUB_STEP_SUMMARY"
           else
             printf '## Claim source recovery\n\nRecovery exited with status %s before producing a manifest. See recovery.log in the artifact.\n' '${{ steps.recover.outputs.exit_status }}' >> "$GITHUB_STEP_SUMMARY"
           fi
