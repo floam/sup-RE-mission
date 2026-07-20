@@ -1,0 +1,236 @@
+"use client";
+
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useWaitForTransactionReceipt } from "wagmi";
+
+import { DailyMysteryBoxModal } from "../components/campaign/DailyMysteryBoxModal";
+import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { useWalletAccount } from "../hooks/useWalletAccount";
+import {
+  checkMysteryBox,
+  claimMysteryBoxPoints,
+  readPendingMysteryBoxClaim,
+  useMysteryBoxOpen,
+  writePendingMysteryBoxClaim,
+} from "../hooks/useMysteryBox";
+import type {
+  MysteryBoxResult,
+  PendingMysteryBoxClaim,
+} from "../types/campaign-rewards";
+
+export function useDailyMysteryBox() {
+  const { address, isConnected } = useWalletAccount();
+  const { airdropChain } = useExpectedChains();
+  const queryClient = useQueryClient();
+  const [showModal, setShowModal] = useState(false);
+  const [openResult, setOpenResult] = useState<MysteryBoxResult | null>(null);
+  const [pendingClaim, setPendingClaim] =
+    useState<PendingMysteryBoxClaim | null>(null);
+  const [claimCompleted, setClaimCompleted] = useState(false);
+  const attemptedClaimHash = useRef<string | null>(null);
+  const transaction = useMysteryBoxOpen(address);
+
+  useEffect(() => {
+    attemptedClaimHash.current = null;
+    setClaimCompleted(false);
+    setOpenResult(null);
+    const stored = readPendingMysteryBoxClaim(address);
+    const recoverable =
+      stored?.status === "claiming"
+        ? { ...stored, status: "succeeded" as const }
+        : stored;
+    if (recoverable) writePendingMysteryBoxClaim(address, recoverable);
+    setPendingClaim(recoverable);
+  }, [address]);
+  const savePendingClaim = (claim: PendingMysteryBoxClaim | null) => {
+    setPendingClaim(claim);
+    writePendingMysteryBoxClaim(address, claim);
+  };
+  const check = useQuery({
+    queryKey: ["dailyMysteryBox", address],
+    queryFn: () => checkMysteryBox(address!),
+    enabled: Boolean(address && isConnected && !claimCompleted),
+    refetchOnWindowFocus: false,
+  });
+  const resumedClaim = Boolean(
+    pendingClaim &&
+      pendingClaim.address === address &&
+      pendingClaim.txHash !== transaction.txHash,
+  );
+  const resumedReceipt = useWaitForTransactionReceipt({
+    chainId: airdropChain.id,
+    hash: resumedClaim ? pendingClaim?.txHash : undefined,
+    query: {
+      enabled: Boolean(resumedClaim && pendingClaim?.status === "pending"),
+    },
+  });
+  const claim = useMutation({
+    mutationKey: ["claimMysteryBoxPoints", address],
+    mutationFn: ({
+      address: claimAddress,
+      transactionHash,
+    }: {
+      address: NonNullable<typeof address>;
+      transactionHash: `0x${string}`;
+    }) => claimMysteryBoxPoints(claimAddress, transactionHash),
+    onSuccess: (result) => {
+      savePendingClaim(null);
+      transaction.reset();
+      setOpenResult(result);
+      if (result.success) {
+        setClaimCompleted(true);
+        void queryClient.invalidateQueries({
+          queryKey: ["getAccountProgramPointStates", address],
+          refetchType: "all",
+        });
+      } else
+        console.error(
+          "Failed to claim mystery box points",
+          result.error ?? "Unknown error",
+        );
+    },
+    onError: (error) => {
+      console.error("Mystery box claim error:", error);
+      attemptedClaimHash.current = null;
+      if (pendingClaim)
+        savePendingClaim({ ...pendingClaim, status: "succeeded" });
+    },
+  });
+
+  useEffect(() => {
+    if (
+      transaction.txHash &&
+      address &&
+      !claimCompleted &&
+      pendingClaim?.txHash !== transaction.txHash
+    ) {
+      savePendingClaim({
+        txHash: transaction.txHash,
+        address,
+        status: "pending",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address, claimCompleted, transaction.txHash]);
+  useEffect(() => {
+    if (
+      transaction.isFinished &&
+      transaction.txHash &&
+      address &&
+      pendingClaim?.txHash === transaction.txHash &&
+      pendingClaim.status === "pending"
+    ) {
+      savePendingClaim({ ...pendingClaim, status: "succeeded" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address, pendingClaim, transaction.isFinished, transaction.txHash]);
+  useEffect(() => {
+    if (!resumedClaim) return;
+    if (resumedReceipt.isSuccess && pendingClaim?.status === "pending")
+      savePendingClaim({ ...pendingClaim, status: "succeeded" });
+    if (resumedReceipt.isError) savePendingClaim(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    pendingClaim,
+    resumedClaim,
+    resumedReceipt.isError,
+    resumedReceipt.isSuccess,
+  ]);
+  useEffect(() => {
+    if (
+      !address ||
+      pendingClaim?.status !== "succeeded" ||
+      pendingClaim.address !== address ||
+      claimCompleted ||
+      claim.isPending ||
+      claim.isError ||
+      attemptedClaimHash.current === pendingClaim.txHash
+    )
+      return;
+    attemptedClaimHash.current = pendingClaim.txHash;
+    savePendingClaim({ ...pendingClaim, status: "claiming" });
+    claim.mutate({ address, transactionHash: pendingClaim.txHash });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address, claim.isError, claim.isPending, claimCompleted, pendingClaim]);
+
+  const canClaim = Boolean(
+    address &&
+      isConnected &&
+      check.data?.success &&
+      check.data.shouldShow &&
+      !showModal &&
+      !check.isLoading,
+  );
+  const claimIsFinishing =
+    claim.isPending ||
+    (resumedClaim &&
+      (resumedReceipt.isFetching || pendingClaim?.status === "succeeded"));
+  return {
+    showModal,
+    setShowModal,
+    closeModal(open: boolean) {
+      if (!open) {
+        setShowModal(false);
+        setOpenResult(null);
+        transaction.reset();
+      }
+    },
+    openModal() {
+      setShowModal(true);
+    },
+    canClaim,
+    mysteryBoxData: check.data?.success ? check.data : null,
+    isLoading: check.isLoading,
+    handleOpenBox() {
+      if (address) transaction.open();
+    },
+    openResult,
+    status: claimIsFinishing
+      ? {
+          displayText: "Opening mystery box...",
+          isLoading: true,
+          isError: false,
+          isFinished: false,
+        }
+      : transaction.status,
+    chain: airdropChain,
+    hasSupStakingBonus: Boolean(
+      check.data?.success && check.data.hasSupStakingBonus,
+    ),
+  };
+}
+
+export function DailyMysteryBoxProvider() {
+  const mysteryBox = useDailyMysteryBox();
+  return (
+    <>
+      {mysteryBox.canClaim && (
+        <button
+          className="fixed right-4 bottom-4 z-50 cursor-pointer md:right-8 md:bottom-8"
+          onClick={mysteryBox.openModal}
+        >
+          <Image
+            src="/mystery-box-gift.png"
+            alt="Mystery Box"
+            width={64}
+            height={64}
+          />
+        </button>
+      )}
+      {mysteryBox.mysteryBoxData && (
+        <DailyMysteryBoxModal
+          open={mysteryBox.showModal}
+          onOpenChange={mysteryBox.closeModal}
+          activePrograms={mysteryBox.mysteryBoxData.activePrograms}
+          hasSupStakingBonus={mysteryBox.hasSupStakingBonus}
+          onOpenBox={mysteryBox.handleOpenBox}
+          openResult={mysteryBox.openResult}
+          status={mysteryBox.status}
+          chain={mysteryBox.chain}
+        />
+      )}
+    </>
+  );
+}

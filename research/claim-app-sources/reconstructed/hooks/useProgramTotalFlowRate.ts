@@ -1,29 +1,30 @@
 "use client";
 
-// Inferred reconstruction from webpack module 22448.
+import { useReadContract } from "wagmi";
+import { programManagerAbi } from "@sfpro/sdk/abi/sup";
+import { gdaPoolAbi } from "@sfpro/sdk/abi/core";
 
-import { useAirdropChain } from "@/hooks/useAirdropChain";
-import {
-  useFluidEPProgramManagerGetProgramPool,
-  useSuperfluidPoolRead,
-} from "@/generated/contracts";
+import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { PROGRAM_MANAGER_ADDRESS } from "../contracts/app-contracts";
 
 export function useProgramTotalFlowRate(programId?: bigint) {
-  const { airdropChain } = useAirdropChain();
-
-  const { data: poolAddress } = useFluidEPProgramManagerGetProgramPool({
+  const { airdropChain } = useExpectedChains();
+  const managerAddress = PROGRAM_MANAGER_ADDRESS[airdropChain.id as 8453];
+  const { data: poolAddress } = useReadContract({
+    abi: programManagerAbi,
+    address: managerAddress,
     functionName: "getProgramPool",
     chainId: airdropChain.id,
     args: [programId],
+    // The deployed hook intentionally left this query enabled even if the id is undefined.
     query: { enabled: true },
   });
-
-  const { data: totalFlowRate } = useSuperfluidPoolRead({
+  const { data: totalFlowRate } = useReadContract({
+    abi: gdaPoolAbi,
+    address: poolAddress,
     functionName: "getTotalFlowRate",
     chainId: airdropChain.id,
-    address: poolAddress,
     query: { enabled: Boolean(poolAddress) },
   });
-
   return { totalFlowRate };
 }

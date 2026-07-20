@@ -1,0 +1,85 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { useReadContract } from "wagmi";
+import { lockerAbi } from "@sfpro/sdk/abi/sup";
+import { useReadCfaForwarder } from "@sfpro/sdk/hook";
+
+import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { SUP_TOKEN_ADDRESS_BY_CHAIN } from "../contracts/app-contracts";
+import { useRecentTransactions } from "./useRecentTransactions";
+import { useLockerLiquidityBalance } from "./useLockerLiquidityBalance";
+import type { Address } from "../types/program-app";
+
+export function useLockerBalance({
+  lockerAddress,
+}: {
+  lockerAddress?: Address;
+}) {
+  const { airdropChain } = useExpectedChains();
+  const depositedRecently =
+    useRecentTransactions("deposited-in-reserve", 30).length > 0;
+  const liquidity = useLockerLiquidityBalance(lockerAddress).data;
+  const { data: flowRate } = useReadCfaForwarder({
+    functionName: "getNetFlow",
+    chainId: airdropChain.id,
+    args: [SUP_TOKEN_ADDRESS_BY_CHAIN[airdropChain.id], lockerAddress],
+    query: { enabled: Boolean(lockerAddress) },
+  } as never);
+  const { data: availableBalance } = useReadContract({
+    abi: lockerAbi,
+    address: lockerAddress,
+    functionName: "getAvailableBalance",
+    chainId: airdropChain.id,
+    query: { enabled: Boolean(lockerAddress) },
+  });
+  const { data: stakedBalance } = useReadContract({
+    abi: lockerAbi,
+    address: lockerAddress,
+    functionName: "getStakedBalance",
+    chainId: airdropChain.id,
+    query: { enabled: Boolean(lockerAddress) },
+  });
+  return useQuery({
+    queryKey: [
+      "locker-balance",
+      lockerAddress ?? null,
+      flowRate,
+      availableBalance,
+      stakedBalance,
+      liquidity?.totalSUPBalance,
+      liquidity?.lastUpdatedAt,
+    ],
+    queryFn: () => {
+      const available = availableBalance ?? 0n;
+      const staked = stakedBalance ?? 0n;
+      const inLiquidity = liquidity?.totalSUPBalance ?? 0n;
+      return {
+        totalBalance: available + staked + inLiquidity,
+        availableBalance: available,
+        stakedBalance: staked,
+        liquidityBalance: inLiquidity,
+        flowRate: flowRate ?? 0n,
+        timestamp: liquidity?.lastUpdatedAt
+          ? BigInt(liquidity.lastUpdatedAt)
+          : 0n,
+        hasTotalBalanceLoaded:
+          availableBalance !== undefined &&
+          stakedBalance !== undefined &&
+          liquidity?.totalSUPBalance !== undefined,
+        hasAvailableBalanceLoaded: availableBalance !== undefined,
+        hasStakedBalanceLoaded: stakedBalance !== undefined,
+        hasLiquidityBalanceLoaded: liquidity?.totalSUPBalance !== undefined,
+        hasFlowRateLoaded: flowRate !== undefined,
+        hasTimestampLoaded: liquidity?.lastUpdatedAt !== undefined,
+        isFullyLoaded:
+          availableBalance !== undefined &&
+          stakedBalance !== undefined &&
+          liquidity?.totalSUPBalance !== undefined &&
+          flowRate !== undefined &&
+          liquidity?.lastUpdatedAt !== undefined,
+      };
+    },
+    refetchInterval: depositedRecently ? 5_000 : false,
+  });
+}
