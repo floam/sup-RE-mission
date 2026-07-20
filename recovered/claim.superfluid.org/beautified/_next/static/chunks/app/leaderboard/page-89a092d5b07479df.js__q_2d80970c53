@@ -1,0 +1,1203 @@
+try {
+  let e =
+      "u" > typeof window
+        ? window
+        : "u" > typeof global
+          ? global
+          : "u" > typeof globalThis
+            ? globalThis
+            : "u" > typeof self
+              ? self
+              : {},
+    a = new e.Error().stack;
+  a &&
+    ((e._sentryDebugIds = e._sentryDebugIds || {}),
+    (e._sentryDebugIds[a] = "ec0428e3-3177-46c7-9839-9235a1fae8cd"),
+    (e._sentryDebugIdIdentifier = "sentry-dbid-ec0428e3-3177-46c7-9839-9235a1fae8cd"));
+} catch (e) {}
+{
+  let e =
+    "u" > typeof window
+      ? window
+      : "u" > typeof global
+        ? global
+        : "u" > typeof globalThis
+          ? globalThis
+          : "u" > typeof self
+            ? self
+            : {};
+  ((e._sentryModuleMetadata = e._sentryModuleMetadata || {}),
+    (e._sentryModuleMetadata[new e.Error().stack] = Object.assign(
+      {},
+      e._sentryModuleMetadata[new e.Error().stack],
+      { "_sentryBundlerPluginAppKey:claim-app": !0 },
+    )));
+}
+(self.webpackChunk_N_E = self.webpackChunk_N_E || []).push([
+  [1410],
+  {
+    14504: (e, a, t) => {
+      "use strict";
+      t.d(a, { H: () => n });
+      var r = t(13938),
+        s = t(80751);
+      function n(e) {
+        let a,
+          t,
+          n,
+          d,
+          l = (0, r.c)(10),
+          { address: i, enabled: o } = e,
+          c = void 0 === o ? !!i : o;
+        return (
+          l[0] !== i ? ((a = i?.toLowerCase()), (l[0] = i), (l[1] = a)) : (a = l[1]),
+          l[2] !== a ? ((t = ["leaderboard-search", a]), (l[2] = a), (l[3] = t)) : (t = l[3]),
+          l[4] !== i
+            ? ((n = async () => {
+                let e = await fetch(`/api/leaderboard/search?address=${i}`);
+                return await e.json();
+              }),
+              (l[4] = i),
+              (l[5] = n))
+            : (n = l[5]),
+          l[6] !== c || l[7] !== t || l[8] !== n
+            ? ((d = { queryKey: t, enabled: c, queryFn: n }),
+              (l[6] = c),
+              (l[7] = t),
+              (l[8] = n),
+              (l[9] = d))
+            : (d = l[9]),
+          (0, s.useQuery)(d)
+        );
+      }
+    },
+    20099: (e, a, t) => {
+      "use strict";
+      t.d(a, { A: () => i });
+      var r = t(63086),
+        s = t(80751),
+        n = t(39186),
+        d = t(87355),
+        l = t(16469);
+      function i(e) {
+        let a = e && (0, d.P)(e) ? e.toLowerCase() : null,
+          { data: t } = (0, s.useQuery)({
+            queryKey: ["profile", a],
+            queryFn: async () => {
+              if (!a) return null;
+              let e = await fetch(`https://whois.superfluid.finance/api/resolve/${a}`);
+              return e.ok ? await e.json() : null;
+            },
+          });
+        return (0, n.useMemo)(() => {
+          if (!a) return null;
+          let e = (0, l.b)(a),
+            s = (0, r.L)(e);
+          return {
+            addressChecksummed: e,
+            addressTruncated: s,
+            profile: t ?? null,
+            primaryName: t?.recommendedName ?? null,
+            primaryAvatarUrl: t?.recommendedAvatar ?? null,
+          };
+        }, [a, t]);
+      }
+    },
+    35283: (e, a, t) => {
+      "use strict";
+      t.d(a, { E: () => i });
+      var r = t(58906),
+        s = t(13938),
+        n = t(48653),
+        d = t(5663);
+      let l = (0, n.F)(
+        "inline-flex items-center rounded-md border px-2.5 py-1 text-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+        {
+          variants: {
+            variant: {
+              default: "bg-green/10 border border-[#CDD9D9] text-secondary-foreground font-normal",
+              primary: "border-none bg-green-sf text-secondary-foreground",
+              secondary: "border-none text-green-sf bg-green",
+              light: "border-none text-secondary-foreground bg-green-light",
+              dark: "border-none text-white bg-green-dark",
+              gray: "border-none text-alto bg-platinum",
+              destructive: "border-transparent bg-destructive text-destructive-foreground shadow",
+              outline: "text-foreground",
+            },
+            size: {
+              default: "px-4 py-1.5 font-normal shadow-none",
+              sm: "py-1 px-1.5 shadow-none leading-tight text-[12px]",
+              xs: "py-0 px-1.5 h-5 shadow-none leading-tight text-[12px]",
+              inherit: "py-0.5 px-1 leading-tight",
+            },
+          },
+          defaultVariants: { variant: "default" },
+        },
+      );
+      function i(e) {
+        let a,
+          t,
+          n,
+          i,
+          o,
+          c,
+          u = (0, s.c)(12);
+        return (
+          u[0] !== e
+            ? (({ className: a, variant: i, size: n, ...t } = e),
+              (u[0] = e),
+              (u[1] = a),
+              (u[2] = t),
+              (u[3] = n),
+              (u[4] = i))
+            : ((a = u[1]), (t = u[2]), (n = u[3]), (i = u[4])),
+          u[5] !== a || u[6] !== n || u[7] !== i
+            ? ((o = (0, d.cn)(l({ variant: i, size: n }), a)),
+              (u[5] = a),
+              (u[6] = n),
+              (u[7] = i),
+              (u[8] = o))
+            : (o = u[8]),
+          u[9] !== t || u[10] !== o
+            ? ((c = (0, r.jsx)("span", {
+                className: o,
+                ...t,
+                "data-sentry-component": "Badge",
+                "data-sentry-source-file": "badge.tsx",
+              })),
+              (u[9] = t),
+              (u[10] = o),
+              (u[11] = c))
+            : (c = u[11]),
+          c
+        );
+      }
+    },
+    38825: (e, a, t) => {
+      Promise.resolve().then(t.bind(t, 70251));
+    },
+    63086: (e, a, t) => {
+      "use strict";
+      function r(e) {
+        return `${e.slice(0, 6)}...${e.slice(-4)}`;
+      }
+      t.d(a, { L: () => r });
+    },
+    67952: (e, a, t) => {
+      "use strict";
+      t.d(a, { BT: () => o, Wu: () => c, ZB: () => i, Zp: () => d, aR: () => l });
+      var r = t(58906),
+        s = t(39186),
+        n = t(5663);
+      let d = s.forwardRef(({ className: e, ...a }, t) =>
+        (0, r.jsx)("div", {
+          ref: t,
+          className: (0, n.cn)("rounded-xl border bg-card text-card-foreground shadow", e),
+          ...a,
+        }),
+      );
+      d.displayName = "Card";
+      let l = s.forwardRef(({ className: e, ...a }, t) =>
+        (0, r.jsx)("div", {
+          ref: t,
+          className: (0, n.cn)("flex flex-col space-y-1.5 p-6", e),
+          ...a,
+        }),
+      );
+      l.displayName = "CardHeader";
+      let i = s.forwardRef(({ className: e, ...a }, t) =>
+        (0, r.jsx)("h3", {
+          ref: t,
+          className: (0, n.cn)("font-semibold leading-none tracking-tight", e),
+          ...a,
+        }),
+      );
+      i.displayName = "CardTitle";
+      let o = s.forwardRef(({ className: e, ...a }, t) =>
+        (0, r.jsx)("div", {
+          ref: t,
+          className: (0, n.cn)("text-muted-foreground text-sm", e),
+          ...a,
+        }),
+      );
+      o.displayName = "CardDescription";
+      let c = s.forwardRef(({ className: e, ...a }, t) =>
+        (0, r.jsx)("div", { ref: t, className: (0, n.cn)("p-6 pt-0", e), ...a }),
+      );
+      ((c.displayName = "CardContent"),
+        (s.forwardRef(({ className: e, ...a }, t) =>
+          (0, r.jsx)("div", {
+            ref: t,
+            className: (0, n.cn)("flex items-center p-6 pt-0", e),
+            ...a,
+          }),
+        ).displayName = "CardFooter"));
+    },
+    70251: (e, a, t) => {
+      "use strict";
+      (t.r(a), t.d(a, { default: () => K }));
+      var r = t(58906),
+        s = t(13938),
+        n = t(90250),
+        d = t(75674),
+        l = t(5663),
+        i = t(77022),
+        o = t(3847);
+      let c = (0, o.A)("chevrons-left", [
+          ["path", { d: "m11 17-5-5 5-5", key: "13zhaf" }],
+          ["path", { d: "m18 17-5-5 5-5", key: "h8a8et" }],
+        ]),
+        u = (0, o.A)("chevrons-right", [
+          ["path", { d: "m6 17 5-5-5-5", key: "xnjwq" }],
+          ["path", { d: "m13 17 5-5-5-5", key: "17xmmf" }],
+        ]);
+      var m = t(73223),
+        f = t.n(m),
+        p = t(39186);
+      let y = (e) => {
+        let a,
+          t,
+          n,
+          d,
+          i = (0, s.c)(8);
+        return (
+          i[0] !== e
+            ? (({ className: a, ...t } = e), (i[0] = e), (i[1] = a), (i[2] = t))
+            : ((a = i[1]), (t = i[2])),
+          i[3] !== a
+            ? ((n = (0, l.cn)("mx-auto flex w-full justify-center", a)), (i[3] = a), (i[4] = n))
+            : (n = i[4]),
+          i[5] !== t || i[6] !== n
+            ? ((d = (0, r.jsx)("nav", {
+                "aria-label": "pagination",
+                className: n,
+                ...t,
+                "data-sentry-component": "Pagination",
+                "data-sentry-source-file": "pagination.tsx",
+              })),
+              (i[5] = t),
+              (i[6] = n),
+              (i[7] = d))
+            : (d = i[7]),
+          d
+        );
+      };
+      y.displayName = "Pagination";
+      let x = p.forwardRef((e, a) => {
+        let t,
+          n,
+          d,
+          i,
+          o = (0, s.c)(9);
+        return (
+          o[0] !== e
+            ? (({ className: t, ...n } = e), (o[0] = e), (o[1] = t), (o[2] = n))
+            : ((t = o[1]), (n = o[2])),
+          o[3] !== t
+            ? ((d = (0, l.cn)("flex flex-row items-center gap-1", t)), (o[3] = t), (o[4] = d))
+            : (d = o[4]),
+          o[5] !== n || o[6] !== a || o[7] !== d
+            ? ((i = (0, r.jsx)("ul", { ref: a, className: d, ...n })),
+              (o[5] = n),
+              (o[6] = a),
+              (o[7] = d),
+              (o[8] = i))
+            : (i = o[8]),
+          i
+        );
+      });
+      x.displayName = "PaginationContent";
+      let h = p.forwardRef((e, a) => {
+        let t,
+          n,
+          d,
+          i,
+          o = (0, s.c)(9);
+        return (
+          o[0] !== e
+            ? (({ className: t, ...n } = e), (o[0] = e), (o[1] = t), (o[2] = n))
+            : ((t = o[1]), (n = o[2])),
+          o[3] !== t
+            ? ((d = (0, l.cn)("rounded-full bg-white", t)), (o[3] = t), (o[4] = d))
+            : (d = o[4]),
+          o[5] !== n || o[6] !== a || o[7] !== d
+            ? ((i = (0, r.jsx)("li", { ref: a, className: d, ...n })),
+              (o[5] = n),
+              (o[6] = a),
+              (o[7] = d),
+              (o[8] = i))
+            : (i = o[8]),
+          i
+        );
+      });
+      h.displayName = "PaginationItem";
+      let g = (e) => {
+        let a,
+          t,
+          n,
+          i,
+          o,
+          c,
+          u = (0, s.c)(13);
+        u[0] !== e
+          ? (({ className: a, isActive: t, size: i, ...n } = e),
+            (u[0] = e),
+            (u[1] = a),
+            (u[2] = t),
+            (u[3] = n),
+            (u[4] = i))
+          : ((a = u[1]), (t = u[2]), (n = u[3]), (i = u[4]));
+        let m = void 0 === i ? "icon" : i,
+          p = t ? "page" : void 0;
+        return (
+          u[5] !== a || u[6] !== t || u[7] !== m
+            ? ((o = (0, l.cn)(
+                (0, d.r)({ variant: "pagination", size: m }),
+                "h-auto p-2 leading-[16px]",
+                t && "bg-green text-white hover:bg-green hover:text-white",
+                a,
+              )),
+              (u[5] = a),
+              (u[6] = t),
+              (u[7] = m),
+              (u[8] = o))
+            : (o = u[8]),
+          u[9] !== n || u[10] !== p || u[11] !== o
+            ? ((c = (0, r.jsx)(f(), {
+                "aria-current": p,
+                className: o,
+                ...n,
+                "data-sentry-element": "Link",
+                "data-sentry-component": "PaginationLink",
+                "data-sentry-source-file": "pagination.tsx",
+              })),
+              (u[9] = n),
+              (u[10] = p),
+              (u[11] = o),
+              (u[12] = c))
+            : (c = u[12]),
+          c
+        );
+      };
+      g.displayName = "PaginationLink";
+      let b = (e) => {
+        let a,
+          t,
+          n,
+          d,
+          o,
+          c = (0, s.c)(9);
+        return (
+          c[0] !== e
+            ? (({ className: a, ...t } = e), (c[0] = e), (c[1] = a), (c[2] = t))
+            : ((a = c[1]), (t = c[2])),
+          c[3] !== a ? ((n = (0, l.cn)("gap-1 pl-2.5", a)), (c[3] = a), (c[4] = n)) : (n = c[4]),
+          c[5] === Symbol.for("react.memo_cache_sentinel")
+            ? ((d = (0, r.jsx)(i.YJP, {
+                className: "h-4 w-4",
+                "data-sentry-element": "ChevronLeftIcon",
+                "data-sentry-source-file": "pagination.tsx",
+              })),
+              (c[5] = d))
+            : (d = c[5]),
+          c[6] !== t || c[7] !== n
+            ? ((o = (0, r.jsx)(g, {
+                "aria-label": "Go to previous page",
+                size: "default",
+                className: n,
+                ...t,
+                "data-sentry-element": "PaginationLink",
+                "data-sentry-component": "PaginationPrevious",
+                "data-sentry-source-file": "pagination.tsx",
+                children: d,
+              })),
+              (c[6] = t),
+              (c[7] = n),
+              (c[8] = o))
+            : (o = c[8]),
+          o
+        );
+      };
+      b.displayName = "PaginationPrevious";
+      let j = (e) => {
+        let a,
+          t,
+          n,
+          d,
+          o,
+          c = (0, s.c)(9);
+        return (
+          c[0] !== e
+            ? (({ className: a, ...t } = e), (c[0] = e), (c[1] = a), (c[2] = t))
+            : ((a = c[1]), (t = c[2])),
+          c[3] !== a ? ((n = (0, l.cn)("gap-1 pr-2.5", a)), (c[3] = a), (c[4] = n)) : (n = c[4]),
+          c[5] === Symbol.for("react.memo_cache_sentinel")
+            ? ((d = (0, r.jsx)(i.vKP, {
+                className: "h-4 w-4",
+                "data-sentry-element": "ChevronRightIcon",
+                "data-sentry-source-file": "pagination.tsx",
+              })),
+              (c[5] = d))
+            : (d = c[5]),
+          c[6] !== t || c[7] !== n
+            ? ((o = (0, r.jsx)(g, {
+                "aria-label": "Go to next page",
+                size: "default",
+                className: n,
+                ...t,
+                "data-sentry-element": "PaginationLink",
+                "data-sentry-component": "PaginationNext",
+                "data-sentry-source-file": "pagination.tsx",
+                children: d,
+              })),
+              (c[6] = t),
+              (c[7] = n),
+              (c[8] = o))
+            : (o = c[8]),
+          o
+        );
+      };
+      j.displayName = "PaginationNext";
+      let w = (e) => {
+        let a,
+          t,
+          n,
+          d,
+          i,
+          o = (0, s.c)(9);
+        return (
+          o[0] !== e
+            ? (({ className: a, ...t } = e), (o[0] = e), (o[1] = a), (o[2] = t))
+            : ((a = o[1]), (t = o[2])),
+          o[3] !== a ? ((n = (0, l.cn)(a)), (o[3] = a), (o[4] = n)) : (n = o[4]),
+          o[5] === Symbol.for("react.memo_cache_sentinel")
+            ? ((d = (0, r.jsx)(c, {
+                className: "h-4 w-4",
+                "data-sentry-element": "ChevronsLeft",
+                "data-sentry-source-file": "pagination.tsx",
+              })),
+              (o[5] = d))
+            : (d = o[5]),
+          o[6] !== t || o[7] !== n
+            ? ((i = (0, r.jsx)(g, {
+                "aria-label": "Go to first page",
+                size: "default",
+                className: n,
+                ...t,
+                "data-sentry-element": "PaginationLink",
+                "data-sentry-component": "PaginationStart",
+                "data-sentry-source-file": "pagination.tsx",
+                children: d,
+              })),
+              (o[6] = t),
+              (o[7] = n),
+              (o[8] = i))
+            : (i = o[8]),
+          i
+        );
+      };
+      w.displayName = "PaginationStart";
+      let v = (e) => {
+        let a,
+          t,
+          n,
+          d,
+          i,
+          o = (0, s.c)(9);
+        return (
+          o[0] !== e
+            ? (({ className: a, ...t } = e), (o[0] = e), (o[1] = a), (o[2] = t))
+            : ((a = o[1]), (t = o[2])),
+          o[3] !== a ? ((n = (0, l.cn)(a)), (o[3] = a), (o[4] = n)) : (n = o[4]),
+          o[5] === Symbol.for("react.memo_cache_sentinel")
+            ? ((d = (0, r.jsx)(u, {
+                className: "h-4 w-4",
+                "data-sentry-element": "ChevronsRight",
+                "data-sentry-source-file": "pagination.tsx",
+              })),
+              (o[5] = d))
+            : (d = o[5]),
+          o[6] !== t || o[7] !== n
+            ? ((i = (0, r.jsx)(g, {
+                "aria-label": "Go to last page",
+                size: "default",
+                className: n,
+                ...t,
+                "data-sentry-element": "PaginationLink",
+                "data-sentry-component": "PaginationEnd",
+                "data-sentry-source-file": "pagination.tsx",
+                children: d,
+              })),
+              (o[6] = t),
+              (o[7] = n),
+              (o[8] = i))
+            : (i = o[8]),
+          i
+        );
+      };
+      v.displayName = "PaginationEnd";
+      var N = t(54723),
+        C = t(80751),
+        L = t(14504),
+        k = t(5496),
+        _ = t(82189),
+        E = t(35283),
+        P = t(67952),
+        R = t(88199),
+        S = t(20099),
+        A = t(84736),
+        T = t(47736),
+        I = t.n(T),
+        z = t(98947),
+        M = t(32186);
+      function $(e) {
+        let a,
+          t,
+          n,
+          d,
+          i,
+          o,
+          c,
+          u,
+          m,
+          f,
+          y,
+          x,
+          h,
+          g,
+          b,
+          j,
+          w,
+          v,
+          N,
+          C,
+          L,
+          k,
+          $ = (0, s.c)(51),
+          { entry: F, isYou: q, dataTestId: B } = e;
+        $[0] !== F.flowRate
+          ? ((a = BigInt(F.flowRate)), ($[0] = F.flowRate), ($[1] = a))
+          : (a = $[1]);
+        let D = (0, A.x)(a),
+          K = (0, S.A)(F.accountAddress),
+          [, Z] = (0, M.Cj)(),
+          [H, U] = (0, p.useState)(!1),
+          [V, Y] = (0, p.useState)("Click to copy address");
+        $[2] !== Z || $[3] !== K.addressChecksummed
+          ? ((t = () => {
+              (Z(K.addressChecksummed),
+                U(!0),
+                Y("Address copied!"),
+                setTimeout(() => {
+                  U(!1);
+                }, 1500),
+                setTimeout(() => {
+                  Y("Click to copy address");
+                }, 2e3));
+            }),
+            ($[2] = Z),
+            ($[3] = K.addressChecksummed),
+            ($[4] = t))
+          : (t = $[4]);
+        let G = t,
+          O = !q;
+        $[5] !== O
+          ? ((n = (0, l.cn)("shadow-none", { "border-none": O })), ($[5] = O), ($[6] = n))
+          : (n = $[6]);
+        let W = K.primaryAvatarUrl ?? void 0;
+        ($[7] !== W
+          ? ((d = (0, r.jsx)(_.BK, {
+              "data-testid": "entry-avatar",
+              src: W,
+              "data-sentry-element": "AvatarImage",
+              "data-sentry-source-file": "LeaderboardEntryCard.tsx",
+            })),
+            ($[7] = W),
+            ($[8] = d))
+          : (d = $[8]),
+          $[9] !== K.addressChecksummed
+            ? ((i = (0, T.jsNumberForAddress)(K.addressChecksummed)),
+              ($[9] = K.addressChecksummed),
+              ($[10] = i))
+            : (i = $[10]),
+          $[11] !== i
+            ? ((o = (0, r.jsx)(_.q5, {
+                "data-sentry-element": "AvatarFallback",
+                "data-sentry-source-file": "LeaderboardEntryCard.tsx",
+                children: (0, r.jsx)(I(), {
+                  diameter: 64,
+                  seed: i,
+                  "data-sentry-element": "Jazzicon",
+                  "data-sentry-source-file": "LeaderboardEntryCard.tsx",
+                }),
+              })),
+              ($[11] = i),
+              ($[12] = o))
+            : (o = $[12]),
+          $[13] !== d || $[14] !== o
+            ? ((c = (0, r.jsxs)(_.eu, {
+                className: "h-10 w-10 md:h-16 md:w-16",
+                "data-sentry-element": "Avatar",
+                "data-sentry-source-file": "LeaderboardEntryCard.tsx",
+                children: [d, o],
+              })),
+              ($[13] = d),
+              ($[14] = o),
+              ($[15] = c))
+            : (c = $[15]));
+        let Q = !!H || void 0,
+          J = K.primaryName ?? K.addressTruncated;
+        return (
+          $[16] !== J
+            ? ((u = (0, r.jsx)("p", {
+                "data-testid": "entry-name",
+                className: "cursor-pointer tabular-nums",
+                children: J,
+              })),
+              ($[16] = J),
+              ($[17] = u))
+            : (u = $[17]),
+          $[18] !== G || $[19] !== u
+            ? ((m = (0, r.jsx)(z.k$, {
+                asChild: !0,
+                onClick: G,
+                "data-sentry-element": "TooltipTrigger",
+                "data-sentry-source-file": "LeaderboardEntryCard.tsx",
+                children: u,
+              })),
+              ($[18] = G),
+              ($[19] = u),
+              ($[20] = m))
+            : (m = $[20]),
+          $[21] === Symbol.for("react.memo_cache_sentinel")
+            ? ((f = (0, r.jsx)(z.PR, {
+                "data-sentry-element": "TooltipArrow",
+                "data-sentry-source-file": "LeaderboardEntryCard.tsx",
+              })),
+              ($[21] = f))
+            : (f = $[21]),
+          $[22] !== V
+            ? ((y = (0, r.jsxs)(z.ZI, {
+                "data-sentry-element": "TooltipContent",
+                "data-sentry-source-file": "LeaderboardEntryCard.tsx",
+                children: [f, (0, r.jsx)("p", { "data-testid": "tooltip-message", children: V })],
+              })),
+              ($[22] = V),
+              ($[23] = y))
+            : (y = $[23]),
+          $[24] !== m || $[25] !== y || $[26] !== Q
+            ? ((x = (0, r.jsx)(z.Bc, {
+                "data-sentry-element": "TooltipProvider",
+                "data-sentry-source-file": "LeaderboardEntryCard.tsx",
+                children: (0, r.jsxs)(z.m_, {
+                  open: Q,
+                  "data-sentry-element": "Tooltip",
+                  "data-sentry-source-file": "LeaderboardEntryCard.tsx",
+                  children: [m, y],
+                }),
+              })),
+              ($[24] = m),
+              ($[25] = y),
+              ($[26] = Q),
+              ($[27] = x))
+            : (x = $[27]),
+          $[28] !== q
+            ? ((h =
+                q &&
+                (0, r.jsxs)(E.E, {
+                  "data-testid": "your-leaderboard-entry-badge",
+                  variant: "light",
+                  children: ["It", "'", "s you"],
+                })),
+              ($[28] = q),
+              ($[29] = h))
+            : (h = $[29]),
+          $[30] !== x || $[31] !== h || $[32] !== c
+            ? ((g = (0, r.jsxs)("div", {
+                className: "flex flex-1 items-center gap-4",
+                children: [c, x, h],
+              })),
+              ($[30] = x),
+              ($[31] = h),
+              ($[32] = c),
+              ($[33] = g))
+            : (g = $[33]),
+          $[34] === Symbol.for("react.memo_cache_sentinel")
+            ? ((b = (0, r.jsx)("span", { className: "text-alto", children: "Rank:" })), ($[34] = b))
+            : (b = $[34]),
+          $[35] !== F.rank
+            ? ((j = (0, r.jsxs)("div", {
+                className: "flex items-center gap-1",
+                children: [
+                  b,
+                  (0, r.jsxs)("span", { "data-testid": "entry-rank", children: ["#", F.rank] }),
+                ],
+              })),
+              ($[35] = F.rank),
+              ($[36] = j))
+            : (j = $[36]),
+          $[37] === Symbol.for("react.memo_cache_sentinel")
+            ? ((w = (0, r.jsx)("div", {
+                className: "flex items-center max-sm:hidden",
+                children: (0, r.jsx)(R.Separator, {
+                  orientation: "horizontal",
+                  className: "w-[36px]",
+                  "data-sentry-element": "Separator",
+                  "data-sentry-source-file": "LeaderboardEntryCard.tsx",
+                }),
+              })),
+              ($[37] = w))
+            : (w = $[37]),
+          $[38] === Symbol.for("react.memo_cache_sentinel")
+            ? ((v = (0, r.jsx)("span", { className: "text-alto", children: "Flow rate:" })),
+              ($[38] = v))
+            : (v = $[38]),
+          $[39] !== D
+            ? ((N = (0, r.jsx)("div", {
+                className: "flex w-[250px] items-center",
+                children: (0, r.jsxs)("div", {
+                  className: "flex items-center",
+                  children: [
+                    v,
+                    (0, r.jsxs)("span", {
+                      "data-testid": "entry-flow-rate-value",
+                      className: "whitespace-nowrap",
+                      children: ["\xa0", D, " SUP/mo"],
+                    }),
+                  ],
+                }),
+              })),
+              ($[39] = D),
+              ($[40] = N))
+            : (N = $[40]),
+          $[41] !== j || $[42] !== N
+            ? ((C = (0, r.jsxs)("div", {
+                className: "flex gap-1 max-sm:flex-col max-md:text-subtitle4 sm:gap-4",
+                children: [j, w, N],
+              })),
+              ($[41] = j),
+              ($[42] = N),
+              ($[43] = C))
+            : (C = $[43]),
+          $[44] !== g || $[45] !== C
+            ? ((L = (0, r.jsxs)(P.Wu, {
+                className:
+                  "flex justify-between gap-3 py-2 pr-3 pl-2 text-subtitle1 max-md:flex-col",
+                "data-sentry-element": "CardContent",
+                "data-sentry-source-file": "LeaderboardEntryCard.tsx",
+                children: [g, C],
+              })),
+              ($[44] = g),
+              ($[45] = C),
+              ($[46] = L))
+            : (L = $[46]),
+          $[47] !== B || $[48] !== L || $[49] !== n
+            ? ((k = (0, r.jsx)(P.Zp, {
+                "data-testid": B,
+                className: n,
+                "data-sentry-element": "Card",
+                "data-sentry-component": "LeaderboardEntryCard",
+                "data-sentry-source-file": "LeaderboardEntryCard.tsx",
+                children: L,
+              })),
+              ($[47] = B),
+              ($[48] = L),
+              ($[49] = n),
+              ($[50] = k))
+            : (k = $[50]),
+          k
+        );
+      }
+      var F = t(88039),
+        q = t(87355),
+        B = t(84727);
+      function D() {
+        let e = Number((0, k.useSearchParams)().get("p") || "1"),
+          { data: a, isLoading: t } = (function (e) {
+            let a,
+              t = (0, s.c)(3),
+              { page: r, limit: n } = e,
+              d = void 0 === r ? 1 : r,
+              l = void 0 === n ? 50 : n;
+            return (
+              t[0] !== l || t[1] !== d
+                ? ((a = {
+                    queryKey: ["leaderboard", d, l],
+                    queryFn: async () => {
+                      let e = await fetch(`/api/leaderboard?page=${d}&limit=${l}`);
+                      return await e.json();
+                    },
+                  }),
+                  (t[0] = l),
+                  (t[1] = d),
+                  (t[2] = a))
+                : (a = t[2]),
+              (0, C.useQuery)(a)
+            );
+          })({ page: e, limit: 10 }),
+          l = Math.ceil((a?.pagination?.total ?? 0) / 10),
+          [i, o] = (0, p.useState)(""),
+          c = (0, F.o)(i, 500),
+          u = (0, q.P)(i) ? i : c,
+          { data: m } = (0, L.H)({ address: u, enabled: (0, q.P)(u) }),
+          { accountAddress: f, lockerAddress: _ } = (0, N.s)(),
+          { data: E } = (0, L.H)({ address: f, enabled: !!_ }),
+          { yourLeaderboardEntry: P, leaderboardEntriesWithoutYou: R } = (0, p.useMemo)(() => {
+            let e = a?.entries ?? [];
+            return {
+              yourLeaderboardEntry: E?.entry,
+              leaderboardEntriesWithoutYou: (m?.entry ? [m.entry] : e).filter(
+                (e) => e.accountAddress.toLowerCase() !== f?.toLowerCase(),
+              ),
+            };
+          }, [f, E, m?.entry, a?.entries]),
+          S = (0, p.useMemo)(
+            () =>
+              [, , , , ,]
+                .fill(!0)
+                .map((a, t) => e - 2 + t)
+                .filter((e) => e >= 1 && e <= l),
+            [e, l],
+          ),
+          A = !m?.entry;
+        return (0, r.jsxs)("div", {
+          className: "flex flex-col gap-4 rounded-lg bg-platinum p-5",
+          "data-sentry-component": "Leaderboard",
+          "data-sentry-source-file": "Leaderboard.tsx",
+          children: [
+            (0, r.jsxs)("div", {
+              className: "flex items-center gap-2",
+              children: [
+                (0, r.jsx)(n.p, {
+                  "data-testid": "search-input",
+                  placeholder: "Search for users...",
+                  className: "h-10 border-[#E4EAF5] bg-white shadow-sm",
+                  value: i,
+                  onChange: (e) => o(e.target.value),
+                  "data-sentry-element": "Input",
+                  "data-sentry-source-file": "Leaderboard.tsx",
+                }),
+                (0, r.jsx)(d.$, {
+                  className: "h-auto p-2",
+                  "data-sentry-element": "Button",
+                  "data-sentry-source-file": "Leaderboard.tsx",
+                  children: (0, r.jsx)("svg", {
+                    width: "24",
+                    height: "24",
+                    viewBox: "0 0 24 24",
+                    fill: "none",
+                    xmlns: "http://www.w3.org/2000/svg",
+                    "data-sentry-element": "svg",
+                    "data-sentry-source-file": "Leaderboard.tsx",
+                    children: (0, r.jsx)("path", {
+                      d: "M15.7549 14.2549H14.9649L14.6849 13.9849C15.6649 12.8449 16.2549 11.3649 16.2549 9.75488C16.2549 6.16488 13.3449 3.25488 9.75488 3.25488C6.16488 3.25488 3.25488 6.16488 3.25488 9.75488C3.25488 13.3449 6.16488 16.2549 9.75488 16.2549C11.3649 16.2549 12.8449 15.6649 13.9849 14.6849L14.2549 14.9649V15.7549L19.2549 20.7449L20.7449 19.2549L15.7549 14.2549ZM9.75488 14.2549C7.26488 14.2549 5.25488 12.2449 5.25488 9.75488C5.25488 7.26488 7.26488 5.25488 9.75488 5.25488C12.2449 5.25488 14.2549 7.26488 14.2549 9.75488C14.2549 12.2449 12.2449 14.2549 9.75488 14.2549Z",
+                      fill: "#080909",
+                      "data-sentry-element": "path",
+                      "data-sentry-source-file": "Leaderboard.tsx",
+                    }),
+                  }),
+                }),
+              ],
+            }),
+            (0, r.jsxs)("div", {
+              className: "flex flex-col gap-3 md:gap-4",
+              children: [
+                P &&
+                  (0, r.jsx)(
+                    $,
+                    { dataTestId: "leaderboard-entry", entry: P, isYou: !0 },
+                    P.accountAddress,
+                  ),
+                R.map((e) =>
+                  (0, r.jsx)(
+                    $,
+                    { dataTestId: "leaderboard-entry", entry: e, isYou: !1 },
+                    e.accountAddress,
+                  ),
+                ),
+                t &&
+                  (0, r.jsxs)(r.Fragment, {
+                    children: [
+                      !P && (0, r.jsx)(B.E, { className: "h-20 w-full" }),
+                      (0, r.jsx)(B.E, { className: "h-20 w-full" }),
+                      (0, r.jsx)(B.E, { className: "h-20 w-full" }),
+                      (0, r.jsx)(B.E, { className: "h-20 w-full" }),
+                      (0, r.jsx)(B.E, { className: "h-20 w-full" }),
+                    ],
+                  }),
+              ],
+            }),
+            (0, r.jsx)("div", {
+              children:
+                A &&
+                (0, r.jsx)(y, {
+                  className: "justify-end",
+                  children: (0, r.jsxs)(x, {
+                    children: [
+                      1 !== e &&
+                        (0, r.jsxs)(r.Fragment, {
+                          children: [
+                            (0, r.jsx)(h, {
+                              children: (0, r.jsx)(w, {
+                                "data-testid": "pagination-start",
+                                href: "/leaderboard?p=1",
+                              }),
+                            }),
+                            (0, r.jsx)(h, {
+                              children: (0, r.jsx)(b, {
+                                "data-testid": "pagination-previous",
+                                href: `/leaderboard?p=${Math.max(1, e - 1)}`,
+                              }),
+                            }),
+                          ],
+                        }),
+                      S.map((a) =>
+                        (0, r.jsx)(
+                          h,
+                          {
+                            children: (0, r.jsx)(g, {
+                              "data-testid": e === a ? "pagination-link-active" : "pagination-link",
+                              href: `/leaderboard?p=${a}`,
+                              isActive: e === a,
+                              children: a,
+                            }),
+                          },
+                          a,
+                        ),
+                      ),
+                      e !== l &&
+                        (0, r.jsxs)(r.Fragment, {
+                          children: [
+                            (0, r.jsx)(h, {
+                              children: (0, r.jsx)(j, {
+                                "data-testid": "pagination-next",
+                                href: `/leaderboard?p=${Math.min(l, e + 1)}`,
+                              }),
+                            }),
+                            (0, r.jsx)(h, {
+                              children: (0, r.jsx)(v, {
+                                "data-testid": "pagination-end",
+                                href: `/leaderboard?p=${l}`,
+                              }),
+                            }),
+                          ],
+                        }),
+                    ],
+                  }),
+                }),
+            }),
+          ],
+        });
+      }
+      function K() {
+        let e,
+          a = (0, s.c)(1);
+        return (
+          a[0] === Symbol.for("react.memo_cache_sentinel")
+            ? ((e = (0, r.jsxs)("div", {
+                className: "container mx-auto max-w-5xl py-8",
+                "data-sentry-component": "LeaderboardPage",
+                "data-sentry-source-file": "page.tsx",
+                children: [
+                  (0, r.jsx)("div", {
+                    className:
+                      "-z-10 absolute top-0 left-0 h-full w-full bg-[url('/leaderboard-bg.svg')] bg-center bg-cover",
+                  }),
+                  (0, r.jsx)(D, {
+                    "data-sentry-element": "Leaderboard",
+                    "data-sentry-source-file": "page.tsx",
+                  }),
+                ],
+              })),
+              (a[0] = e))
+            : (e = a[0]),
+          e
+        );
+      }
+    },
+    82189: (e, a, t) => {
+      "use strict";
+      t.d(a, { BK: () => i, eu: () => l, q5: () => o });
+      var r = t(58906),
+        s = t(39186),
+        n = t(51920),
+        d = t(5663);
+      let l = s.forwardRef(({ className: e, ...a }, t) =>
+        (0, r.jsx)(n.bL, {
+          ref: t,
+          className: (0, d.cn)("relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full", e),
+          ...a,
+        }),
+      );
+      l.displayName = n.bL.displayName;
+      let i = s.forwardRef(({ className: e, ...a }, t) =>
+        (0, r.jsx)(n._V, { ref: t, className: (0, d.cn)("aspect-square h-full w-full", e), ...a }),
+      );
+      i.displayName = n._V.displayName;
+      let o = s.forwardRef(({ className: e, ...a }, t) =>
+        (0, r.jsx)(n.H4, {
+          ref: t,
+          className: (0, d.cn)(
+            "flex h-full w-full items-center justify-center rounded-full bg-muted",
+            e,
+          ),
+          ...a,
+        }),
+      );
+      o.displayName = n.H4.displayName;
+    },
+    84727: (e, a, t) => {
+      "use strict";
+      t.d(a, { E: () => d });
+      var r = t(58906),
+        s = t(13938),
+        n = t(5663);
+      function d(e) {
+        let a,
+          t,
+          d,
+          l,
+          i = (0, s.c)(8);
+        return (
+          i[0] !== e
+            ? (({ className: a, ...t } = e), (i[0] = e), (i[1] = a), (i[2] = t))
+            : ((a = i[1]), (t = i[2])),
+          i[3] !== a
+            ? ((d = (0, n.cn)(
+                "animate-pulse rounded-md bg-gradient-to-r from-white to-platinum",
+                a,
+              )),
+              (i[3] = a),
+              (i[4] = d))
+            : (d = i[4]),
+          i[5] !== t || i[6] !== d
+            ? ((l = (0, r.jsx)("div", {
+                className: d,
+                ...t,
+                "data-sentry-component": "Skeleton",
+                "data-sentry-source-file": "skeleton.tsx",
+              })),
+              (i[5] = t),
+              (i[6] = d),
+              (i[7] = l))
+            : (l = i[7]),
+          l
+        );
+      }
+    },
+    84736: (e, a, t) => {
+      "use strict";
+      t.d(a, { x: () => s });
+      var r = t(5663);
+      function s(e) {
+        return (0, r.Vw)(2628000n * e);
+      }
+    },
+    88039: (e, a, t) => {
+      "use strict";
+      t.d(a, { o: () => n });
+      var r = t(13938),
+        s = t(39186);
+      function n(e, a) {
+        let t,
+          n,
+          d = (0, r.c)(4),
+          l = void 0 === a ? 500 : a,
+          [i, o] = (0, s.useState)(e);
+        return (
+          d[0] !== l || d[1] !== e
+            ? ((t = () => {
+                let a = setTimeout(() => {
+                  o(e);
+                }, l);
+                return () => {
+                  clearTimeout(a);
+                };
+              }),
+              (n = [e, l]),
+              (d[0] = l),
+              (d[1] = e),
+              (d[2] = t),
+              (d[3] = n))
+            : ((t = d[2]), (n = d[3])),
+          (0, s.useEffect)(t, n),
+          i
+        );
+      }
+    },
+    88199: (e, a, t) => {
+      "use strict";
+      t.d(a, { Separator: () => l });
+      var r = t(58906),
+        s = t(39186),
+        n = t(25456),
+        d = t(5663);
+      let l = s.forwardRef(
+        ({ className: e, orientation: a = "horizontal", decorative: t = !0, ...s }, l) =>
+          (0, r.jsx)(n.b, {
+            ref: l,
+            decorative: t,
+            orientation: a,
+            className: (0, d.cn)(
+              "shrink-0 bg-border",
+              "horizontal" === a ? "h-[1px] w-full" : "h-full w-[1px]",
+              e,
+            ),
+            ...s,
+          }),
+      );
+      l.displayName = n.b.displayName;
+    },
+    90250: (e, a, t) => {
+      "use strict";
+      t.d(a, { p: () => d });
+      var r = t(58906),
+        s = t(39186),
+        n = t(5663);
+      let d = s.forwardRef(({ className: e, type: a, ...t }, s) =>
+        (0, r.jsx)("input", {
+          type: a,
+          className: (0, n.cn)(
+            "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors file:border-0 file:bg-transparent file:font-medium file:text-foreground file:text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+            e,
+          ),
+          ref: s,
+          ...t,
+        }),
+      );
+      d.displayName = "Input";
+    },
+    98947: (e, a, t) => {
+      "use strict";
+      t.d(a, { Bc: () => l, PR: () => o, ZI: () => u, k$: () => c, m_: () => i });
+      var r = t(58906),
+        s = t(22825),
+        n = t(39186),
+        d = t(5663);
+      let l = s.Kq,
+        i = s.bL,
+        o = s.i3,
+        c = s.l9,
+        u = n.forwardRef(({ className: e, sideOffset: a = 4, ...t }, n) =>
+          (0, r.jsx)(s.ZL, {
+            children: (0, r.jsx)(s.UC, {
+              ref: n,
+              sideOffset: a,
+              className: (0, d.cn)(
+                "fade-in-0 zoom-in-95 data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 animate-in rounded-md bg-primary px-3 py-1.5 text-primary-foreground text-xs data-[state=closed]:animate-out",
+                e,
+              ),
+              ...t,
+            }),
+          }),
+        );
+      u.displayName = s.UC.displayName;
+    },
+  },
+  (e) => {
+    (e.O(0, [3230, 9679, 3103, 4725, 833, 2825, 1734, 2186, 4107, 1841, 1656, 3656, 7358], () =>
+      e((e.s = 38825)),
+    ),
+      (_N_E = e.O()));
+  },
+]);

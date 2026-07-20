@@ -1,0 +1,413 @@
+try {
+  let e =
+      "u" > typeof window
+        ? window
+        : "u" > typeof global
+          ? global
+          : "u" > typeof globalThis
+            ? globalThis
+            : "u" > typeof self
+              ? self
+              : {},
+    t = new e.Error().stack;
+  t &&
+    ((e._sentryDebugIds = e._sentryDebugIds || {}),
+    (e._sentryDebugIds[t] = "719bc86c-1688-4655-b56d-df0951cbf68b"),
+    (e._sentryDebugIdIdentifier = "sentry-dbid-719bc86c-1688-4655-b56d-df0951cbf68b"));
+} catch (e) {}
+{
+  let e =
+    "u" > typeof window
+      ? window
+      : "u" > typeof global
+        ? global
+        : "u" > typeof globalThis
+          ? globalThis
+          : "u" > typeof self
+            ? self
+            : {};
+  ((e._sentryModuleMetadata = e._sentryModuleMetadata || {}),
+    (e._sentryModuleMetadata[new e.Error().stack] = Object.assign(
+      {},
+      e._sentryModuleMetadata[new e.Error().stack],
+      { "_sentryBundlerPluginAppKey:claim-app": !0 },
+    )));
+}
+("use strict");
+(self.webpackChunk_N_E = self.webpackChunk_N_E || []).push([
+  [8007],
+  {
+    254: (e, t, r) => {
+      r.d(t, { k: () => l });
+      var n = r(4677),
+        a = r(44290),
+        i = r(63588),
+        s = r(78292),
+        o = r(71710);
+      function l(e) {
+        let t = new Uint8Array(32).fill(0);
+        if (!e) return (0, i.My)(t);
+        let r = e.split(".");
+        for (let e = r.length - 1; e >= 0; e -= 1) {
+          let i = (0, o.q)(r[e]),
+            l = i ? (0, a.ZJ)(i) : (0, s.S)((0, a.Af)(r[e]), "bytes");
+          t = (0, s.S)((0, n.xW)([t, l]), "bytes");
+        }
+        return (0, i.My)(t);
+      }
+    },
+    28906: (e, t, r) => {
+      r.d(t, { m: () => o });
+      var n = r(95038),
+        a = r(44811),
+        i = r(66499),
+        s = r(59210);
+      function o(e) {
+        let t = [];
+        if ("string" == typeof e) {
+          let r = (0, s.NV)(e),
+            n = r.length;
+          for (let e = 0; e < n; e++) t.push((0, s.Pj)(r[e], { modifiers: a.Dv }));
+        } else {
+          let r = (0, i.e)(e),
+            n = e.length;
+          for (let i = 0; i < n; i++) {
+            let n = e[i];
+            if ((0, a.WL)(n)) continue;
+            let o = (0, s.NV)(n),
+              l = o.length;
+            for (let e = 0; e < l; e++) t.push((0, s.Pj)(o[e], { modifiers: a.Dv, structs: r }));
+          }
+        }
+        if (0 === t.length) throw new n.A9({ params: e });
+        return t;
+      }
+    },
+    49022: (e, t, r) => {
+      r.d(t, { J: () => i });
+      var n = r(93313),
+        a = r(9029);
+      function i(e) {
+        if (!(e instanceof n.C)) return !1;
+        let t = e.walk((e) => e instanceof a.M);
+        return (
+          t instanceof a.M &&
+          (t.data?.errorName === "HttpError" ||
+            t.data?.errorName === "ResolverError" ||
+            t.data?.errorName === "ResolverNotContract" ||
+            t.data?.errorName === "ResolverNotFound" ||
+            t.data?.errorName === "ReverseAddressMismatch" ||
+            t.data?.errorName === "UnsupportedResolverProfile")
+        );
+      }
+    },
+    71613: (e, t, r) => {
+      r.d(t, { B: () => h });
+      var n = r(39315),
+        a = r(79136),
+        i = r(12573),
+        s = r(32011),
+        o = r(39101),
+        l = r(63588),
+        u = r(49022),
+        d = r(96487),
+        f = r(254),
+        c = r(83666),
+        y = r(15754),
+        p = r(99798);
+      async function h(e, t) {
+        let { blockNumber: r, blockTag: h, coinType: m, name: g, gatewayUrls: w, strict: b } = t,
+          { chain: v } = e,
+          I = (() => {
+            if (t.universalResolverAddress) return t.universalResolverAddress;
+            if (!v)
+              throw Error("client chain not configured. universalResolverAddress is required.");
+            return (0, s.M)({ blockNumber: r, chain: v, contract: "ensUniversalResolver" });
+          })(),
+          M = v?.ensTlds;
+        if (M && !M.some((e) => g.endsWith(e))) return null;
+        let E = null != m ? [(0, f.k)(g), BigInt(m)] : [(0, f.k)(g)];
+        try {
+          let t = (0, i.p)({ abi: n.Rm, functionName: "addr", args: E }),
+            s = {
+              address: I,
+              abi: n.Ag,
+              functionName: "resolveWithGateways",
+              args: [(0, l.nj)((0, c.F)(g)), t, w ?? [d.J]],
+              blockNumber: r,
+              blockTag: h,
+            },
+            u = (0, y.T)(e, p.J, "readContract"),
+            f = await u(s);
+          if ("0x" === f[0]) return null;
+          let m = (0, a.e)({ abi: n.Rm, args: E, functionName: "addr", data: f[0] });
+          if ("0x" === m || "0x00" === (0, o.B)(m)) return null;
+          return m;
+        } catch (e) {
+          if (b) throw e;
+          if ((0, u.J)(e)) return null;
+          throw e;
+        }
+      }
+    },
+    71673: (e, t, r) => {
+      r.d(t, { Q: () => a });
+      var n = r(63588);
+      async function a(e, { address: t, blockNumber: r, blockTag: i = "latest" }) {
+        let s = void 0 !== r ? (0, n.cK)(r) : void 0,
+          o = await e.request({ method: "eth_getCode", params: [t, s || i] }, { dedupe: !!s });
+        if ("0x" !== o) return o;
+      }
+    },
+    71710: (e, t, r) => {
+      r.d(t, { q: () => a });
+      var n = r(63738);
+      function a(e) {
+        if (66 !== e.length || 0 !== e.indexOf("[") || 65 !== e.indexOf("]")) return null;
+        let t = `0x${e.slice(1, 65)}`;
+        return (0, n.q)(t) ? t : null;
+      }
+    },
+    83354: (e, t, r) => {
+      r.d(t, { H4: () => m, v8: () => p, $$: () => h });
+      var n = r(73412),
+        a = r(75074),
+        i = r(60529),
+        s = r(93313);
+      class o extends s.C {
+        constructor({ domain: e }) {
+          super(`Invalid domain "${(0, i.A)(e)}".`, {
+            metaMessages: ["Must be a valid EIP-712 domain."],
+          });
+        }
+      }
+      class l extends s.C {
+        constructor({ primaryType: e, types: t }) {
+          super(
+            `Invalid primary type \`${e}\` must be one of \`${JSON.stringify(Object.keys(t))}\`.`,
+            {
+              docsPath: "/api/glossary/Errors#typeddatainvalidprimarytypeerror",
+              metaMessages: ["Check that the primary type is a key in `types`."],
+            },
+          );
+        }
+      }
+      class u extends s.C {
+        constructor({ type: e }) {
+          super(`Struct type "${e}" is invalid.`, {
+            metaMessages: ["Struct type must not be a Solidity type."],
+            name: "InvalidStructTypeError",
+          });
+        }
+      }
+      var d = r(87355),
+        f = r(70840),
+        c = r(63588),
+        y = r(18911);
+      function p(e) {
+        let { domain: t, message: r, primaryType: n, types: a } = e,
+          s = (e, t) => {
+            let r = { ...t };
+            for (let t of e) {
+              let { name: e, type: n } = t;
+              "address" === n && (r[e] = r[e].toLowerCase());
+            }
+            return r;
+          },
+          o = a.EIP712Domain && t ? s(a.EIP712Domain, t) : {},
+          l = (() => {
+            if ("EIP712Domain" !== n) return s(a[n], r);
+          })();
+        return (0, i.A)({ domain: o, message: l, primaryType: n, types: a });
+      }
+      function h(e) {
+        let { domain: t, message: r, primaryType: i, types: s } = e,
+          p = (e, t) => {
+            for (let r of e) {
+              let { name: e, type: i } = r,
+                o = t[e],
+                l = i.match(y.Ge);
+              if (l && ("number" == typeof o || "bigint" == typeof o)) {
+                let [e, t, r] = l;
+                (0, c.cK)(o, { signed: "int" === t, size: Number.parseInt(r, 10) / 8 });
+              }
+              if ("address" === i && "string" == typeof o && !(0, d.P)(o))
+                throw new a.M({ address: o });
+              let h = i.match(y.BD);
+              if (h) {
+                let [e, t] = h;
+                if (t && (0, f.E)(o) !== Number.parseInt(t, 10))
+                  throw new n.BI({ expectedSize: Number.parseInt(t, 10), givenSize: (0, f.E)(o) });
+              }
+              let m = s[i];
+              m &&
+                ((function (e) {
+                  if (
+                    "address" === e ||
+                    "bool" === e ||
+                    "string" === e ||
+                    e.startsWith("bytes") ||
+                    e.startsWith("uint") ||
+                    e.startsWith("int")
+                  )
+                    throw new u({ type: e });
+                })(i),
+                p(m, o));
+            }
+          };
+        if (s.EIP712Domain && t) {
+          if ("object" != typeof t) throw new o({ domain: t });
+          p(s.EIP712Domain, t);
+        }
+        if ("EIP712Domain" !== i)
+          if (s[i]) p(s[i], r);
+          else throw new l({ primaryType: i, types: s });
+      }
+      function m({ domain: e }) {
+        return [
+          "string" == typeof e?.name && { name: "name", type: "string" },
+          e?.version && { name: "version", type: "string" },
+          ("number" == typeof e?.chainId || "bigint" == typeof e?.chainId) && {
+            name: "chainId",
+            type: "uint256",
+          },
+          e?.verifyingContract && { name: "verifyingContract", type: "address" },
+          e?.salt && { name: "salt", type: "bytes32" },
+        ].filter(Boolean);
+      }
+    },
+    83666: (e, t, r) => {
+      r.d(t, { F: () => o });
+      var n = r(44290),
+        a = r(63588),
+        i = r(78292),
+        s = r(71710);
+      function o(e) {
+        let t = e.replace(/^\.|\.$/gm, "");
+        if (0 === t.length) return new Uint8Array(1);
+        let r = new Uint8Array((0, n.Af)(t).byteLength + 2),
+          o = 0,
+          l = t.split(".");
+        for (let e = 0; e < l.length; e++) {
+          var u;
+          let t = (0, n.Af)(l[e]);
+          (t.byteLength > 255 &&
+            (t = (0, n.Af)(
+              ((u = (function (e) {
+                let t = new Uint8Array(32).fill(0);
+                return e ? (0, s.q)(e) || (0, i.S)((0, n.Af)(e)) : (0, a.My)(t);
+              })(l[e])),
+              `[${u.slice(2)}]`),
+            )),
+            (r[o] = t.length),
+            r.set(t, o + 1),
+            (o += t.length + 1));
+        }
+        return r.byteLength !== o + 1 ? r.slice(0, o + 1) : r;
+      }
+    },
+    86133: (e, t, r) => {
+      r.d(t, { J: () => l });
+      var n = r(73412),
+        a = r(65029),
+        i = r(66621),
+        s = r(97843),
+        o = r(83765);
+      function l(e) {
+        let { abi: t, data: r } = e,
+          l = (0, a.di)(r, 0, 4),
+          u = t.find((e) => "function" === e.type && l === (0, i.V)((0, o.B)(e)));
+        if (!u) throw new n.EB(l, { docsPath: "/docs/contract/decodeFunctionData" });
+        return {
+          functionName: u.name,
+          args:
+            "inputs" in u && u.inputs && u.inputs.length > 0
+              ? (0, s.n)(u.inputs, (0, a.di)(r, 4))
+              : void 0,
+        };
+      }
+    },
+    96487: (e, t, r) => {
+      r.d(t, { X: () => m, J: () => h });
+      var n = r(39315),
+        a = r(47625),
+        i = r(86133),
+        s = r(73412),
+        o = r(4677),
+        l = r(66621),
+        u = r(31865),
+        d = r(83765),
+        f = r(2818);
+      let c = "/docs/contract/encodeErrorResult";
+      function y(e) {
+        let { abi: t, errorName: r, args: n } = e,
+          a = t[0];
+        if (r) {
+          let e = (0, f.iY)({ abi: t, args: n, name: r });
+          if (!e) throw new s.yy(r, { docsPath: c });
+          a = e;
+        }
+        if ("error" !== a.type) throw new s.yy(void 0, { docsPath: c });
+        let i = (0, d.B)(a),
+          y = (0, l.V)(i),
+          p = "0x";
+        if (n && n.length > 0) {
+          if (!a.inputs) throw new s.ZP(a.name, { docsPath: c });
+          p = (0, u.h)(a.inputs, n);
+        }
+        return (0, o.aP)([y, p]);
+      }
+      let p = "/docs/contract/encodeFunctionResult",
+        h = "x-batch-gateway:true";
+      async function m(e) {
+        let { data: t, ccipRequest: r } = e,
+          {
+            args: [o],
+          } = (0, i.J)({ abi: n.b2, data: t }),
+          l = [],
+          d = [];
+        return (
+          await Promise.all(
+            o.map(async (e, t) => {
+              try {
+                ((d[t] = e.urls.includes(h)
+                  ? await m({ data: e.data, ccipRequest: r })
+                  : await r(e)),
+                  (l[t] = !1));
+              } catch (e) {
+                var i;
+                ((l[t] = !0),
+                  (d[t] =
+                    "HttpRequestError" === (i = e).name && i.status
+                      ? y({ abi: n.b2, errorName: "HttpError", args: [i.status, i.shortMessage] })
+                      : y({
+                          abi: [a.Mc],
+                          errorName: "Error",
+                          args: ["shortMessage" in i ? i.shortMessage : i.message],
+                        })));
+              }
+            }),
+          ),
+          (function (e) {
+            let { abi: t, functionName: r, result: n } = e,
+              a = t[0];
+            if (r) {
+              let e = (0, f.iY)({ abi: t, name: r });
+              if (!e) throw new s.Iz(r, { docsPath: p });
+              a = e;
+            }
+            if ("function" !== a.type) throw new s.Iz(void 0, { docsPath: p });
+            if (!a.outputs) throw new s.MR(a.name, { docsPath: p });
+            let i = (() => {
+              if (0 === a.outputs.length) return [];
+              if (1 === a.outputs.length) return [n];
+              if (Array.isArray(n)) return n;
+              throw new s.dm(n);
+            })();
+            return (0, u.h)(a.outputs, i);
+          })({ abi: n.b2, functionName: "query", result: [l, d] })
+        );
+      }
+    },
+  },
+]);

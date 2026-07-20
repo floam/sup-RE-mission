@@ -1,0 +1,795 @@
+try {
+  let e =
+      "u" > typeof window
+        ? window
+        : "u" > typeof global
+          ? global
+          : "u" > typeof globalThis
+            ? globalThis
+            : "u" > typeof self
+              ? self
+              : {},
+    t = new e.Error().stack;
+  t &&
+    ((e._sentryDebugIds = e._sentryDebugIds || {}),
+    (e._sentryDebugIds[t] = "f01446e6-fdd7-48b1-bde0-4d0808f727fc"),
+    (e._sentryDebugIdIdentifier = "sentry-dbid-f01446e6-fdd7-48b1-bde0-4d0808f727fc"));
+} catch (e) {}
+{
+  let e =
+    "u" > typeof window
+      ? window
+      : "u" > typeof global
+        ? global
+        : "u" > typeof globalThis
+          ? globalThis
+          : "u" > typeof self
+            ? self
+            : {};
+  ((e._sentryModuleMetadata = e._sentryModuleMetadata || {}),
+    (e._sentryModuleMetadata[new e.Error().stack] = Object.assign(
+      {},
+      e._sentryModuleMetadata[new e.Error().stack],
+      { "_sentryBundlerPluginAppKey:claim-app": !0 },
+    )));
+}
+(self.webpackChunk_N_E = self.webpackChunk_N_E || []).push([
+  [6031],
+  {
+    369: (e, t, n) => {
+      "use strict";
+      n.d(t, { YourDelegate: () => o });
+      var s = n(58906),
+        a = n(13938),
+        r = n(54723),
+        i = n(20099),
+        l = n(27734);
+      function o() {
+        let e,
+          t,
+          n = (0, a.c)(5),
+          { accountAddress: o } = (0, r.s)();
+        n[0] !== o ? ((e = { accountAddress: o }), (n[0] = o), (n[1] = e)) : (e = n[1]);
+        let { delegateAddress: d, delegate: c } = (0, l.x)(e),
+          u = (0, i.A)(d);
+        return (
+          n[2] !== c || n[3] !== u
+            ? ((t = c?.name
+                ? c.name
+                : u
+                  ? u.addressTruncated
+                  : (0, s.jsx)("span", { className: "invisible", children: "N/A" })),
+              (n[2] = c),
+              (n[3] = u),
+              (n[4] = t))
+            : (t = n[4]),
+          t
+        );
+      }
+    },
+    7138: (e, t, n) => {
+      "use strict";
+      n.d(t, { useChains: () => o });
+      var s = n(51193);
+      let a = [];
+      function r(e) {
+        let t = e.chains;
+        return (0, s.b)(a, t) ? a : ((a = t), t);
+      }
+      var i = n(39186),
+        l = n(19504);
+      function o(e = {}) {
+        let t = (0, l.useConfig)(e);
+        return (0, i.useSyncExternalStore)(
+          (e) =>
+            (function (e, t) {
+              let { onChange: n } = t;
+              return e._internal.chains.subscribe((e, t) => {
+                n(e, t);
+              });
+            })(t, { onChange: e }),
+          () => r(t),
+          () => r(t),
+        );
+      }
+    },
+    17326: (e, t, n) => {
+      "use strict";
+      n.d(t, { B: () => r, a: () => i });
+      var s = n(84743),
+        a = n(8044);
+      function r(e, t = {}) {
+        return {
+          async queryFn({ queryKey: t }) {
+            let { address: n, scopeKey: a, ...r } = t[1];
+            if (!n) throw Error("address is required");
+            return (await (0, s.r)(e, { ...r, address: n })) ?? null;
+          },
+          queryKey: i(t),
+        };
+      }
+      function i(e = {}) {
+        return ["balance", (0, a.xO)(e)];
+      }
+    },
+    21024: (e, t, n) => {
+      "use strict";
+      n.d(t, { useSwitchChain: () => l });
+      var s = n(15708),
+        a = n(10292),
+        r = n(7138),
+        i = n(19504);
+      function l(e = {}) {
+        let { mutation: t } = e,
+          n = (0, i.useConfig)(e),
+          o = { mutationFn: (e) => (0, a.S)(n, e), mutationKey: ["switchChain"] },
+          { mutate: d, mutateAsync: c, ...u } = (0, s.useMutation)({ ...t, ...o });
+        return {
+          ...u,
+          chains: (0, r.useChains)({ config: n }),
+          switchChain: d,
+          switchChainAsync: c,
+        };
+      }
+    },
+    50414: (e, t, n) => {
+      "use strict";
+      n.d(t, { useReadContracts: () => d });
+      var s = n(40400),
+        a = n(8044),
+        r = n(39186),
+        i = n(3133),
+        l = n(52362),
+        o = n(19504);
+      function d(e = {}) {
+        let { contracts: t = [], query: n = {} } = e,
+          c = (0, o.useConfig)(e),
+          u = (0, l.useChainId)({ config: c }),
+          h = (0, r.useMemo)(() => {
+            if (0 === t.length) return;
+            let e = t[0].chainId;
+            if (t.every((t) => t.chainId === e)) return e;
+          }, [t]),
+          m = (function (e, t = {}) {
+            return {
+              async queryFn({ queryKey: n }) {
+                let a = [],
+                  r = n[1].contracts.length;
+                for (let e = 0; e < r; e++) {
+                  let s = n[1].contracts[e],
+                    r = (t.contracts?.[e]).abi;
+                  a.push({ ...s, abi: r });
+                }
+                let { scopeKey: i, ...l } = n[1];
+                return (0, s.I)(e, { ...l, contracts: a });
+              },
+              queryKey: (function (e = {}) {
+                let t = [];
+                for (let n of e.contracts ?? []) {
+                  let { abi: s, ...a } = n;
+                  t.push({ ...a, chainId: a.chainId ?? e.chainId });
+                }
+                return ["readContracts", (0, a.xO)({ ...e, contracts: t })];
+              })(t),
+            };
+          })(c, { ...e, chainId: h ?? u }),
+          f = (0, r.useMemo)(() => {
+            let e = !1;
+            for (let n of t) {
+              let { abi: t, address: s, functionName: a } = n;
+              if (!t || !s || !a) {
+                e = !1;
+                break;
+              }
+              e = !0;
+            }
+            return !!(e && (n.enabled ?? !0));
+          }, [t, n.enabled]);
+        return (0, i.IT)({
+          ...m,
+          ...n,
+          enabled: f,
+          structuralSharing: n.structuralSharing ?? a.I_,
+        });
+      }
+    },
+    52598: (e, t, n) => {
+      "use strict";
+      n.d(t, { useConnectors: () => o });
+      var s = n(7502);
+      let a = [];
+      function r(e) {
+        let t = e.connectors;
+        return a.length === t.length && a.every((e, n) => e === t[n]) ? a : ((a = t), t);
+      }
+      var i = n(39186),
+        l = n(19504);
+      function o(e = {}) {
+        let t = (0, l.useConfig)(e);
+        return (0, i.useSyncExternalStore)(
+          (e) => (0, s.O)(t, { onChange: e }),
+          () => r(t),
+          () => r(t),
+        );
+      }
+    },
+    55078: (e, t, n) => {
+      "use strict";
+      n.d(t, { TotalMembers: () => d });
+      var s = n(58906),
+        a = n(13938),
+        r = n(80751),
+        i = n(64436);
+      let { airdropChain: l } = n(27765).x;
+      async function o() {
+        let e = i.Vn[l.id],
+          t = await fetch(`${e}/v1/dao_members_count`, { next: { revalidate: 900 } }),
+          n = await t.json(),
+          s = n.daoMembersCount;
+        if (void 0 === s) throw Error("Response doesn't contain daoMembersCount", { cause: n });
+        return s;
+      }
+      function d() {
+        let e,
+          t,
+          n = (0, a.c)(4);
+        n[0] === Symbol.for("react.memo_cache_sentinel")
+          ? ((e = { queryKey: ["holderCount"], queryFn: o }), (n[0] = e))
+          : (e = n[0]);
+        let { data: i, isSuccess: l } = (0, r.useQuery)(e);
+        return (
+          n[1] !== i || n[2] !== l
+            ? ((t = l
+                ? i
+                : (0, s.jsx)("span", {
+                    className: "invisible",
+                    "data-sentry-component": "TotalMembers",
+                    "data-sentry-source-file": "TotalMembers.tsx",
+                    children: "N/A",
+                  })),
+              (n[1] = i),
+              (n[2] = l),
+              (n[3] = t))
+            : (t = n[3]),
+          t
+        );
+      }
+    },
+    65610: (e, t, n) => {
+      "use strict";
+      n.d(t, { TotalDelegated: () => d });
+      var s = n(58906),
+        a = n(13938),
+        r = n(80751),
+        i = n(5663),
+        l = n(55498);
+      let o = (0, l.createServerReference)(
+        "00cfeebe90442ab515b51fba3ba323324474e768b8",
+        l.callServer,
+        void 0,
+        l.findSourceMapURL,
+        "getTotalDelegatedAmount",
+      );
+      function d() {
+        let e,
+          t,
+          n = (0, a.c)(4);
+        n[0] === Symbol.for("react.memo_cache_sentinel")
+          ? ((e = { queryKey: ["delegatedAmount"], queryFn: o }), (n[0] = e))
+          : (e = n[0]);
+        let { data: l, isSuccess: d } = (0, r.useQuery)(e);
+        return (
+          n[1] !== l || n[2] !== d
+            ? ((t = d
+                ? (0, i.Vw)(BigInt(1e18 * l))
+                : (0, s.jsx)("span", {
+                    className: "invisible",
+                    "data-sentry-component": "TotalDelegated",
+                    "data-sentry-source-file": "TotalDelegated.tsx",
+                    children: "N/A",
+                  })),
+              (n[1] = l),
+              (n[2] = d),
+              (n[3] = t))
+            : (t = n[3]),
+          t
+        );
+      }
+    },
+    69779: (e, t, n) => {
+      "use strict";
+      n.d(t, { useWaitForTransactionReceipt: () => o });
+      var s = n(86669),
+        a = n(8044),
+        r = n(3133),
+        i = n(52362),
+        l = n(19504);
+      function o(e = {}) {
+        let { hash: t, query: n = {} } = e,
+          d = (0, l.useConfig)(e),
+          c = (0, i.useChainId)({ config: d }),
+          u = (function (e, t = {}) {
+            return {
+              async queryFn({ queryKey: n }) {
+                let { hash: a, ...r } = n[1];
+                if (!a) throw Error("hash is required");
+                return (0, s.n)(e, { ...r, onReplaced: t.onReplaced, hash: a });
+              },
+              queryKey: (function (e = {}) {
+                let { onReplaced: t, ...n } = e;
+                return ["waitForTransactionReceipt", (0, a.xO)(n)];
+              })(t),
+            };
+          })(d, { ...e, chainId: e.chainId ?? c }),
+          h = !!(t && (n.enabled ?? !0));
+        return (0, r.IT)({ ...n, ...u, enabled: h });
+      }
+    },
+    73873: (e, t, n) => {
+      "use strict";
+      n.d(t, { ConnectedHideGuard: () => c });
+      var s = n(58906),
+        a = n(13938),
+        r = n(54723),
+        i = n(5663),
+        l = n(39186);
+      function o({ children: e, ...t }) {
+        return l.isValidElement(e)
+          ? l.cloneElement(e, {
+              ...t,
+              ...e.props,
+              style: { ...t.style, ...e.props?.style },
+              className: (0, i.cn)(t.className, e.props?.className),
+            })
+          : (l.Children.count(e) > 1 && l.Children.only(null), null);
+      }
+      var d = n(67455);
+      function c(e) {
+        let t,
+          n = (0, a.c)(3),
+          { children: i } = e,
+          { accountAddress: l } = (0, r.s)();
+        return (
+          n[0] !== l || n[1] !== i
+            ? ((t = l
+                ? (0, s.jsx)(d.ComponentResetWhenAccountChanges, {
+                    "data-sentry-element": "ComponentResetWhenAccountChanges",
+                    "data-sentry-component": "ConnectedHideGuard",
+                    "data-sentry-source-file": "ConnectedHideGuard.tsx",
+                    children: i,
+                  })
+                : (0, s.jsx)(o, {
+                    className: "invisible",
+                    "data-sentry-element": "AsChild",
+                    "data-sentry-component": "ConnectedHideGuard",
+                    "data-sentry-source-file": "ConnectedHideGuard.tsx",
+                    children: i,
+                  })),
+              (n[0] = l),
+              (n[1] = i),
+              (n[2] = t))
+            : (t = n[2]),
+          t
+        );
+      }
+    },
+    82872: (e, t, n) => {
+      "use strict";
+      n.d(t, { EditDelegateButton: () => w });
+      var s = n(58906),
+        a = n(13938),
+        r = n(30557),
+        i = n(82189),
+        l = n(35283),
+        o = n(75674),
+        d = n(99943),
+        c = n(64436),
+        u = n(57650),
+        h = n(54723),
+        m = n(20099),
+        f = n(27734),
+        y = n(18351),
+        g = n(5663),
+        x = n(39186),
+        p = n(47736),
+        b = n.n(p),
+        v = n(85997),
+        C = n(18466);
+      function w() {
+        let e,
+          t,
+          n,
+          r,
+          i,
+          l = (0, a.c)(7),
+          { accountAddress: c } = (0, h.s)();
+        return c
+          ? (l[0] === Symbol.for("react.memo_cache_sentinel")
+              ? ((e = (0, s.jsx)(d.Lr, {
+                  asChild: !0,
+                  "data-sentry-element": "ResponsiveDialogTrigger",
+                  "data-sentry-source-file": "EditDelegateButton.tsx",
+                  children: (0, s.jsx)(o.$, {
+                    "data-testid": "edit-delegate-button",
+                    size: "icon",
+                    variant: "ghost",
+                    className: "text-purple hover:bg-initial hover:text-purple",
+                    "data-sentry-element": "Button",
+                    "data-sentry-source-file": "EditDelegateButton.tsx",
+                    children: (0, s.jsx)("svg", {
+                      width: "30",
+                      height: "30",
+                      viewBox: "0 0 30 30",
+                      fill: "none",
+                      xmlns: "http://www.w3.org/2000/svg",
+                      "data-sentry-element": "svg",
+                      "data-sentry-source-file": "EditDelegateButton.tsx",
+                      children: (0, s.jsx)("path", {
+                        d: "M7.16772 20.0041V22.6637C7.16772 22.9086 7.36019 23.1011 7.60515 23.1011H10.2647C10.3784 23.1011 10.4922 23.0573 10.5709 22.9699L20.1243 13.4252L16.8436 10.1445L7.29895 19.6892C7.21147 19.7766 7.16772 19.8816 7.16772 20.0041ZM22.6614 10.8882C23.0025 10.547 23.0025 9.9958 22.6614 9.65461L20.6142 7.60746C20.273 7.26626 19.7219 7.26626 19.3807 7.60746L17.7797 9.20844L21.0604 12.4891L22.6614 10.8882Z",
+                        fill: "#8330FD",
+                        "data-sentry-element": "path",
+                        "data-sentry-source-file": "EditDelegateButton.tsx",
+                      }),
+                    }),
+                  }),
+                })),
+                (l[0] = e))
+              : (e = l[0]),
+            l[1] === Symbol.for("react.memo_cache_sentinel")
+              ? ((t = (0, s.jsxs)(d.Y8, {
+                  className: "hidden",
+                  "data-sentry-element": "ResponsiveDialogHeader",
+                  "data-sentry-source-file": "EditDelegateButton.tsx",
+                  children: [
+                    (0, s.jsx)(d.N5, {
+                      "data-sentry-element": "ResponsiveDialogTitle",
+                      "data-sentry-source-file": "EditDelegateButton.tsx",
+                      children: "Edit delegate",
+                    }),
+                    (0, s.jsx)(d.Hq, {
+                      "data-sentry-element": "ResponsiveDialogDescription",
+                      "data-sentry-source-file": "EditDelegateButton.tsx",
+                      children: "Edit your SUP delegation",
+                    }),
+                  ],
+                })),
+                (l[1] = t))
+              : (t = l[1]),
+            l[2] !== c
+              ? ((n = (0, s.jsx)(j, {
+                  accountAddress: c,
+                  "data-sentry-element": "YourCurrentDelegate",
+                  "data-sentry-source-file": "EditDelegateButton.tsx",
+                })),
+                (l[2] = c),
+                (l[3] = n))
+              : (n = l[3]),
+            l[4] === Symbol.for("react.memo_cache_sentinel")
+              ? ((r = (0, s.jsx)(v.Ux, {
+                  stepper: null,
+                  className: "flex-1 max-md:h-70vh",
+                  "data-sentry-element": "DelegateStep",
+                  "data-sentry-source-file": "EditDelegateButton.tsx",
+                })),
+                (l[4] = r))
+              : (r = l[4]),
+            l[5] !== n
+              ? ((i = (0, s.jsxs)(d.RF, {
+                  "data-sentry-element": "ResponsiveDialog",
+                  "data-sentry-component": "EditDelegateButton",
+                  "data-sentry-source-file": "EditDelegateButton.tsx",
+                  children: [
+                    e,
+                    (0, s.jsxs)(d.sL, {
+                      "data-testid": "edit-delegate-dialog",
+                      className: "max-w-screen-md bg-platinum md:h-[800px]",
+                      "data-sentry-element": "ResponsiveDialogContent",
+                      "data-sentry-source-file": "EditDelegateButton.tsx",
+                      children: [
+                        t,
+                        (0, s.jsxs)("div", {
+                          className: "flex gap-4 max-md:flex-col",
+                          children: [n, r],
+                        }),
+                      ],
+                    }),
+                  ],
+                })),
+                (l[5] = n),
+                (l[6] = i))
+              : (i = l[6]),
+            i)
+          : null;
+      }
+      function j(e) {
+        let t,
+          n,
+          o,
+          d,
+          h,
+          v,
+          w,
+          j,
+          D,
+          E,
+          N,
+          _,
+          I,
+          B,
+          T,
+          M,
+          R,
+          S = (0, a.c)(46),
+          { accountAddress: q } = e,
+          { governanceChain: A } = (0, u.A)();
+        S[0] !== q ? ((t = { accountAddress: q }), (S[0] = q), (S[1] = t)) : (t = S[1]);
+        let { delegateAddress: F, delegate: P, hasExternalDelegate: k } = (0, f.x)(t),
+          K = (0, m.A)(F);
+        S[2] !== P ? ((n = { delegate: P }), (S[2] = P), (S[3] = n)) : (n = S[3]);
+        let { delegatedAmount: L, isDelegatedAmountLoaded: O } = (0, C.R)(n);
+        S[4] !== q ? ((o = { accountAddress: q }), (S[4] = q), (S[5] = o)) : (o = S[5]);
+        let { clearDelegate: V, status: H, writeClearDelegate: Y } = (0, y.c)(o);
+        if (
+          (S[6] !== H?.isFinished || S[7] !== P || S[8] !== Y
+            ? ((d = () => {
+                P && H?.isFinished && Y.reset();
+              }),
+              (S[6] = H?.isFinished),
+              (S[7] = P),
+              (S[8] = Y),
+              (S[9] = d))
+            : (d = S[9]),
+          S[10] !== H || S[11] !== P || S[12] !== Y
+            ? ((h = [P, H, Y]), (S[10] = H), (S[11] = P), (S[12] = Y), (S[13] = h))
+            : (h = S[13]),
+          (0, x.useEffect)(d, h),
+          !P)
+        )
+          return null;
+        (S[14] === Symbol.for("react.memo_cache_sentinel")
+          ? ((v = (0, s.jsx)("div", {
+              className: "rounded-tl-lg rounded-tr-lg bg-violet-light px-5 py-4 pb-6",
+              children: "Your current delegate",
+            })),
+            (S[14] = v))
+          : (v = S[14]),
+          S[15] !== K
+            ? ((w =
+                K &&
+                (0, s.jsx)(i.eu, {
+                  className: "h-6 w-6 shadow-md",
+                  children: (0, s.jsx)(i.q5, {
+                    children: (0, s.jsx)(b(), {
+                      diameter: 32,
+                      seed: (0, p.jsNumberForAddress)(K?.addressChecksummed),
+                    }),
+                  }),
+                })),
+              (S[15] = K),
+              (S[16] = w))
+            : (w = S[16]),
+          S[17] !== P.name
+            ? ((j = (0, s.jsx)("div", {
+                className: "flex justify-between text-subtitle3",
+                children: (0, s.jsx)("span", {
+                  "data-testid": "your-delegate-name",
+                  children: P.name,
+                }),
+              })),
+              (S[17] = P.name),
+              (S[18] = j))
+            : (j = S[18]));
+        let G = K?.addressTruncated;
+        S[19] !== G
+          ? ((D = (0, s.jsx)("div", {
+              "data-testid": "your-delegate-address",
+              className: "pt-1 pb-2 text-caption4",
+              children: G,
+            })),
+            (S[19] = G),
+            (S[20] = D))
+          : (D = S[20]);
+        let U = !O;
+        return (
+          S[21] !== U ? ((E = (0, g.cn)({ hidden: U })), (S[21] = U), (S[22] = E)) : (E = S[22]),
+          S[23] !== L ? ((N = (0, g.Vw)(L)), (S[23] = L), (S[24] = N)) : (N = S[24]),
+          S[25] !== E || S[26] !== N
+            ? ((_ = (0, s.jsxs)(l.E, {
+                className: E,
+                "data-testid": "your-delegates-delegated-amount",
+                variant: "dark",
+                size: "sm",
+                "data-sentry-element": "Badge",
+                "data-sentry-source-file": "EditDelegateButton.tsx",
+                children: [N, " ", c.gO, " delegated"],
+              })),
+              (S[25] = E),
+              (S[26] = N),
+              (S[27] = _))
+            : (_ = S[27]),
+          S[28] !== P.description
+            ? ((I = (0, s.jsx)("div", {
+                "data-testid": "your-delegate-description",
+                className: "pt-4 text-caption2",
+                children: P.description,
+              })),
+              (S[28] = P.description),
+              (S[29] = I))
+            : (I = S[29]),
+          S[30] !== _ || S[31] !== I || S[32] !== j || S[33] !== D
+            ? ((B = (0, s.jsxs)("div", { children: [j, D, _, I] })),
+              (S[30] = _),
+              (S[31] = I),
+              (S[32] = j),
+              (S[33] = D),
+              (S[34] = B))
+            : (B = S[34]),
+          S[35] !== B || S[36] !== w
+            ? ((T = (0, s.jsxs)("div", {
+                className: "-mt-2 flex gap-2 rounded-lg bg-violet-dark px-5 py-4 text-white",
+                children: [w, B],
+              })),
+              (S[35] = B),
+              (S[36] = w),
+              (S[37] = T))
+            : (T = S[37]),
+          S[38] !== V || S[39] !== H || S[40] !== A || S[41] !== k
+            ? ((M =
+                k &&
+                (0, s.jsx)(r.v, {
+                  dataTestId: "undelegate-button",
+                  chain: A,
+                  ButtonProps: { className: "mt-3" },
+                  onClick: V,
+                  status: H,
+                  children: "Undelegate",
+                })),
+              (S[38] = V),
+              (S[39] = H),
+              (S[40] = A),
+              (S[41] = k),
+              (S[42] = M))
+            : (M = S[42]),
+          S[43] !== T || S[44] !== M
+            ? ((R = (0, s.jsxs)("div", {
+                className: "flex max-w-64 flex-col max-md:max-w-full",
+                "data-sentry-component": "YourCurrentDelegate",
+                "data-sentry-source-file": "EditDelegateButton.tsx",
+                children: [v, T, M],
+              })),
+              (S[43] = T),
+              (S[44] = M),
+              (S[45] = R))
+            : (R = S[45]),
+          R
+        );
+      }
+    },
+    82973: (e, t, n) => {
+      (Promise.resolve().then(n.bind(n, 82872)),
+        Promise.resolve().then(n.bind(n, 65610)),
+        Promise.resolve().then(n.bind(n, 55078)),
+        Promise.resolve().then(n.bind(n, 369)),
+        Promise.resolve().then(n.bind(n, 84988)),
+        Promise.resolve().then(n.bind(n, 73873)),
+        Promise.resolve().then(n.t.bind(n, 73223, 23)),
+        Promise.resolve().then(n.t.bind(n, 90336, 23)));
+    },
+    83077: (e, t, n) => {
+      "use strict";
+      n.d(t, { useBalance: () => l });
+      var s = n(17326),
+        a = n(3133),
+        r = n(52362),
+        i = n(19504);
+      function l(e = {}) {
+        let { address: t, query: n = {} } = e,
+          o = (0, i.useConfig)(e),
+          d = (0, r.useChainId)({ config: o }),
+          c = (0, s.B)(o, { ...e, chainId: e.chainId ?? d }),
+          u = !!(t && (n.enabled ?? !0));
+        return (0, a.IT)({ ...n, ...c, enabled: u });
+      }
+    },
+    84988: (e, t, n) => {
+      "use strict";
+      n.d(t, { YourVotingPower: () => l });
+      var s = n(58906),
+        a = n(54723),
+        r = n(4679),
+        i = n(5663);
+      function l() {
+        let { lockerAddress: e, isLockerAddressLoading: t, isLockerCreated: n } = (0, a.s)(),
+          { data: l } = (0, r.a)({ lockerAddress: e });
+        return t || n
+          ? n
+            ? (0, i.O9)(l)
+              ? (0, i.Vw)(l.totalBalance ?? 0n)
+              : (0, s.jsx)("span", {
+                  className: "invisible",
+                  "data-sentry-component": "YourVotingPower",
+                  "data-sentry-source-file": "YourVotingPower.tsx",
+                  children: "N/A",
+                })
+            : (0, s.jsx)("span", { className: "invisible", children: "N/A" })
+          : "0";
+      }
+    },
+    88215: (e, t, n) => {
+      "use strict";
+      n.d(t, { useConnect: () => o });
+      var s = n(15708),
+        a = n(55011),
+        r = n(39186),
+        i = n(19504),
+        l = n(52598);
+      function o(e = {}) {
+        let { mutation: t } = e,
+          n = (0, i.useConfig)(e),
+          d = { mutationFn: (e) => (0, a.N)(n, e), mutationKey: ["connect"] },
+          { mutate: c, mutateAsync: u, ...h } = (0, s.useMutation)({ ...t, ...d });
+        return (
+          (0, r.useEffect)(
+            () =>
+              n.subscribe(
+                ({ status: e }) => e,
+                (e, t) => {
+                  "connected" === t && "disconnected" === e && h.reset();
+                },
+              ),
+            [n, h.reset],
+          ),
+          { ...h, connect: c, connectAsync: u, connectors: (0, l.useConnectors)({ config: n }) }
+        );
+      }
+    },
+    88761: (e, t, n) => {
+      "use strict";
+      n.d(t, { useEstimateGas: () => d });
+      var s = n(68718),
+        a = n(8044),
+        r = n(3133),
+        i = n(52362),
+        l = n(19504),
+        o = n(41700);
+      function d(e = {}) {
+        let { connector: t, query: n = {} } = e,
+          c = (0, l.useConfig)(e),
+          { data: u } = (0, o.useConnectorClient)({
+            config: c,
+            connector: t,
+            query: { enabled: void 0 === e.account },
+          }),
+          h = e.account ?? u?.account,
+          m = (0, i.useChainId)({ config: c }),
+          f = (function (e, t = {}) {
+            return {
+              async queryFn({ queryKey: n }) {
+                let { connector: a } = t,
+                  { account: r, scopeKey: i, ...l } = n[1];
+                if (!r && !a) throw Error("account or connector is required");
+                return (0, s.Q)(e, { account: r, connector: a, ...l });
+              },
+              queryKey: (function (e = {}) {
+                let { connector: t, ...n } = e;
+                return ["estimateGas", (0, a.xO)(n)];
+              })(t),
+            };
+          })(c, { ...e, account: h, chainId: e.chainId ?? m, connector: t }),
+          y = !!((h || t) && (n.enabled ?? !0));
+        return (0, r.IT)({ ...n, ...f, enabled: y });
+      }
+    },
+  },
+  (e) => {
+    (e.O(
+      0,
+      [
+        3230, 3103, 4725, 833, 2825, 41, 1734, 7638, 3718, 2186, 9189, 880, 6465, 1573, 4107, 8010,
+        1841, 3906, 3353, 327, 657, 1938, 9443, 1656, 3656, 7358,
+      ],
+      () => e((e.s = 82973)),
+    ),
+      (_N_E = e.O()));
+  },
+]);
