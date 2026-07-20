@@ -1,0 +1,3599 @@
+try {
+  let e =
+      "u" > typeof window
+        ? window
+        : "u" > typeof global
+          ? global
+          : "u" > typeof globalThis
+            ? globalThis
+            : "u" > typeof self
+              ? self
+              : {},
+    t = new e.Error().stack;
+  t &&
+    ((e._sentryDebugIds = e._sentryDebugIds || {}),
+    (e._sentryDebugIds[t] = "05da7f69-d3a9-428e-8275-0a22b470e980"),
+    (e._sentryDebugIdIdentifier = "sentry-dbid-05da7f69-d3a9-428e-8275-0a22b470e980"));
+} catch (e) {}
+{
+  let e =
+    "u" > typeof window
+      ? window
+      : "u" > typeof global
+        ? global
+        : "u" > typeof globalThis
+          ? globalThis
+          : "u" > typeof self
+            ? self
+            : {};
+  ((e._sentryModuleMetadata = e._sentryModuleMetadata || {}),
+    (e._sentryModuleMetadata[new e.Error().stack] = Object.assign(
+      {},
+      e._sentryModuleMetadata[new e.Error().stack],
+      { "_sentryBundlerPluginAppKey:claim-app": !0 },
+    )));
+}
+(self.webpackChunk_N_E = self.webpackChunk_N_E || []).push([
+  [9561],
+  {
+    17322: (e, t, a) => {
+      "use strict";
+      a.d(t, { Xi: () => d, av: () => c, j7: () => o, tU: () => l });
+      var s = a(58906),
+        r = a(39186),
+        n = a(8238),
+        i = a(5663);
+      let l = n.bL,
+        o = r.forwardRef(({ className: e, ...t }, a) =>
+          (0, s.jsx)(n.B8, {
+            ref: a,
+            className: (0, i.cn)(
+              "inline-flex items-center justify-center rounded-lg bg-platinum p-1.5 text-muted-foreground",
+              e,
+            ),
+            ...t,
+          }),
+        );
+      o.displayName = n.B8.displayName;
+      let d = r.forwardRef(({ className: e, ...t }, a) =>
+        (0, s.jsx)(n.l9, {
+          ref: a,
+          className: (0, i.cn)(
+            "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-2 font-normal text-base ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:font-normal disabled:text-alto data-[state=active]:bg-green-sf data-[state=active]:font-medium data-[state=active]:text-foreground",
+            e,
+          ),
+          ...t,
+        }),
+      );
+      d.displayName = n.l9.displayName;
+      let c = r.forwardRef(({ className: e, ...t }, a) =>
+        (0, s.jsx)(n.UC, {
+          ref: a,
+          className: (0, i.cn)(
+            "mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            e,
+          ),
+          ...t,
+        }),
+      );
+      c.displayName = n.UC.displayName;
+    },
+    26567: (e, t, a) => {
+      "use strict";
+      a.d(t, { Et: () => d, d0: () => o, jc: () => l });
+      var s = a(58906),
+        r = a(39186),
+        n = a(45047),
+        i = a(5663);
+      let l = n.bL,
+        o = n.l9,
+        d = r.forwardRef(({ className: e, align: t = "center", sideOffset: a = 4, ...r }, l) =>
+          (0, s.jsx)(n.UC, {
+            ref: l,
+            align: t,
+            sideOffset: a,
+            className: (0, i.cn)(
+              "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-64 origin-[--radix-hover-card-content-transform-origin] rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none data-[state=closed]:animate-out data-[state=open]:animate-in",
+              e,
+            ),
+            ...r,
+          }),
+        );
+      d.displayName = n.UC.displayName;
+    },
+    29205: (e, t, a) => {
+      "use strict";
+      a.d(t, { t: () => m });
+      var s = a(13938),
+        r = a(80751);
+      let n = "https://li.quest/v1";
+      function i(e, t) {
+        let a,
+          i,
+          o,
+          d,
+          c,
+          m,
+          u = (0, s.c)(14);
+        u[0] === Symbol.for("react.memo_cache_sentinel")
+          ? ((a = { queryKey: ["lifi-supported-chains"], queryFn: l, staleTime: 36e5 }), (u[0] = a))
+          : (a = u[0]);
+        let { data: x } = (0, r.useQuery)(a);
+        u[1] !== e || u[2] !== x
+          ? ((i = x?.includes(e) ?? !1), (u[1] = e), (u[2] = x), (u[3] = i))
+          : (i = u[3]);
+        let p = i;
+        u[4] !== e || u[5] !== t
+          ? ((o = ["lifi-token-price", e, t]),
+            (d = async () => {
+              if (!t) return 0;
+              let a = await fetch(`${n}/token?chain=${e}&token=${t}`);
+              return Number((await a.json()).priceUSD);
+            }),
+            (u[4] = e),
+            (u[5] = t),
+            (u[6] = o),
+            (u[7] = d))
+          : ((o = u[6]), (d = u[7]));
+        let f = p && !!t;
+        u[8] !== o || u[9] !== d || u[10] !== f
+          ? ((c = { queryKey: o, queryFn: d, enabled: f, staleTime: 3e5 }),
+            (u[8] = o),
+            (u[9] = d),
+            (u[10] = f),
+            (u[11] = c))
+          : (c = u[11]);
+        let { data: h } = (0, r.useQuery)(c),
+          v = h ?? void 0;
+        return (
+          u[12] !== v
+            ? ((m = { priceUSD: v, isLoading: !1 }), (u[12] = v), (u[13] = m))
+            : (m = u[13]),
+          m
+        );
+      }
+      async function l() {
+        let e = await fetch(`${n}/chains`);
+        return ((await e.json()).chains || []).map(o);
+      }
+      function o(e) {
+        return e.id;
+      }
+      var d = a(67574),
+        c = a(88611);
+      function m() {
+        let e,
+          t = (0, s.c)(4),
+          a = c.E.id,
+          { priceUSD: r, isLoading: n } = i(a, "0x4200000000000000000000000000000000000006"),
+          { priceUSD: l, isLoading: o } = i(a, d.Gc[a]),
+          m = n || o;
+        return (
+          t[0] !== r || t[1] !== l || t[2] !== m
+            ? ((e = { ethPriceUSD: r, supPriceUSD: l, isLoading: m }),
+              (t[0] = r),
+              (t[1] = l),
+              (t[2] = m),
+              (t[3] = e))
+            : (e = t[3]),
+          e
+        );
+      }
+    },
+    30797: (e, t, a) => {
+      "use strict";
+      (a.r(t), a.d(t, { default: () => eq }));
+      var s = a(58906),
+        r = a(13938),
+        n = a(39186),
+        i = a(75674),
+        l = a(26567),
+        o = a(54723),
+        d = a(4679),
+        c = a(51191),
+        m = a(38760),
+        u = a(84736),
+        x = a(48161),
+        p = a(64324);
+      function f(e) {
+        let t,
+          a,
+          i,
+          l = (0, r.c)(6),
+          { value: o, children: d, className: c } = e,
+          m = void 0 === c ? "" : c,
+          u = (0, n.useRef)(null),
+          x = (0, n.useRef)(void 0);
+        return (
+          l[0] !== o
+            ? ((t = () => {
+                if (null != o && u.current) {
+                  if (
+                    ("bigint" == typeof o ? o.toString() : o) !==
+                    ("bigint" == typeof x.current ? x.current.toString() : x.current)
+                  ) {
+                    let e = (0, p.i)(
+                      u.current,
+                      { opacity: [1, 0.3] },
+                      { duration: 0.75, ease: "easeInOut", repeat: 5, repeatType: "reverse" },
+                    );
+                    return ((x.current = o), () => e.stop());
+                  }
+                }
+              }),
+              (a = [o]),
+              (l[0] = o),
+              (l[1] = t),
+              (l[2] = a))
+            : ((t = l[1]), (a = l[2])),
+          (0, n.useEffect)(t, a),
+          l[3] !== d || l[4] !== m
+            ? ((i = (0, s.jsx)("div", {
+                ref: u,
+                className: m,
+                "data-sentry-component": "AnimateOnUpdate",
+                "data-sentry-source-file": "AnimateOnUpdate.tsx",
+                children: d,
+              })),
+              (l[3] = d),
+              (l[4] = m),
+              (l[5] = i))
+            : (i = l[5]),
+          i
+        );
+      }
+      var h = a(80751),
+        v = a(82544),
+        y = a(67817),
+        g = a(41852),
+        b = a(84171),
+        j = a(73223),
+        w = a.n(j),
+        N = a(30403),
+        R = a(5663);
+      async function S(e) {
+        return "clipboard" in navigator
+          ? await navigator.clipboard.writeText(e)
+          : document.execCommand("copy", !0, e);
+      }
+      var k = a(63086),
+        D = a(52247),
+        A = a(3862),
+        I = a(28992),
+        F = a(13189),
+        q = a(70191),
+        _ = a(672),
+        P = a(49411),
+        C = a(77022);
+      let T = P.bL,
+        E = P.l9;
+      (P.YJ,
+        P.ZL,
+        P.Pb,
+        P.z6,
+        (n.forwardRef((e, t) => {
+          let a,
+            n,
+            i,
+            l,
+            o,
+            d,
+            c,
+            m = (0, r.c)(14);
+          m[0] !== e
+            ? (({ className: n, inset: i, children: a, ...l } = e),
+              (m[0] = e),
+              (m[1] = a),
+              (m[2] = n),
+              (m[3] = i),
+              (m[4] = l))
+            : ((a = m[1]), (n = m[2]), (i = m[3]), (l = m[4]));
+          let u = i && "pl-8";
+          return (
+            m[5] !== n || m[6] !== u
+              ? ((o = (0, R.cn)(
+                  "flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent data-[state=open]:bg-accent [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+                  u,
+                  n,
+                )),
+                (m[5] = n),
+                (m[6] = u),
+                (m[7] = o))
+              : (o = m[7]),
+            m[8] === Symbol.for("react.memo_cache_sentinel")
+              ? ((d = (0, s.jsx)(C.vKP, { className: "ml-auto" })), (m[8] = d))
+              : (d = m[8]),
+            m[9] !== a || m[10] !== l || m[11] !== t || m[12] !== o
+              ? ((c = (0, s.jsxs)(P.ZP, { ref: t, className: o, ...l, children: [a, d] })),
+                (m[9] = a),
+                (m[10] = l),
+                (m[11] = t),
+                (m[12] = o),
+                (m[13] = c))
+              : (c = m[13]),
+            c
+          );
+        }).displayName = P.ZP.displayName),
+        (n.forwardRef((e, t) => {
+          let a,
+            n,
+            i,
+            l,
+            o = (0, r.c)(9);
+          return (
+            o[0] !== e
+              ? (({ className: a, ...n } = e), (o[0] = e), (o[1] = a), (o[2] = n))
+              : ((a = o[1]), (n = o[2])),
+            o[3] !== a
+              ? ((i = (0, R.cn)(
+                  "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[state=closed]:animate-out data-[state=open]:animate-in",
+                  a,
+                )),
+                (o[3] = a),
+                (o[4] = i))
+              : (i = o[4]),
+            o[5] !== n || o[6] !== t || o[7] !== i
+              ? ((l = (0, s.jsx)(P.G5, { ref: t, className: i, ...n })),
+                (o[5] = n),
+                (o[6] = t),
+                (o[7] = i),
+                (o[8] = l))
+              : (l = o[8]),
+            l
+          );
+        }).displayName = P.G5.displayName));
+      let B = n.forwardRef((e, t) => {
+        let a,
+          n,
+          i,
+          l,
+          o,
+          d = (0, r.c)(11);
+        d[0] !== e
+          ? (({ className: a, sideOffset: i, ...n } = e),
+            (d[0] = e),
+            (d[1] = a),
+            (d[2] = n),
+            (d[3] = i))
+          : ((a = d[1]), (n = d[2]), (i = d[3]));
+        let c = void 0 === i ? 4 : i;
+        return (
+          d[4] !== a
+            ? ((l = (0, R.cn)(
+                "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md",
+                "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=open]:animate-in",
+                a,
+              )),
+              (d[4] = a),
+              (d[5] = l))
+            : (l = d[5]),
+          d[6] !== n || d[7] !== t || d[8] !== c || d[9] !== l
+            ? ((o = (0, s.jsx)(P.ZL, {
+                children: (0, s.jsx)(P.UC, { ref: t, sideOffset: c, className: l, ...n }),
+              })),
+              (d[6] = n),
+              (d[7] = t),
+              (d[8] = c),
+              (d[9] = l),
+              (d[10] = o))
+            : (o = d[10]),
+          o
+        );
+      });
+      B.displayName = P.UC.displayName;
+      let U = n.forwardRef((e, t) => {
+        let a,
+          n,
+          i,
+          l,
+          o,
+          d = (0, r.c)(11);
+        d[0] !== e
+          ? (({ className: a, inset: n, ...i } = e), (d[0] = e), (d[1] = a), (d[2] = n), (d[3] = i))
+          : ((a = d[1]), (n = d[2]), (i = d[3]));
+        let c = n && "pl-8";
+        return (
+          d[4] !== a || d[5] !== c
+            ? ((l = (0, R.cn)(
+                "relative flex cursor-default select-none items-center gap-2 rounded-sm px-4 py-2 text-caption1 outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0",
+                c,
+                a,
+              )),
+              (d[4] = a),
+              (d[5] = c),
+              (d[6] = l))
+            : (l = d[6]),
+          d[7] !== i || d[8] !== t || d[9] !== l
+            ? ((o = (0, s.jsx)(P.q7, { ref: t, className: l, ...i })),
+              (d[7] = i),
+              (d[8] = t),
+              (d[9] = l),
+              (d[10] = o))
+            : (o = d[10]),
+          o
+        );
+      });
+      ((U.displayName = P.q7.displayName),
+        (n.forwardRef((e, t) => {
+          let a,
+            n,
+            i,
+            l,
+            o,
+            d,
+            c,
+            m = (0, r.c)(14);
+          return (
+            m[0] !== e
+              ? (({ className: i, children: n, checked: a, ...l } = e),
+                (m[0] = e),
+                (m[1] = a),
+                (m[2] = n),
+                (m[3] = i),
+                (m[4] = l))
+              : ((a = m[1]), (n = m[2]), (i = m[3]), (l = m[4])),
+            m[5] !== i
+              ? ((o = (0, R.cn)(
+                  "relative flex cursor-default select-none items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+                  i,
+                )),
+                (m[5] = i),
+                (m[6] = o))
+              : (o = m[6]),
+            m[7] === Symbol.for("react.memo_cache_sentinel")
+              ? ((d = (0, s.jsx)("span", {
+                  className: "absolute left-2 flex h-3.5 w-3.5 items-center justify-center",
+                  children: (0, s.jsx)(P.VF, {
+                    children: (0, s.jsx)(C.Srz, { className: "h-4 w-4" }),
+                  }),
+                })),
+                (m[7] = d))
+              : (d = m[7]),
+            m[8] !== a || m[9] !== n || m[10] !== l || m[11] !== t || m[12] !== o
+              ? ((c = (0, s.jsxs)(P.H_, {
+                  ref: t,
+                  className: o,
+                  checked: a,
+                  ...l,
+                  children: [d, n],
+                })),
+                (m[8] = a),
+                (m[9] = n),
+                (m[10] = l),
+                (m[11] = t),
+                (m[12] = o),
+                (m[13] = c))
+              : (c = m[13]),
+            c
+          );
+        }).displayName = P.H_.displayName),
+        (n.forwardRef((e, t) => {
+          let a,
+            n,
+            i,
+            l,
+            o,
+            d,
+            c = (0, r.c)(12);
+          return (
+            c[0] !== e
+              ? (({ className: n, children: a, ...i } = e),
+                (c[0] = e),
+                (c[1] = a),
+                (c[2] = n),
+                (c[3] = i))
+              : ((a = c[1]), (n = c[2]), (i = c[3])),
+            c[4] !== n
+              ? ((l = (0, R.cn)(
+                  "relative flex cursor-default select-none items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+                  n,
+                )),
+                (c[4] = n),
+                (c[5] = l))
+              : (l = c[5]),
+            c[6] === Symbol.for("react.memo_cache_sentinel")
+              ? ((o = (0, s.jsx)("span", {
+                  className: "absolute left-2 flex h-3.5 w-3.5 items-center justify-center",
+                  children: (0, s.jsx)(P.VF, {
+                    children: (0, s.jsx)(C.RiX, { className: "h-2 w-2 fill-current" }),
+                  }),
+                })),
+                (c[6] = o))
+              : (o = c[6]),
+            c[7] !== a || c[8] !== i || c[9] !== t || c[10] !== l
+              ? ((d = (0, s.jsxs)(P.hN, { ref: t, className: l, ...i, children: [o, a] })),
+                (c[7] = a),
+                (c[8] = i),
+                (c[9] = t),
+                (c[10] = l),
+                (c[11] = d))
+              : (d = c[11]),
+            d
+          );
+        }).displayName = P.hN.displayName),
+        (n.forwardRef((e, t) => {
+          let a,
+            n,
+            i,
+            l,
+            o,
+            d = (0, r.c)(11);
+          d[0] !== e
+            ? (({ className: a, inset: n, ...i } = e),
+              (d[0] = e),
+              (d[1] = a),
+              (d[2] = n),
+              (d[3] = i))
+            : ((a = d[1]), (n = d[2]), (i = d[3]));
+          let c = n && "pl-8";
+          return (
+            d[4] !== a || d[5] !== c
+              ? ((l = (0, R.cn)("px-2 py-1.5 font-semibold text-sm", c, a)),
+                (d[4] = a),
+                (d[5] = c),
+                (d[6] = l))
+              : (l = d[6]),
+            d[7] !== i || d[8] !== t || d[9] !== l
+              ? ((o = (0, s.jsx)(P.JU, { ref: t, className: l, ...i })),
+                (d[7] = i),
+                (d[8] = t),
+                (d[9] = l),
+                (d[10] = o))
+              : (o = d[10]),
+            o
+          );
+        }).displayName = P.JU.displayName));
+      let L = n.forwardRef((e, t) => {
+        let a,
+          n,
+          i,
+          l,
+          o = (0, r.c)(9);
+        return (
+          o[0] !== e
+            ? (({ className: a, ...n } = e), (o[0] = e), (o[1] = a), (o[2] = n))
+            : ((a = o[1]), (n = o[2])),
+          o[3] !== a
+            ? ((i = (0, R.cn)("-mx-1 my-1 h-px bg-muted", a)), (o[3] = a), (o[4] = i))
+            : (i = o[4]),
+          o[5] !== n || o[6] !== t || o[7] !== i
+            ? ((l = (0, s.jsx)(P.wv, { ref: t, className: i, ...n })),
+              (o[5] = n),
+              (o[6] = t),
+              (o[7] = i),
+              (o[8] = l))
+            : (l = o[8]),
+          l
+        );
+      });
+      L.displayName = P.wv.displayName;
+      var M = a(99943),
+        z = a(14679),
+        $ = a(90250),
+        O = a(32224),
+        W = a(57650),
+        K = a(51072),
+        Q = a(88039),
+        V = a(30557),
+        G = a(29745),
+        Y = a(67574),
+        H = a(88761),
+        Z = a(69779),
+        X = a(43118),
+        J = a(12573),
+        ee = a(28250),
+        et = a(30335),
+        ea = a(51760),
+        es = a(48707),
+        er = a(327),
+        en = a(84032);
+      function ei(e) {
+        let { accountAddress: t, lockerAddress: a, unlockPeriodDays: s, amount: r } = e,
+          { airdropChain: i } = (0, W.A)(),
+          l = (0, er.S)(),
+          o = (0, d.a)({ lockerAddress: a }),
+          c = o.data?.availableBalance ?? 0n,
+          m = (0, G.MjE)({
+            functionName: "lockerOwner",
+            chainId: i.id,
+            address: a,
+            query: { enabled: !!a },
+          }),
+          u = !!t && !!m.data && t.toLowerCase() === m.data.toLowerCase(),
+          x = (0, n.useMemo)(() => {
+            if (void 0 !== s) return BigInt(Math.floor(86400 * s));
+          }, [s]),
+          p =
+            !!a &&
+            !!t &&
+            void 0 !== x &&
+            void 0 !== s &&
+            (0 === s || s >= en.uV) &&
+            s <= en.Af &&
+            !!r &&
+            r >= en.hy &&
+            r <= c &&
+            u,
+          f = (0, G.M0G)({
+            functionName: "unlock",
+            chainId: i.id,
+            address: a,
+            args: [r, x, t],
+            value: en._9,
+            query: { enabled: p },
+            stateOverride: [{ address: t, balance: (0, X.g)("100") }],
+          }),
+          h = f.data?.request,
+          v = (0, H.useEstimateGas)({
+            chainId: i.id,
+            to: h?.address,
+            data: h ? (0, J.p)(h) : void 0,
+            value: h?.value,
+            query: { select: (e) => (120n * e) / 100n, enabled: !!h && p },
+            stateOverride: [{ address: t, balance: (0, X.g)("100") }],
+          }),
+          y = v.data,
+          g = (0, G.$Aq)(),
+          j = g.data,
+          w = (0, Z.useWaitForTransactionReceipt)({
+            chainId: i.id,
+            hash: j,
+            query: { enabled: !!j },
+          }),
+          N = !!g.isSuccess && !!w.isSuccess;
+        (0, n.useEffect)(() => {
+          N &&
+            j &&
+            (s &&
+              s > 0 &&
+              b.qo.send({
+                type: "recordTransaction",
+                hash: j,
+                transactionType: "stream-withdrawn-from-reserve",
+              }),
+            l.invalidateQueries({
+              queryKey: (0, ea.I)({ address: a, functionName: "getAvailableBalance" }),
+              refetchType: "all",
+            }),
+            l.invalidateQueries({
+              queryKey: (0, ea.I)({ address: Y.Gc[i.id], functionName: "balanceOf" }),
+              refetchType: "all",
+            }));
+        }, [N, j, s, l, i.id, a]);
+        let R = g.writeContract,
+          S = (0, n.useCallback)(() => {
+            if (!h) {
+              (f.error && console.error(f.error),
+                console.error("Error! No transaction simulation data available."));
+              return;
+            }
+            R({ ...h, gas: y, value: en._9 });
+          }, [h, y, R, f.error]);
+        (0, ee.R)({ simulate: f, estimate: v, waitFor: w });
+        let k = (0, et.O)({ simulate: f, estimate: v, waitFor: w, write: g });
+        return (
+          (0, es.k)({
+            simulate: f,
+            estimate: v,
+            write: g,
+            waitFor: w,
+            eventName: "Unlock",
+            eventProperties: {
+              unlockPeriodDays: s?.toString() ?? "0",
+              amount: r?.toString() ?? "0",
+              availableBalance: c.toString(),
+              recipient: t ?? "unknown",
+            },
+          }),
+          {
+            readLockerBalance: o,
+            isUnlockAvailable: !0,
+            simulateLockerUnlock: f,
+            estimateUnlock: v,
+            writeLockerUnlock: g,
+            waitForTransactionUnlock: w,
+            isFinished: N,
+            unlock: S,
+            status: k,
+            reset: g.reset,
+          }
+        );
+      }
+      var el = a(46947),
+        eo = a(64436),
+        ed = a(36732),
+        ec = a(57919),
+        em = a(29205),
+        eu = a(76186);
+      function ex({ isOpen: e, onClose: t }) {
+        let [a, r] = (0, n.useState)(""),
+          [l, d] = (0, n.useState)(!1),
+          { address: c } = (0, O.F)(),
+          { airdropChain: m } = (0, W.A)(),
+          { lockerAddress: u } = (0, o.s)(),
+          x = (0, Q.o)(a, eo.f_),
+          p = (0, R.$Z)(x),
+          { supPriceUSD: f } = (0, em.t)(),
+          { data: g } = (0, h.useQuery)({ queryKey: ["stakingStats"], queryFn: v.b }),
+          { data: j } = (0, h.useQuery)({ queryKey: ["liquidityRewardsStats"], queryFn: y.a }),
+          w = g?.apr ?? 0,
+          S = j?.apr ?? 0,
+          { data: k } = (0, G.xsR)({
+            functionName: "balanceOf",
+            chainId: m.id,
+            args: [c],
+            query: { enabled: !!c, refetchInterval: 6e4 },
+          });
+        (0, G.xsR)({
+          functionName: "allowance",
+          chainId: m.id,
+          args: [c, u],
+          query: { enabled: !!c && !!u, refetchInterval: 3e4 },
+        });
+        let D = (function (e) {
+            let { accountAddress: t, lockerAddress: a, amount: s } = e,
+              { airdropChain: r } = (0, W.A)(),
+              i = (0, er.S)(),
+              l = (0, G.xsR)({
+                functionName: "balanceOf",
+                chainId: r.id,
+                args: [t],
+                query: { enabled: !!t },
+              }),
+              o = (0, G.xsR)({
+                functionName: "allowance",
+                chainId: r.id,
+                args: [t, a],
+                query: { enabled: !!t && !!a },
+              }),
+              d = l.data ?? 0n,
+              c = o.data ?? 0n,
+              m = !s || void 0 === c || s > c,
+              u = !!a && !!t && !!s && s > 0n && s <= d && m,
+              x = (0, G.rsu)({
+                functionName: "approve",
+                chainId: r.id,
+                args: [a, s],
+                query: { enabled: u },
+                stateOverride: [{ address: t, balance: (0, X.g)("100") }],
+              }),
+              p = x.data?.request,
+              f = (0, H.useEstimateGas)({
+                chainId: r.id,
+                to: p?.address,
+                data: p ? (0, J.p)(p) : void 0,
+                query: { select: (e) => (120n * e) / 100n, enabled: !!p && u },
+                stateOverride: [{ address: t, balance: (0, X.g)("100") }],
+              }),
+              h = f.data,
+              v = (0, G.Qww)(),
+              y = v.data,
+              g = (0, Z.useWaitForTransactionReceipt)({
+                chainId: r.id,
+                hash: y,
+                query: { enabled: !!y },
+              }),
+              b = !!v.isSuccess && !!g.isSuccess;
+            (0, n.useEffect)(() => {
+              b &&
+                y &&
+                i.invalidateQueries({
+                  queryKey: (0, ea.I)({ address: Y.Gc[r.id], functionName: "allowance" }),
+                  refetchType: "all",
+                });
+            }, [b, y, i, r.id]);
+            let j = v.writeContract,
+              w = (0, n.useCallback)(() => {
+                if (!p) {
+                  (x.error && console.error(x.error),
+                    console.error("Error! No approval simulation data available."));
+                  return;
+                }
+                j({ ...p, gas: h });
+              }, [p, h, j, x.error]);
+            (0, ee.R)({ simulate: x, estimate: f, waitFor: g });
+            let N = (0, et.O)({ simulate: x, estimate: f, waitFor: g, write: v });
+            return (
+              (0, es.k)({
+                simulate: x,
+                estimate: f,
+                write: v,
+                waitFor: g,
+                eventName: "Approve",
+                eventProperties: {
+                  amount: s?.toString() ?? "0",
+                  supBalance: d.toString(),
+                  allowance: c.toString(),
+                },
+              }),
+              {
+                readSupBalance: l,
+                readSupAllowance: o,
+                needsApproval: m,
+                simulateApprove: x,
+                estimateApprove: f,
+                writeApprove: v,
+                waitForApprove: g,
+                isFinished: b,
+                approve: w,
+                status: N,
+                reset: v.reset,
+              }
+            );
+          })({ accountAddress: c, lockerAddress: u, amount: p }),
+          A = (function (e) {
+            let { accountAddress: t, lockerAddress: a, amount: s } = e,
+              { airdropChain: r } = (0, W.A)(),
+              i = (0, er.S)(),
+              l = (0, G.xsR)({
+                functionName: "balanceOf",
+                chainId: r.id,
+                args: [t],
+                query: { enabled: !!t, refetchInterval: 3e4 },
+              }),
+              o = (0, G.xsR)({
+                functionName: "allowance",
+                chainId: r.id,
+                args: [t, a],
+                query: { enabled: !!t && !!a },
+              }),
+              d = l.data ?? 0n,
+              c = o.data ?? 0n,
+              m = !!a && !!t && !!s && s > 0n && s <= d && c >= s,
+              u = (0, G.M0G)({
+                functionName: "lock",
+                chainId: r.id,
+                address: a,
+                args: [s],
+                query: { enabled: m },
+                stateOverride: [{ address: t, balance: (0, X.g)("100") }],
+              }),
+              x = u.data?.request,
+              p = (0, H.useEstimateGas)({
+                chainId: r.id,
+                to: x?.address,
+                data: x ? (0, J.p)(x) : void 0,
+                query: { select: (e) => (120n * e) / 100n, enabled: !!x && m },
+                stateOverride: [{ address: t, balance: (0, X.g)("100") }],
+              }),
+              f = p.data,
+              h = (0, G.$Aq)(),
+              v = h.data,
+              y = (0, Z.useWaitForTransactionReceipt)({
+                chainId: r.id,
+                hash: v,
+                query: { enabled: !!v },
+              }),
+              g = !!h.isSuccess && !!y.isSuccess;
+            (0, n.useEffect)(() => {
+              g &&
+                v &&
+                (b.qo.send({
+                  type: "recordTransaction",
+                  hash: v,
+                  transactionType: "deposited-in-reserve",
+                }),
+                i.invalidateQueries({
+                  queryKey: (0, ea.I)({ address: Y.Gc[r.id], functionName: "balanceOf" }),
+                  refetchType: "all",
+                }),
+                i.invalidateQueries({
+                  queryKey: (0, ea.I)({ address: Y.Gc[r.id], functionName: "allowance" }),
+                  refetchType: "all",
+                }),
+                i.invalidateQueries({
+                  queryKey: (0, ea.I)({ address: a, functionName: "getAvailableBalance" }),
+                  refetchType: "all",
+                }));
+            }, [g, v, i, r.id, a]);
+            let j = h.writeContract,
+              w = (0, n.useCallback)(() => {
+                if (!x) {
+                  (u.error && console.error(u.error),
+                    console.error("Error! No transaction simulation data available."));
+                  return;
+                }
+                j({ ...x, gas: f });
+              }, [x, f, j, u.error]);
+            (0, ee.R)({ simulate: u, estimate: p, waitFor: y });
+            let N = (0, et.O)({ simulate: u, estimate: p, waitFor: y, write: h });
+            return (
+              (0, es.k)({
+                simulate: u,
+                estimate: p,
+                write: h,
+                waitFor: y,
+                eventName: "Lock",
+                eventProperties: { amount: s?.toString() ?? "0", supBalance: d.toString() },
+              }),
+              {
+                readSupBalance: l,
+                simulateLockerLock: u,
+                estimateLock: p,
+                writeLockerLock: h,
+                waitForTransactionLock: y,
+                isFinished: g,
+                lock: w,
+                status: N,
+                reset: h.reset,
+              }
+            );
+          })({ accountAddress: c, lockerAddress: u, amount: p }),
+          [I, F] = (0, n.useState)(!1),
+          q = D.isFinished,
+          _ = A.isFinished;
+        ((0, n.useEffect)(() => {
+          if (_ && !A.status?.isError && !I) {
+            (r(""),
+              F(!0),
+              (0, ec.A)({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ["#22c55e", "#10b981", "#34d399"],
+              }));
+            let e = setTimeout(() => {
+              (A.reset(), D.reset(), F(!1), t());
+            }, eo._F);
+            return () => clearTimeout(e);
+          }
+        }, [_, A.status, A.reset, D, I, t]),
+          (0, n.useEffect)(() => {
+            q && (d(!0), D.reset());
+          }, [q, D]),
+          (0, n.useEffect)(() => {
+            l && !D.needsApproval && d(!1);
+          }, [l, D.needsApproval]),
+          (0, n.useEffect)(() => {
+            e || (r(""), F(!1), A.reset(), D.reset());
+          }, [e]));
+        let P = a !== x,
+          C = k ?? 0n,
+          T = p && p > 0n && p <= C,
+          E = D.needsApproval,
+          B = E ? D.status : A.status,
+          U = E ? D.approve : A.lock;
+        return (0, s.jsx)(M.RF, {
+          open: e,
+          onOpenChange: t,
+          "data-sentry-element": "ResponsiveDialog",
+          "data-sentry-component": "DepositToReserveDialog",
+          "data-sentry-source-file": "DepositToReserveDialog.tsx",
+          children: (0, s.jsxs)(M.sL, {
+            className:
+              "max-w-4xl bg-gradient-to-t from-0% from-green-pale via-20% via-platinum-light to-platinum p-4 sm:p-6",
+            "data-sentry-element": "ResponsiveDialogContent",
+            "data-sentry-source-file": "DepositToReserveDialog.tsx",
+            children: [
+              (0, s.jsxs)(z.s6, {
+                "data-sentry-element": "VisuallyHidden",
+                "data-sentry-source-file": "DepositToReserveDialog.tsx",
+                children: [
+                  (0, s.jsx)(M.N5, {
+                    "data-sentry-element": "ResponsiveDialogTitle",
+                    "data-sentry-source-file": "DepositToReserveDialog.tsx",
+                    children: "Deposit to Earn",
+                  }),
+                  (0, s.jsx)(M.Hq, {
+                    "data-sentry-element": "ResponsiveDialogDescription",
+                    "data-sentry-source-file": "DepositToReserveDialog.tsx",
+                    children: "Deposit SUP tokens to your Reserve",
+                  }),
+                ],
+              }),
+              (0, s.jsx)("div", {
+                className: "pt-7",
+                children: (0, s.jsxs)("div", {
+                  className: "flex gap-5 rounded-lg",
+                  children: [
+                    (0, s.jsxs)("div", {
+                      className:
+                        "relative hidden min-w-[251px] max-w-[251px] flex-col justify-center overflow-hidden rounded-lg bg-green-superdark p-6 text-white md:flex",
+                      children: [
+                        (0, s.jsx)(N.default, {
+                          src: "/liquidity-add-liquidity-fractal.svg",
+                          alt: "",
+                          fill: !0,
+                          className: "pointer-events-none absolute inset-0 opacity-40",
+                          style: { objectFit: "cover" },
+                          "data-sentry-element": "Image",
+                          "data-sentry-source-file": "DepositToReserveDialog.tsx",
+                        }),
+                        (0, s.jsxs)("div", {
+                          className: "relative z-10 grid justify-center",
+                          children: [
+                            (0, s.jsxs)("div", {
+                              children: [
+                                (0, s.jsx)("div", {
+                                  className: "mb-1 text-green-sf text-sm",
+                                  children: "STAKING APR",
+                                }),
+                                (0, s.jsxs)("div", {
+                                  className: "text-title3",
+                                  children: [w.toFixed(0), "%"],
+                                }),
+                              ],
+                            }),
+                            (0, s.jsxs)("div", {
+                              className: "-mx-8 mt-6 border-green-700/50 border-t px-8 pt-6",
+                              children: [
+                                (0, s.jsx)("div", {
+                                  className: "mb-1 text-green-sf text-sm",
+                                  children: "LIQUIDITY APR",
+                                }),
+                                (0, s.jsxs)("div", {
+                                  className: "text-title3",
+                                  children: [S.toFixed(0), "%"],
+                                }),
+                              ],
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                    (0, s.jsx)("div", {
+                      className: "flex-1",
+                      children: (0, s.jsxs)("div", {
+                        className: "space-y-6 rounded-lg bg-white p-6",
+                        children: [
+                          (0, s.jsxs)("div", {
+                            className: "text-center",
+                            children: [
+                              (0, s.jsx)("h2", {
+                                className: "mb-2 text-title3",
+                                children: "Deposit to Earn",
+                              }),
+                              (0, s.jsx)("p", {
+                                className: "text-alto text-base uppercase",
+                                children: "Deposit SUP in your Reserve to start earning rewards.",
+                              }),
+                            ],
+                          }),
+                          (0, s.jsx)("div", {
+                            className: "space-y-2",
+                            children: (0, s.jsxs)("div", {
+                              className:
+                                "flex items-start justify-between gap-2 rounded-lg border border-platinum bg-[#F7F8FA] p-4 sm:gap-4",
+                              children: [
+                                (0, s.jsxs)("div", {
+                                  className: "flex flex-1 flex-col",
+                                  children: [
+                                    (0, s.jsxs)("div", {
+                                      className: "flex w-full items-center gap-2",
+                                      children: [
+                                        (0, s.jsx)($.p, {
+                                          type: "text",
+                                          inputMode: "decimal",
+                                          pattern: "[0-9]*[.,]?[0-9]*",
+                                          placeholder: "0",
+                                          value: a,
+                                          onChange: (e) => {
+                                            r((0, R.PB)(e.target.value));
+                                          },
+                                          className:
+                                            "border-0 bg-transparent p-0 font-bold text-subtitle1 shadow-none [-moz-appearance:textfield] focus-visible:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
+                                          "data-sentry-element": "Input",
+                                          "data-sentry-source-file": "DepositToReserveDialog.tsx",
+                                        }),
+                                        (0, s.jsx)(i.$, {
+                                          variant: "ghost",
+                                          className:
+                                            "-translate-y-1 h-6 rounded-full bg-violet-light px-2 text-purple text-xs hover:bg-purple hover:text-white",
+                                          onClick: () => {
+                                            C > 0n && r((0, K.c)(C));
+                                          },
+                                          disabled: !C,
+                                          "data-sentry-element": "Button",
+                                          "data-sentry-source-file": "DepositToReserveDialog.tsx",
+                                          children: "MAX",
+                                        }),
+                                      ],
+                                    }),
+                                    (0, s.jsx)("div", {
+                                      className: "text-gray-500 text-sm",
+                                      children: (0, eu.O)(p, f),
+                                    }),
+                                  ],
+                                }),
+                                (0, s.jsx)("div", {
+                                  className: "flex items-center gap-3",
+                                  children: (0, s.jsxs)("div", {
+                                    className:
+                                      "flex min-w-[100px] flex-col items-end gap-0.5 sm:min-w-[140px]",
+                                    children: [
+                                      (0, s.jsxs)("div", {
+                                        className: "flex items-center gap-1",
+                                        children: [
+                                          (0, s.jsx)(ed.x, {
+                                            token: "sup",
+                                            size: 24,
+                                            "data-sentry-element": "TokenIcon",
+                                            "data-sentry-source-file": "DepositToReserveDialog.tsx",
+                                          }),
+                                          (0, s.jsx)("span", {
+                                            className: "font-semibold text-subtitle1",
+                                            children: "SUP",
+                                          }),
+                                        ],
+                                      }),
+                                      (0, s.jsx)("div", {
+                                        className: "text-gray-500 text-sm",
+                                        children: void 0 !== k ? `${(0, R.Vw)(k, 2)} SUP` : "-",
+                                      }),
+                                    ],
+                                  }),
+                                }),
+                              ],
+                            }),
+                          }),
+                          (0, s.jsx)("div", {
+                            className: "text-center text-gray-600 text-sm",
+                            children:
+                              "After depositing SUP in your Reserve you can earn Staking and Liquidity Provision rewards. Your SUP locked in a Reserve can be withdraw in a stream over 12 months or you can get a portion of it back instantly.",
+                          }),
+                          I
+                            ? (0, s.jsx)(i.$, { onClick: t, size: "lg", children: "Done" })
+                            : (0, s.jsx)(V.v, {
+                                dataTestId: "deposit-to-reserve-button",
+                                chain: m,
+                                onClick: U,
+                                status: B,
+                                ButtonProps: { loading: P || l, disabled: !T },
+                                children: E ? "Approve SUP" : "Deposit SUP",
+                              }),
+                        ],
+                      }),
+                    }),
+                  ],
+                }),
+              }),
+            ],
+          }),
+        });
+      }
+      var ep = a(17322),
+        ef = a(32186);
+      function eh({ fontaine: e, isSelected: t, onSelect: a }) {
+        let r = BigInt(e.unlockAmount),
+          n = BigInt(e.unlockFlowRate),
+          i = (0, u.x)(n);
+        return (0, s.jsxs)("button", {
+          type: "button",
+          onClick: a,
+          className: (0, R.cn)(
+            "relative w-full overflow-hidden rounded-[20px]",
+            "flex items-stretch border-2 transition-colors",
+            t ? "border-green" : "border-transparent",
+          ),
+          "data-sentry-component": "FontaineListItem",
+          "data-sentry-source-file": "FontaineListItem.tsx",
+          children: [
+            (0, s.jsxs)("div", {
+              className:
+                "relative flex flex-[0.8] items-center justify-center gap-2 overflow-hidden bg-[#2D5F4D] px-6 py-4",
+              children: [
+                (0, s.jsx)("div", {
+                  className: "absolute inset-0",
+                  children: (0, s.jsx)(N.default, {
+                    src: "/withdraw-position/stream-withdraw-fractal-left.png",
+                    alt: "",
+                    fill: !0,
+                    className: "object-cover opacity-50",
+                    "data-sentry-element": "Image",
+                    "data-sentry-source-file": "FontaineListItem.tsx",
+                  }),
+                }),
+                (0, s.jsxs)("div", {
+                  className: "relative z-10 flex items-center gap-2",
+                  children: [
+                    (0, s.jsx)(ed.x, {
+                      token: "sup",
+                      size: 20,
+                      "data-sentry-element": "TokenIcon",
+                      "data-sentry-source-file": "FontaineListItem.tsx",
+                    }),
+                    (0, s.jsx)("span", {
+                      className: "font-semibold text-subtitle4 text-white",
+                      children: (0, R.AY)(r),
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            (0, s.jsxs)("div", {
+              className: (0, R.cn)(
+                "relative flex flex-1 flex-col items-center justify-center gap-1 overflow-hidden px-6 py-4 text-center",
+                t ? "bg-platinum-light" : "bg-platinum",
+              ),
+              children: [
+                (0, s.jsx)("div", {
+                  className: "absolute inset-0",
+                  children: (0, s.jsx)(N.default, {
+                    src: "/withdraw-position/stream-withdraw-fractal-right.svg",
+                    alt: "",
+                    fill: !0,
+                    className: "object-cover opacity-50",
+                    "data-sentry-element": "Image",
+                    "data-sentry-source-file": "FontaineListItem.tsx",
+                  }),
+                }),
+                (0, s.jsxs)("div", {
+                  className: "relative z-10 flex flex-col items-center gap-1",
+                  children: [
+                    (0, s.jsx)("div", {
+                      className: "text-caption3 text-green-700 uppercase",
+                      children: "SUP Per Month",
+                    }),
+                    (0, s.jsx)("div", {
+                      className: "font-medium text-black text-sm tabular-nums",
+                      children: i,
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            (0, s.jsx)("div", { className: "w-px bg-white" }),
+            (0, s.jsxs)("div", {
+              className: (0, R.cn)(
+                "relative flex flex-[1.5] flex-col items-center justify-center gap-1 overflow-hidden px-6 py-4 text-center",
+                t ? "bg-platinum-light" : "bg-platinum",
+              ),
+              children: [
+                (0, s.jsx)("div", {
+                  className: "absolute inset-0",
+                  children: (0, s.jsx)(N.default, {
+                    src: "/withdraw-position/stream-withdraw-fractal-right.svg",
+                    alt: "",
+                    fill: !0,
+                    className: "object-cover opacity-50",
+                    "data-sentry-element": "Image",
+                    "data-sentry-source-file": "FontaineListItem.tsx",
+                  }),
+                }),
+                (0, s.jsxs)("div", {
+                  className: "relative z-10 flex flex-col items-center gap-1",
+                  children: [
+                    (0, s.jsx)("div", {
+                      className: "text-caption3 text-green-700 uppercase",
+                      children: "Withdrawn So Far",
+                    }),
+                    (0, s.jsx)("div", {
+                      className: "font-medium text-black text-sm",
+                      children: (0, s.jsx)(x.FlowingBalance, {
+                        balance: 0n,
+                        balanceTimestamp: Number(e.blockTimestamp),
+                        flowRate: BigInt(e.unlockFlowRate),
+                        maxBalance: r,
+                        "data-sentry-element": "FlowingBalance",
+                        "data-sentry-source-file": "FontaineListItem.tsx",
+                      }),
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        });
+      }
+      function ev({ isOpen: e, onClose: t }) {
+        let [a, l] = (0, n.useState)(""),
+          [c, m] = (0, n.useState)("drain"),
+          [u, x] = (0, n.useState)(!1),
+          [p, v] = (0, n.useState)(null),
+          { address: y } = (0, O.F)(),
+          { airdropChain: g } = (0, W.A)(),
+          { lockerAddress: j } = (0, o.s)(),
+          [N] = (0, ef.Q3)(a, eo.f_),
+          S = (0, R.$Z)(N),
+          { supPriceUSD: k } = (0, em.t)(),
+          D = (0, d.a)({ lockerAddress: j }),
+          A = D.data?.availableBalance,
+          I = (function (e) {
+            let t,
+              a,
+              s,
+              n = (0, r.c)(9),
+              { lockerAddress: i } = e,
+              l = (0, b.Ae)("stream-withdrawn-from-reserve", 30).length > 0,
+              o = i ?? null;
+            (n[0] !== o ? ((t = ["locker-fontaines", o]), (n[0] = o), (n[1] = t)) : (t = n[1]),
+              n[2] !== i
+                ? ((a = async () => {
+                    if (!i) return null;
+                    let e = (0, el.F)(),
+                      t = (await e.GetLockerFontaines({ locker: i.toLowerCase() })).fontaines ?? [];
+                    return { fontaines: t, hasFontaines: t.length > 0 };
+                  }),
+                  (n[2] = i),
+                  (n[3] = a))
+                : (a = n[3]));
+            let d = !!i,
+              c = !!l && 5e3;
+            return (
+              n[4] !== t || n[5] !== a || n[6] !== d || n[7] !== c
+                ? ((s = { queryKey: t, queryFn: a, enabled: d, refetchInterval: c }),
+                  (n[4] = t),
+                  (n[5] = a),
+                  (n[6] = d),
+                  (n[7] = c),
+                  (n[8] = s))
+                : (s = n[8]),
+              (0, h.useQuery)(s)
+            );
+          })({ lockerAddress: j }),
+          q = I.data?.fontaines ?? [],
+          _ = (0, b.Ae)("stream-withdrawn-from-reserve", 10),
+          P = _[0]?.timestamp,
+          C = _.length > 0,
+          T = (I.data?.hasFontaines ?? !1) || C,
+          E = ei({
+            accountAddress: y,
+            lockerAddress: j,
+            unlockPeriodDays: 0,
+            amount: "drain" === c ? S : void 0,
+          }),
+          B = ei({
+            accountAddress: y,
+            lockerAddress: j,
+            unlockPeriodDays: 365,
+            amount: "stream" === c ? S : void 0,
+          }),
+          U = "drain" === c ? E : B,
+          [L, Q] = (0, n.useState)(!1),
+          G = (0, n.useRef)(!1),
+          H = U.isFinished;
+        ((0, n.useEffect)(() => {
+          !H ||
+            U.status?.isError ||
+            L ||
+            G.current ||
+            (Q(!0),
+            (G.current = !0),
+            (0, ec.A)({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 },
+              colors: ["#22c55e", "#10b981", "#34d399"],
+            }));
+        }, [H, U.status, L]),
+          (0, n.useEffect)(() => {
+            "drain" === c ? B.reset() : E.reset();
+          }, [c]),
+          (0, n.useEffect)(() => {
+            e || (m("drain"), l(""), Q(!1), x(!1), v(null), (G.current = !1), E.reset(), B.reset());
+          }, [e]));
+        let Z = A ?? 0n,
+          X = S && S > 0n && S < en.hy,
+          J = S && S >= en.hy && S <= Z,
+          ee = () => {
+            Z > 0n && l((0, K.c)(Z));
+          },
+          et = a !== N,
+          ea = S ? (20n * S) / 100n : 0n,
+          es = S ? (80n * S) / 100n : 0n;
+        return (0, s.jsx)(M.RF, {
+          open: e,
+          onOpenChange: t,
+          "data-sentry-element": "ResponsiveDialog",
+          "data-sentry-component": "WithdrawFromReserveDialog",
+          "data-sentry-source-file": "WithdrawFromReserveDialog.tsx",
+          children: (0, s.jsxs)(M.sL, {
+            align: "top",
+            className:
+              "max-w-xl bg-gradient-to-t from-0% from-green-pale via-20% via-platinum-light to-platinum p-4 sm:p-6",
+            "data-sentry-element": "ResponsiveDialogContent",
+            "data-sentry-source-file": "WithdrawFromReserveDialog.tsx",
+            children: [
+              (0, s.jsxs)(z.s6, {
+                "data-sentry-element": "VisuallyHidden",
+                "data-sentry-source-file": "WithdrawFromReserveDialog.tsx",
+                children: [
+                  (0, s.jsx)(M.N5, {
+                    "data-sentry-element": "ResponsiveDialogTitle",
+                    "data-sentry-source-file": "WithdrawFromReserveDialog.tsx",
+                    children: "Withdraw from Reserve",
+                  }),
+                  (0, s.jsx)(M.Hq, {
+                    "data-sentry-element": "ResponsiveDialogDescription",
+                    "data-sentry-source-file": "WithdrawFromReserveDialog.tsx",
+                    children: "Withdraw SUP tokens from your Reserve",
+                  }),
+                ],
+              }),
+              (0, s.jsx)("div", {
+                className: "pt-7",
+                children: (0, s.jsxs)(ep.tU, {
+                  value: c,
+                  onValueChange: (e) => m(e),
+                  className: "flex flex-1 flex-col gap-6",
+                  "data-sentry-element": "Tabs",
+                  "data-sentry-source-file": "WithdrawFromReserveDialog.tsx",
+                  children: [
+                    (0, s.jsxs)(ep.j7, {
+                      className: "grid w-full grid-cols-2 rounded-lg bg-white p-1",
+                      "data-sentry-element": "TabsList",
+                      "data-sentry-source-file": "WithdrawFromReserveDialog.tsx",
+                      children: [
+                        (0, s.jsx)(ep.Xi, {
+                          value: "drain",
+                          className:
+                            "py-1.5 text-black text-xs data-[state=active]:bg-green-sf sm:text-sm",
+                          "data-sentry-element": "TabsTrigger",
+                          "data-sentry-source-file": "WithdrawFromReserveDialog.tsx",
+                          children: "DRAIN",
+                        }),
+                        (0, s.jsx)(ep.Xi, {
+                          value: "stream",
+                          className:
+                            "py-1.5 text-black text-xs data-[state=active]:bg-green-sf sm:text-sm",
+                          "data-sentry-element": "TabsTrigger",
+                          "data-sentry-source-file": "WithdrawFromReserveDialog.tsx",
+                          children: "STREAM WITHDRAW",
+                        }),
+                      ],
+                    }),
+                    (0, s.jsx)(ep.av, {
+                      value: "drain",
+                      className: "space-y-6 data-[state=active]:block",
+                      "data-sentry-element": "TabsContent",
+                      "data-sentry-source-file": "WithdrawFromReserveDialog.tsx",
+                      children: (0, s.jsxs)("div", {
+                        className: "space-y-6 rounded-lg bg-white p-6",
+                        children: [
+                          (0, s.jsx)("div", {
+                            className: "space-y-2",
+                            children: (0, s.jsxs)("div", {
+                              className:
+                                "flex items-start justify-between gap-2 rounded-lg border border-platinum bg-[#F7F8FA] p-4 sm:gap-4",
+                              children: [
+                                (0, s.jsxs)("div", {
+                                  className: "flex flex-1 flex-col gap-1",
+                                  children: [
+                                    (0, s.jsxs)("div", {
+                                      className: "flex w-full items-center gap-2",
+                                      children: [
+                                        (0, s.jsx)($.p, {
+                                          type: "text",
+                                          inputMode: "decimal",
+                                          pattern: "[0-9]*[.,]?[0-9]*",
+                                          placeholder: "0",
+                                          value: a,
+                                          onChange: (e) => {
+                                            l((0, R.PB)(e.target.value));
+                                          },
+                                          className:
+                                            "border-0 bg-transparent p-0 font-bold text-subtitle1 shadow-none [-moz-appearance:textfield] focus-visible:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
+                                          "data-sentry-element": "Input",
+                                          "data-sentry-source-file":
+                                            "WithdrawFromReserveDialog.tsx",
+                                        }),
+                                        (0, s.jsx)(i.$, {
+                                          variant: "ghost",
+                                          className:
+                                            "-translate-y-1 h-6 rounded-full bg-violet-light px-2 text-purple text-xs hover:bg-purple hover:text-white",
+                                          onClick: ee,
+                                          disabled: !Z,
+                                          "data-sentry-element": "Button",
+                                          "data-sentry-source-file":
+                                            "WithdrawFromReserveDialog.tsx",
+                                          children: "MAX",
+                                        }),
+                                      ],
+                                    }),
+                                    (0, s.jsx)("div", {
+                                      className: "text-gray-500 text-sm",
+                                      children: (0, eu.O)(S, k),
+                                    }),
+                                  ],
+                                }),
+                                (0, s.jsxs)("div", {
+                                  className:
+                                    "flex min-w-[100px] flex-col items-end gap-0.5 sm:min-w-[140px]",
+                                  children: [
+                                    (0, s.jsxs)("div", {
+                                      className: "flex items-center gap-1",
+                                      children: [
+                                        (0, s.jsx)(ed.x, {
+                                          token: "sup",
+                                          size: 24,
+                                          "data-sentry-element": "TokenIcon",
+                                          "data-sentry-source-file":
+                                            "WithdrawFromReserveDialog.tsx",
+                                        }),
+                                        (0, s.jsx)("span", {
+                                          className: "font-semibold text-subtitle1",
+                                          children: "SUP",
+                                        }),
+                                      ],
+                                    }),
+                                    (0, s.jsx)("div", {
+                                      className: "text-gray-500 text-sm",
+                                      children: void 0 !== A ? `${(0, R.Vw)(A, 2)} SUP` : "-",
+                                    }),
+                                  ],
+                                }),
+                              ],
+                            }),
+                          }),
+                          (0, s.jsxs)("div", {
+                            className: "space-y-3",
+                            children: [
+                              (0, s.jsx)("div", {
+                                className: "text-green text-sm uppercase",
+                                children: "If you drain your Reserve",
+                              }),
+                              (0, s.jsxs)("div", {
+                                className: "flex items-center justify-between",
+                                children: [
+                                  (0, s.jsxs)("div", {
+                                    className: "flex items-center gap-2",
+                                    children: [
+                                      (0, s.jsx)(ed.x, {
+                                        token: "sup",
+                                        size: 20,
+                                        "data-sentry-element": "TokenIcon",
+                                        "data-sentry-source-file": "WithdrawFromReserveDialog.tsx",
+                                      }),
+                                      (0, s.jsx)("span", {
+                                        className: "text-sm",
+                                        children: "SUP you will receive",
+                                      }),
+                                    ],
+                                  }),
+                                  (0, s.jsx)("div", { children: (0, R.Vw)(ea, 4) }),
+                                ],
+                              }),
+                              (0, s.jsxs)("div", {
+                                className: "flex items-center justify-between",
+                                children: [
+                                  (0, s.jsxs)("div", {
+                                    className: "flex items-center gap-2",
+                                    children: [
+                                      (0, s.jsx)(ed.x, {
+                                        token: "sup",
+                                        size: 20,
+                                        "data-sentry-element": "TokenIcon",
+                                        "data-sentry-source-file": "WithdrawFromReserveDialog.tsx",
+                                      }),
+                                      (0, s.jsx)("span", {
+                                        className: "text-sm",
+                                        children: "Community charges",
+                                      }),
+                                    ],
+                                  }),
+                                  (0, s.jsx)("div", { children: (0, R.Vw)(es, 4) }),
+                                ],
+                              }),
+                            ],
+                          }),
+                          (0, s.jsx)("div", { className: "border-platinum border-t pt-4" }),
+                          (0, s.jsx)("div", {
+                            className: "text-center text-green text-xs uppercase",
+                            children:
+                              "If you drain your Reserve you will instantly receive 20% of your Reserve SUP, with the remaining 80% charged as community charges",
+                          }),
+                          L && "drain" === c
+                            ? (0, s.jsx)(i.$, {
+                                "data-testid": "done-button",
+                                onClick: () => {
+                                  (l(""), Q(!1), t());
+                                },
+                                className: "w-full",
+                                children: "Done",
+                              })
+                            : (0, s.jsx)(V.v, {
+                                dataTestId: "drain-reserve-button",
+                                chain: g,
+                                onClick: E.unlock,
+                                status: X
+                                  ? {
+                                      isError: !0,
+                                      displayText: "Minimum withdrawal amount is 10 SUP",
+                                      isLoading: !1,
+                                      isFinished: !1,
+                                    }
+                                  : E.status,
+                                ButtonProps: { loading: et, disabled: !J || L },
+                                children: L ? "Successfully withdrawn!" : "Drain Reserve",
+                              }),
+                        ],
+                      }),
+                    }),
+                    (0, s.jsx)(ep.av, {
+                      value: "stream",
+                      className:
+                        "flex-1 data-[state=active]:flex data-[state=active]:flex-col data-[state=active]:gap-6",
+                      "data-sentry-element": "TabsContent",
+                      "data-sentry-source-file": "WithdrawFromReserveDialog.tsx",
+                      children: u
+                        ? (0, s.jsxs)(s.Fragment, {
+                            children: [
+                              (0, s.jsxs)("div", {
+                                className: "text-center",
+                                children: [
+                                  (0, s.jsx)("h2", {
+                                    className: "mb-2 text-title3",
+                                    children: "Withdrawn Streams",
+                                  }),
+                                  (0, s.jsx)("p", {
+                                    className: "text-alto text-base",
+                                    children:
+                                      "Below are your active withdrawn streams. These are streaming SUP to you over 12 months.",
+                                  }),
+                                ],
+                              }),
+                              (0, s.jsx)("div", {
+                                className: "flex-1 overflow-hidden rounded-lg bg-white p-6",
+                                children: (0, s.jsx)("div", {
+                                  className: "max-h-[300px] space-y-2 overflow-y-auto",
+                                  children:
+                                    I.isLoading || (C && 0 === q.length)
+                                      ? (0, s.jsx)("div", {
+                                          className: "flex h-24 items-center justify-center",
+                                          children: (0, s.jsx)("div", {
+                                            className: "text-gray-500",
+                                            children: "Loading streams...",
+                                          }),
+                                        })
+                                      : 0 === q.length
+                                        ? (0, s.jsx)(f, {
+                                            value: P,
+                                            className: "inline-block rounded-lg",
+                                            children: (0, s.jsx)("div", {
+                                              className: "flex h-24 items-center justify-center",
+                                              children: (0, s.jsx)("div", {
+                                                className: "text-gray-500",
+                                                children: "No withdrawn streams found",
+                                              }),
+                                            }),
+                                          })
+                                        : (0, s.jsx)("div", {
+                                            className: "space-y-2",
+                                            children: q.map((e) =>
+                                              (0, s.jsx)(
+                                                eh,
+                                                {
+                                                  fontaine: e,
+                                                  isSelected: p === e.id,
+                                                  onSelect: () => v(p === e.id ? null : e.id),
+                                                },
+                                                e.id,
+                                              ),
+                                            ),
+                                          }),
+                                }),
+                              }),
+                              (0, s.jsxs)("div", {
+                                className: "flex flex-col gap-4",
+                                children: [
+                                  p &&
+                                    (() => {
+                                      let e = q.find((e) => e.id === p);
+                                      if (!e) return null;
+                                      let t = `https://app.superfluid.org/stream/base/${e.id}-${e.recipient}-${Y.Gc[g.id]}`;
+                                      return (0, s.jsx)(i.$, {
+                                        asChild: !0,
+                                        size: "lg",
+                                        variant: "outline",
+                                        className: "bg-transparent",
+                                        children: (0, s.jsxs)(w(), {
+                                          href: t,
+                                          target: "_blank",
+                                          className: "gap-2",
+                                          children: [
+                                            "View Stream on Superfluid Dashboard",
+                                            (0, s.jsx)(F.A, { size: 16 }),
+                                          ],
+                                        }),
+                                      });
+                                    })(),
+                                  (0, s.jsx)(i.$, {
+                                    onClick: () => x(!1),
+                                    size: "lg",
+                                    children: "Go Back",
+                                  }),
+                                ],
+                              }),
+                            ],
+                          })
+                        : (0, s.jsx)(s.Fragment, {
+                            children: (0, s.jsxs)("div", {
+                              className: "space-y-6 rounded-lg bg-white p-6",
+                              children: [
+                                (0, s.jsx)("div", {
+                                  className: "space-y-2",
+                                  children: (0, s.jsxs)("div", {
+                                    className:
+                                      "flex items-start justify-between gap-2 rounded-lg border border-platinum bg-[#F7F8FA] p-4 sm:gap-4",
+                                    children: [
+                                      (0, s.jsxs)("div", {
+                                        className: "flex flex-1 flex-col gap-1",
+                                        children: [
+                                          (0, s.jsxs)("div", {
+                                            className: "flex w-full items-center gap-2",
+                                            children: [
+                                              (0, s.jsx)($.p, {
+                                                type: "text",
+                                                inputMode: "decimal",
+                                                pattern: "[0-9]*[.,]?[0-9]*",
+                                                placeholder: "0",
+                                                value: a,
+                                                onChange: (e) => {
+                                                  l((0, R.PB)(e.target.value));
+                                                },
+                                                className:
+                                                  "border-0 bg-transparent p-0 font-bold text-subtitle1 shadow-none [-moz-appearance:textfield] focus-visible:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none",
+                                              }),
+                                              (0, s.jsx)(i.$, {
+                                                variant: "ghost",
+                                                className:
+                                                  "-translate-y-1 h-6 rounded-full bg-violet-light px-2 text-purple text-xs hover:bg-purple hover:text-white",
+                                                onClick: ee,
+                                                disabled: !Z,
+                                                children: "MAX",
+                                              }),
+                                            ],
+                                          }),
+                                          (0, s.jsx)("div", {
+                                            className: "text-gray-500 text-sm",
+                                            children: (0, eu.O)(S, k),
+                                          }),
+                                        ],
+                                      }),
+                                      (0, s.jsxs)("div", {
+                                        className:
+                                          "flex min-w-[100px] flex-col items-end gap-0.5 sm:min-w-[140px]",
+                                        children: [
+                                          (0, s.jsxs)("div", {
+                                            className: "flex items-center gap-1",
+                                            children: [
+                                              (0, s.jsx)(ed.x, { token: "sup", size: 24 }),
+                                              (0, s.jsx)("span", {
+                                                className: "font-semibold text-subtitle1",
+                                                children: "SUP",
+                                              }),
+                                            ],
+                                          }),
+                                          (0, s.jsx)("div", {
+                                            className: "text-gray-500 text-sm",
+                                            children: void 0 !== A ? `${(0, R.Vw)(A, 2)} SUP` : "-",
+                                          }),
+                                        ],
+                                      }),
+                                    ],
+                                  }),
+                                }),
+                                (0, s.jsxs)("div", {
+                                  className: "space-y-3",
+                                  children: [
+                                    (0, s.jsx)("div", {
+                                      className: "text-green text-sm uppercase",
+                                      children: "If you stream withdraw your Reserve",
+                                    }),
+                                    (0, s.jsxs)("div", {
+                                      className: "flex items-center justify-between",
+                                      children: [
+                                        (0, s.jsxs)("div", {
+                                          className: "flex items-center gap-2",
+                                          children: [
+                                            (0, s.jsx)(ed.x, { token: "sup", size: 20 }),
+                                            (0, s.jsx)("span", {
+                                              className: "text-sm",
+                                              children: "SUP you will receive",
+                                            }),
+                                          ],
+                                        }),
+                                        (0, s.jsxs)("div", {
+                                          children: [S ? (0, R.Vw)(S, 4) : "0", " SUP"],
+                                        }),
+                                      ],
+                                    }),
+                                    S &&
+                                      S > 0n &&
+                                      (0, s.jsxs)("div", {
+                                        className: "flex items-center justify-between",
+                                        children: [
+                                          (0, s.jsx)("span", {
+                                            className: "text-sm",
+                                            children: "You will receive the full amount on",
+                                          }),
+                                          (0, s.jsx)("div", {
+                                            className: "text-sm",
+                                            children: new Date(
+                                              Date.now() + 31536e6,
+                                            ).toLocaleDateString("en-US", {
+                                              month: "long",
+                                              day: "numeric",
+                                              year: "numeric",
+                                            }),
+                                          }),
+                                        ],
+                                      }),
+                                  ],
+                                }),
+                                (0, s.jsx)("div", { className: "border-platinum border-t pt-4" }),
+                                (0, s.jsx)("div", {
+                                  className: "text-center text-green text-xs uppercase",
+                                  children:
+                                    "If you stream withdraw your Reserve you will receive all the available SUP in your Reserve in a stream over 12 months",
+                                }),
+                                T &&
+                                  (0, s.jsx)("div", {
+                                    className: "text-center",
+                                    children: (0, s.jsx)(f, {
+                                      value: P,
+                                      className: "rounded-lg",
+                                      children: (0, s.jsx)(i.$, {
+                                        variant: "link",
+                                        onClick: () => x(!0),
+                                        className:
+                                          "text-purple text-sm underline hover:no-underline",
+                                        children: "See withdrawn streams",
+                                      }),
+                                    }),
+                                  }),
+                                L && "stream" === c
+                                  ? (0, s.jsx)(i.$, {
+                                      "data-testid": "done-button",
+                                      onClick: () => {
+                                        (l(""), Q(!1), t());
+                                      },
+                                      className: "w-full",
+                                      children: "Done",
+                                    })
+                                  : (0, s.jsx)(V.v, {
+                                      dataTestId: "stream-withdraw-button",
+                                      chain: g,
+                                      onClick: B.unlock,
+                                      status: X
+                                        ? {
+                                            isError: !0,
+                                            displayText: "Minimum withdrawal amount is 10 SUP",
+                                            isLoading: !1,
+                                            isFinished: !1,
+                                          }
+                                        : B.status,
+                                      ButtonProps: { loading: et, disabled: !J || L },
+                                      children: L ? "Successfully withdrawn!" : "Stream Withdraw",
+                                    }),
+                              ],
+                            }),
+                          }),
+                    }),
+                  ],
+                }),
+              }),
+            ],
+          }),
+        });
+      }
+      var ey = a(45537);
+      let eg = (e) => {
+        let t,
+          a,
+          l,
+          d,
+          c,
+          m,
+          u,
+          x,
+          p,
+          f,
+          h,
+          v,
+          y,
+          g,
+          b,
+          j,
+          N,
+          P,
+          C,
+          M,
+          z,
+          $,
+          W,
+          K,
+          Q,
+          V,
+          G,
+          Y,
+          H,
+          Z,
+          X,
+          J,
+          ee,
+          et,
+          ea,
+          es,
+          er,
+          en = (0, r.c)(68),
+          { className: ei } = e,
+          { address: el } = (0, O.F)(),
+          { lockerAddress: eo } = (0, o.s)();
+        en[0] !== el ? ((t = { accountAddress: el }), (en[0] = el), (en[1] = t)) : (t = en[1]);
+        let { userEnsName: ed, hasExistingSubdomain: ec } = (0, ey.W)(t),
+          [em, eu] = (0, n.useState)(!1),
+          [ep, ef] = (0, n.useState)(!1),
+          [eh, eg] = (0, n.useState)(!1),
+          [eb, ej] = (0, n.useState)(!1);
+        en[2] !== ed
+          ? ((a = ed ? ed.split(".")[0] : null), (en[2] = ed), (en[3] = a))
+          : (a = en[3]);
+        let ew = a;
+        en[4] === Symbol.for("react.memo_cache_sentinel")
+          ? ((l = () => {
+              (eu(!1), ef(!0));
+            }),
+            (en[4] = l))
+          : (l = en[4]);
+        let eN = l;
+        en[5] === Symbol.for("react.memo_cache_sentinel")
+          ? ((d = () => {
+              (eu(!1), eg(!0));
+            }),
+            (en[5] = d))
+          : (d = en[5]);
+        let eR = d;
+        en[6] !== eo
+          ? ((c = (e) => {
+              if ((e.stopPropagation(), e.preventDefault(), eo)) {
+                (S(eo), ej(!0));
+                let e = setTimeout(() => {
+                  ej(!1);
+                }, 1e3);
+                return () => {
+                  clearTimeout(e);
+                };
+              }
+            }),
+            (en[6] = eo),
+            (en[7] = c))
+          : (c = en[7]);
+        let eS = c;
+        (en[8] !== ei
+          ? ((m = (0, R.cn)(ei, "items-center gap-1 bg-[#E9E9E9]")), (en[8] = ei), (en[9] = m))
+          : (m = en[9]),
+          en[10] !== em
+            ? ((u = (0, R.cn)("transition-all", { "rotate-180": em })), (en[10] = em), (en[11] = u))
+            : (u = en[11]),
+          en[12] !== u
+            ? ((x = (0, s.jsx)(D.A, {
+                size: 20,
+                className: u,
+                "data-sentry-element": "ChevronDown",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+              })),
+              (en[12] = u),
+              (en[13] = x))
+            : (x = en[13]),
+          en[14] !== m || en[15] !== x
+            ? ((p = (0, s.jsx)(E, {
+                asChild: !0,
+                "data-sentry-element": "DropdownMenuTrigger",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+                children: (0, s.jsxs)(i.$, {
+                  className: m,
+                  variant: "outline",
+                  size: "sm",
+                  "data-sentry-element": "Button",
+                  "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+                  children: ["Actions", " ", x],
+                }),
+              })),
+              (en[14] = m),
+              (en[15] = x),
+              (en[16] = p))
+            : (p = en[16]),
+          en[17] === Symbol.for("react.memo_cache_sentinel")
+            ? ((f = (0, s.jsx)(A.A, {
+                size: 16,
+                strokeWidth: 2.3,
+                className: "shrink-0",
+                "data-sentry-element": "ArrowDownToLine",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+              })),
+              (en[17] = f))
+            : (f = en[17]),
+          en[18] === Symbol.for("react.memo_cache_sentinel")
+            ? ((h = (0, s.jsxs)(U, {
+                className: "cursor-pointer flex-row items-start gap-3",
+                onClick: eN,
+                "data-sentry-element": "DropdownMenuItem",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+                children: [
+                  f,
+                  (0, s.jsx)("div", {
+                    className: "flex flex-col",
+                    children: (0, s.jsx)("span", { children: "Deposit SUP in Reserve" }),
+                  }),
+                ],
+              })),
+              (v = (0, s.jsx)(L, {
+                "data-sentry-element": "DropdownMenuSeparator",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+              })),
+              (en[18] = h),
+              (en[19] = v))
+            : ((h = en[18]), (v = en[19])),
+          en[20] === Symbol.for("react.memo_cache_sentinel")
+            ? ((y = (0, s.jsx)(I.A, {
+                size: 16,
+                strokeWidth: 2.3,
+                className: "shrink-0",
+                "data-sentry-element": "ArrowUpFromLine",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+              })),
+              (en[20] = y))
+            : (y = en[20]),
+          en[21] === Symbol.for("react.memo_cache_sentinel")
+            ? ((g = (0, s.jsxs)(U, {
+                className: "cursor-pointer flex-row items-start gap-3",
+                onClick: eR,
+                "data-sentry-element": "DropdownMenuItem",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+                children: [
+                  y,
+                  (0, s.jsx)("div", {
+                    className: "flex flex-col",
+                    children: (0, s.jsx)("span", { children: "Withdraw from Reserve" }),
+                  }),
+                ],
+              })),
+              (b = (0, s.jsx)(L, {
+                "data-sentry-element": "DropdownMenuSeparator",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+              })),
+              (en[21] = g),
+              (en[22] = b))
+            : ((g = en[21]), (b = en[22])));
+        let ek = `https://app.superfluid.org/?view=${eo}`;
+        (en[23] === Symbol.for("react.memo_cache_sentinel")
+          ? ((j = (0, s.jsx)(F.A, {
+              size: 16,
+              strokeWidth: 2.3,
+              className: "shrink-0",
+              "data-sentry-element": "ExternalLink",
+              "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+            })),
+            (en[23] = j))
+          : (j = en[23]),
+          en[24] === Symbol.for("react.memo_cache_sentinel")
+            ? ((N = (0, s.jsx)("div", {
+                className: "flex flex-col",
+                children: (0, s.jsx)("span", { children: "View on Superfluid Dashboard" }),
+              })),
+              (en[24] = N))
+            : (N = en[24]),
+          en[25] !== ek
+            ? ((P = (0, s.jsx)(U, {
+                asChild: !0,
+                className: "flex-row items-start gap-3",
+                "data-sentry-element": "DropdownMenuItem",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+                children: (0, s.jsxs)(w(), {
+                  href: ek,
+                  target: "_blank",
+                  className: "cursor-pointer",
+                  "data-sentry-element": "Link",
+                  "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+                  children: [j, N],
+                }),
+              })),
+              (en[25] = ek),
+              (en[26] = P))
+            : (P = en[26]),
+          en[27] === Symbol.for("react.memo_cache_sentinel")
+            ? ((C = (0, s.jsx)(L, {
+                "data-sentry-element": "DropdownMenuSeparator",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+              })),
+              (en[27] = C))
+            : (C = en[27]),
+          en[28] === Symbol.for("react.memo_cache_sentinel")
+            ? ((M = (0, s.jsx)(q.A, {
+                size: 16,
+                strokeWidth: 2.3,
+                className: "shrink-0",
+                "data-sentry-element": "Tag",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+              })),
+              (en[28] = M))
+            : (M = en[28]));
+        let eD = ec ? "See Your Reserve Name" : "Get Reserve Name";
+        en[29] !== eD
+          ? ((z = (0, s.jsx)("span", { children: eD })), (en[29] = eD), (en[30] = z))
+          : (z = en[30]);
+        let eA = ec && ew ? ew : "Not claimed";
+        (en[31] !== eA
+          ? (($ = (0, s.jsx)("span", { className: "text-alto text-caption2", children: eA })),
+            (en[31] = eA),
+            (en[32] = $))
+          : ($ = en[32]),
+          en[33] !== z || en[34] !== $
+            ? ((W = (0, s.jsx)(U, {
+                asChild: !0,
+                className: "flex-row items-start gap-3",
+                "data-sentry-element": "DropdownMenuItem",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+                children: (0, s.jsxs)(w(), {
+                  href: "/reserve-names",
+                  className: "cursor-pointer",
+                  "data-sentry-element": "Link",
+                  "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+                  children: [
+                    M,
+                    (0, s.jsxs)("div", { className: "flex flex-col gap-1", children: [z, $] }),
+                  ],
+                }),
+              })),
+              (en[33] = z),
+              (en[34] = $),
+              (en[35] = W))
+            : (W = en[35]),
+          en[36] === Symbol.for("react.memo_cache_sentinel")
+            ? ((K = (0, s.jsx)(L, {
+                "data-sentry-element": "DropdownMenuSeparator",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+              })),
+              (en[36] = K))
+            : (K = en[36]),
+          en[37] === Symbol.for("react.memo_cache_sentinel")
+            ? ((Q = (0, s.jsx)(_.A, {
+                size: 16,
+                strokeWidth: 2.3,
+                className: "shrink-0",
+                "data-sentry-element": "Copy",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+              })),
+              (en[37] = Q))
+            : (Q = en[37]));
+        let eI = eb ? "Copied!" : "Copy Reserve Address";
+        return (
+          en[38] !== eI
+            ? ((V = (0, s.jsx)("span", { children: eI })), (en[38] = eI), (en[39] = V))
+            : (V = en[39]),
+          en[40] !== eo
+            ? ((G = eo ? (0, k.L)(eo) : ""), (en[40] = eo), (en[41] = G))
+            : (G = en[41]),
+          en[42] !== G
+            ? ((Y = (0, s.jsx)("span", { className: "text-alto text-caption2", children: G })),
+              (en[42] = G),
+              (en[43] = Y))
+            : (Y = en[43]),
+          en[44] !== V || en[45] !== Y
+            ? ((H = (0, s.jsxs)("div", { className: "flex flex-col gap-1", children: [V, Y] })),
+              (en[44] = V),
+              (en[45] = Y),
+              (en[46] = H))
+            : (H = en[46]),
+          en[47] !== eS || en[48] !== H
+            ? ((Z = (0, s.jsxs)(U, {
+                className: "cursor-pointer flex-row items-start gap-3",
+                onClick: eS,
+                "data-sentry-element": "DropdownMenuItem",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+                children: [Q, H],
+              })),
+              (en[47] = eS),
+              (en[48] = H),
+              (en[49] = Z))
+            : (Z = en[49]),
+          en[50] !== P || en[51] !== W || en[52] !== Z
+            ? ((X = (0, s.jsxs)(B, {
+                align: "end",
+                className: "w-60",
+                "data-sentry-element": "DropdownMenuContent",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+                children: [h, v, g, b, P, C, W, K, Z],
+              })),
+              (en[50] = P),
+              (en[51] = W),
+              (en[52] = Z),
+              (en[53] = X))
+            : (X = en[53]),
+          en[54] !== em || en[55] !== X || en[56] !== p
+            ? ((J = (0, s.jsxs)(T, {
+                open: em,
+                onOpenChange: eu,
+                "data-sentry-element": "DropdownMenu",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+                children: [p, X],
+              })),
+              (en[54] = em),
+              (en[55] = X),
+              (en[56] = p),
+              (en[57] = J))
+            : (J = en[57]),
+          en[58] === Symbol.for("react.memo_cache_sentinel")
+            ? ((ee = () => ef(!1)), (en[58] = ee))
+            : (ee = en[58]),
+          en[59] !== ep
+            ? ((et = (0, s.jsx)(ex, {
+                isOpen: ep,
+                onClose: ee,
+                "data-sentry-element": "DepositToReserveDialog",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+              })),
+              (en[59] = ep),
+              (en[60] = et))
+            : (et = en[60]),
+          en[61] === Symbol.for("react.memo_cache_sentinel")
+            ? ((ea = () => eg(!1)), (en[61] = ea))
+            : (ea = en[61]),
+          en[62] !== eh
+            ? ((es = (0, s.jsx)(ev, {
+                isOpen: eh,
+                onClose: ea,
+                "data-sentry-element": "WithdrawFromReserveDialog",
+                "data-sentry-source-file": "ReserveActionsDropdown.tsx",
+              })),
+              (en[62] = eh),
+              (en[63] = es))
+            : (es = en[63]),
+          en[64] !== J || en[65] !== et || en[66] !== es
+            ? ((er = (0, s.jsxs)(s.Fragment, { children: [J, et, es] })),
+              (en[64] = J),
+              (en[65] = et),
+              (en[66] = es),
+              (en[67] = er))
+            : (er = en[67]),
+          er
+        );
+      };
+      var eb = a(97929),
+        ej = a(30041),
+        ew = a(1182);
+      function eN(e) {
+        return {
+          ...e,
+          totalStaked: BigInt(e.totalStaked),
+          totalDistributed: BigInt(e.totalDistributed),
+          totalDistributedFlowRate: BigInt(e.totalDistributedFlowRate),
+          bonusApr: e.bonusApr,
+        };
+      }
+      function eR(e) {
+        return {
+          ...e,
+          totalLiquidity: BigInt(e.totalLiquidity),
+          totalDistributed: BigInt(e.totalDistributed),
+          totalDistributedFlowRate: BigInt(e.totalDistributedFlowRate),
+          bonusApr: e.bonusApr,
+        };
+      }
+      function eS() {
+        let e,
+          t,
+          a,
+          i,
+          l,
+          d,
+          c,
+          m,
+          u,
+          x,
+          p,
+          f,
+          g,
+          j,
+          w,
+          R,
+          S,
+          k = (0, r.c)(28),
+          { isConnected: D } = (0, O.F)(),
+          { accountAddress: A } = (0, o.s)(),
+          { airdropChain: I } = (0, W.A)();
+        k[0] !== A ? ((e = { accountAddress: A }), (k[0] = A), (k[1] = e)) : (e = k[1]);
+        let {
+            createLocker: F,
+            status: q,
+            readGetUserLocker: _,
+            waitForTransactionCreateLocker: P,
+          } = (0, eb.q)(e),
+          { data: C, isLoading: T } =
+            ((w = (0, r.c)(1))[0] === Symbol.for("react.memo_cache_sentinel")
+              ? ((j = { queryKey: ["stakingStats"], queryFn: v.b, select: eN }), (w[0] = j))
+              : (j = w[0]),
+            (0, h.useQuery)(j)),
+          { data: E, isLoading: B } =
+            ((S = (0, r.c)(1))[0] === Symbol.for("react.memo_cache_sentinel")
+              ? ((R = { queryKey: ["liquidityRewardsStats"], queryFn: y.a, select: eR }),
+                (S[0] = R))
+              : (R = S[0]),
+            (0, h.useQuery)(R)),
+          U = Math.max((C?.apr ?? 0) + (C?.bonusApr ?? 0), (E?.apr ?? 0) + (E?.bonusApr ?? 0)),
+          L = T || B ? "..." : 0 === U ? "N/A" : `${Math.ceil(U).toString()}%`;
+        k[2] !== _.data ? ((t = _.data ?? [!1, void 0]), (k[2] = _.data), (k[3] = t)) : (t = k[3]);
+        let [M] = t,
+          z = q?.isFinished ?? !1,
+          $ = P.data?.transactionHash;
+        if (
+          (k[4] !== $ || k[5] !== z
+            ? ((a = () => {
+                z &&
+                  $ &&
+                  b.qo.send({
+                    type: "recordTransaction",
+                    hash: $,
+                    transactionType: "reserve-created",
+                  });
+              }),
+              (i = [z, $]),
+              (k[4] = $),
+              (k[5] = z),
+              (k[6] = a),
+              (k[7] = i))
+            : ((a = k[6]), (i = k[7])),
+          (0, n.useEffect)(a, i),
+          _.isLoading)
+        ) {
+          let e;
+          return (
+            k[8] === Symbol.for("react.memo_cache_sentinel")
+              ? ((e = (0, s.jsx)("div", {
+                  className: "flex min-h-[600px] items-center justify-center",
+                  children: (0, s.jsx)(ej.A, { className: "h-8 w-8 animate-spin text-green-sf" }),
+                })),
+                (k[8] = e))
+              : (e = k[8]),
+            e
+          );
+        }
+        return (
+          k[9] === Symbol.for("react.memo_cache_sentinel")
+            ? ((l = { background: "radial-gradient(circle at center bottom, #8AE5C3, #0A6643)" }),
+              (k[9] = l))
+            : (l = k[9]),
+          k[10] === Symbol.for("react.memo_cache_sentinel")
+            ? ((d = (0, s.jsxs)("div", {
+                className: "absolute inset-0",
+                children: [
+                  (0, s.jsx)(N.default, {
+                    src: "/create-reserve/create-reserve-hero-fractal-left.svg",
+                    alt: "",
+                    fill: !0,
+                    className: "object-cover object-left",
+                    "data-sentry-element": "Image",
+                    "data-sentry-source-file": "CreateReserveSection.tsx",
+                  }),
+                  (0, s.jsx)(N.default, {
+                    src: "/create-reserve/create-reserve-hero-flow-bottom-left.png",
+                    alt: "",
+                    fill: !0,
+                    quality: 80,
+                    className: "object-contain object-left-bottom",
+                    "data-sentry-element": "Image",
+                    "data-sentry-source-file": "CreateReserveSection.tsx",
+                  }),
+                  (0, s.jsx)(N.default, {
+                    src: "/create-reserve/create-reserve-hero-coin-bottom-right.png",
+                    alt: "",
+                    fill: !0,
+                    quality: 80,
+                    className: "object-contain object-right-bottom",
+                    "data-sentry-element": "Image",
+                    "data-sentry-source-file": "CreateReserveSection.tsx",
+                  }),
+                ],
+              })),
+              (k[10] = d))
+            : (d = k[10]),
+          k[11] === Symbol.for("react.memo_cache_sentinel")
+            ? ((c = (0, s.jsxs)("div", {
+                className: "space-y-4",
+                children: [
+                  (0, s.jsx)("h1", {
+                    className: "font-medium text-green-superdark text-h5 md:text-h3 lg:text-h2",
+                    children: "Earn more SUP",
+                  }),
+                  (0, s.jsx)("p", {
+                    className:
+                      "text-alto-dark text-subtitle1 uppercase tracking-wide md:text-title4",
+                    children: "DEPOSIT SUP IN A RESERVE TO EARN STAKING AND LP REWARDS",
+                  }),
+                ],
+              })),
+              (k[11] = c))
+            : (c = k[11]),
+          k[12] === Symbol.for("react.memo_cache_sentinel")
+            ? ((m = (0, s.jsx)("div", {
+                className: "absolute inset-0",
+                children: (0, s.jsx)(N.default, {
+                  src: "/create-reserve/create-reserve-fractal.svg",
+                  alt: "",
+                  fill: !0,
+                  className: "object-cover",
+                  "data-sentry-element": "Image",
+                  "data-sentry-source-file": "CreateReserveSection.tsx",
+                }),
+              })),
+              (k[12] = m))
+            : (m = k[12]),
+          k[13] !== L
+            ? ((u = (0, s.jsxs)("p", {
+                className: "text-h7 text-white md:text-h6",
+                children: ["up to ", L, " APR"],
+              })),
+              (k[13] = L),
+              (k[14] = u))
+            : (u = k[14]),
+          k[15] === Symbol.for("react.memo_cache_sentinel")
+            ? ((x = (0, s.jsx)("p", {
+                className: "text-green-sf text-subtitle2 uppercase tracking-wide md:text-subtitle1",
+                children: "IN STAKING AND LP REWARDS",
+              })),
+              (k[15] = x))
+            : (x = k[15]),
+          k[16] !== u
+            ? ((p = (0, s.jsxs)("div", {
+                className:
+                  "relative mx-auto max-w-2xl overflow-hidden rounded-3xl bg-black/70 px-8 py-12 backdrop-blur-sm md:px-12 md:py-16",
+                children: [
+                  m,
+                  (0, s.jsxs)("div", { className: "relative z-10 space-y-2", children: [u, x] }),
+                ],
+              })),
+              (k[16] = u),
+              (k[17] = p))
+            : (p = k[17]),
+          k[18] !== I || k[19] !== F || k[20] !== D || k[21] !== z || k[22] !== M || k[23] !== q
+            ? ((f = (0, s.jsx)("div", {
+                className: "mx-auto max-w-md pt-4",
+                children: D
+                  ? (0, s.jsx)(V.v, {
+                      chain: I,
+                      onClick: F,
+                      status: q,
+                      dataTestId: "create-reserve-button",
+                      ButtonProps: { size: "lg", disabled: M || z },
+                      children: z ? "Reserve Created!" : "Create Your Reserve",
+                    })
+                  : (0, s.jsx)(ew.K, { buttonText: "Connect Wallet to Get Started" }),
+              })),
+              (k[18] = I),
+              (k[19] = F),
+              (k[20] = D),
+              (k[21] = z),
+              (k[22] = M),
+              (k[23] = q),
+              (k[24] = f))
+            : (f = k[24]),
+          k[25] !== p || k[26] !== f
+            ? ((g = (0, s.jsxs)("div", {
+                className:
+                  "relative flex min-h-[600px] flex-col items-center justify-center overflow-hidden rounded-2xl px-6 py-16 text-center md:min-h-[700px]",
+                style: l,
+                "data-sentry-component": "CreateReserveSection",
+                "data-sentry-source-file": "CreateReserveSection.tsx",
+                children: [
+                  d,
+                  (0, s.jsxs)("div", {
+                    className: "relative z-10 mx-auto max-w-4xl space-y-8",
+                    children: [c, p, f],
+                  }),
+                ],
+              })),
+              (k[25] = p),
+              (k[26] = f),
+              (k[27] = g))
+            : (g = k[27]),
+          g
+        );
+      }
+      var ek = a(98947);
+      function eD(e) {
+        return {
+          ...e,
+          totalStaked: BigInt(e.totalStaked),
+          totalDistributed: BigInt(e.totalDistributed),
+          totalDistributedFlowRate: BigInt(e.totalDistributedFlowRate),
+          bonusApr: e.bonusApr,
+        };
+      }
+      function eA(e) {
+        return {
+          ...e,
+          totalLiquidity: BigInt(e.totalLiquidity),
+          totalDistributed: BigInt(e.totalDistributed),
+          totalDistributedFlowRate: BigInt(e.totalDistributedFlowRate),
+          bonusApr: e.bonusApr,
+        };
+      }
+      function eI(e) {
+        return 0 === e ? "0%" : e < 10 ? `${5 + (e / 10) * 5}%` : `${e}%`;
+      }
+      function eF() {
+        let e,
+          t,
+          a,
+          p,
+          { lockerAddress: j } = (0, o.s)(),
+          [S, k] = (0, n.useState)(!1),
+          D = (0, d.a)({ lockerAddress: j }),
+          A = (0, u.x)(D.data?.flowRate ?? 0n),
+          I = D.data?.stakedBalance ?? 0n,
+          F = D.data?.liquidityBalance ?? 0n,
+          q = (0, b.Ae)("deposited-in-reserve", 15),
+          _ = q[0]?.timestamp,
+          P = (0, c.I)({ lockerAddress: j }),
+          { data: C } =
+            ((t = (0, r.c)(1))[0] === Symbol.for("react.memo_cache_sentinel")
+              ? ((e = { queryKey: ["stakingStats"], queryFn: v.b, select: eD }), (t[0] = e))
+              : (e = t[0]),
+            (0, h.useQuery)(e)),
+          T = C?.apr === 0 ? "0" : (C?.apr.toFixed(0) ?? "0"),
+          E = C?.bonusApr && C.bonusApr > 0 ? C.bonusApr.toFixed(0) : null,
+          B = (0, m.h)({ lockerAddress: j });
+        B.data?.totalFeesEarnedSUP;
+        let U = (0, g.a)({ lockerAddress: j }),
+          { data: L } =
+            ((p = (0, r.c)(1))[0] === Symbol.for("react.memo_cache_sentinel")
+              ? ((a = { queryKey: ["liquidityRewardsStats"], queryFn: y.a, select: eA }),
+                (p[0] = a))
+              : (a = p[0]),
+            (0, h.useQuery)(a)),
+          M = L?.apr === 0 ? "0" : (L?.apr.toFixed(0) ?? "0"),
+          z = L?.bonusApr && L.bonusApr > 0 ? L.bonusApr.toFixed(0) : null,
+          $ = (function (e) {
+            let { availableBalance: t, stakedBalance: a, liquidityBalance: s } = e;
+            return (0, n.useMemo)(() => {
+              let e = t + a + s;
+              if (0n === e)
+                return {
+                  availableAmount: 0n,
+                  liquidityAmount: s,
+                  stakedAmount: a,
+                  availablePercentage: 0,
+                  liquidityPercentage: 0,
+                  stakedPercentage: 0,
+                };
+              let r = Number((10000n * t) / e) / 100,
+                n = Number((10000n * a) / e) / 100,
+                i = Number((10000n * s) / e) / 100;
+              return {
+                availableAmount: t,
+                liquidityAmount: s,
+                stakedAmount: a,
+                availablePercentage: r,
+                liquidityPercentage: i,
+                stakedPercentage: n,
+              };
+            }, [t, a, s]);
+          })({
+            availableBalance: D.data?.availableBalance ?? 0n,
+            stakedBalance: I,
+            liquidityBalance: F,
+          }),
+          O =
+            D.data?.hasAvailableBalanceLoaded &&
+            D.data?.hasStakedBalanceLoaded &&
+            D.data.hasLiquidityBalanceLoaded;
+        return (0, s.jsx)("div", {
+          className: "space-y-8",
+          "data-sentry-component": "ReserveContent",
+          "data-sentry-source-file": "page.tsx",
+          children: (0, s.jsxs)("div", {
+            className: "grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3",
+            children: [
+              (0, s.jsxs)("div", {
+                className:
+                  "relative flex min-h-[500px] flex-col justify-between overflow-hidden rounded-2xl p-4 sm:p-6 md:min-h-[600px] md:p-8",
+                style: { backgroundColor: "#E9E9E9" },
+                children: [
+                  (0, s.jsx)("div", {
+                    className: "absolute inset-0",
+                    children: (0, s.jsx)(N.default, {
+                      src: "/reserve/bg-fluid.png",
+                      alt: "",
+                      fill: !0,
+                      className: "object-cover object-bottom",
+                      "data-sentry-element": "Image",
+                      "data-sentry-source-file": "page.tsx",
+                    }),
+                  }),
+                  (0, s.jsx)("div", {
+                    className: "absolute inset-0",
+                    children: (0, s.jsx)(N.default, {
+                      src: "/reserve/reserve-top-fractal.svg",
+                      alt: "",
+                      fill: !0,
+                      className: "object-cover object-top",
+                      "data-sentry-element": "Image",
+                      "data-sentry-source-file": "page.tsx",
+                    }),
+                  }),
+                  (0, s.jsx)("div", {
+                    className: "absolute top-4 right-4 z-20",
+                    children: (0, s.jsx)(eg, {
+                      "data-sentry-element": "ReserveActionsDropdown",
+                      "data-sentry-source-file": "page.tsx",
+                    }),
+                  }),
+                  (0, s.jsxs)("div", {
+                    className: "relative z-10 text-center",
+                    children: [
+                      (0, s.jsx)("div", {
+                        className: "mt-8 flex justify-center",
+                        children: (0, s.jsxs)("div", {
+                          className: "relative flex items-center",
+                          children: [
+                            (0, s.jsx)("div", {
+                              className:
+                                "-translate-y-1/2 absolute top-1/2 right-full mr-3 h-2 w-6 rounded-full bg-green",
+                            }),
+                            (0, s.jsx)("span", {
+                              className: "text-green text-subtitle2 uppercase tracking-wider",
+                              children: "MY RESERVE",
+                            }),
+                          ],
+                        }),
+                      }),
+                      (0, s.jsx)(f, {
+                        value: _,
+                        className: "mt-4",
+                        "data-sentry-element": "AnimateOnUpdate",
+                        "data-sentry-source-file": "page.tsx",
+                        children: (0, s.jsxs)("div", {
+                          className: "text-black text-title1 leading-none sm:text-h7",
+                          children: [
+                            D.data
+                              ? (0, s.jsx)(x.FlowingBalance, {
+                                  balance: D.data.totalBalance,
+                                  balanceTimestamp: D.data.timestamp,
+                                  flowRate: D.data.flowRate,
+                                  decimalPlaces: 6,
+                                })
+                              : "0",
+                            " ",
+                            (0, s.jsx)("span", {
+                              className: "font-normal text-alto text-title4",
+                              children: "SUP",
+                            }),
+                          ],
+                        }),
+                      }),
+                      (0, s.jsxs)("div", {
+                        className: "mt-4 text-base text-gray-700 sm:text-subtitle1",
+                        children: [
+                          A,
+                          " ",
+                          (0, s.jsx)("span", {
+                            className: "font-normal text-alto",
+                            children: "SUP /MO",
+                          }),
+                        ],
+                      }),
+                      O &&
+                        (0, s.jsx)("div", {
+                          className: "mt-4 px-4",
+                          children: (0, s.jsxs)("div", {
+                            className: "flex gap-2",
+                            children: [
+                              $.availablePercentage > 0 &&
+                                (0, s.jsxs)(l.jc, {
+                                  openDelay: 0,
+                                  closeDelay: 0,
+                                  children: [
+                                    (0, s.jsx)(l.d0, {
+                                      asChild: !0,
+                                      children: (0, s.jsx)("div", {
+                                        className:
+                                          "h-4 cursor-pointer rounded-full border border-black/20 bg-green",
+                                        style: { width: eI($.availablePercentage) },
+                                      }),
+                                    }),
+                                    (0, s.jsx)(l.Et, {
+                                      className: "w-auto rounded-lg border bg-white p-4 shadow-lg",
+                                      children: (0, s.jsxs)("div", {
+                                        className: "space-y-1 text-center",
+                                        children: [
+                                          (0, s.jsx)("div", {
+                                            className: "text-alto text-caption1 uppercase",
+                                            children: "Available",
+                                          }),
+                                          (0, s.jsxs)("div", {
+                                            className: "text-subtitle3",
+                                            children: [Math.ceil($.availablePercentage), "%"],
+                                          }),
+                                          (0, s.jsxs)("div", {
+                                            className: "text-subtitle4",
+                                            children: [
+                                              (0, R.Vw)($.availableAmount, 0),
+                                              " ",
+                                              (0, s.jsx)("span", {
+                                                className: "text-alto",
+                                                children: "SUP",
+                                              }),
+                                            ],
+                                          }),
+                                        ],
+                                      }),
+                                    }),
+                                  ],
+                                }),
+                              $.liquidityPercentage > 0 &&
+                                (0, s.jsxs)(l.jc, {
+                                  openDelay: 0,
+                                  closeDelay: 0,
+                                  children: [
+                                    (0, s.jsx)(l.d0, {
+                                      asChild: !0,
+                                      children: (0, s.jsx)("div", {
+                                        className:
+                                          "h-4 cursor-pointer rounded-full border border-green bg-green-sf",
+                                        style: { width: eI($.liquidityPercentage) },
+                                      }),
+                                    }),
+                                    (0, s.jsx)(l.Et, {
+                                      className: "w-auto rounded-lg border bg-white p-4 shadow-lg",
+                                      children: (0, s.jsxs)("div", {
+                                        className: "space-y-1 text-center",
+                                        children: [
+                                          (0, s.jsx)("div", {
+                                            className: "text-alto text-caption1 uppercase",
+                                            children: "Provided Liquidity",
+                                          }),
+                                          (0, s.jsxs)("div", {
+                                            className: "text-subtitle3",
+                                            children: [Math.ceil($.liquidityPercentage), "%"],
+                                          }),
+                                          (0, s.jsxs)("div", {
+                                            className: "text-subtitle4",
+                                            children: [
+                                              (0, R.Vw)($.liquidityAmount, 0),
+                                              " ",
+                                              (0, s.jsx)("span", {
+                                                className: "text-alto",
+                                                children: "SUP",
+                                              }),
+                                            ],
+                                          }),
+                                        ],
+                                      }),
+                                    }),
+                                  ],
+                                }),
+                              $.stakedPercentage > 0 &&
+                                (0, s.jsxs)(l.jc, {
+                                  openDelay: 0,
+                                  closeDelay: 0,
+                                  children: [
+                                    (0, s.jsx)(l.d0, {
+                                      asChild: !0,
+                                      children: (0, s.jsx)("div", {
+                                        className:
+                                          "h-4 cursor-pointer rounded-full border border-black/20 bg-white",
+                                        style: { width: eI($.stakedPercentage) },
+                                      }),
+                                    }),
+                                    (0, s.jsx)(l.Et, {
+                                      className: "w-auto rounded-lg border bg-white p-4 shadow-lg",
+                                      children: (0, s.jsxs)("div", {
+                                        className: "space-y-1 text-center",
+                                        children: [
+                                          (0, s.jsx)("div", {
+                                            className: "text-alto text-caption1 uppercase",
+                                            children: "Staked",
+                                          }),
+                                          (0, s.jsxs)("div", {
+                                            className: "text-subtitle3",
+                                            children: [Math.ceil($.stakedPercentage), "%"],
+                                          }),
+                                          (0, s.jsxs)("div", {
+                                            className: "text-subtitle4",
+                                            children: [
+                                              (0, R.Vw)($.stakedAmount, 0),
+                                              " ",
+                                              (0, s.jsx)("span", {
+                                                className: "text-alto",
+                                                children: "SUP",
+                                              }),
+                                            ],
+                                          }),
+                                        ],
+                                      }),
+                                    }),
+                                  ],
+                                }),
+                            ],
+                          }),
+                        }),
+                    ],
+                  }),
+                  (0, s.jsxs)("div", {
+                    className: "relative z-10 space-y-4 text-center",
+                    children: [
+                      (0, s.jsx)(ex, {
+                        isOpen: S,
+                        onClose: () => k(!1),
+                        "data-sentry-element": "DepositToReserveDialog",
+                        "data-sentry-source-file": "page.tsx",
+                      }),
+                      O && D.data?.totalBalance === 0n
+                        ? (0, s.jsx)(i.$, {
+                            onClick: () => k(!0),
+                            size: "lg",
+                            children: "Deposit SUP",
+                          })
+                        : (0, s.jsx)(w(), {
+                            href: "/claim",
+                            className: "block",
+                            children: (0, s.jsx)(i.$, {
+                              variant: "outline",
+                              className:
+                                "w-full border-2 border-black bg-transparent text-green-black hover:border-none hover:bg-green-sf",
+                              children: "Claim SUP",
+                            }),
+                          }),
+                    ],
+                  }),
+                ],
+              }),
+              (0, s.jsxs)("div", {
+                className:
+                  "relative flex min-h-[500px] flex-col justify-between overflow-hidden rounded-2xl p-4 sm:p-6 md:min-h-[600px] md:p-8",
+                style: { backgroundColor: "#001713" },
+                children: [
+                  (0, s.jsx)("div", {
+                    className: "absolute inset-0",
+                    children: (0, s.jsx)(N.default, {
+                      src: "/reserve/bg-fluid.png",
+                      alt: "",
+                      fill: !0,
+                      className: "object-cover object-bottom",
+                      "data-sentry-element": "Image",
+                      "data-sentry-source-file": "page.tsx",
+                    }),
+                  }),
+                  (0, s.jsx)("div", {
+                    className: "absolute inset-0",
+                    children: (0, s.jsx)(N.default, {
+                      src: "/reserve/liquidity-top-fractal.svg",
+                      alt: "",
+                      fill: !0,
+                      className: "object-cover object-top",
+                      "data-sentry-element": "Image",
+                      "data-sentry-source-file": "page.tsx",
+                    }),
+                  }),
+                  (0, s.jsxs)("div", {
+                    className: "relative z-10 text-center",
+                    children: [
+                      (0, s.jsx)("div", {
+                        className: "mt-8 flex justify-center",
+                        children: (0, s.jsxs)("div", {
+                          className: "relative flex items-center",
+                          children: [
+                            (0, s.jsx)("div", {
+                              className:
+                                "-translate-y-1/2 absolute top-1/2 right-full mr-3 h-2 w-6 rounded-full bg-green-sf",
+                            }),
+                            (0, s.jsx)("span", {
+                              className: "text-green-sf text-subtitle2 uppercase tracking-wider",
+                              children: "MY PROVIDED LIQUIDITY",
+                            }),
+                          ],
+                        }),
+                      }),
+                      (0, s.jsxs)("div", {
+                        className: "mt-4 text-title1 text-white leading-none sm:text-h7",
+                        children: [
+                          (0, R.Vw)(F, 0),
+                          " ",
+                          (0, s.jsx)("span", {
+                            className: "font-normal text-alto-medium text-title4",
+                            children: "SUP",
+                          }),
+                        ],
+                      }),
+                      (0, s.jsx)("div", {
+                        className: "mt-4 space-y-2",
+                        children: (0, s.jsxs)("div", {
+                          className: "text-subtitle3 text-white sm:text-title4",
+                          children: [
+                            M,
+                            "%",
+                            " ",
+                            z &&
+                              (0, s.jsx)(ek.Bc, {
+                                children: (0, s.jsxs)(ek.m_, {
+                                  children: [
+                                    (0, s.jsx)(ek.k$, {
+                                      asChild: !0,
+                                      children: (0, s.jsxs)("span", {
+                                        className: "cursor-help text-green-sf",
+                                        children: ["+ ", z, "%"],
+                                      }),
+                                    }),
+                                    (0, s.jsx)(ek.ZI, {
+                                      side: "top",
+                                      className: "max-w-[200px] text-center",
+                                      children: "Bonus APR from Stakers SPR Campaign",
+                                    }),
+                                  ],
+                                }),
+                              }),
+                            " ",
+                            (0, s.jsx)("span", {
+                              className: "font-normal text-alto-medium",
+                              children: "APR",
+                            }),
+                          ],
+                        }),
+                      }),
+                    ],
+                  }),
+                  (0, s.jsxs)("div", {
+                    className: "relative z-10 space-y-4 text-center",
+                    children: [
+                      (0, s.jsxs)("div", {
+                        children: [
+                          (0, s.jsx)("div", {
+                            className: "mb-1 text-caption1 text-green-sf uppercase tracking-wider",
+                            children: "LP Rewards Earned",
+                          }),
+                          (0, s.jsx)("div", {
+                            className: "text-subtitle3 text-white sm:text-title3",
+                            children: U.data
+                              ? (0, s.jsxs)(s.Fragment, {
+                                  children: [
+                                    (0, s.jsx)(x.FlowingBalance, {
+                                      balance: U.data.balance ?? 0n,
+                                      balanceTimestamp: U.data.timestamp,
+                                      flowRate: U.data.flowRate,
+                                    }),
+                                    (0, s.jsx)("span", {
+                                      className: "font-normal text-alto-medium text-subtitle4",
+                                      children: " SUP",
+                                    }),
+                                  ],
+                                })
+                              : (0, s.jsxs)(s.Fragment, {
+                                  children: [
+                                    "0",
+                                    (0, s.jsx)("span", {
+                                      className: "font-normal text-alto-medium text-subtitle4",
+                                      children: " SUP",
+                                    }),
+                                  ],
+                                }),
+                          }),
+                        ],
+                      }),
+                      (0, s.jsx)(w(), {
+                        href: "/liquidity",
+                        className: "block",
+                        "data-sentry-element": "Link",
+                        "data-sentry-source-file": "page.tsx",
+                        children: (0, s.jsx)(i.$, {
+                          variant: "outline",
+                          className:
+                            "w-full border-2 border-white bg-transparent text-white hover:border-none hover:bg-green-sf hover:text-black",
+                          "data-sentry-element": "Button",
+                          "data-sentry-source-file": "page.tsx",
+                          children: F > 0n ? "Manage Liquidity" : "Add Liquidity",
+                        }),
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              (0, s.jsxs)("div", {
+                className:
+                  "relative flex min-h-[500px] flex-col justify-between overflow-hidden rounded-2xl p-4 sm:p-6 md:min-h-[600px] md:p-8",
+                style: { backgroundColor: "#5F6E75" },
+                children: [
+                  (0, s.jsx)("div", {
+                    className: "absolute inset-0",
+                    children: (0, s.jsx)(N.default, {
+                      src: "/reserve/bg-fluid.png",
+                      alt: "",
+                      fill: !0,
+                      className: "object-cover object-bottom",
+                      "data-sentry-element": "Image",
+                      "data-sentry-source-file": "page.tsx",
+                    }),
+                  }),
+                  (0, s.jsx)("div", {
+                    className: "absolute inset-0",
+                    children: (0, s.jsx)(N.default, {
+                      src: "/reserve/stake-top-fractal.svg",
+                      alt: "",
+                      fill: !0,
+                      className: "object-cover object-top",
+                      "data-sentry-element": "Image",
+                      "data-sentry-source-file": "page.tsx",
+                    }),
+                  }),
+                  (0, s.jsxs)("div", {
+                    className: "relative z-10 text-center",
+                    children: [
+                      (0, s.jsx)("div", {
+                        className: "mt-8 flex justify-center",
+                        children: (0, s.jsxs)("div", {
+                          className: "relative flex items-center",
+                          children: [
+                            (0, s.jsx)("div", {
+                              className:
+                                "-translate-y-1/2 absolute top-1/2 right-full mr-3 h-2 w-6 rounded-full bg-white",
+                            }),
+                            (0, s.jsx)("span", {
+                              className: "text-green-sf text-subtitle2 uppercase tracking-wider",
+                              children: "MY STAKED BALANCE",
+                            }),
+                          ],
+                        }),
+                      }),
+                      (0, s.jsxs)("div", {
+                        className: "mt-4 text-title1 text-white leading-none sm:text-h7",
+                        children: [
+                          I ? (0, R.Vw)(I) : "0",
+                          " ",
+                          (0, s.jsx)("span", {
+                            className: "font-normal text-platinum text-title4",
+                            children: "SUP",
+                          }),
+                        ],
+                      }),
+                      (0, s.jsxs)("div", {
+                        className: "mt-4 text-subtitle3 text-white sm:text-title4",
+                        children: [
+                          T,
+                          "%",
+                          " ",
+                          E &&
+                            (0, s.jsx)(ek.Bc, {
+                              children: (0, s.jsxs)(ek.m_, {
+                                children: [
+                                  (0, s.jsx)(ek.k$, {
+                                    asChild: !0,
+                                    children: (0, s.jsxs)("span", {
+                                      className: "cursor-help text-green-sf",
+                                      children: ["+ ", E, "%"],
+                                    }),
+                                  }),
+                                  (0, s.jsx)(ek.ZI, {
+                                    side: "top",
+                                    className: "max-w-[200px] text-center",
+                                    children: "Bonus APR from Stakers SPR Campaign",
+                                  }),
+                                ],
+                              }),
+                            }),
+                          " ",
+                          (0, s.jsx)("span", {
+                            className: "font-normal text-platinum",
+                            children: "APR",
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                  (0, s.jsxs)("div", {
+                    className: "relative z-10 space-y-4 text-center",
+                    children: [
+                      (0, s.jsxs)("div", {
+                        children: [
+                          (0, s.jsx)("div", {
+                            className: "mb-1 text-caption1 text-green-sf uppercase tracking-wider",
+                            children: "Staking Rewards Earned",
+                          }),
+                          (0, s.jsx)("div", {
+                            className: "text-subtitle3 text-white sm:text-title3",
+                            children: P.data
+                              ? (0, s.jsxs)(s.Fragment, {
+                                  children: [
+                                    (0, s.jsx)(x.FlowingBalance, {
+                                      balance: P.data.balance ?? 0n,
+                                      balanceTimestamp: P.data.timestamp,
+                                      flowRate: P.data.flowRate,
+                                    }),
+                                    (0, s.jsx)("span", {
+                                      className: "font-normal text-platinum text-subtitle4",
+                                      children: " SUP",
+                                    }),
+                                  ],
+                                })
+                              : (0, s.jsxs)(s.Fragment, {
+                                  children: [
+                                    "0",
+                                    (0, s.jsx)("span", {
+                                      className: "font-normal text-platinum text-subtitle4",
+                                      children: " SUP",
+                                    }),
+                                  ],
+                                }),
+                          }),
+                        ],
+                      }),
+                      (0, s.jsx)(w(), {
+                        href: "/staking",
+                        className: "block",
+                        "data-sentry-element": "Link",
+                        "data-sentry-source-file": "page.tsx",
+                        children: (0, s.jsx)(i.$, {
+                          variant: "outline",
+                          className:
+                            "w-full border-2 border-green-sf bg-transparent text-white hover:border-none hover:bg-green-sf hover:text-black",
+                          "data-sentry-element": "Button",
+                          "data-sentry-source-file": "page.tsx",
+                          children: I && I > 0n ? "Manage Staking" : "Stake",
+                        }),
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        });
+      }
+      function eq() {
+        let e,
+          t = (0, r.c)(2),
+          { isLockerCreated: a } = (0, o.s)();
+        if (!a) {
+          let e;
+          return (
+            t[0] === Symbol.for("react.memo_cache_sentinel")
+              ? ((e = (0, s.jsx)(eS, {})), (t[0] = e))
+              : (e = t[0]),
+            e
+          );
+        }
+        return (
+          t[1] === Symbol.for("react.memo_cache_sentinel")
+            ? ((e = (0, s.jsx)(eF, {
+                "data-sentry-element": "ReserveContent",
+                "data-sentry-component": "ReservePage",
+                "data-sentry-source-file": "page.tsx",
+              })),
+              (t[1] = e))
+            : (e = t[1]),
+          e
+        );
+      }
+    },
+    36732: (e, t, a) => {
+      "use strict";
+      a.d(t, { x: () => i });
+      var s = a(58906),
+        r = a(13938),
+        n = a(30403);
+      function i(e) {
+        let t,
+          a = (0, r.c)(9),
+          { token: i, size: l } = e,
+          o = void 0 === l ? 24 : l;
+        if ("eth" === i) {
+          let e,
+            t,
+            r,
+            i = 0.5 * o;
+          a[0] !== i
+            ? ((e = (0, s.jsx)(n.default, { src: "/eth.svg", alt: "ETH", width: i, height: i })),
+              (a[0] = i),
+              (a[1] = e))
+            : (e = a[1]);
+          let l = e;
+          return (
+            a[2] !== o ? ((t = { width: o, height: o }), (a[2] = o), (a[3] = t)) : (t = a[3]),
+            a[4] !== l || a[5] !== t
+              ? ((r = (0, s.jsx)("div", {
+                  className: "flex items-center justify-center rounded-full bg-gray-200",
+                  style: t,
+                  children: l,
+                })),
+                (a[4] = l),
+                (a[5] = t),
+                (a[6] = r))
+              : (r = a[6]),
+            r
+          );
+        }
+        return (
+          a[7] !== o
+            ? ((t = (0, s.jsx)(n.default, {
+                src: "/sup.svg",
+                alt: "SUP",
+                width: o,
+                height: o,
+                "data-sentry-element": "Image",
+                "data-sentry-component": "TokenIcon",
+                "data-sentry-source-file": "TokenIcon.tsx",
+              })),
+              (a[7] = o),
+              (a[8] = t))
+            : (t = a[8]),
+          t
+        );
+      }
+    },
+    41852: (e, t, a) => {
+      "use strict";
+      a.d(t, { a: () => o });
+      var s = a(13938),
+        r = a(55522),
+        n = a(80751),
+        i = a(57650),
+        l = a(67817);
+      function o(e) {
+        let t,
+          a,
+          o,
+          d,
+          c,
+          m,
+          u,
+          x,
+          p,
+          f,
+          h = (0, s.c)(33),
+          { lockerAddress: v } = e,
+          { airdropChain: y } = (0, i.A)();
+        h[0] === Symbol.for("react.memo_cache_sentinel")
+          ? ((t = { queryKey: ["liquidityRewardsStats"], queryFn: l.a }), (h[0] = t))
+          : (t = h[0]);
+        let { data: g } = (0, n.useQuery)(t),
+          b = g?.lpDistributionPool;
+        h[1] !== v ? ((a = [v]), (h[1] = v), (h[2] = a)) : (a = h[2]);
+        let j = !!v && !!b;
+        (h[3] !== j ? ((o = { enabled: j }), (h[3] = j), (h[4] = o)) : (o = h[4]),
+          h[5] !== y.id || h[6] !== b || h[7] !== a || h[8] !== o
+            ? ((d = {
+                functionName: "getTotalAmountReceivedByMember",
+                chainId: y.id,
+                address: b,
+                args: a,
+                query: o,
+              }),
+              (h[5] = y.id),
+              (h[6] = b),
+              (h[7] = a),
+              (h[8] = o),
+              (h[9] = d))
+            : (d = h[9]));
+        let { data: w, dataUpdatedAt: N } = (0, r.qIq)(d);
+        h[10] !== v ? ((c = [v]), (h[10] = v), (h[11] = c)) : (c = h[11]);
+        let R = !!v && !!b;
+        (h[12] !== R ? ((m = { enabled: R }), (h[12] = R), (h[13] = m)) : (m = h[13]),
+          h[14] !== y.id || h[15] !== b || h[16] !== c || h[17] !== m
+            ? ((u = {
+                functionName: "getMemberFlowRate",
+                chainId: y.id,
+                address: b,
+                args: c,
+                query: m,
+              }),
+              (h[14] = y.id),
+              (h[15] = b),
+              (h[16] = c),
+              (h[17] = m),
+              (h[18] = u))
+            : (u = h[18]));
+        let { data: S } = (0, r.qIq)(u);
+        (h[19] !== N || h[20] !== S || h[21] !== v || h[22] !== b || h[23] !== w
+          ? ((x = ["accumulated-liquidity-rewards", v, b, w, S, N]),
+            (h[19] = N),
+            (h[20] = S),
+            (h[21] = v),
+            (h[22] = b),
+            (h[23] = w),
+            (h[24] = x))
+          : (x = h[24]),
+          h[25] !== N || h[26] !== S || h[27] !== w
+            ? ((p = () =>
+                void 0 === w || void 0 === S || void 0 === N
+                  ? null
+                  : { balance: w, flowRate: S, timestamp: BigInt(Math.floor(N / 1e3)) }),
+              (h[25] = N),
+              (h[26] = S),
+              (h[27] = w),
+              (h[28] = p))
+            : (p = h[28]));
+        let k = !!v && !!b;
+        return (
+          h[29] !== p || h[30] !== k || h[31] !== x
+            ? ((f = { queryKey: x, queryFn: p, enabled: k }),
+              (h[29] = p),
+              (h[30] = k),
+              (h[31] = x),
+              (h[32] = f))
+            : (f = h[32]),
+          (0, n.useQuery)(f)
+        );
+      }
+    },
+    50384: (e, t, a) => {
+      Promise.resolve().then(a.bind(a, 30797));
+    },
+    51191: (e, t, a) => {
+      "use strict";
+      a.d(t, { I: () => o });
+      var s = a(13938),
+        r = a(55522),
+        n = a(80751),
+        i = a(57650),
+        l = a(82544);
+      function o(e) {
+        let t,
+          a,
+          o,
+          d,
+          c,
+          m,
+          u,
+          x,
+          p,
+          f,
+          h = (0, s.c)(33),
+          { lockerAddress: v } = e,
+          { airdropChain: y } = (0, i.A)();
+        h[0] === Symbol.for("react.memo_cache_sentinel")
+          ? ((t = { queryKey: ["stakingStats"], queryFn: l.b }), (h[0] = t))
+          : (t = h[0]);
+        let { data: g } = (0, n.useQuery)(t),
+          b = g?.taxDistributionPool;
+        h[1] !== v ? ((a = [v]), (h[1] = v), (h[2] = a)) : (a = h[2]);
+        let j = !!v && !!b;
+        (h[3] !== j ? ((o = { enabled: j }), (h[3] = j), (h[4] = o)) : (o = h[4]),
+          h[5] !== y.id || h[6] !== a || h[7] !== o || h[8] !== b
+            ? ((d = {
+                functionName: "getTotalAmountReceivedByMember",
+                chainId: y.id,
+                address: b,
+                args: a,
+                query: o,
+              }),
+              (h[5] = y.id),
+              (h[6] = a),
+              (h[7] = o),
+              (h[8] = b),
+              (h[9] = d))
+            : (d = h[9]));
+        let { data: w, dataUpdatedAt: N } = (0, r.qIq)(d);
+        h[10] !== v ? ((c = [v]), (h[10] = v), (h[11] = c)) : (c = h[11]);
+        let R = !!v && !!b;
+        (h[12] !== R ? ((m = { enabled: R }), (h[12] = R), (h[13] = m)) : (m = h[13]),
+          h[14] !== y.id || h[15] !== c || h[16] !== m || h[17] !== b
+            ? ((u = {
+                functionName: "getMemberFlowRate",
+                chainId: y.id,
+                address: b,
+                args: c,
+                query: m,
+              }),
+              (h[14] = y.id),
+              (h[15] = c),
+              (h[16] = m),
+              (h[17] = b),
+              (h[18] = u))
+            : (u = h[18]));
+        let { data: S } = (0, r.qIq)(u);
+        (h[19] !== N || h[20] !== S || h[21] !== v || h[22] !== b || h[23] !== w
+          ? ((x = ["accumulated-rewards", v, b, w, S, N]),
+            (h[19] = N),
+            (h[20] = S),
+            (h[21] = v),
+            (h[22] = b),
+            (h[23] = w),
+            (h[24] = x))
+          : (x = h[24]),
+          h[25] !== N || h[26] !== S || h[27] !== w
+            ? ((p = () =>
+                void 0 === w || void 0 === S || void 0 === N
+                  ? null
+                  : { balance: w, flowRate: S, timestamp: BigInt(Math.floor(N / 1e3)) }),
+              (h[25] = N),
+              (h[26] = S),
+              (h[27] = w),
+              (h[28] = p))
+            : (p = h[28]));
+        let k = !!v && !!b;
+        return (
+          h[29] !== p || h[30] !== k || h[31] !== x
+            ? ((f = { queryKey: x, queryFn: p, enabled: k }),
+              (h[29] = p),
+              (h[30] = k),
+              (h[31] = x),
+              (h[32] = f))
+            : (f = h[32]),
+          (0, n.useQuery)(f)
+        );
+      }
+    },
+    63086: (e, t, a) => {
+      "use strict";
+      function s(e) {
+        return `${e.slice(0, 6)}...${e.slice(-4)}`;
+      }
+      a.d(t, { L: () => s });
+    },
+    67817: (e, t, a) => {
+      "use strict";
+      a.d(t, { a: () => r });
+      var s = a(55498);
+      let r = (0, s.createServerReference)(
+        "0099a827feb87232328ca49a8aaec8daa5598e5c0c",
+        s.callServer,
+        void 0,
+        s.findSourceMapURL,
+        "getLiquidityRewardsStats",
+      );
+    },
+    76186: (e, t, a) => {
+      "use strict";
+      a.d(t, { O: () => n, a: () => r });
+      var s = a(51072);
+      function r(e) {
+        if (null == e) return "$0.00";
+        let t = "string" == typeof e ? Number.parseFloat(e) : e;
+        return Number.isNaN(t) || 0 === t
+          ? "$0.00"
+          : t >= 1e6
+            ? `$${(t / 1e6).toFixed(2)}M`
+            : t >= 1e3
+              ? `$${(t / 1e3).toFixed(1)}K`
+              : `$${t.toFixed(2)}`;
+      }
+      function n(e, t) {
+        return e && t && 0n !== e ? r(Number((0, s.c)(e)) * t) : "$0";
+      }
+    },
+    82544: (e, t, a) => {
+      "use strict";
+      a.d(t, { b: () => r });
+      var s = a(55498);
+      let r = (0, s.createServerReference)(
+        "00a6446d221d62d46ca41e7294731c14ab30fc9053",
+        s.callServer,
+        void 0,
+        s.findSourceMapURL,
+        "getStakingStats",
+      );
+    },
+    84032: (e, t, a) => {
+      "use strict";
+      a.d(t, { Af: () => l, _9: () => r, hy: () => n, uV: () => i });
+      var s = a(43118);
+      let r = (0, s.g)("0.0001"),
+        n = (0, s.g)("10"),
+        i = 7,
+        l = 365;
+    },
+    84736: (e, t, a) => {
+      "use strict";
+      a.d(t, { x: () => r });
+      var s = a(5663);
+      function r(e) {
+        return (0, s.Vw)(2628000n * e);
+      }
+    },
+    88039: (e, t, a) => {
+      "use strict";
+      a.d(t, { o: () => n });
+      var s = a(13938),
+        r = a(39186);
+      function n(e, t) {
+        let a,
+          n,
+          i = (0, s.c)(4),
+          l = void 0 === t ? 500 : t,
+          [o, d] = (0, r.useState)(e);
+        return (
+          i[0] !== l || i[1] !== e
+            ? ((a = () => {
+                let t = setTimeout(() => {
+                  d(e);
+                }, l);
+                return () => {
+                  clearTimeout(t);
+                };
+              }),
+              (n = [e, l]),
+              (i[0] = l),
+              (i[1] = e),
+              (i[2] = a),
+              (i[3] = n))
+            : ((a = i[2]), (n = i[3])),
+          (0, r.useEffect)(a, n),
+          o
+        );
+      }
+    },
+    97929: (e, t, a) => {
+      "use strict";
+      a.d(t, { q: () => h });
+      var s = a(29745),
+        r = a(67574),
+        n = a(88761),
+        i = a(69779),
+        l = a(43118),
+        o = a(12573),
+        d = a(39186),
+        c = a(28250),
+        m = a(30335),
+        u = a(57650),
+        x = a(51760),
+        p = a(48707),
+        f = a(327);
+      function h(e) {
+        let { accountAddress: t } = e,
+          { airdropChain: a } = (0, u.A)(),
+          h = (0, f.S)(),
+          v = (0, s.wig)({
+            functionName: "getUserLocker",
+            chainId: a.id,
+            args: [t],
+            query: { enabled: !!t },
+          }),
+          [y] = v.data ?? [void 0],
+          g = (0, s.E5R)({
+            functionName: "createLockerContract",
+            chainId: a.id,
+            account: t,
+            query: { enabled: !!t && !1 === y },
+            stateOverride: [{ address: t, balance: (0, l.g)("100") }],
+          }),
+          b = g?.data?.request,
+          j = (0, n.useEstimateGas)({
+            chainId: a.id,
+            to: b?.address,
+            data: b ? (0, o.p)(b) : void 0,
+            query: { select: (e) => (120n * e) / 100n, enabled: !!b },
+          }),
+          w = j.data,
+          N = (0, s.Tes)(),
+          R = N.data,
+          S = (0, i.useWaitForTransactionReceipt)({
+            chainId: a.id,
+            hash: R,
+            query: { enabled: !!R },
+          });
+        (0, d.useEffect)(() => {
+          "success" === S.status &&
+            h.invalidateQueries({ queryKey: (0, x.I)({ address: r.rq[a.id] }) });
+        }, [S.status]);
+        let k = S.data,
+          D = v.refetch;
+        (0, d.useEffect)(() => {
+          k?.status === "success" && D();
+        }, [k?.status, D]);
+        let A = N.writeContract,
+          I = (0, d.useCallback)(() => {
+            if (!b) {
+              (g.error && console.error(g.error),
+                console.error("Error! No transaction simulation data available."));
+              return;
+            }
+            A({ ...b, gas: w });
+          }, [b, w, A, g.error]);
+        (0, c.R)({ simulate: g, estimate: j, waitFor: S });
+        let F = (0, m.O)({ simulate: g, estimate: j, waitFor: S, write: N });
+        return (
+          (0, p.k)({ simulate: g, estimate: j, write: N, waitFor: S, eventName: "Create Reserve" }),
+          {
+            readGetUserLocker: v,
+            simulateCreateLocker: g,
+            estimateCreateLocker: j,
+            writeCreateLocker: N,
+            waitForTransactionCreateLocker: S,
+            createLocker: I,
+            status: F,
+          }
+        );
+      }
+    },
+  },
+  (e) => {
+    (e.O(
+      0,
+      [
+        3230, 9679, 3103, 4725, 833, 2825, 41, 1734, 7638, 3718, 2186, 9189, 880, 472, 6047, 8559,
+        1841, 3906, 3353, 327, 657, 1115, 1656, 3656, 7358,
+      ],
+      () => e((e.s = 50384)),
+    ),
+      (_N_E = e.O()));
+  },
+]);

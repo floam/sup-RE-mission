@@ -1,0 +1,1043 @@
+try {
+  let e =
+      "u" > typeof window
+        ? window
+        : "u" > typeof global
+          ? global
+          : "u" > typeof globalThis
+            ? globalThis
+            : "u" > typeof self
+              ? self
+              : {},
+    r = new e.Error().stack;
+  r &&
+    ((e._sentryDebugIds = e._sentryDebugIds || {}),
+    (e._sentryDebugIds[r] = "a29cf140-5825-42b0-b30b-c4cd40d6047f"),
+    (e._sentryDebugIdIdentifier = "sentry-dbid-a29cf140-5825-42b0-b30b-c4cd40d6047f"));
+} catch (e) {}
+{
+  let e =
+    "u" > typeof window
+      ? window
+      : "u" > typeof global
+        ? global
+        : "u" > typeof globalThis
+          ? globalThis
+          : "u" > typeof self
+            ? self
+            : {};
+  ((e._sentryModuleMetadata = e._sentryModuleMetadata || {}),
+    (e._sentryModuleMetadata[new e.Error().stack] = Object.assign(
+      {},
+      e._sentryModuleMetadata[new e.Error().stack],
+      { "_sentryBundlerPluginAppKey:claim-app": !0 },
+    )));
+}
+(self.webpackChunk_N_E = self.webpackChunk_N_E || []).push([
+  [6069],
+  {
+    5104: (e, r, n) => {
+      "use strict";
+      n.d(r, { S: () => m, i: () => c });
+      var s = n(58906),
+        t = n(13938),
+        a = n(39186),
+        i = n(35283),
+        o = n(5663),
+        l = n(52247);
+      let d = ["Ongoing", "Season 6", "Season 5", "Season 4", "Season 3", "Season 2", "Season 1"];
+      function m(e) {
+        if (
+          e.some(
+            (e) =>
+              e.program?.onchainInfo?.isFundingStarted &&
+              !e.program?.onchainInfo?.isFundingFinished &&
+              !e.isExpired,
+          )
+        )
+          return "Ongoing";
+        let r = e.reduce((e, r) => (r.season ? Math.max(e, Number(r.season)) : e), 0);
+        return r > 0 ? `Season ${r}` : "Ongoing";
+      }
+      function c(e) {
+        let r,
+          n,
+          m,
+          c,
+          u,
+          h,
+          p,
+          f,
+          v,
+          b = (0, t.c)(25),
+          { value: g, onChange: x } = e,
+          [y, P] = (0, a.useState)(!1);
+        (b[0] !== x || b[1] !== g
+          ? ((r = d.map((e) =>
+              (0, s.jsx)(
+                i.E,
+                {
+                  variant: g === e ? "primary" : "gray",
+                  className: "cursor-pointer",
+                  onClick: () => x(e),
+                  children: e,
+                },
+                e,
+              ),
+            )),
+            (b[0] = x),
+            (b[1] = g),
+            (b[2] = r))
+          : (r = b[2]),
+          b[3] !== r
+            ? ((n = (0, s.jsx)("div", { className: "hidden gap-2 sm:flex", children: r })),
+              (b[3] = r),
+              (b[4] = n))
+            : (n = b[4]),
+          b[5] !== y ? ((m = () => P(!y)), (b[5] = y), (b[6] = m)) : (m = b[6]));
+        let j = y && "rotate-180";
+        return (
+          b[7] !== j
+            ? ((c = (0, o.cn)("h-4 w-4 transition-transform", j)), (b[7] = j), (b[8] = c))
+            : (c = b[8]),
+          b[9] !== c
+            ? ((u = (0, s.jsx)(l.A, {
+                className: c,
+                "data-sentry-element": "ChevronDown",
+                "data-sentry-source-file": "SeasonFilter.tsx",
+              })),
+              (b[9] = c),
+              (b[10] = u))
+            : (u = b[10]),
+          b[11] !== m || b[12] !== u || b[13] !== g
+            ? ((h = (0, s.jsxs)("button", {
+                onClick: m,
+                className:
+                  "flex w-[180px] items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 font-medium text-sm hover:bg-gray-50",
+                children: [g, u],
+              })),
+              (b[11] = m),
+              (b[12] = u),
+              (b[13] = g),
+              (b[14] = h))
+            : (h = b[14]),
+          b[15] !== y || b[16] !== x || b[17] !== g
+            ? ((p =
+                y &&
+                (0, s.jsx)("div", {
+                  className:
+                    "absolute top-full z-10 mt-1 w-full rounded-md border border-gray-200 bg-gray-50 shadow-lg",
+                  children: d.map((e) =>
+                    (0, s.jsx)(
+                      "button",
+                      {
+                        onClick: () => {
+                          (x(e), P(!1));
+                        },
+                        className: (0, o.cn)(
+                          "w-full px-3 py-2 text-left text-sm hover:bg-gray-100",
+                          g === e && "bg-gray-100 font-medium",
+                        ),
+                        children: e,
+                      },
+                      e,
+                    ),
+                  ),
+                })),
+              (b[15] = y),
+              (b[16] = x),
+              (b[17] = g),
+              (b[18] = p))
+            : (p = b[18]),
+          b[19] !== h || b[20] !== p
+            ? ((f = (0, s.jsxs)("div", { className: "relative sm:hidden", children: [h, p] })),
+              (b[19] = h),
+              (b[20] = p),
+              (b[21] = f))
+            : (f = b[21]),
+          b[22] !== n || b[23] !== f
+            ? ((v = (0, s.jsxs)("div", {
+                className: "flex justify-end",
+                "data-sentry-component": "SeasonFilter",
+                "data-sentry-source-file": "SeasonFilter.tsx",
+                children: [n, f],
+              })),
+              (b[22] = n),
+              (b[23] = f),
+              (b[24] = v))
+            : (v = b[24]),
+          v
+        );
+      }
+    },
+    17444: (e) => {
+      e.exports = function (e, r) {
+        var n = e.length;
+        for (e.sort(r); n--;) e[n] = e[n].value;
+        return e;
+      };
+    },
+    22448: (e, r, n) => {
+      "use strict";
+      n.d(r, { FilteredFluidApps: () => Y });
+      var s = n(58906),
+        t = n(13938),
+        a = n(39186),
+        i = n(67952),
+        o = n(54723),
+        l = n(29745),
+        d = n(55522),
+        m = n(80751),
+        c = n(57650),
+        u = n(48161),
+        h = n(82189),
+        p = n(35283),
+        f = n(75674),
+        v = n(26622),
+        b = n(52873),
+        g = "Progress",
+        [x, y] = (0, v.A)(g),
+        [P, j] = x(g),
+        N = a.forwardRef((e, r) => {
+          var n, t;
+          let { __scopeProgress: a, value: i = null, max: o, getValueLabel: l = A, ...d } = e;
+          (o || 0 === o) &&
+            !S(o) &&
+            console.error(
+              ((n = `${o}`),
+              `Invalid prop \`max\` of value \`${n}\` supplied to \`Progress\`. Only numbers greater than 0 are valid max values. Defaulting to \`100\`.`),
+            );
+          let m = S(o) ? o : 100;
+          null === i ||
+            E(i, m) ||
+            console.error(
+              ((t = `${i}`),
+              `Invalid prop \`value\` of value \`${t}\` supplied to \`Progress\`. The \`value\` prop must be:
+  - a positive number
+  - less than the value passed to \`max\` (or 100 if no \`max\` prop is set)
+  - \`null\` or \`undefined\` if the progress is indeterminate.
+
+Defaulting to \`null\`.`),
+            );
+          let c = E(i, m) ? i : null,
+            u = C(c) ? l(c, m) : void 0;
+          return (0, s.jsx)(P, {
+            scope: a,
+            value: c,
+            max: m,
+            children: (0, s.jsx)(b.sG.div, {
+              "aria-valuemax": m,
+              "aria-valuemin": 0,
+              "aria-valuenow": C(c) ? c : void 0,
+              "aria-valuetext": u,
+              role: "progressbar",
+              "data-state": I(c, m),
+              "data-value": c ?? void 0,
+              "data-max": m,
+              ...d,
+              ref: r,
+            }),
+          });
+        });
+      N.displayName = g;
+      var w = "ProgressIndicator",
+        F = a.forwardRef((e, r) => {
+          let { __scopeProgress: n, ...t } = e,
+            a = j(w, n);
+          return (0, s.jsx)(b.sG.div, {
+            "data-state": I(a.value, a.max),
+            "data-value": a.value ?? void 0,
+            "data-max": a.max,
+            ...t,
+            ref: r,
+          });
+        });
+      function A(e, r) {
+        return `${Math.round((e / r) * 100)}%`;
+      }
+      function I(e, r) {
+        return null == e ? "indeterminate" : e === r ? "complete" : "loading";
+      }
+      function C(e) {
+        return "number" == typeof e;
+      }
+      function S(e) {
+        return C(e) && !isNaN(e) && e > 0;
+      }
+      function E(e, r) {
+        return C(e) && !isNaN(e) && e <= r && e >= 0;
+      }
+      F.displayName = w;
+      var k = n(5663);
+      let M = a.forwardRef(({ className: e, value: r, ...n }, t) =>
+        (0, s.jsx)(N, {
+          ref: t,
+          className: (0, k.cn)(
+            "relative h-2.5 w-full overflow-hidden rounded-full bg-[#E9E9E9]",
+            e,
+          ),
+          ...n,
+          children: (0, s.jsx)(F, {
+            className: "h-full w-full flex-1 bg-[#86EE1E] transition-all",
+            style: { transform: `translateX(-${100 - (r || 0)}%)` },
+          }),
+        }),
+      );
+      M.displayName = N.displayName;
+      var R = n(98947),
+        _ = n(64436),
+        T = n(84736),
+        O = n(83673),
+        q = n(73223),
+        $ = n.n(q);
+      function B(e) {
+        let { programApp: r } = e,
+          { lockerAddress: n, accountAddress: v } = (0, o.s)(),
+          { data: b } = (function (e) {
+            let r,
+              n,
+              s,
+              a,
+              i,
+              o,
+              u,
+              h,
+              p,
+              f,
+              v,
+              b,
+              g = (0, t.c)(43),
+              { lockerAddress: x, programId: y } = e,
+              { airdropChain: P } = (0, c.A)();
+            g[0] !== y ? ((r = [y]), (g[0] = y), (g[1] = r)) : (r = g[1]);
+            let j = !!x && void 0 !== y;
+            (g[2] !== j ? ((n = { enabled: j }), (g[2] = j), (g[3] = n)) : (n = g[3]),
+              g[4] !== P.id || g[5] !== x || g[6] !== r || g[7] !== n
+                ? ((s = {
+                    functionName: "getProgramPool",
+                    chainId: P.id,
+                    account: x,
+                    args: r,
+                    query: n,
+                  }),
+                  (g[4] = P.id),
+                  (g[5] = x),
+                  (g[6] = r),
+                  (g[7] = n),
+                  (g[8] = s))
+                : (s = g[8]));
+            let { data: N } = (0, l.Rb5)(s);
+            g[9] !== x ? ((a = [x]), (g[9] = x), (g[10] = a)) : (a = g[10]);
+            let w = !!x && !!N;
+            (g[11] !== w ? ((i = { enabled: w }), (g[11] = w), (g[12] = i)) : (i = g[12]),
+              g[13] !== P.id || g[14] !== x || g[15] !== N || g[16] !== a || g[17] !== i
+                ? ((o = {
+                    functionName: "getTotalAmountReceivedByMember",
+                    chainId: P.id,
+                    account: x,
+                    address: N,
+                    args: a,
+                    query: i,
+                  }),
+                  (g[13] = P.id),
+                  (g[14] = x),
+                  (g[15] = N),
+                  (g[16] = a),
+                  (g[17] = i),
+                  (g[18] = o))
+                : (o = g[18]));
+            let { data: F, dataUpdatedAt: A } = (0, d.qIq)(o);
+            g[19] !== x ? ((u = [x]), (g[19] = x), (g[20] = u)) : (u = g[20]);
+            let I = !!x && !!N;
+            (g[21] !== I ? ((h = { enabled: I }), (g[21] = I), (g[22] = h)) : (h = g[22]),
+              g[23] !== P.id || g[24] !== x || g[25] !== N || g[26] !== h || g[27] !== u
+                ? ((p = {
+                    functionName: "getMemberFlowRate",
+                    chainId: P.id,
+                    account: x,
+                    address: N,
+                    args: u,
+                    query: h,
+                  }),
+                  (g[23] = P.id),
+                  (g[24] = x),
+                  (g[25] = N),
+                  (g[26] = h),
+                  (g[27] = u),
+                  (g[28] = p))
+                : (p = g[28]));
+            let { data: C } = (0, d.qIq)(p);
+            return (
+              g[29] !== A || g[30] !== C || g[31] !== x || g[32] !== N || g[33] !== y || g[34] !== F
+                ? ((f = ["program-balance", x, y, N, F, C, A]),
+                  (g[29] = A),
+                  (g[30] = C),
+                  (g[31] = x),
+                  (g[32] = N),
+                  (g[33] = y),
+                  (g[34] = F),
+                  (g[35] = f))
+                : (f = g[35]),
+              g[36] !== A || g[37] !== C || g[38] !== F
+                ? ((v = () =>
+                    void 0 === F || void 0 === C || void 0 === A
+                      ? null
+                      : { balance: F, flowRate: C, timestamp: BigInt(Math.floor(A / 1e3)) }),
+                  (g[36] = A),
+                  (g[37] = C),
+                  (g[38] = F),
+                  (g[39] = v))
+                : (v = g[39]),
+              g[40] !== f || g[41] !== v
+                ? ((b = { queryKey: f, queryFn: v }), (g[40] = f), (g[41] = v), (g[42] = b))
+                : (b = g[42]),
+              (0, m.useQuery)(b)
+            );
+          })({ lockerAddress: n, programId: r.program ? BigInt(r.program.id) : void 0 }),
+          g = b?.balance ?? 0n,
+          x = b?.timestamp ?? 0n,
+          y = b?.flowRate ?? 0n,
+          P = (0, a.useMemo)(() => new URL(r.url), [r.url]),
+          { totalFlowRate: j } = (function (e) {
+            let r,
+              n,
+              s,
+              a,
+              i,
+              o,
+              m = (0, t.c)(16),
+              { programId: u } = e,
+              { airdropChain: h } = (0, c.A)();
+            (m[0] !== u ? ((r = [u]), (m[0] = u), (m[1] = r)) : (r = m[1]),
+              !0 !== m[2] ? ((n = { enabled: !0 }), (m[2] = !0), (m[3] = n)) : (n = m[3]),
+              m[4] !== h.id || m[5] !== r || m[6] !== n
+                ? ((s = { functionName: "getProgramPool", chainId: h.id, args: r, query: n }),
+                  (m[4] = h.id),
+                  (m[5] = r),
+                  (m[6] = n),
+                  (m[7] = s))
+                : (s = m[7]));
+            let { data: p } = (0, l.Rb5)(s),
+              f = !!p;
+            (m[8] !== f ? ((a = { enabled: f }), (m[8] = f), (m[9] = a)) : (a = m[9]),
+              m[10] !== h.id || m[11] !== p || m[12] !== a
+                ? ((i = { functionName: "getTotalFlowRate", chainId: h.id, address: p, query: a }),
+                  (m[10] = h.id),
+                  (m[11] = p),
+                  (m[12] = a),
+                  (m[13] = i))
+                : (i = m[13]));
+            let { data: v } = (0, d.qIq)(i);
+            return (
+              m[14] !== v ? ((o = { totalFlowRate: v }), (m[14] = v), (m[15] = o)) : (o = m[15]),
+              o
+            );
+          })({ programId: r.program ? BigInt(r.program.id) : void 0 }),
+          N = (0, T.x)(j ?? 0n),
+          w = r.program?.onchainInfo?.totalAllocated || r.totalAllocatedHint || 0n,
+          F = r.program?.onchainInfo?.totalClaimed ?? 0n,
+          A = r.program?.onchainInfo?.totalClaimedTimestamp ?? 0,
+          I = r.program?.onchainInfo?.fundingFlowRate ?? 0n,
+          C = r.program?.onchainInfo?.isFundingFinished ?? !1,
+          S = r.isExpired ?? !1;
+        r.program?.onchainInfo?.totalMembers;
+        let E = (0, a.useMemo)(() => {
+          if (!w)
+            return {
+              message: "N/A",
+              percentage: 0n,
+              flowingClaimedElement: (0, s.jsx)("span", { children: "N/A" }),
+            };
+          let e = F > 0n ? Math.max(1, Number((((1000000000n * F) / w) * 100n) / 1000000000n)) : 0n,
+            r = (0, s.jsx)(u.FlowingBalance, {
+              balance: F,
+              balanceTimestamp: A,
+              flowRate: C ? 0n : I,
+              maxBalance: w,
+              dataTestId: "program-total-claimed-flowing",
+              decimalPlaces: 2,
+            });
+          return {
+            percentage: e,
+            message: (0, s.jsxs)(s.Fragment, {
+              children: [r, " ", _.gO, " of ", (0, k.AY)(w), " ", _.gO],
+            }),
+            flowingClaimedElement: r,
+          };
+        }, [w, F, A, I, C]);
+        return (0, s.jsx)(i.Zp, {
+          "data-testid": `${r.name}-row`,
+          className: (0, k.cn)(
+            "border-none bg-white shadow-sm",
+            !r.program && "opacity-60",
+            (C || S) && "opacity-75",
+          ),
+          "data-sentry-element": "Card",
+          "data-sentry-component": "FluidAppCard",
+          "data-sentry-source-file": "FluidAppCard.tsx",
+          children: (0, s.jsx)(i.Wu, {
+            className: "p-3",
+            "data-sentry-element": "CardContent",
+            "data-sentry-source-file": "FluidAppCard.tsx",
+            children: (0, s.jsxs)("div", {
+              className: "grid gap-4 max-md:flex max-md:flex-col md:items-center",
+              style: { gridTemplateColumns: `2fr 0.75fr 1fr 2fr${v ? " 1fr" : ""} 120px` },
+              children: [
+                (0, s.jsxs)("div", {
+                  "data-testid": "program-name-and-image",
+                  className: " flex items-center gap-3",
+                  children: [
+                    (0, s.jsxs)(h.eu, {
+                      className: "h-14 w-14 rounded-md shadow-md",
+                      "data-sentry-element": "Avatar",
+                      "data-sentry-source-file": "FluidAppCard.tsx",
+                      children: [
+                        (0, s.jsx)(h.BK, {
+                          "data-testid": "program-image",
+                          src: r.logoUrl,
+                          "data-sentry-element": "AvatarImage",
+                          "data-sentry-source-file": "FluidAppCard.tsx",
+                        }),
+                        (0, s.jsx)(h.q5, {
+                          "data-sentry-element": "AvatarFallback",
+                          "data-sentry-source-file": "FluidAppCard.tsx",
+                          children: "\uD83D\uDCA1",
+                        }),
+                      ],
+                    }),
+                    (0, s.jsxs)("div", {
+                      className: "flex flex-col gap-2",
+                      children: [
+                        (0, s.jsx)("div", {
+                          "data-testid": "program-name",
+                          className: "font-medium text-subtitle3",
+                          children: r.name,
+                        }),
+                        (0, s.jsx)("div", {
+                          "data-testid": "program-description",
+                          className: "text-caption2 text-muted-foreground",
+                          children: r.description,
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                (0, s.jsx)("div", {
+                  "data-testid": "program-category",
+                  className: "text-sm max-md:hidden",
+                  children: r.category,
+                }),
+                (0, s.jsxs)("div", {
+                  className: "text-sm max-md:flex",
+                  children: [
+                    (0, s.jsx)("span", {
+                      className: "flex-1 font-medium md:hidden",
+                      children: "Total Flowrate",
+                    }),
+                    (0, s.jsxs)("span", {
+                      "data-testid": "program-total-flowrate",
+                      children: [N, " ", _.gO, "/mo"],
+                    }),
+                  ],
+                }),
+                (0, s.jsxs)("div", {
+                  children: [
+                    (0, s.jsxs)("span", {
+                      className: "flex-1 font-medium md:hidden",
+                      children: [_.gO, " Distributed"],
+                    }),
+                    (0, s.jsxs)("div", {
+                      className: "flex flex-col gap-2",
+                      children: [
+                        (0, s.jsxs)("div", {
+                          className: "flex items-center gap-2",
+                          children: [
+                            (0, s.jsx)("div", {
+                              "data-testid": "program-sup-distributed",
+                              className: "text-sm",
+                              children: E.message,
+                            }),
+                            r.program?.sharedAllocation &&
+                              (0, s.jsx)(R.Bc, {
+                                children: (0, s.jsxs)(R.m_, {
+                                  delayDuration: 0,
+                                  children: [
+                                    (0, s.jsx)(R.k$, {
+                                      asChild: !0,
+                                      children: (0, s.jsxs)(p.E, {
+                                        variant: "light",
+                                        size: "xs",
+                                        className: "flex gap-1",
+                                        children: [
+                                          (0, s.jsx)("span", { children: "Shared" }),
+                                          (0, s.jsx)(O.A, { size: 12 }),
+                                        ],
+                                      }),
+                                    }),
+                                    (0, s.jsxs)(R.ZI, {
+                                      children: [
+                                        (0, s.jsx)(R.PR, {}),
+                                        (0, s.jsxs)("p", {
+                                          children: [
+                                            "Shared rewards pool with the ",
+                                            r.category,
+                                            " campaign.",
+                                          ],
+                                        }),
+                                      ],
+                                    }),
+                                  ],
+                                }),
+                              }),
+                          ],
+                        }),
+                        (0, s.jsx)(M, {
+                          value: Number(E.percentage),
+                          className: "w-[75%]",
+                          "data-sentry-element": "Progress",
+                          "data-sentry-source-file": "FluidAppCard.tsx",
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+                (0, s.jsxs)("div", {
+                  className: "text-sm max-md:flex md:hidden",
+                  children: [
+                    (0, s.jsx)("span", {
+                      className: "flex-1 font-medium md:hidden",
+                      children: "Category",
+                    }),
+                    (0, s.jsx)("span", {
+                      "data-testid": "mobile-program-category",
+                      children: r.category,
+                    }),
+                  ],
+                }),
+                !!v &&
+                  (0, s.jsxs)("div", {
+                    className: " font-medium text-sm max-md:flex",
+                    children: [
+                      (0, s.jsx)("span", {
+                        className: "flex-1 font-medium md:hidden",
+                        children: "You Earned",
+                      }),
+                      (0, s.jsx)(u.FlowingBalance, {
+                        dataTestId: "program-you-earned",
+                        balance: g,
+                        flowRate: y,
+                        balanceTimestamp: x,
+                      }),
+                      "\xa0",
+                      _.gO,
+                    ],
+                  }),
+                S
+                  ? (0, s.jsx)(f.$, { disabled: !0, children: "Expired" })
+                  : r.program
+                    ? (0, s.jsx)(f.$, {
+                        asChild: !0,
+                        children: (0, s.jsx)($(), {
+                          "data-testid": "program-link",
+                          href: P,
+                          target: "_blank",
+                          className: "",
+                          children: C ? "Completed" : "Open App",
+                        }),
+                      })
+                    : (0, s.jsx)(f.$, { disabled: !0, children: "Coming soon" }),
+              ],
+            }),
+          }),
+        });
+      }
+      var D = n(67455),
+        Z = n(27792),
+        z = n.n(Z);
+      let K = ({ apps: e }) => {
+        let { accountAddress: r } = (0, o.s)(),
+          [n, t] = (0, a.useState)(!1);
+        (0, a.useEffect)(() => {
+          t(!0);
+        }, []);
+        let l = (0, a.useMemo)(
+          () =>
+            z()(e, [
+              (e) => !e.program,
+              (e) => {
+                if (!e.program) return 3;
+                let r = e.program.onchainInfo;
+                return r.isFundingStarted && !r.isFundingFinished
+                  ? 0
+                  : r.isFundingStarted || r.isFundingFinished
+                    ? 2
+                    : 1;
+              },
+            ]),
+          [e],
+        );
+        return n
+          ? (0, s.jsxs)(i.Zp, {
+              className: "w-full border-none bg-gray-100 shadow-none",
+              "data-sentry-element": "Card",
+              "data-sentry-component": "FluidApps",
+              "data-sentry-source-file": "FluidApps.tsx",
+              children: [
+                (0, s.jsx)(i.aR, {
+                  className: "text-sm max-md:hidden",
+                  "data-sentry-element": "CardHeader",
+                  "data-sentry-source-file": "FluidApps.tsx",
+                  children: (0, s.jsx)(i.ZB, {
+                    className: "text-gray-800",
+                    "data-sentry-element": "CardTitle",
+                    "data-sentry-source-file": "FluidApps.tsx",
+                    children: (0, s.jsxs)("div", {
+                      className: "grid gap-4 font-medium",
+                      style: { gridTemplateColumns: `2fr 0.75fr 1fr 2fr${r ? " 1fr" : ""} 120px` },
+                      children: [
+                        (0, s.jsx)("div", { children: "Campaign" }),
+                        (0, s.jsx)("div", { children: "Category" }),
+                        (0, s.jsx)("div", { children: "Flow Rate" }),
+                        (0, s.jsxs)("div", { children: [_.gO, " Distributed"] }),
+                        !!r && (0, s.jsx)("div", { children: "You Earned" }),
+                        (0, s.jsx)("div", { children: "Action" }),
+                      ],
+                    }),
+                  }),
+                }),
+                (0, s.jsx)(i.Wu, {
+                  className: "space-y-4 p-2",
+                  "data-sentry-element": "CardContent",
+                  "data-sentry-source-file": "FluidApps.tsx",
+                  children: l.map((e) =>
+                    (0, s.jsx)(
+                      D.ComponentResetWhenAccountChanges,
+                      { children: (0, s.jsx)(B, { programApp: e }) },
+                      e.appId,
+                    ),
+                  ),
+                }),
+              ],
+            })
+          : null;
+      };
+      var W = n(5104);
+      function Y(e) {
+        let r,
+          n,
+          i,
+          o,
+          l,
+          d = (0, t.c)(23),
+          { apps: m } = e;
+        d[0] !== m ? ((r = () => (0, W.S)(m)), (d[0] = m), (d[1] = r)) : (r = d[1]);
+        let [c, u] = (0, a.useState)(r);
+        switch (c) {
+          case "Ongoing": {
+            let e;
+            (d[2] !== m ? ((e = m.filter(J)), (d[2] = m), (d[3] = e)) : (e = d[3]), (n = e));
+            break;
+          }
+          case "Season 1": {
+            let e;
+            (d[4] !== m ? ((e = m.filter(X)), (d[4] = m), (d[5] = e)) : (e = d[5]), (n = e));
+            break;
+          }
+          case "Season 2": {
+            let e;
+            (d[6] !== m ? ((e = m.filter(Q)), (d[6] = m), (d[7] = e)) : (e = d[7]), (n = e));
+            break;
+          }
+          case "Season 3": {
+            let e;
+            (d[8] !== m ? ((e = m.filter(L)), (d[8] = m), (d[9] = e)) : (e = d[9]), (n = e));
+            break;
+          }
+          case "Season 4": {
+            let e;
+            (d[10] !== m ? ((e = m.filter(U)), (d[10] = m), (d[11] = e)) : (e = d[11]), (n = e));
+            break;
+          }
+          case "Season 5": {
+            let e;
+            (d[12] !== m ? ((e = m.filter(H)), (d[12] = m), (d[13] = e)) : (e = d[13]), (n = e));
+            break;
+          }
+          case "Season 6": {
+            let e;
+            (d[14] !== m ? ((e = m.filter(G)), (d[14] = m), (d[15] = e)) : (e = d[15]), (n = e));
+            break;
+          }
+          default:
+            n = m;
+        }
+        let h = n;
+        return (
+          d[16] !== c
+            ? ((i = (0, s.jsx)(W.i, {
+                value: c,
+                onChange: u,
+                "data-sentry-element": "SeasonFilter",
+                "data-sentry-source-file": "FilteredFluidApps.tsx",
+              })),
+              (d[16] = c),
+              (d[17] = i))
+            : (i = d[17]),
+          d[18] !== h
+            ? ((o = (0, s.jsx)(K, {
+                apps: h,
+                "data-sentry-element": "FluidApps",
+                "data-sentry-source-file": "FilteredFluidApps.tsx",
+              })),
+              (d[18] = h),
+              (d[19] = o))
+            : (o = d[19]),
+          d[20] !== i || d[21] !== o
+            ? ((l = (0, s.jsxs)("div", {
+                className: "space-y-8",
+                "data-sentry-component": "FilteredFluidApps",
+                "data-sentry-source-file": "FilteredFluidApps.tsx",
+                children: [i, o],
+              })),
+              (d[20] = i),
+              (d[21] = o),
+              (d[22] = l))
+            : (l = d[22]),
+          l
+        );
+      }
+      function G(e) {
+        return "6" === e.season;
+      }
+      function H(e) {
+        return "5" === e.season;
+      }
+      function U(e) {
+        return "4" === e.season;
+      }
+      function L(e) {
+        return "3" === e.season;
+      }
+      function Q(e) {
+        return "2" === e.season;
+      }
+      function X(e) {
+        return "1" === e.season;
+      }
+      function J(e) {
+        return (
+          e.program?.onchainInfo?.isFundingStarted &&
+          !e.program?.onchainInfo?.isFundingFinished &&
+          !e.isExpired
+        );
+      }
+    },
+    27792: (e, r, n) => {
+      var s = n(73278),
+        t = n(90164);
+      e.exports = function (e, r, n, a) {
+        return null == e
+          ? []
+          : (t(r) || (r = null == r ? [] : [r]),
+            t((n = a ? void 0 : n)) || (n = null == n ? [] : [n]),
+            s(e, r, n));
+      };
+    },
+    44183: (e, r, n) => {
+      var s = n(74583);
+      e.exports = function (e, r, n) {
+        for (var t = -1, a = e.criteria, i = r.criteria, o = a.length, l = n.length; ++t < o;) {
+          var d = s(a[t], i[t]);
+          if (d) {
+            if (t >= l) return d;
+            return d * ("desc" == n[t] ? -1 : 1);
+          }
+        }
+        return e.index - r.index;
+      };
+    },
+    48285: (e, r, n) => {
+      var s = n(60832),
+        t = n(7155);
+      e.exports = function (e, r) {
+        var n = -1,
+          a = t(e) ? Array(e.length) : [];
+        return (
+          s(e, function (e, s, t) {
+            a[++n] = r(e, s, t);
+          }),
+          a
+        );
+      };
+    },
+    73278: (e, r, n) => {
+      var s = n(48489),
+        t = n(75027),
+        a = n(26160),
+        i = n(48285),
+        o = n(17444),
+        l = n(15416),
+        d = n(44183),
+        m = n(30357),
+        c = n(90164);
+      e.exports = function (e, r, n) {
+        r = r.length
+          ? s(r, function (e) {
+              return c(e)
+                ? function (r) {
+                    return t(r, 1 === e.length ? e[0] : e);
+                  }
+                : e;
+            })
+          : [m];
+        var u = -1;
+        return (
+          (r = s(r, l(a))),
+          o(
+            i(e, function (e, n, t) {
+              return {
+                criteria: s(r, function (r) {
+                  return r(e);
+                }),
+                index: ++u,
+                value: e,
+              };
+            }),
+            function (e, r) {
+              return d(e, r, n);
+            },
+          )
+        );
+      };
+    },
+    74583: (e, r, n) => {
+      var s = n(47263);
+      e.exports = function (e, r) {
+        if (e !== r) {
+          var n = void 0 !== e,
+            t = null === e,
+            a = e == e,
+            i = s(e),
+            o = void 0 !== r,
+            l = null === r,
+            d = r == r,
+            m = s(r);
+          if (
+            (!l && !m && !i && e > r) ||
+            (i && o && d && !l && !m) ||
+            (t && o && d) ||
+            (!n && d) ||
+            !a
+          )
+            return 1;
+          if (
+            (!t && !i && !m && e < r) ||
+            (m && n && a && !t && !i) ||
+            (l && n && a) ||
+            (!o && a) ||
+            !d
+          )
+            return -1;
+        }
+        return 0;
+      };
+    },
+    99455: (e, r, n) => {
+      (Promise.resolve().then(n.bind(n, 85997)),
+        Promise.resolve().then(n.bind(n, 22448)),
+        Promise.resolve().then(n.bind(n, 67455)),
+        Promise.resolve().then(n.bind(n, 48161)),
+        Promise.resolve().then(n.bind(n, 88199)),
+        Promise.resolve().then(n.bind(n, 81864)),
+        Promise.resolve().then(n.bind(n, 78350)),
+        Promise.resolve().then(n.bind(n, 14048)),
+        Promise.resolve().then(n.bind(n, 67145)),
+        Promise.resolve().then(n.bind(n, 86043)),
+        Promise.resolve().then(n.bind(n, 94705)),
+        Promise.resolve().then(n.bind(n, 15708)),
+        Promise.resolve().then(n.bind(n, 60179)),
+        Promise.resolve().then(n.bind(n, 16332)),
+        Promise.resolve().then(n.bind(n, 80751)),
+        Promise.resolve().then(n.bind(n, 79515)),
+        Promise.resolve().then(n.bind(n, 27387)),
+        Promise.resolve().then(n.bind(n, 56367)),
+        Promise.resolve().then(n.bind(n, 40588)),
+        Promise.resolve().then(n.bind(n, 43964)),
+        Promise.resolve().then(n.bind(n, 22523)),
+        Promise.resolve().then(n.bind(n, 83077)),
+        Promise.resolve().then(n.bind(n, 69017)),
+        Promise.resolve().then(n.bind(n, 44037)),
+        Promise.resolve().then(n.bind(n, 86833)),
+        Promise.resolve().then(n.bind(n, 42033)),
+        Promise.resolve().then(n.bind(n, 36193)),
+        Promise.resolve().then(n.bind(n, 54477)),
+        Promise.resolve().then(n.bind(n, 25711)),
+        Promise.resolve().then(n.bind(n, 52362)),
+        Promise.resolve().then(n.bind(n, 7138)),
+        Promise.resolve().then(n.bind(n, 19673)),
+        Promise.resolve().then(n.bind(n, 19504)),
+        Promise.resolve().then(n.bind(n, 88215)),
+        Promise.resolve().then(n.bind(n, 43644)),
+        Promise.resolve().then(n.bind(n, 41700)),
+        Promise.resolve().then(n.bind(n, 52598)),
+        Promise.resolve().then(n.bind(n, 60385)),
+        Promise.resolve().then(n.bind(n, 87377)),
+        Promise.resolve().then(n.bind(n, 45185)),
+        Promise.resolve().then(n.bind(n, 64159)),
+        Promise.resolve().then(n.bind(n, 72893)),
+        Promise.resolve().then(n.bind(n, 18393)),
+        Promise.resolve().then(n.bind(n, 42740)),
+        Promise.resolve().then(n.bind(n, 83477)),
+        Promise.resolve().then(n.bind(n, 88761)),
+        Promise.resolve().then(n.bind(n, 19104)),
+        Promise.resolve().then(n.bind(n, 48572)),
+        Promise.resolve().then(n.bind(n, 58213)),
+        Promise.resolve().then(n.bind(n, 45820)),
+        Promise.resolve().then(n.bind(n, 4440)),
+        Promise.resolve().then(n.bind(n, 1546)),
+        Promise.resolve().then(n.bind(n, 12480)),
+        Promise.resolve().then(n.bind(n, 58765)),
+        Promise.resolve().then(n.bind(n, 50414)),
+        Promise.resolve().then(n.bind(n, 79117)),
+        Promise.resolve().then(n.bind(n, 17294)),
+        Promise.resolve().then(n.bind(n, 91088)),
+        Promise.resolve().then(n.bind(n, 16142)),
+        Promise.resolve().then(n.bind(n, 54441)),
+        Promise.resolve().then(n.bind(n, 61265)),
+        Promise.resolve().then(n.bind(n, 70109)),
+        Promise.resolve().then(n.bind(n, 42951)),
+        Promise.resolve().then(n.bind(n, 50120)),
+        Promise.resolve().then(n.bind(n, 40184)),
+        Promise.resolve().then(n.bind(n, 59214)),
+        Promise.resolve().then(n.bind(n, 21024)),
+        Promise.resolve().then(n.bind(n, 36026)),
+        Promise.resolve().then(n.bind(n, 82379)),
+        Promise.resolve().then(n.bind(n, 16694)),
+        Promise.resolve().then(n.bind(n, 72257)),
+        Promise.resolve().then(n.bind(n, 58732)),
+        Promise.resolve().then(n.bind(n, 63394)),
+        Promise.resolve().then(n.bind(n, 64109)),
+        Promise.resolve().then(n.bind(n, 97928)),
+        Promise.resolve().then(n.bind(n, 69779)),
+        Promise.resolve().then(n.bind(n, 45885)),
+        Promise.resolve().then(n.bind(n, 63222)),
+        Promise.resolve().then(n.bind(n, 55857)),
+        Promise.resolve().then(n.bind(n, 61589)),
+        Promise.resolve().then(n.bind(n, 14508)),
+        Promise.resolve().then(n.bind(n, 53816)),
+        Promise.resolve().then(n.bind(n, 57906)),
+        Promise.resolve().then(n.bind(n, 16810)));
+    },
+  },
+  (e) => {
+    (e.O(
+      0,
+      [
+        3230, 3103, 4226, 6271, 8007, 7396, 5247, 4725, 833, 2825, 41, 1734, 7638, 3718, 2186, 9189,
+        880, 6465, 1573, 4107, 5427, 8010, 1841, 3906, 3353, 327, 657, 1938, 9443, 1656, 3656, 7358,
+      ],
+      () => e((e.s = 99455)),
+    ),
+      (_N_E = e.O()));
+  },
+]);

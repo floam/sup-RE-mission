@@ -1,0 +1,81 @@
+try {
+  let e =
+      "u" > typeof window
+        ? window
+        : "u" > typeof global
+          ? global
+          : "u" > typeof globalThis
+            ? globalThis
+            : "u" > typeof self
+              ? self
+              : {},
+    t = new e.Error().stack;
+  t &&
+    ((e._sentryDebugIds = e._sentryDebugIds || {}),
+    (e._sentryDebugIds[t] = "8667247d-7839-47ce-a3cb-cadbfd2eb95f"),
+    (e._sentryDebugIdIdentifier = "sentry-dbid-8667247d-7839-47ce-a3cb-cadbfd2eb95f"));
+} catch (e) {}
+{
+  let e =
+    "u" > typeof window
+      ? window
+      : "u" > typeof global
+        ? global
+        : "u" > typeof globalThis
+          ? globalThis
+          : "u" > typeof self
+            ? self
+            : {};
+  ((e._sentryModuleMetadata = e._sentryModuleMetadata || {}),
+    (e._sentryModuleMetadata[new e.Error().stack] = Object.assign(
+      {},
+      e._sentryModuleMetadata[new e.Error().stack],
+      { "_sentryBundlerPluginAppKey:claim-app": !0 },
+    )));
+}
+(self.webpackChunk_N_E = self.webpackChunk_N_E || []).push([
+  [7358],
+  {
+    47711: (e, t, s) => {
+      "use strict";
+      var a = s(22425),
+        r = s(13222),
+        i = s(11325);
+      let l = (0, s(59306).si)({ level: 3 });
+      ((globalThis._sentryRewritesTunnelPath = void 0),
+        (globalThis.SENTRY_RELEASE = { id: "86f877198c3de122f95bf75bc578f5e963df2dc3" }),
+        (globalThis._sentryBasePath = void 0),
+        (globalThis._sentryRewriteFramesAssetPrefixPath = ""),
+        (globalThis._sentryAssetPrefix = void 0),
+        (globalThis._sentryExperimentalThirdPartyOriginStackFrames = void 0),
+        (globalThis._sentryRouteManifest =
+          '{"dynamicRoutes":[],"staticRoutes":[{"path":"/apps"},{"path":"/claim"},{"path":"/governance"},{"path":"/leaderboard"},{"path":"/liquidity"},{"path":"/reserve"},{"path":"/reserve-names"},{"path":"/staking"},{"path":"/swap"}]}'),
+        l.wrapConsole(),
+        a.Ts({
+          dsn: "https://9fd35ff6b93f02bf12db94dc3334a22d@o717968.ingest.us.sentry.io/4508680893169664",
+          debug: !1,
+          integrations: [
+            r.q({ levels: ["error"] }),
+            i.y({
+              filterKeys: ["claim-app"],
+              behaviour: "drop-error-if-exclusively-contains-third-party-frames",
+            }),
+          ],
+        }));
+    },
+    60044: () => {},
+    61758: (e, t, s) => {
+      (Promise.resolve().then(s.t.bind(s, 55235, 23)),
+        Promise.resolve().then(s.t.bind(s, 15369, 23)),
+        Promise.resolve().then(s.t.bind(s, 58050, 23)),
+        Promise.resolve().then(s.t.bind(s, 37458, 23)),
+        Promise.resolve().then(s.t.bind(s, 13312, 23)),
+        Promise.resolve().then(s.t.bind(s, 94523, 23)),
+        Promise.resolve().then(s.bind(s, 1090)));
+    },
+  },
+  (e) => {
+    var t = (t) => e((e.s = t));
+    (e.O(0, [1656, 3656], () => (t(47711), t(65894), t(61758))), (_N_E = e.O()));
+  },
+]);

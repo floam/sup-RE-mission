@@ -1,0 +1,831 @@
+try {
+  let e =
+      "u" > typeof window
+        ? window
+        : "u" > typeof global
+          ? global
+          : "u" > typeof globalThis
+            ? globalThis
+            : "u" > typeof self
+              ? self
+              : {},
+    t = new e.Error().stack;
+  t &&
+    ((e._sentryDebugIds = e._sentryDebugIds || {}),
+    (e._sentryDebugIds[t] = "e528a391-c7d4-4399-8f7c-391b8f4eafbd"),
+    (e._sentryDebugIdIdentifier = "sentry-dbid-e528a391-c7d4-4399-8f7c-391b8f4eafbd"));
+} catch (e) {}
+{
+  let e =
+    "u" > typeof window
+      ? window
+      : "u" > typeof global
+        ? global
+        : "u" > typeof globalThis
+          ? globalThis
+          : "u" > typeof self
+            ? self
+            : {};
+  ((e._sentryModuleMetadata = e._sentryModuleMetadata || {}),
+    (e._sentryModuleMetadata[new e.Error().stack] = Object.assign(
+      {},
+      e._sentryModuleMetadata[new e.Error().stack],
+      { "_sentryBundlerPluginAppKey:claim-app": !0 },
+    )));
+}
+("use strict");
+(self.webpackChunk_N_E = self.webpackChunk_N_E || []).push([
+  [7396],
+  {
+    7138: (e, t, s) => {
+      s.d(t, { useChains: () => o });
+      var r = s(51193);
+      let n = [];
+      function a(e) {
+        let t = e.chains;
+        return (0, r.b)(n, t) ? n : ((n = t), t);
+      }
+      var i = s(39186),
+        u = s(19504);
+      function o(e = {}) {
+        let t = (0, u.useConfig)(e);
+        return (0, i.useSyncExternalStore)(
+          (e) =>
+            (function (e, t) {
+              let { onChange: s } = t;
+              return e._internal.chains.subscribe((e, t) => {
+                s(e, t);
+              });
+            })(t, { onChange: e }),
+          () => a(t),
+          () => a(t),
+        );
+      }
+    },
+    16332: (e, t, s) => {
+      s.d(t, { useQueries: () => y });
+      var r = s(39186),
+        n = s(19141),
+        a = s(94787),
+        i = s(92526),
+        u = s(58716);
+      function o(e, t) {
+        let s = new Set(t);
+        return e.filter((e) => !s.has(e));
+      }
+      var l = class extends i.Q {
+          #e;
+          #t;
+          #s;
+          #r;
+          #n;
+          #a;
+          #i;
+          #u;
+          #o;
+          #l = [];
+          constructor(e, t, s) {
+            (super(),
+              (this.#e = e),
+              (this.#r = s),
+              (this.#s = []),
+              (this.#n = []),
+              (this.#t = []),
+              this.setQueries(t));
+          }
+          onSubscribe() {
+            1 === this.listeners.size &&
+              this.#n.forEach((e) => {
+                e.subscribe((t) => {
+                  this.#c(e, t);
+                });
+              });
+          }
+          onUnsubscribe() {
+            this.listeners.size || this.destroy();
+          }
+          destroy() {
+            ((this.listeners = new Set()),
+              this.#n.forEach((e) => {
+                e.destroy();
+              }));
+          }
+          setQueries(e, t) {
+            ((this.#s = e),
+              (this.#r = t),
+              n.jG.batch(() => {
+                let e = this.#n,
+                  t = this.#d(this.#s);
+                t.forEach((e) => e.observer.setOptions(e.defaultedQueryOptions));
+                let s = t.map((e) => e.observer),
+                  r = s.map((e) => e.getCurrentResult()),
+                  n = e.length !== s.length,
+                  a = s.some((t, s) => t !== e[s]),
+                  i = n || a,
+                  l =
+                    !!i ||
+                    r.some((e, t) => {
+                      let s = this.#t[t];
+                      return !s || !(0, u.f8)(e, s);
+                    });
+                (i || l) &&
+                  (i && ((this.#l = t), (this.#n = s)),
+                  (this.#t = r),
+                  this.hasListeners() &&
+                    (i &&
+                      (o(e, s).forEach((e) => {
+                        e.destroy();
+                      }),
+                      o(s, e).forEach((e) => {
+                        e.subscribe((t) => {
+                          this.#c(e, t);
+                        });
+                      })),
+                    this.#h()));
+              }));
+          }
+          getCurrentResult() {
+            return this.#t;
+          }
+          getQueries() {
+            return this.#n.map((e) => e.getCurrentQuery());
+          }
+          getObservers() {
+            return this.#n;
+          }
+          getOptimisticResult(e, t) {
+            let s = this.#d(e),
+              r = s.map((e) => e.observer.getOptimisticResult(e.defaultedQueryOptions)),
+              n = s.map((e) => e.defaultedQueryOptions.queryHash);
+            return [r, (e) => this.#f(e ?? r, t, n), () => this.#p(r, s)];
+          }
+          #p(e, t) {
+            return t.map((s, r) => {
+              let n = e[r];
+              return s.defaultedQueryOptions.notifyOnChangeProps
+                ? n
+                : s.observer.trackResult(n, (e) => {
+                    t.forEach((t) => {
+                      t.observer.trackProp(e);
+                    });
+                  });
+            });
+          }
+          #f(e, t, s) {
+            if (t) {
+              let r = this.#o,
+                n =
+                  void 0 !== s &&
+                  void 0 !== r &&
+                  (r.length !== s.length || s.some((e, t) => e !== r[t]));
+              return (
+                (!this.#a || this.#t !== this.#u || n || t !== this.#i) &&
+                  ((this.#i = t),
+                  (this.#u = this.#t),
+                  void 0 !== s && (this.#o = s),
+                  (this.#a = (0, u.BH)(this.#a, t(e)))),
+                this.#a
+              );
+            }
+            return e;
+          }
+          #d(e) {
+            let t = new Map();
+            this.#n.forEach((e) => {
+              let s = e.options.queryHash;
+              if (!s) return;
+              let r = t.get(s);
+              r ? r.push(e) : t.set(s, [e]);
+            });
+            let s = [];
+            return (
+              e.forEach((e) => {
+                let r = this.#e.defaultQueryOptions(e),
+                  n = t.get(r.queryHash)?.shift() ?? new a.$(this.#e, r);
+                s.push({ defaultedQueryOptions: r, observer: n });
+              }),
+              s
+            );
+          }
+          #c(e, t) {
+            let s = this.#n.indexOf(e);
+            if (-1 !== s) {
+              var r;
+              let e;
+              ((this.#t = ((r = this.#t), ((e = r.slice(0))[s] = t), e)), this.#h());
+            }
+          }
+          #h() {
+            if (this.hasListeners()) {
+              let e = this.#a,
+                t = this.#p(this.#t, this.#l);
+              e !== this.#f(t, this.#r?.combine) &&
+                n.jG.batch(() => {
+                  this.listeners.forEach((e) => {
+                    e(this.#t);
+                  });
+                });
+            }
+          }
+        },
+        c = s(14048),
+        d = s(78350),
+        h = s(67145),
+        f = s(71471),
+        p = s(57070);
+      function y({ queries: e, ...t }, s) {
+        let i = (0, c.useQueryClient)(s),
+          o = (0, d.useIsRestoring)(),
+          b = (0, h.useQueryErrorResetBoundary)(),
+          m = r.useMemo(
+            () =>
+              e.map((e) => {
+                let t = i.defaultQueryOptions(e);
+                return ((t._optimisticResults = o ? "isRestoring" : "optimistic"), t);
+              }),
+            [e, i, o],
+          );
+        (m.forEach((e) => {
+          (0, p.jv)(e);
+          let t = i.getQueryCache().get(e.queryHash);
+          (0, f.LJ)(e, b, t);
+        }),
+          (0, f.wZ)(b));
+        let [v] = r.useState(() => new l(i, m, t)),
+          [g, w, C] = v.getOptimisticResult(m, t.combine),
+          E = !o && !1 !== t.subscribed;
+        (r.useSyncExternalStore(
+          r.useCallback((e) => (E ? v.subscribe(n.jG.batchCalls(e)) : u.lQ), [v, E]),
+          () => v.getCurrentResult(),
+          () => v.getCurrentResult(),
+        ),
+          r.useEffect(() => {
+            v.setQueries(m, t);
+          }, [m, t, v]));
+        let R = g.some((e, t) => (0, p.EU)(m[t], e))
+          ? g.flatMap((e, t) => {
+              let s = m[t];
+              if (s && (0, p.EU)(s, e)) {
+                let e = new a.$(i, s);
+                return (0, p.iL)(s, e, b);
+              }
+              return [];
+            })
+          : [];
+        if (R.length > 0) throw Promise.all(R);
+        let q = g.find((e, t) => {
+          let s = m[t];
+          return (
+            s &&
+            (0, f.$1)({
+              result: e,
+              errorResetBoundary: b,
+              throwOnError: s.throwOnError,
+              query: i.getQueryCache().get(s.queryHash),
+              suspense: s.suspense,
+            })
+          );
+        });
+        if (q?.error) throw q.error;
+        return w(C());
+      }
+    },
+    16514: (e, t, s) => {
+      s.d(t, { F: () => a });
+      var r = s(66395),
+        n = s(63588);
+      async function a(e, t = {}) {
+        let { account: s = e.account, chainId: i } = t,
+          u = s ? (0, r.J)(s) : void 0,
+          o = i ? [u?.address, [(0, n.cK)(i)]] : [u?.address],
+          l = await e.request({ method: "wallet_getCapabilities", params: o }),
+          c = {};
+        for (let [e, t] of Object.entries(l))
+          for (let [s, r] of ((c[Number(e)] = {}), Object.entries(t)))
+            ("addSubAccount" === s && (s = "unstable_addSubAccount"), (c[Number(e)][s] = r));
+        return "number" == typeof i ? c[i] : c;
+      }
+    },
+    17326: (e, t, s) => {
+      s.d(t, { B: () => a, a: () => i });
+      var r = s(84743),
+        n = s(8044);
+      function a(e, t = {}) {
+        return {
+          async queryFn({ queryKey: t }) {
+            let { address: s, scopeKey: n, ...a } = t[1];
+            if (!s) throw Error("address is required");
+            return (await (0, r.r)(e, { ...a, address: s })) ?? null;
+          },
+          queryKey: i(t),
+        };
+      }
+      function i(e = {}) {
+        return ["balance", (0, n.xO)(e)];
+      }
+    },
+    21024: (e, t, s) => {
+      s.d(t, { useSwitchChain: () => u });
+      var r = s(15708),
+        n = s(10292),
+        a = s(7138),
+        i = s(19504);
+      function u(e = {}) {
+        let { mutation: t } = e,
+          s = (0, i.useConfig)(e),
+          o = { mutationFn: (e) => (0, n.S)(s, e), mutationKey: ["switchChain"] },
+          { mutate: l, mutateAsync: c, ...d } = (0, r.useMutation)({ ...t, ...o });
+        return {
+          ...d,
+          chains: (0, a.useChains)({ config: s }),
+          switchChain: l,
+          switchChainAsync: c,
+        };
+      }
+    },
+    25292: (e, t, s) => {
+      s.d(t, { t: () => n });
+      var r = s(16469);
+      async function n(e) {
+        return e.account?.type === "local"
+          ? [e.account.address]
+          : (await e.request({ method: "eth_accounts" }, { dedupe: !0 })).map((e) => (0, r.o)(e));
+      }
+    },
+    28447: (e, t, s) => {
+      s.d(t, { C: () => i });
+      var r = s(66395),
+        n = s(26377),
+        a = s(83354);
+      async function i(e, t) {
+        let { account: s = e.account, domain: i, message: u, primaryType: o } = t;
+        if (!s) throw new n.T({ docsPath: "/docs/actions/wallet/signTypedData" });
+        let l = (0, r.J)(s),
+          c = { EIP712Domain: (0, a.H4)({ domain: i }), ...t.types };
+        if (((0, a.$$)({ domain: i, message: u, primaryType: o, types: c }), l.signTypedData))
+          return l.signTypedData({ domain: i, message: u, primaryType: o, types: c });
+        let d = (0, a.v8)({ domain: i, message: u, primaryType: o, types: c });
+        return e.request(
+          { method: "eth_signTypedData_v4", params: [l.address, d] },
+          { retryCount: 0 },
+        );
+      }
+    },
+    29363: (e, t, s) => {
+      s.d(t, { k: () => o });
+      var r = s(65029),
+        n = s(39101),
+        a = s(95491),
+        i = s(89524),
+        u = s(89695);
+      async function o(e, t) {
+        let s;
+        async function o(t) {
+          if (t.endsWith(u.vB.slice(2))) {
+            let s = (0, n.B)((0, r.iN)(t, -64, -32)),
+              i = (0, r.iN)(t, 0, -64)
+                .slice(2)
+                .match(/.{1,64}/g),
+              o = await Promise.all(
+                i.map((t) =>
+                  u.BH.slice(2) !== t
+                    ? e.request(
+                        { method: "eth_getTransactionReceipt", params: [`0x${t}`] },
+                        { dedupe: !0 },
+                      )
+                    : void 0,
+                ),
+              ),
+              l = o.some((e) => null === e)
+                ? 100
+                : o.every((e) => e?.status === "0x1")
+                  ? 200
+                  : o.every((e) => e?.status === "0x0")
+                    ? 500
+                    : 600;
+            return {
+              atomic: !1,
+              chainId: (0, a.ME)(s),
+              receipts: o.filter(Boolean),
+              status: l,
+              version: "2.0.0",
+            };
+          }
+          return e.request({ method: "wallet_getCallsStatus", params: [t] });
+        }
+        let { atomic: l = !1, chainId: c, receipts: d, version: h = "2.0.0", ...f } = await o(t.id),
+          [p, y] =
+            (s = f.status) >= 100 && s < 200
+              ? ["pending", s]
+              : s >= 200 && s < 300
+                ? ["success", s]
+                : s >= 300 && s < 700
+                  ? ["failure", s]
+                  : "CONFIRMED" === s
+                    ? ["success", 200]
+                    : "PENDING" === s
+                      ? ["pending", 100]
+                      : [void 0, s];
+        return {
+          ...f,
+          atomic: l,
+          chainId: c ? (0, a.ME)(c) : void 0,
+          receipts:
+            d?.map((e) => ({
+              ...e,
+              blockNumber: (0, a.uU)(e.blockNumber),
+              gasUsed: (0, a.uU)(e.gasUsed),
+              status: i.Lj[e.status],
+            })) ?? [],
+          statusCode: y,
+          status: p,
+          version: h,
+        };
+      }
+    },
+    38588: (e, t, s) => {
+      s.d(t, { c: () => h });
+      var r = s(93313);
+      class n extends r.C {
+        constructor(e) {
+          (super(`Call bundle failed with status: ${e.statusCode}`, { name: "BundleFailedError" }),
+            Object.defineProperty(this, "result", {
+              enumerable: !0,
+              configurable: !0,
+              writable: !0,
+              value: void 0,
+            }),
+            (this.result = e));
+        }
+      }
+      var a = s(15754),
+        i = s(4664),
+        u = s(88353),
+        o = s(98117),
+        l = s(320),
+        c = s(60529),
+        d = s(29363);
+      async function h(e, t) {
+        let s,
+          {
+            id: r,
+            pollingInterval: h = e.pollingInterval,
+            status: p = ({ statusCode: e }) => 200 === e || e >= 300,
+            retryCount: y = 4,
+            retryDelay: b = ({ count: e }) => 200 * ~~(1 << e),
+            timeout: m = 6e4,
+            throwOnFailure: v = !1,
+          } = t,
+          g = (0, c.A)(["waitForCallsStatus", e.uid, r]),
+          { promise: w, resolve: C, reject: E } = (0, o.Y)(),
+          R = (0, i.lB)(g, { resolve: C, reject: E }, (t) => {
+            let i = (0, u.w)(
+              async () => {
+                let u = (e) => {
+                  (clearTimeout(s), i(), e(), R());
+                };
+                try {
+                  let s = await (0, l.b)(
+                    async () => {
+                      let t = await (0, a.T)(e, d.k, "getCallsStatus")({ id: r });
+                      if (v && "failure" === t.status) throw new n(t);
+                      return t;
+                    },
+                    { retryCount: y, delay: b },
+                  );
+                  if (!p(s)) return;
+                  u(() => t.resolve(s));
+                } catch (e) {
+                  u(() => t.reject(e));
+                }
+              },
+              { interval: h, emitOnBegin: !0 },
+            );
+            return i;
+          });
+        return (
+          (s = m
+            ? setTimeout(() => {
+                (R(), clearTimeout(s), E(new f({ id: r })));
+              }, m)
+            : void 0),
+          await w
+        );
+      }
+      class f extends r.C {
+        constructor({ id: e }) {
+          super(`Timed out while waiting for call bundle with id "${e}" to be confirmed.`, {
+            name: "WaitForCallsStatusTimeoutError",
+          });
+        }
+      }
+    },
+    42033: (e, t, s) => {
+      s.d(t, { useBytecode: () => c });
+      var r = s(71673),
+        n = s(47513);
+      async function a(e, t) {
+        let { chainId: s, ...a } = t,
+          i = e.getClient({ chainId: s });
+        return (0, n.T)(i, r.Q, "getBytecode")(a);
+      }
+      var i = s(8044),
+        u = s(3133),
+        o = s(52362),
+        l = s(19504);
+      function c(e = {}) {
+        let { address: t, query: s = {} } = e,
+          r = (0, l.useConfig)(e),
+          n = (0, o.useChainId)({ config: r }),
+          d = (function (e, t = {}) {
+            var s;
+            return {
+              async queryFn({ queryKey: t }) {
+                let { address: s, scopeKey: r, ...n } = t[1];
+                if (!s) throw Error("address is required");
+                return (await a(e, { ...n, address: s })) ?? null;
+              },
+              queryKey: ((s = t), ["getBytecode", (0, i.xO)(s)]),
+            };
+          })(r, { ...e, chainId: e.chainId ?? n }),
+          h = !!(t && (s.enabled ?? !0));
+        return (0, u.IT)({ ...s, ...d, enabled: h });
+      }
+    },
+    52598: (e, t, s) => {
+      s.d(t, { useConnectors: () => o });
+      var r = s(7502);
+      let n = [];
+      function a(e) {
+        let t = e.connectors;
+        return n.length === t.length && n.every((e, s) => e === t[s]) ? n : ((n = t), t);
+      }
+      var i = s(39186),
+        u = s(19504);
+      function o(e = {}) {
+        let t = (0, u.useConfig)(e);
+        return (0, i.useSyncExternalStore)(
+          (e) => (0, r.O)(t, { onChange: e }),
+          () => a(t),
+          () => a(t),
+        );
+      }
+    },
+    69779: (e, t, s) => {
+      s.d(t, { useWaitForTransactionReceipt: () => o });
+      var r = s(86669),
+        n = s(8044),
+        a = s(3133),
+        i = s(52362),
+        u = s(19504);
+      function o(e = {}) {
+        let { hash: t, query: s = {} } = e,
+          l = (0, u.useConfig)(e),
+          c = (0, i.useChainId)({ config: l }),
+          d = (function (e, t = {}) {
+            return {
+              async queryFn({ queryKey: s }) {
+                let { hash: n, ...a } = s[1];
+                if (!n) throw Error("hash is required");
+                return (0, r.n)(e, { ...a, onReplaced: t.onReplaced, hash: n });
+              },
+              queryKey: (function (e = {}) {
+                let { onReplaced: t, ...s } = e;
+                return ["waitForTransactionReceipt", (0, n.xO)(s)];
+              })(t),
+            };
+          })(l, { ...e, chainId: e.chainId ?? c }),
+          h = !!(t && (s.enabled ?? !0));
+        return (0, a.IT)({ ...s, ...d, enabled: h });
+      }
+    },
+    72257: (e, t, s) => {
+      s.d(t, { useTransactionCount: () => c });
+      var r = s(14459),
+        n = s(47513);
+      async function a(e, t) {
+        let { address: s, blockNumber: a, blockTag: i, chainId: u } = t,
+          o = e.getClient({ chainId: u });
+        return (0, n.T)(
+          o,
+          r.y,
+          "getTransactionCount",
+        )(a ? { address: s, blockNumber: a } : { address: s, blockTag: i });
+      }
+      var i = s(8044),
+        u = s(3133),
+        o = s(52362),
+        l = s(19504);
+      function c(e = {}) {
+        let { address: t, query: s = {} } = e,
+          r = (0, l.useConfig)(e),
+          n = (0, o.useChainId)({ config: r }),
+          d = (function (e, t = {}) {
+            return {
+              async queryFn({ queryKey: t }) {
+                let { address: s, scopeKey: r, ...n } = t[1];
+                if (!s) throw Error("address is required");
+                return (await a(e, { ...n, address: s })) ?? null;
+              },
+              queryKey: (function (e = {}) {
+                return ["transactionCount", (0, i.xO)(e)];
+              })(t),
+            };
+          })(r, { ...e, chainId: e.chainId ?? n }),
+          h = !!(t && (s.enabled ?? !0));
+        return (0, u.IT)({ ...s, ...d, enabled: h });
+      }
+    },
+    83077: (e, t, s) => {
+      s.d(t, { useBalance: () => u });
+      var r = s(17326),
+        n = s(3133),
+        a = s(52362),
+        i = s(19504);
+      function u(e = {}) {
+        let { address: t, query: s = {} } = e,
+          o = (0, i.useConfig)(e),
+          l = (0, a.useChainId)({ config: o }),
+          c = (0, r.B)(o, { ...e, chainId: e.chainId ?? l }),
+          d = !!(t && (s.enabled ?? !0));
+        return (0, n.IT)({ ...s, ...c, enabled: d });
+      }
+    },
+    88215: (e, t, s) => {
+      s.d(t, { useConnect: () => o });
+      var r = s(15708),
+        n = s(55011),
+        a = s(39186),
+        i = s(19504),
+        u = s(52598);
+      function o(e = {}) {
+        let { mutation: t } = e,
+          s = (0, i.useConfig)(e),
+          l = { mutationFn: (e) => (0, n.N)(s, e), mutationKey: ["connect"] },
+          { mutate: c, mutateAsync: d, ...h } = (0, r.useMutation)({ ...t, ...l });
+        return (
+          (0, a.useEffect)(
+            () =>
+              s.subscribe(
+                ({ status: e }) => e,
+                (e, t) => {
+                  "connected" === t && "disconnected" === e && h.reset();
+                },
+              ),
+            [s, h.reset],
+          ),
+          { ...h, connect: c, connectAsync: d, connectors: (0, u.useConnectors)({ config: s }) }
+        );
+      }
+    },
+    88761: (e, t, s) => {
+      s.d(t, { useEstimateGas: () => l });
+      var r = s(68718),
+        n = s(8044),
+        a = s(3133),
+        i = s(52362),
+        u = s(19504),
+        o = s(41700);
+      function l(e = {}) {
+        let { connector: t, query: s = {} } = e,
+          c = (0, u.useConfig)(e),
+          { data: d } = (0, o.useConnectorClient)({
+            config: c,
+            connector: t,
+            query: { enabled: void 0 === e.account },
+          }),
+          h = e.account ?? d?.account,
+          f = (0, i.useChainId)({ config: c }),
+          p = (function (e, t = {}) {
+            return {
+              async queryFn({ queryKey: s }) {
+                let { connector: n } = t,
+                  { account: a, scopeKey: i, ...u } = s[1];
+                if (!a && !n) throw Error("account or connector is required");
+                return (0, r.Q)(e, { account: a, connector: n, ...u });
+              },
+              queryKey: (function (e = {}) {
+                let { connector: t, ...s } = e;
+                return ["estimateGas", (0, n.xO)(s)];
+              })(t),
+            };
+          })(c, { ...e, account: h, chainId: e.chainId ?? f, connector: t }),
+          y = !!((h || t) && (s.enabled ?? !0));
+        return (0, a.IT)({ ...s, ...p, enabled: y });
+      }
+    },
+    89695: (e, t, s) => {
+      s.d(t, { BH: () => f, vB: () => h, yM: () => p });
+      var r = s(66395),
+        n = s(93313),
+        a = s(35477),
+        i = s(12573),
+        u = s(4677),
+        o = s(95491),
+        l = s(63588),
+        c = s(76462),
+        d = s(64234);
+      let h = "0x5792579257925792579257925792579257925792579257925792579257925792",
+        f = (0, l.cK)(0, { size: 32 });
+      async function p(e, t) {
+        let {
+            account: s = e.account,
+            chain: p = e.chain,
+            experimental_fallback: y,
+            experimental_fallbackDelay: b = 32,
+            forceAtomic: m = !1,
+            id: v,
+            version: g = "2.0.0",
+          } = t,
+          w = s ? (0, r.J)(s) : null,
+          C = t.capabilities;
+        e.dataSuffix &&
+          !t.capabilities?.dataSuffix &&
+          (C =
+            "string" == typeof e.dataSuffix
+              ? { ...t.capabilities, dataSuffix: { value: e.dataSuffix, optional: !0 } }
+              : {
+                  ...t.capabilities,
+                  dataSuffix: {
+                    value: e.dataSuffix.value,
+                    ...(e.dataSuffix.required ? {} : { optional: !0 }),
+                  },
+                });
+        let E = t.calls.map((e) => {
+          let t = e.abi
+            ? (0, i.p)({ abi: e.abi, functionName: e.functionName, args: e.args })
+            : e.data;
+          return {
+            data: e.dataSuffix && t ? (0, u.xW)([t, e.dataSuffix]) : t,
+            to: e.to,
+            value: e.value ? (0, l.cK)(e.value) : void 0,
+          };
+        });
+        try {
+          let t = await e.request(
+            {
+              method: "wallet_sendCalls",
+              params: [
+                {
+                  atomicRequired: m,
+                  calls: E,
+                  capabilities: C,
+                  chainId: (0, l.cK)(p.id),
+                  from: w?.address,
+                  id: v,
+                  version: g,
+                },
+              ],
+            },
+            { retryCount: 0 },
+          );
+          if ("string" == typeof t) return { id: t };
+          return t;
+        } catch (s) {
+          if (
+            y &&
+            ("MethodNotFoundRpcError" === s.name ||
+              "MethodNotSupportedRpcError" === s.name ||
+              "UnknownRpcError" === s.name ||
+              s.details.toLowerCase().includes("does not exist / is not available") ||
+              s.details.toLowerCase().includes("missing or invalid. request()") ||
+              s.details.toLowerCase().includes("did not match any variant of untagged enum") ||
+              s.details.toLowerCase().includes("account upgraded to unsupported contract") ||
+              s.details.toLowerCase().includes("eip-7702 not supported") ||
+              s.details.toLowerCase().includes("unsupported wc_ method") ||
+              s.details.toLowerCase().includes("feature toggled misconfigured") ||
+              s.details
+                .toLowerCase()
+                .includes("jsonrpcengine: response has no error or result for request"))
+          ) {
+            if (C && Object.values(C).some((e) => !e.optional)) {
+              let e =
+                "non-optional `capabilities` are not supported on fallback to `eth_sendTransaction`.";
+              throw new a.L5(new n.C(e, { details: e }));
+            }
+            if (m && E.length > 1) {
+              let e = "`forceAtomic` is not supported on fallback to `eth_sendTransaction`.";
+              throw new a.jz(new n.C(e, { details: e }));
+            }
+            let t = [];
+            for (let s of E) {
+              let r = (0, d.v)(e, {
+                account: w,
+                chain: p,
+                data: s.data,
+                to: s.to,
+                value: s.value ? (0, o.uU)(s.value) : void 0,
+              });
+              (t.push(r), b > 0 && (await new Promise((e) => setTimeout(e, b))));
+            }
+            let s = await Promise.allSettled(t);
+            if (s.every((e) => "rejected" === e.status)) throw s[0].reason;
+            let r = s.map((e) => ("fulfilled" === e.status ? e.value : f));
+            return { id: (0, u.xW)([...r, (0, l.cK)(p.id, { size: 32 }), h]) };
+          }
+          throw (0, c.p)(s, { ...t, account: w, chain: t.chain });
+        }
+      }
+    },
+  },
+]);

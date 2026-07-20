@@ -1,0 +1,1603 @@
+try {
+  let e =
+      "u" > typeof window
+        ? window
+        : "u" > typeof global
+          ? global
+          : "u" > typeof globalThis
+            ? globalThis
+            : "u" > typeof self
+              ? self
+              : {},
+    a = new e.Error().stack;
+  a &&
+    ((e._sentryDebugIds = e._sentryDebugIds || {}),
+    (e._sentryDebugIds[a] = "6549e982-b035-4f3d-8e09-82f614ef36ed"),
+    (e._sentryDebugIdIdentifier = "sentry-dbid-6549e982-b035-4f3d-8e09-82f614ef36ed"));
+} catch (e) {}
+{
+  let e =
+    "u" > typeof window
+      ? window
+      : "u" > typeof global
+        ? global
+        : "u" > typeof globalThis
+          ? globalThis
+          : "u" > typeof self
+            ? self
+            : {};
+  ((e._sentryModuleMetadata = e._sentryModuleMetadata || {}),
+    (e._sentryModuleMetadata[new e.Error().stack] = Object.assign(
+      {},
+      e._sentryModuleMetadata[new e.Error().stack],
+      { "_sentryBundlerPluginAppKey:claim-app": !0 },
+    )));
+}
+("use strict");
+(self.webpackChunk_N_E = self.webpackChunk_N_E || []).push([
+  [1938],
+  {
+    12373: (e, a, t) => {
+      t.d(a, { w: () => u });
+      var n = t(58906),
+        o = t(13938),
+        i = t(39186),
+        r = t(21772),
+        l = t(75674),
+        s = t(99943),
+        p = t(5663),
+        d = t(30403),
+        c = t(73223),
+        g = t.n(c);
+      let m = (e) => {
+        let a,
+          t,
+          i,
+          r,
+          c,
+          m,
+          u,
+          b,
+          f,
+          h,
+          x = (0, o.c)(27),
+          { open: y, onOpenChange: v, app: j, openOnboarding: w } = e;
+        (x[0] !== j.name
+          ? ((a = (0, n.jsx)(s.N5, {
+              className: "hidden",
+              "data-sentry-element": "ResponsiveDialogTitle",
+              "data-sentry-source-file": "AppOptionsModal.tsx",
+              children: j.name,
+            })),
+            (x[0] = j.name),
+            (x[1] = a))
+          : (a = x[1]),
+          x[2] === Symbol.for("react.memo_cache_sentinel")
+            ? ((t = (0, n.jsx)(s.Hq, {
+                className: "hidden",
+                "data-sentry-element": "ResponsiveDialogDescription",
+                "data-sentry-source-file": "AppOptionsModal.tsx",
+                children: "View campaign app details",
+              })),
+              (x[2] = t))
+            : (t = x[2]));
+        let S = "#0400F5" === j.bgColor,
+          C = "#000000" === j.bgColor;
+        return (
+          x[3] !== S || x[4] !== C
+            ? ((i = (0, p.cn)("relative mb-4 w-full rounded-lg pb-[100%] sm:mb-6", {
+                "bg-[#0400F5]": S,
+                "bg-[#000000]": C,
+              })),
+              (x[3] = S),
+              (x[4] = C),
+              (x[5] = i))
+            : (i = x[5]),
+          x[6] !== j.coverUrl || x[7] !== j.name
+            ? ((r = (0, n.jsx)(d.default, {
+                priority: !0,
+                unoptimized: !0,
+                src: j.coverUrl,
+                alt: j.name,
+                fill: !0,
+                className: "z-[1] rounded-md object-cover",
+                "data-sentry-element": "Image",
+                "data-sentry-source-file": "AppOptionsModal.tsx",
+              })),
+              (x[6] = j.coverUrl),
+              (x[7] = j.name),
+              (x[8] = r))
+            : (r = x[8]),
+          x[9] !== i || x[10] !== r
+            ? ((c = (0, n.jsx)("div", { className: i, children: r })),
+              (x[9] = i),
+              (x[10] = r),
+              (x[11] = c))
+            : (c = x[11]),
+          x[12] !== w
+            ? ((m = (0, n.jsx)(l.$, {
+                "data-testid": "how-to-earn-button",
+                onClick: w,
+                "data-sentry-element": "Button",
+                "data-sentry-source-file": "AppOptionsModal.tsx",
+                children: "How to earn",
+              })),
+              (x[12] = w),
+              (x[13] = m))
+            : (m = x[13]),
+          x[14] !== j.url
+            ? ((u = (0, n.jsx)(l.$, {
+                "data-testid": "open-app-button",
+                variant: "outline",
+                asChild: !0,
+                "data-sentry-element": "Button",
+                "data-sentry-source-file": "AppOptionsModal.tsx",
+                children: (0, n.jsx)(g(), {
+                  href: j.url,
+                  target: "_blank",
+                  "data-sentry-element": "Link",
+                  "data-sentry-source-file": "AppOptionsModal.tsx",
+                  children: "Open App",
+                }),
+              })),
+              (x[14] = j.url),
+              (x[15] = u))
+            : (u = x[15]),
+          x[16] !== m || x[17] !== u
+            ? ((b = (0, n.jsxs)("div", { className: "flex flex-col gap-3", children: [m, u] })),
+              (x[16] = m),
+              (x[17] = u),
+              (x[18] = b))
+            : (b = x[18]),
+          x[19] !== a || x[20] !== b || x[21] !== c
+            ? ((f = (0, n.jsxs)(s.sL, {
+                className:
+                  "w-full max-w-full rounded-lg bg-[url('/app-options-modal-bg.svg'),linear-gradient(115deg,#E9E9E9_12%,#FFF_98%)] bg-center bg-cover bg-platinum p-4 pt-12 sm:w-[316px]",
+                "data-sentry-element": "ResponsiveDialogContent",
+                "data-sentry-source-file": "AppOptionsModal.tsx",
+                children: [a, t, c, b],
+              })),
+              (x[19] = a),
+              (x[20] = b),
+              (x[21] = c),
+              (x[22] = f))
+            : (f = x[22]),
+          x[23] !== v || x[24] !== y || x[25] !== f
+            ? ((h = (0, n.jsx)(s.RF, {
+                open: y,
+                onOpenChange: v,
+                "data-sentry-element": "ResponsiveDialog",
+                "data-sentry-component": "AppOptionsModal",
+                "data-sentry-source-file": "AppOptionsModal.tsx",
+                children: f,
+              })),
+              (x[23] = v),
+              (x[24] = y),
+              (x[25] = f),
+              (x[26] = h))
+            : (h = x[26]),
+          h
+        );
+      };
+      function u(e) {
+        let a,
+          t,
+          l,
+          s,
+          p,
+          d,
+          c,
+          g,
+          u,
+          b = (0, o.c)(21),
+          { apps: f, children: h } = e,
+          [x, y] = (0, i.useState)(null),
+          [v, j] = (0, i.useState)(!1),
+          [w, S] = (0, i.useState)(!1);
+        if (b[0] !== x || b[1] !== f) {
+          let e;
+          (b[3] !== x ? ((e = (e) => e.appId === x), (b[3] = x), (b[4] = e)) : (e = b[4]),
+            (a = f.find(e)),
+            (b[0] = x),
+            (b[1] = f),
+            (b[2] = a));
+        } else a = b[2];
+        let C = a;
+        b[5] === Symbol.for("react.memo_cache_sentinel")
+          ? ((t = (e) => {
+              (y(e), S(!0));
+            }),
+            (b[5] = t))
+          : (t = b[5]);
+        let N = t;
+        b[6] === Symbol.for("react.memo_cache_sentinel")
+          ? ((l = () => {
+              (S(!1), j(!0));
+            }),
+            (b[6] = l))
+          : (l = b[6]);
+        let A = l;
+        b[7] === Symbol.for("react.memo_cache_sentinel")
+          ? ((s = (e) => {
+              e ||
+                (S(!1),
+                setTimeout(() => {
+                  y(null);
+                }, 300));
+            }),
+            (b[7] = s))
+          : (s = b[7]);
+        let B = s;
+        b[8] === Symbol.for("react.memo_cache_sentinel")
+          ? ((p = (e) => {
+              e ||
+                (j(!1),
+                setTimeout(() => {
+                  y(null);
+                }, 300));
+            }),
+            (b[8] = p))
+          : (p = b[8]);
+        let F = p;
+        return (
+          b[9] !== h ? ((d = h({ openAppModal: N })), (b[9] = h), (b[10] = d)) : (d = b[10]),
+          b[11] !== C || b[12] !== w
+            ? ((c = !!C && (0, n.jsx)(m, { app: C, open: w, onOpenChange: B, openOnboarding: A })),
+              (b[11] = C),
+              (b[12] = w),
+              (b[13] = c))
+            : (c = b[13]),
+          b[14] !== C || b[15] !== v
+            ? ((g = !!C && (0, n.jsx)(r.A, { app: C, open: v, onOpenChange: F })),
+              (b[14] = C),
+              (b[15] = v),
+              (b[16] = g))
+            : (g = b[16]),
+          b[17] !== d || b[18] !== c || b[19] !== g
+            ? ((u = (0, n.jsxs)(n.Fragment, { children: [d, c, g] })),
+              (b[17] = d),
+              (b[18] = c),
+              (b[19] = g),
+              (b[20] = u))
+            : (u = b[20]),
+          u
+        );
+      }
+    },
+    21772: (e, a, t) => {
+      t.d(a, { A: () => j, d: () => y });
+      var n = t(58906),
+        o = t(13938),
+        i = t(75674),
+        r = t(35283),
+        l = t(67952),
+        s = t(86830),
+        p = t(88199),
+        d = t(5663),
+        c = t(57142),
+        g = t(31467),
+        m = t(60641),
+        u = t(80532),
+        b = t(30403),
+        f = t(73223),
+        h = t.n(f),
+        x = t(39186);
+      let y = {
+          "s2-alfafrens": {
+            level: 1,
+            budget: 15,
+            steps: [
+              {
+                label: "Onboard to AlfaFrens",
+                title: "Onboard to AlfaFrens",
+                description: "Join AlfaFrens and complete the quick onboarding process.",
+                image: "/app-onboarding/alfafrens-step-1.png",
+              },
+              {
+                label: "Subscribe to channel",
+                title: "Subscribe",
+                description:
+                  "Subscribe to any channel of your choice for exclusive chat access and earn AF and SUP!",
+                image: "/app-onboarding/alfafrens-step-2.png",
+              },
+            ],
+          },
+          "s2-superboring": {
+            level: 1,
+            budget: 30,
+            steps: [
+              {
+                label: "Select token pair",
+                title: "Token pair",
+                description: "Choose any token pair on Base or Optimism to start your DCA.",
+                image: "/app-onboarding/superboring-step-1.png",
+              },
+              {
+                label: "Setup DCA",
+                title: "Invest and chill",
+                description:
+                  "Your trade is split into small, automated swaps over time—reducing volatility and optimizing your entry price effortlessly.",
+                image: "/app-onboarding/superboring-step-2.png",
+              },
+              {
+                label: "Stake BORING (optional)",
+                title: "Stake",
+                description:
+                  "For each DCA position you earn BORING token you can stake and earn additional income!",
+                image: "/app-onboarding/superboring-step-3.png",
+              },
+            ],
+          },
+          "s2-superboring-2nd-wave": {
+            level: 1,
+            budget: 30,
+            steps: [
+              {
+                label: "Select token pair",
+                title: "Token pair",
+                description: "Choose any token pair on Arbitrum to start your DCA.",
+                image: "/app-onboarding/superboring-step-1.png",
+              },
+              {
+                label: "Setup DCA",
+                title: "Invest and chill",
+                description:
+                  "Your trade is split into small, automated swaps over time—reducing volatility and optimizing your entry price effortlessly.",
+                image: "/app-onboarding/superboring-step-2.png",
+              },
+            ],
+          },
+          "s2-giveth": {
+            level: 1,
+            budget: 19,
+            steps: [
+              {
+                label: "Find project",
+                title: "Explore projects",
+                description: "Pick any of the causes, and Donate on Base or Optimism.",
+                image: "/app-onboarding/giveth-step-1.png",
+              },
+              {
+                label: "Recurring donation",
+                title: "Donate",
+                description: (0, n.jsxs)(n.Fragment, {
+                  children: [
+                    "Select the “Recurring Donation” feature, specify the token and amount and start a stream by clicking “Donate”.",
+                    (0, n.jsx)("br", {}),
+                    (0, n.jsx)("br", {}),
+                    "Remember: You",
+                    "’",
+                    "ll only earn SUP for active streams!",
+                  ],
+                }),
+                image: "/app-onboarding/giveth-step-2.png",
+              },
+            ],
+          },
+          "s2-flow-state": {
+            level: 2,
+            budget: 10,
+            steps: [
+              {
+                label: "Select",
+                title: "Round selection",
+                description: "Scroll down and select an active round.",
+                image: "/app-onboarding/flow-state-step-1.png",
+              },
+              {
+                label: "Grow the pie",
+                title: "Grow the pie",
+                description:
+                  "Click “Grow the pie” to distribute your donation between different projects.",
+                image: "/app-onboarding/flow-state-step-2.png",
+              },
+              {
+                label: "...or donate",
+                title: "Donate",
+                description: "You can also select one project you want to donate to.",
+                image: "/app-onboarding/flow-state-step-3.png",
+              },
+            ],
+          },
+          "s2-flow-state-farcaster": {
+            level: 2,
+            budget: 10,
+            steps: [
+              {
+                label: "Add Flow Caster",
+                title: "Connect Flow Caster to Farcaster",
+                description:
+                  "Add the Flow Caster mini app to your Farcaster account & enable notifications.",
+                image: "/app-onboarding/FSonFC-Step-1.png",
+              },
+              {
+                label: "Start a Stream",
+                title: "Stream to Builders",
+                description:
+                  "Start a Superfluid stream that's split to dozens of builders in real-time.",
+                image: "/app-onboarding/FSonFC-Step-2.png",
+              },
+              {
+                label: "Share & Earn",
+                title: "Share Flow Caster for Bonuses",
+                description: "Share Flow Caster in your feed to earn SUP bonuses.",
+                image: "/app-onboarding/FSonFC-Step-3.png",
+              },
+            ],
+          },
+          "s2-goodbuilders-flow-council": {
+            level: 3,
+            budget: 10,
+            steps: [
+              {
+                label: "Join GoodDollar",
+                title: "Claim Your Votes",
+                description: "Claim your first 10 votes by joining GoodDollar.",
+                image: "/app-onboarding/GoodBuilders-Step-1.png",
+              },
+              {
+                label: "Build Your Ballot",
+                title: "Vote for Builders",
+                description: "Add your favorite GoodBuilders to your ballot & submit it onchain.",
+                image: "/app-onboarding/GoodBuilders-Step-2.png",
+              },
+              {
+                label: "Share & Earn",
+                title: "Grow & Share",
+                description:
+                  '"Grow the Pie" and/or share your participation on X, Farcaster, & Lens for SUP bonuses.',
+                image: "/app-onboarding/GoodBuilders-Step-3.png",
+              },
+            ],
+          },
+          "s2-gooddollar": {
+            level: 1,
+            budget: 10,
+            steps: [
+              {
+                label: "Sign up",
+                title: "Get G$",
+                description: "Join the GoodDollar and complete the quick onboarding process.",
+                image: "/app-onboarding/gooddollar-step-1.png",
+              },
+              {
+                label: "Claim daily G$",
+                title: "Claim",
+                description: "Remember to come back daily to claim your G$",
+                image: "/app-onboarding/gooddollar-step-2.png",
+              },
+            ],
+          },
+          "s2-activation-rewards": {
+            level: 1,
+            budget: 10,
+            steps: [
+              {
+                label: "Connect and Mint",
+                title: "Connect and Mint",
+                description:
+                  "Connect you wallet, select your favourite network and mint Superfluid Ecosystem Rewards Pass!",
+                image: "/app-onboarding/activation-rewards-step-1.png",
+              },
+            ],
+          },
+          "s3-community-activations": {
+            level: 1,
+            budget: 10,
+            steps: [
+              {
+                label: "Connect and Mint",
+                title: "Connect and Mint",
+                description:
+                  "Connect your wallet, select your favourite network and mint Superfluid Ecosystem Rewards Pass!",
+                image: "/app-onboarding/activation-rewards-step-1.png",
+              },
+              {
+                label: "Participate",
+                title: "Join the Community",
+                description:
+                  "Engage on Discord and Farcaster, participate in marketing and community activations to qualify for rewards.",
+                image: "/app-onboarding/activation-rewards-step-2.png",
+              },
+            ],
+          },
+          "s3-banger": {
+            level: 2,
+            budget: 10,
+            steps: [
+              {
+                label: "Deposit BANGER \uD83D\uDD25",
+                title: "Deposit BANGER \uD83D\uDD25",
+                description:
+                  "Deposit BANGER \uD83D\uDD25 to your vault in the Banger miniapp, to be able to bet on viral posts and earn SUP.",
+                image: "/app-onboarding/banger-onboarding-step-1.png",
+              },
+              {
+                label: "Create or Join a Banger",
+                title: "Create or Join a Banger",
+                description:
+                  "You can bet on viral posts by tagging @betonbangers bot on Farcaster or do it directly from the Banger app. Each banger you create or join earns SUP.",
+                image: "/app-onboarding/banger-onboarding-step-2.png",
+              },
+            ],
+          },
+          "s3-superboring": {
+            level: 1,
+            budget: 30,
+            steps: [
+              {
+                label: "Select token pair",
+                title: "Token pair",
+                description:
+                  "Choose any token pair on Base, Arbitrum, or Optimism to start your DCA.",
+                image: "/app-onboarding/superboring-step-1.png",
+              },
+              {
+                label: "Setup DCA",
+                title: "Invest and chill",
+                description:
+                  "Your trade is split into small, automated swaps over time—reducing volatility and optimizing your entry price effortlessly.",
+                image: "/app-onboarding/superboring-step-2.png",
+              },
+              {
+                label: "Stake BORING (optional)",
+                title: "Stake",
+                description:
+                  "For each DCA position you earn BORING token you can stake and earn additional income!",
+                image: "/app-onboarding/superboring-step-3.png",
+              },
+            ],
+          },
+          "s3-giveth": {
+            level: 1,
+            budget: 20,
+            steps: [
+              {
+                label: "Find project",
+                title: "Explore projects",
+                description:
+                  "Browse a wide range of initiatives including social impact, environmental change, and open source development.",
+                image: "/app-onboarding/giveth-step-1.png",
+              },
+              {
+                label: "Recurring donation",
+                title: "Donate",
+                description: (0, n.jsxs)(n.Fragment, {
+                  children: [
+                    "Select the ",
+                    '"',
+                    "Recurring Donation",
+                    '"',
+                    " feature, specify the token and amount and start a stream by clicking ",
+                    '"',
+                    "Donate",
+                    '"',
+                    ".",
+                    (0, n.jsx)("br", {}),
+                    (0, n.jsx)("br", {}),
+                    "Remember: You",
+                    "'",
+                    "ll only earn SUP for active streams to eligible projects!",
+                  ],
+                }),
+                image: "/app-onboarding/giveth-step-2.png",
+              },
+            ],
+          },
+          "s3-gooddollar": {
+            level: 3,
+            budget: 10,
+            steps: [
+              {
+                label: "Join GoodDollar",
+                title: "Claim Your Votes",
+                description: "Claim your first 10 votes by joining GoodDollar.",
+                image: "/app-onboarding/GoodBuilders-Step-1.png",
+              },
+              {
+                label: "Build Your Ballot",
+                title: "Vote for Builders",
+                description: "Add your favorite GoodBuilders to your ballot & submit it onchain.",
+                image: "/app-onboarding/GoodBuilders-Step-2.png",
+              },
+              {
+                label: "Share & Earn",
+                title: "Grow & Share",
+                description:
+                  '"Grow the Pie" and/or share your participation on X, Farcaster, & Lens for SUP bonuses.',
+                image: "/app-onboarding/GoodBuilders-Step-3.png",
+              },
+            ],
+          },
+          "s3-beamr": {
+            level: 1,
+            budget: 10,
+            steps: [
+              {
+                label: "Add the mini app",
+                title: "Beamr",
+                description:
+                  "Add the Beamr mini app to your Farcaster account & enable notifications",
+                image: "/app-onboarding/beamr-step-1.png",
+              },
+              {
+                label: "Open a Beamr",
+                title: "Engage",
+                description: "Start a BEAMR token stream to your dynamic distribution pool",
+                image: "/app-onboarding/beamr-step-2.png",
+              },
+              {
+                label: "Engage",
+                title: "Earn more SUP",
+                description: "Engage, share, grow, and use Beamr to earn SUP",
+                image: "/app-onboarding/beamr-step-3.png",
+              },
+            ],
+          },
+          "s3-flowstate": {
+            level: 1,
+            budget: 10,
+            steps: [
+              {
+                label: "Add the mini app",
+                title: "Enable notifications",
+                description:
+                  "Add the Flow Caster mini app to your Farcaster account & enable notifications",
+                image: "/app-onboarding/flowcaster-step-1.png",
+              },
+              {
+                label: "Donate",
+                title: "Support builders",
+                description: "Open a stream that's dynamically split to builders in real-time",
+                image: "/app-onboarding/flowcaster-step-2.png",
+              },
+              {
+                label: "Share",
+                title: "Earn more SUP",
+                description: "Share Flow Caster in your feed to earn SUP bonuses",
+                image: "/app-onboarding/flowcaster-step-3.png",
+              },
+            ],
+          },
+          "s5-superboring": {
+            level: 1,
+            budget: 30,
+            steps: [
+              {
+                label: "Select token pair",
+                title: "Token pair",
+                description:
+                  "Choose any token pair on Base, Arbitrum, or Optimism to start your DCA.",
+                image: "/app-onboarding/superboring-step-1.png",
+              },
+              {
+                label: "Setup DCA",
+                title: "Invest and chill",
+                description:
+                  "Your trade is split into small, automated swaps over time—reducing volatility and optimizing your entry price effortlessly.",
+                image: "/app-onboarding/superboring-step-2.png",
+              },
+              {
+                label: "Stake BORING (optional)",
+                title: "Stake",
+                description:
+                  "For each DCA position you earn BORING token you can stake and earn additional income!",
+                image: "/app-onboarding/superboring-step-3.png",
+              },
+            ],
+          },
+          "s5-banger": {
+            level: 2,
+            budget: 10,
+            steps: [
+              {
+                label: "Deposit BANGER \uD83D\uDD25",
+                title: "Deposit BANGER \uD83D\uDD25",
+                description:
+                  "Deposit BANGER \uD83D\uDD25 to your vault in the Banger miniapp, to be able to bet on viral posts and earn SUP.",
+                image: "/app-onboarding/banger-onboarding-step-1.png",
+              },
+              {
+                label: "Create or Join a Banger",
+                title: "Create or Join a Banger",
+                description:
+                  "You can bet on viral posts by tagging @betonbangers bot on Farcaster or do it directly from the Banger app. Each banger you create or join earns SUP.",
+                image: "/app-onboarding/banger-onboarding-step-2.png",
+              },
+            ],
+          },
+          "s5-giveth": {
+            level: 1,
+            budget: 20,
+            steps: [
+              {
+                label: "Find project",
+                title: "Explore projects",
+                description:
+                  "Browse a wide range of initiatives including social impact, environmental change, and open source development.",
+                image: "/app-onboarding/giveth-step-1.png",
+              },
+              {
+                label: "Recurring donation",
+                title: "Donate",
+                description: (0, n.jsxs)(n.Fragment, {
+                  children: [
+                    "Select the ",
+                    '"',
+                    "Recurring Donation",
+                    '"',
+                    " feature, specify the token and amount and start a stream by clicking ",
+                    '"',
+                    "Donate",
+                    '"',
+                    ".",
+                    (0, n.jsx)("br", {}),
+                    (0, n.jsx)("br", {}),
+                    "Remember: You",
+                    "'",
+                    "ll only earn SUP for active streams to eligible projects!",
+                  ],
+                }),
+                image: "/app-onboarding/giveth-step-2.png",
+              },
+            ],
+          },
+          "s5-gooddollar": {
+            level: 3,
+            budget: 10,
+            steps: [
+              {
+                label: "Join GoodDollar",
+                title: "Claim Your Votes",
+                description: "Claim your first 10 votes by joining GoodDollar.",
+                image: "/app-onboarding/GoodBuilders-Step-1.png",
+              },
+              {
+                label: "Build Your Ballot",
+                title: "Vote for Builders",
+                description: "Add your favorite GoodBuilders to your ballot & submit it onchain.",
+                image: "/app-onboarding/GoodBuilders-Step-2.png",
+              },
+              {
+                label: "Share & Earn",
+                title: "Grow & Share",
+                description:
+                  '"Grow the Pie" and/or share your participation on X, Farcaster, & Lens for SUP bonuses.',
+                image: "/app-onboarding/GoodBuilders-Step-3.png",
+              },
+            ],
+          },
+          "s5-beamr": {
+            level: 1,
+            budget: 10,
+            steps: [
+              {
+                label: "Add the mini app",
+                title: "Beamr",
+                description:
+                  "Add the Beamr mini app to your Farcaster account & enable notifications",
+                image: "/app-onboarding/beamr-step-1.png",
+              },
+              {
+                label: "Open a Beamr",
+                title: "Engage",
+                description: "Start a BEAMR token stream to your dynamic distribution pool",
+                image: "/app-onboarding/beamr-step-2.png",
+              },
+              {
+                label: "Engage",
+                title: "Earn more SUP",
+                description: "Engage, share, grow, and use Beamr to earn SUP",
+                image: "/app-onboarding/beamr-step-3.png",
+              },
+            ],
+          },
+          "s5-flowstate": {
+            level: 1,
+            budget: 1,
+            steps: [
+              {
+                label: "Find round",
+                title: "Explore",
+                description: "Select an active Flow Council or Flow Guild funding round.",
+                image: "/app-onboarding/flow-state-s5-step-1.png",
+              },
+              {
+                label: "Fund",
+                title: "Grow the Pie",
+                description: "Open a funding flow that's split to builders in real-time.",
+                image: "/app-onboarding/flow-state-s5-step-2.png",
+              },
+              {
+                label: "Launch",
+                title: "Community SUP",
+                description:
+                  "Launch & fund your own verified Flow Council round to earn SUP for your community.",
+                image: "/app-onboarding/flow-state-s5-step-3.png",
+              },
+            ],
+          },
+          "s6-superboring": {
+            level: 1,
+            budget: 30,
+            steps: [
+              {
+                label: "Select token pair",
+                title: "Token pair",
+                description:
+                  "Choose any token pair on Base, Arbitrum, or Optimism to start your DCA.",
+                image: "/app-onboarding/superboring-step-1.png",
+              },
+              {
+                label: "Setup DCA",
+                title: "Invest and chill",
+                description:
+                  "Your trade is split into small, automated swaps over time—reducing volatility and optimizing your entry price effortlessly.",
+                image: "/app-onboarding/superboring-step-2.png",
+              },
+              {
+                label: "Stake BORING (optional)",
+                title: "Stake",
+                description:
+                  "For each DCA position you earn BORING token you can stake and earn additional income!",
+                image: "/app-onboarding/superboring-step-3.png",
+              },
+            ],
+          },
+          "s6-giveth": {
+            level: 1,
+            budget: 20,
+            steps: [
+              {
+                label: "Find project",
+                title: "Explore projects",
+                description:
+                  "Browse a wide range of initiatives including social impact, environmental change, and open source development.",
+                image: "/app-onboarding/giveth-step-1.png",
+              },
+              {
+                label: "Recurring donation",
+                title: "Donate",
+                description: (0, n.jsxs)(n.Fragment, {
+                  children: [
+                    "Select the ",
+                    '"',
+                    "Recurring Donation",
+                    '"',
+                    " feature, specify the token and amount and start a stream by clicking ",
+                    '"',
+                    "Donate",
+                    '"',
+                    ".",
+                    (0, n.jsx)("br", {}),
+                    (0, n.jsx)("br", {}),
+                    "Remember: You",
+                    "'",
+                    "ll only earn SUP for active streams to eligible projects!",
+                  ],
+                }),
+                image: "/app-onboarding/giveth-step-2.png",
+              },
+            ],
+          },
+          "s6-gooddollar": {
+            level: 3,
+            budget: 10,
+            steps: [
+              {
+                label: "Join GoodDollar",
+                title: "Claim Your Votes",
+                description: "Claim your first 10 votes by joining GoodDollar.",
+                image: "/app-onboarding/GoodBuilders-Step-1.png",
+              },
+              {
+                label: "Build Your Ballot",
+                title: "Vote for Builders",
+                description: "Add your favorite GoodBuilders to your ballot & submit it onchain.",
+                image: "/app-onboarding/GoodBuilders-Step-2.png",
+              },
+              {
+                label: "Share & Earn",
+                title: "Grow & Share",
+                description:
+                  '"Grow the Pie" and/or share your participation on X, Farcaster, & Lens for SUP bonuses.',
+                image: "/app-onboarding/GoodBuilders-Step-3.png",
+              },
+            ],
+          },
+          "s6-flowstate": {
+            level: 1,
+            budget: 1,
+            steps: [
+              {
+                label: "Find round",
+                title: "Explore",
+                description: "Select an active Flow Council or Flow Guild funding round.",
+                image: "/app-onboarding/flow-state-s5-step-1.png",
+              },
+              {
+                label: "Fund",
+                title: "Grow the Pie",
+                description: "Open a funding flow that's split to builders in real-time.",
+                image: "/app-onboarding/flow-state-s5-step-2.png",
+              },
+              {
+                label: "Launch",
+                title: "Community SUP",
+                description:
+                  "Launch & fund your own verified Flow Council round to earn SUP for your community.",
+                image: "/app-onboarding/flow-state-s5-step-3.png",
+              },
+            ],
+          },
+        },
+        v = ["Easy", "Medium", "Hard"],
+        j = (e) => {
+          let a,
+            t,
+            f,
+            j,
+            S,
+            C,
+            N,
+            A,
+            B,
+            F,
+            k,
+            D,
+            G,
+            E,
+            O,
+            P,
+            I,
+            R,
+            M,
+            _,
+            U,
+            z,
+            L,
+            Y,
+            $,
+            T,
+            J,
+            V,
+            H,
+            q,
+            X,
+            Z,
+            K,
+            Q,
+            W,
+            ee,
+            ea = (0, o.c)(98),
+            { app: et, open: en, onOpenChange: eo } = e,
+            [ei, er] = (0, x.useState)(0),
+            el = y[et.appId];
+          ea[0] !== ei
+            ? ((a = () => {
+                er(ei - 1);
+              }),
+              (ea[0] = ei),
+              (ea[1] = a))
+            : (a = ea[1]);
+          let es = a;
+          ea[2] !== ei
+            ? ((t = () => {
+                er(ei + 1);
+              }),
+              (ea[2] = ei),
+              (ea[3] = t))
+            : (t = ea[3]);
+          let ep = t;
+          if (!el) return null;
+          let ed = el.steps[ei];
+          (ea[4] !== et.name
+            ? ((f = (0, n.jsx)(s.L3, {
+                "data-sentry-element": "DialogTitle",
+                "data-sentry-source-file": "AppOnboardingModal.tsx",
+                children: et.name,
+              })),
+              (ea[4] = et.name),
+              (ea[5] = f))
+            : (f = ea[5]),
+            ea[6] === Symbol.for("react.memo_cache_sentinel")
+              ? ((j = (0, n.jsx)(s.rr, {
+                  "data-sentry-element": "DialogDescription",
+                  "data-sentry-source-file": "AppOnboardingModal.tsx",
+                  children: "Campaign app usage steps",
+                })),
+                (ea[6] = j))
+              : (j = ea[6]),
+            ea[7] !== f
+              ? ((S = (0, n.jsxs)(s.c7, {
+                  className: "hidden",
+                  "data-sentry-element": "DialogHeader",
+                  "data-sentry-source-file": "AppOnboardingModal.tsx",
+                  children: [f, j],
+                })),
+                (ea[7] = f),
+                (ea[8] = S))
+              : (S = ea[8]),
+            ea[9] !== et.logoUrl
+              ? ((C = (0, n.jsx)(b.default, {
+                  priority: !0,
+                  unoptimized: !0,
+                  src: et.logoUrl,
+                  alt: "Logo",
+                  width: 60,
+                  height: 60,
+                  className: "rounded-md",
+                  "data-sentry-element": "Image",
+                  "data-sentry-source-file": "AppOnboardingModal.tsx",
+                })),
+                (ea[9] = et.logoUrl),
+                (ea[10] = C))
+              : (C = ea[10]),
+            ea[11] !== et.name
+              ? ((N = (0, n.jsx)("span", { className: "text-title2", children: et.name })),
+                (ea[11] = et.name),
+                (ea[12] = N))
+              : (N = ea[12]),
+            ea[13] !== et.isExpired || ea[14] !== et.program?.onchainInfo
+              ? ((A = et.isExpired
+                  ? "Campaign expired"
+                  : et.program?.onchainInfo?.isFundingFinished
+                    ? "Campaign completed"
+                    : et.program?.onchainInfo.fundingEndDate
+                      ? (0, n.jsxs)(n.Fragment, {
+                          children: [
+                            "Campaign ends: ",
+                            (0, c.GP)(
+                              (0, g.S)(Number(et.program?.onchainInfo.fundingEndDate)),
+                              "d	LLL yyyy",
+                            ),
+                          ],
+                        })
+                      : "Campaign currently inactive"),
+                (ea[13] = et.isExpired),
+                (ea[14] = et.program?.onchainInfo),
+                (ea[15] = A))
+              : (A = ea[15]),
+            ea[16] !== A
+              ? ((B = (0, n.jsx)("span", { className: "text-caption1 text-purple", children: A })),
+                (ea[16] = A),
+                (ea[17] = B))
+              : (B = ea[17]),
+            ea[18] !== N || ea[19] !== B
+              ? ((F = (0, n.jsxs)("div", { className: "flex flex-col gap-1", children: [N, B] })),
+                (ea[18] = N),
+                (ea[19] = B),
+                (ea[20] = F))
+              : (F = ea[20]),
+            ea[21] !== F || ea[22] !== C
+              ? ((k = (0, n.jsxs)("div", {
+                  className: "flex flex-row items-center gap-2",
+                  children: [C, F],
+                })),
+                (ea[21] = F),
+                (ea[22] = C),
+                (ea[23] = k))
+              : (k = ea[23]),
+            ea[24] !== et.description
+              ? ((D = (0, n.jsx)("p", { className: "flex-1 text-base", children: et.description })),
+                (ea[24] = et.description),
+                (ea[25] = D))
+              : (D = ea[25]),
+            ea[26] !== el.level
+              ? ((G = Array(el.level).fill(!0).map(w)), (ea[26] = el.level), (ea[27] = G))
+              : (G = ea[27]));
+          let ec = 3 - el.level;
+          if (ea[28] !== el.level || ea[29] !== ec) {
+            let e;
+            (ea[31] !== el.level
+              ? ((e = (e, a) => (0, n.jsx)(m.A, { size: 14 }, el.level + a)),
+                (ea[31] = el.level),
+                (ea[32] = e))
+              : (e = ea[32]),
+              (E = Array(ec).fill(!0).map(e)),
+              (ea[28] = el.level),
+              (ea[29] = ec),
+              (ea[30] = E));
+          } else E = ea[30];
+          ea[33] !== G || ea[34] !== E
+            ? ((O = (0, n.jsxs)("div", {
+                className: "flex items-center gap-[2px] text-white",
+                children: [G, E],
+              })),
+              (ea[33] = G),
+              (ea[34] = E),
+              (ea[35] = O))
+            : (O = ea[35]);
+          let eg = v[el.level - 1];
+          if (
+            (ea[36] !== eg
+              ? ((P = (0, n.jsx)("div", {
+                  className: "mt-[1px] uppercase leading-none",
+                  children: eg,
+                })),
+                (ea[36] = eg),
+                (ea[37] = P))
+              : (P = ea[37]),
+            ea[38] !== O || ea[39] !== P
+              ? ((I = (0, n.jsxs)(r.E, {
+                  variant: "gray",
+                  className: "flex h-5 items-center gap-2 rounded-full px-2 py-0 text-[12px]",
+                  "data-sentry-element": "Badge",
+                  "data-sentry-source-file": "AppOnboardingModal.tsx",
+                  children: [O, P],
+                })),
+                (ea[38] = O),
+                (ea[39] = P),
+                (ea[40] = I))
+              : (I = ea[40]),
+            ea[41] === Symbol.for("react.memo_cache_sentinel")
+              ? ((R = (0, n.jsx)("span", { children: "min. volume streamed:" })), (ea[41] = R))
+              : (R = ea[41]),
+            ea[42] !== el.budget
+              ? ((M = (0, n.jsxs)(r.E, {
+                  variant: "gray",
+                  className:
+                    "h-5 gap-0.5 rounded-full px-2 py-0 text-[12px] uppercase leading-none",
+                  "data-sentry-element": "Badge",
+                  "data-sentry-source-file": "AppOnboardingModal.tsx",
+                  children: [
+                    R,
+                    (0, n.jsxs)("span", { className: "text-green", children: ["$", el.budget] }),
+                  ],
+                })),
+                (ea[42] = el.budget),
+                (ea[43] = M))
+              : (M = ea[43]),
+            ea[44] !== I || ea[45] !== M
+              ? ((_ = (0, n.jsxs)("div", {
+                  className: "mb-4 flex items-start gap-2",
+                  children: [I, M],
+                })),
+                (ea[44] = I),
+                (ea[45] = M),
+                (ea[46] = _))
+              : (_ = ea[46]),
+            ea[47] !== k || ea[48] !== D || ea[49] !== _
+              ? ((U = (0, n.jsxs)(l.Zp, {
+                  className: "flex flex-col gap-5 rounded-b-none border-none p-4 shadow-none",
+                  "data-sentry-element": "Card",
+                  "data-sentry-source-file": "AppOnboardingModal.tsx",
+                  children: [k, D, _],
+                })),
+                (ea[47] = k),
+                (ea[48] = D),
+                (ea[49] = _),
+                (ea[50] = U))
+              : (U = ea[50]),
+            ea[51] === Symbol.for("react.memo_cache_sentinel")
+              ? ((z = (0, n.jsx)("div", {
+                  className: "mb-5 text-green text-title3",
+                  children: "Steps",
+                })),
+                (ea[51] = z))
+              : (z = ea[51]),
+            ea[52] !== ei || ea[53] !== el.steps)
+          ) {
+            let e;
+            (ea[55] !== ei
+              ? ((e = (e, a) =>
+                  (0, n.jsxs)(
+                    x.Fragment,
+                    {
+                      children: [
+                        0 !== a && (0, n.jsx)(p.Separator, {}),
+                        (0, n.jsxs)(i.$, {
+                          variant: "ghost",
+                          className:
+                            "flex h-auto flex-row items-center justify-start gap-2 px-3 py-4 text-base",
+                          onClick: () => er(a),
+                          children: [
+                            (0, n.jsx)("div", {
+                              className: (0, d.cn)(
+                                "flex h-4 w-4 items-center justify-center rounded-full border border-green text-[10px] text-green transition-all",
+                                { "bg-green-pale/40": a <= ei },
+                              ),
+                              children: a + 1,
+                            }),
+                            (0, n.jsx)("div", {
+                              className: (0, d.cn)(
+                                "font-medium text-base leading-none transition-all",
+                                { "text-alto": a > ei },
+                              ),
+                              children: e.label,
+                            }),
+                          ],
+                        }),
+                      ],
+                    },
+                    e.label,
+                  )),
+                (ea[55] = ei),
+                (ea[56] = e))
+              : (e = ea[56]),
+              (L = el.steps.map(e)),
+              (ea[52] = ei),
+              (ea[53] = el.steps),
+              (ea[54] = L));
+          } else L = ea[54];
+          return (
+            ea[57] !== L
+              ? ((Y = (0, n.jsxs)("div", {
+                  className:
+                    "-mt-4 rounded-lg bg-[url('/onboarding-steps-bg.svg')] bg-center bg-cover bg-green-pale bg-no-repeat px-5 py-6",
+                  children: [
+                    z,
+                    (0, n.jsx)("div", {
+                      className: "flex flex-col rounded-lg bg-white",
+                      children: L,
+                    }),
+                  ],
+                })),
+                (ea[57] = L),
+                (ea[58] = Y))
+              : (Y = ea[58]),
+            ea[59] !== U || ea[60] !== Y
+              ? (($ = (0, n.jsxs)("div", { className: "w-full md:w-[43%]", children: [U, Y] })),
+                (ea[59] = U),
+                (ea[60] = Y),
+                (ea[61] = $))
+              : ($ = ea[61]),
+            ea[62] !== ed.image || ea[63] !== ed.label
+              ? ((T = (0, n.jsx)(b.default, {
+                  priority: !0,
+                  unoptimized: !0,
+                  src: ed.image,
+                  alt: ed.label,
+                  width: 473,
+                  height: 261,
+                  className: "w-full rounded-lg border",
+                  "data-sentry-element": "Image",
+                  "data-sentry-source-file": "AppOnboardingModal.tsx",
+                })),
+                (ea[62] = ed.image),
+                (ea[63] = ed.label),
+                (ea[64] = T))
+              : (T = ea[64]),
+            ea[65] !== ed.title
+              ? ((J = (0, n.jsx)("h3", { className: "text-title1", children: ed.title })),
+                (ea[65] = ed.title),
+                (ea[66] = J))
+              : (J = ea[66]),
+            ea[67] !== ed.description
+              ? ((V = (0, n.jsx)("p", { children: ed.description })),
+                (ea[67] = ed.description),
+                (ea[68] = V))
+              : (V = ea[68]),
+            ea[69] !== J || ea[70] !== V
+              ? ((H = (0, n.jsxs)("div", {
+                  className: "my-10 flex flex-1 flex-col gap-5",
+                  children: [J, V],
+                })),
+                (ea[69] = J),
+                (ea[70] = V),
+                (ea[71] = H))
+              : (H = ea[71]),
+            ea[72] !== ei || ea[73] !== es
+              ? ((q =
+                  ei > 0 &&
+                  (0, n.jsx)(i.$, {
+                    onClick: es,
+                    className: "p-3",
+                    children: (0, n.jsx)(u.A, { size: 24 }),
+                  })),
+                (ea[72] = ei),
+                (ea[73] = es),
+                (ea[74] = q))
+              : (q = ea[74]),
+            ea[75] !== ei ||
+            ea[76] !== et.cta ||
+            ea[77] !== et.url ||
+            ea[78] !== ep ||
+            ea[79] !== el.steps.length
+              ? ((X =
+                  ei === el.steps.length - 1
+                    ? (0, n.jsx)(i.$, {
+                        className: "flex-1",
+                        asChild: !0,
+                        children: (0, n.jsx)(h(), {
+                          href: et.url,
+                          target: "_blank",
+                          children: et.cta,
+                        }),
+                      })
+                    : (0, n.jsx)(i.$, { onClick: ep, className: "flex-1", children: "Next" })),
+                (ea[75] = ei),
+                (ea[76] = et.cta),
+                (ea[77] = et.url),
+                (ea[78] = ep),
+                (ea[79] = el.steps.length),
+                (ea[80] = X))
+              : (X = ea[80]),
+            ea[81] !== q || ea[82] !== X
+              ? ((Z = (0, n.jsxs)("div", { className: "flex gap-2", children: [q, X] })),
+                (ea[81] = q),
+                (ea[82] = X),
+                (ea[83] = Z))
+              : (Z = ea[83]),
+            ea[84] !== T || ea[85] !== H || ea[86] !== Z
+              ? ((K = (0, n.jsxs)(l.Zp, {
+                  className:
+                    "flex h-full w-full flex-col border-none p-3 text-center shadow-none md:w-[57%]",
+                  "data-sentry-element": "Card",
+                  "data-sentry-source-file": "AppOnboardingModal.tsx",
+                  children: [T, H, Z],
+                })),
+                (ea[84] = T),
+                (ea[85] = H),
+                (ea[86] = Z),
+                (ea[87] = K))
+              : (K = ea[87]),
+            ea[88] !== $ || ea[89] !== K
+              ? ((Q = (0, n.jsxs)("div", {
+                  className: "flex items-start gap-5 max-sm:flex-col-reverse max-md:flex-col",
+                  children: [$, K],
+                })),
+                (ea[88] = $),
+                (ea[89] = K),
+                (ea[90] = Q))
+              : (Q = ea[90]),
+            ea[91] !== Q || ea[92] !== S
+              ? ((W = (0, n.jsxs)(s.Cf, {
+                  className:
+                    "max-h-screen w-[940px] max-w-full overflow-y-auto border-none bg-[url('/app-onboarding-bg.png')] bg-center bg-cover bg-platinum bg-no-repeat p-4 pt-8 md:min-h-[600px] md:p-8 md:pt-12 lg:p-10 lg:pt-14",
+                  "data-sentry-element": "DialogContent",
+                  "data-sentry-source-file": "AppOnboardingModal.tsx",
+                  children: [S, Q],
+                })),
+                (ea[91] = Q),
+                (ea[92] = S),
+                (ea[93] = W))
+              : (W = ea[93]),
+            ea[94] !== eo || ea[95] !== en || ea[96] !== W
+              ? ((ee = (0, n.jsx)(s.lG, {
+                  open: en,
+                  onOpenChange: eo,
+                  "data-sentry-element": "Dialog",
+                  "data-sentry-component": "AppOnboardingModal",
+                  "data-sentry-source-file": "AppOnboardingModal.tsx",
+                  children: W,
+                })),
+                (ea[94] = eo),
+                (ea[95] = en),
+                (ea[96] = W),
+                (ea[97] = ee))
+              : (ee = ea[97]),
+            ee
+          );
+        };
+      function w(e, a) {
+        return (0, n.jsx)(m.A, { size: 14, className: "text-green", fill: "currentColor" }, a);
+      }
+    },
+    50630: (e, a, t) => {
+      t.d(a, { w: () => y });
+      var n = t(58906),
+        o = t(35283),
+        i = t(75674),
+        r = t(67952),
+        l = t(88199),
+        s = t(98947),
+        p = t(64436),
+        d = t(5663),
+        c = t(57142),
+        g = t(31467),
+        m = t(83673),
+        u = t(30403),
+        b = t(73223),
+        f = t.n(b),
+        h = t(39186),
+        x = t(21772);
+      function y(e) {
+        let { app: a } = e,
+          t = a.isExpired ?? !1,
+          b = void 0 !== a.program,
+          y = a.program?.onchainInfo?.isFundingFinished ?? !1,
+          v = (0, h.useMemo)(() => !!x.d[a.appId], [a.appId]),
+          j = a.program?.onchainInfo?.totalAllocated || a.totalAllocatedHint || 0n;
+        return (0, n.jsx)(r.Zp, {
+          className: (0, d.cn)("p-4", e.className, (y || t) && "opacity-75"),
+          "data-sentry-element": "Card",
+          "data-sentry-component": "ProgramAppCard",
+          "data-sentry-source-file": "ProgramAppCard.tsx",
+          children: (0, n.jsxs)("div", {
+            "data-testid": `${a.name}-card`,
+            className: (0, d.cn)(
+              "flex h-full gap-4",
+              e.forceSmallLayout ? "flex-col" : "max-lg:flex-col",
+            ),
+            children: [
+              (0, n.jsxs)("div", {
+                className: "space-between flex flex-1 flex-col gap-5",
+                children: [
+                  (0, n.jsxs)("div", {
+                    "data-testid": "app-image",
+                    className: "flex flex-row items-center gap-2",
+                    children: [
+                      (0, n.jsx)(u.default, {
+                        src: a.logoUrl,
+                        alt: "Logo",
+                        width: 60,
+                        height: 60,
+                        className: (0, d.cn)("rounded-md", { grayscale: !b }),
+                        "data-sentry-element": "Image",
+                        "data-sentry-source-file": "ProgramAppCard.tsx",
+                      }),
+                      (0, n.jsxs)("div", {
+                        className: "flex flex-col gap-1",
+                        children: [
+                          (0, n.jsx)("span", {
+                            "data-testid": "app-name",
+                            className: `text-title2 ${!b ? "text-alto" : ""}`,
+                            children: a.name,
+                          }),
+                          (0, n.jsx)("span", {
+                            "data-testid": "campaign-end-time",
+                            className: "text-caption1 text-purple",
+                            children: t
+                              ? "Campaign expired"
+                              : a.program?.onchainInfo?.isFundingFinished
+                                ? "Campaign completed"
+                                : a.program?.onchainInfo.fundingEndDate
+                                  ? (0, n.jsxs)(n.Fragment, {
+                                      children: [
+                                        "Campaign ends: ",
+                                        (0, c.GP)(
+                                          (0, g.S)(Number(a.program?.onchainInfo.fundingEndDate)),
+                                          "d	LLL yyyy",
+                                        ),
+                                      ],
+                                    })
+                                  : "Campaign currently inactive",
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                  (0, n.jsx)("p", {
+                    "data-testid": "app-description",
+                    className: (0, d.cn)("flex-1 text-base", { "text-alto": !b }),
+                    children: a.longDescription || a.description,
+                  }),
+                  a.program?.sharedAllocation
+                    ? (0, n.jsxs)("div", {
+                        className: "flex items-center gap-3",
+                        children: [
+                          (0, n.jsx)(l.Separator, {
+                            orientation: "horizontal",
+                            className: "w-auto flex-1",
+                          }),
+                          (0, n.jsx)(s.Bc, {
+                            children: (0, n.jsxs)(s.m_, {
+                              delayDuration: 0,
+                              children: [
+                                (0, n.jsx)(s.k$, {
+                                  asChild: !0,
+                                  children: (0, n.jsxs)(o.E, {
+                                    variant: "light",
+                                    size: "xs",
+                                    className: "flex gap-1",
+                                    children: [
+                                      (0, n.jsx)("span", { children: "Shared allocation" }),
+                                      (0, n.jsx)(m.A, { size: 12 }),
+                                    ],
+                                  }),
+                                }),
+                                (0, n.jsxs)(s.ZI, {
+                                  children: [
+                                    (0, n.jsx)(s.PR, {}),
+                                    (0, n.jsxs)("p", {
+                                      children: [
+                                        "Shared rewards pool with the ",
+                                        a.category,
+                                        " campaign.",
+                                      ],
+                                    }),
+                                  ],
+                                }),
+                              ],
+                            }),
+                          }),
+                          (0, n.jsx)(l.Separator, {
+                            orientation: "horizontal",
+                            className: "w-auto flex-1",
+                          }),
+                        ],
+                      })
+                    : (0, n.jsx)(l.Separator, { orientation: "horizontal" }),
+                  (0, n.jsxs)("div", {
+                    className: "flex gap-4",
+                    children: [
+                      (0, n.jsxs)("div", {
+                        className: "flex flex-1 flex-col gap-1",
+                        children: [
+                          (0, n.jsxs)("span", {
+                            className: "text-caption1",
+                            children: [p.gO, " Allocated:"],
+                          }),
+                          j
+                            ? (0, n.jsx)("span", {
+                                "data-testid": "sup-allocated",
+                                className: "text-title3",
+                                children: (0, d.Vw)(j),
+                              })
+                            : (0, n.jsx)("span", {
+                                "data-testid": "sup-allocated",
+                                className: "text-title4",
+                                children: "Coming soon",
+                              }),
+                        ],
+                      }),
+                      (0, n.jsxs)("div", {
+                        className: "flex flex-1 flex-col gap-1",
+                        children: [
+                          (0, n.jsxs)("span", {
+                            className: "text-caption1",
+                            children: [p.gO, " Claimed:"],
+                          }),
+                          (0, n.jsx)("span", {
+                            "data-testid": "sup-claimed",
+                            className: "text-title3",
+                            children:
+                              a.program?.onchainInfo?.totalClaimed !== void 0
+                                ? (0, d.Vw)(a.program.onchainInfo.totalClaimed)
+                                : "N/A",
+                          }),
+                        ],
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+              !e.hideCoverSection &&
+                (0, n.jsx)("div", {
+                  className: (0, d.cn)("w-full", !e.forceSmallLayout && "lg:w-[240px]"),
+                  children: (0, n.jsxs)("div", {
+                    className: (0, d.cn)("relative w-full rounded-lg pb-[100%]", {
+                      "bg-[#0400F5]": "#0400F5" === a.bgColor,
+                      "bg-[#000000]": "#000000" === a.bgColor,
+                    }),
+                    children: [
+                      (0, n.jsx)(u.default, {
+                        "data-testid": "app-big-image",
+                        src: a.coverUrl,
+                        alt: a.name,
+                        fill: !0,
+                        className: (0, d.cn)("z-[1] rounded-md object-cover", { grayscale: !b }),
+                      }),
+                      !e.hideCTA &&
+                        (v || !b || t
+                          ? (0, n.jsx)(i.$, {
+                              "data-testid": "app-button",
+                              size: "sm",
+                              className: "absolute bottom-3 left-3 z-[2] w-[calc(100%-24px)]",
+                              disabled: !b || t,
+                              onClick: e.onClick,
+                              children: t ? "Expired" : b ? a.cta : "Coming soon",
+                            })
+                          : (0, n.jsx)(i.$, {
+                              "data-testid": "app-button",
+                              size: "sm",
+                              className: "absolute bottom-3 left-3 z-[2] w-[calc(100%-24px)]",
+                              disabled: !b,
+                              asChild: !0,
+                              children: (0, n.jsx)(f(), {
+                                href: a.url,
+                                target: "_blank",
+                                children: a.cta,
+                              }),
+                            })),
+                    ],
+                  }),
+                }),
+            ],
+          }),
+        });
+      }
+    },
+  },
+]);

@@ -1,0 +1,1417 @@
+try {
+  let e =
+      "u" > typeof window
+        ? window
+        : "u" > typeof global
+          ? global
+          : "u" > typeof globalThis
+            ? globalThis
+            : "u" > typeof self
+              ? self
+              : {},
+    t = new e.Error().stack;
+  t &&
+    ((e._sentryDebugIds = e._sentryDebugIds || {}),
+    (e._sentryDebugIds[t] = "89c1fbf9-76ee-482d-9bf3-7761379917ce"),
+    (e._sentryDebugIdIdentifier = "sentry-dbid-89c1fbf9-76ee-482d-9bf3-7761379917ce"));
+} catch (e) {}
+{
+  let e =
+    "u" > typeof window
+      ? window
+      : "u" > typeof global
+        ? global
+        : "u" > typeof globalThis
+          ? globalThis
+          : "u" > typeof self
+            ? self
+            : {};
+  ((e._sentryModuleMetadata = e._sentryModuleMetadata || {}),
+    (e._sentryModuleMetadata[new e.Error().stack] = Object.assign(
+      {},
+      e._sentryModuleMetadata[new e.Error().stack],
+      { "_sentryBundlerPluginAppKey:claim-app": !0 },
+    )));
+}
+("use strict");
+(self.webpackChunk_N_E = self.webpackChunk_N_E || []).push([
+  [6271],
+  {
+    9780: (e, t, a) => {
+      a.d(t, { l: () => i });
+      var r = a(15754),
+        n = a(96211),
+        s = a(49308);
+      async function i(
+        e,
+        { address: t, message: a, factory: o, factoryData: c, signature: l, ...u },
+      ) {
+        let f = (0, n.A)(a);
+        return (0, r.T)(
+          e,
+          s.KK,
+          "verifyHash",
+        )({ address: t, factory: o, factoryData: c, hash: f, signature: l, ...u });
+      }
+    },
+    40978: (e, t, a) => {
+      a.d(t, { L: () => s });
+      var r = a(95491),
+        n = a(63588);
+      async function s(e, { blockHash: t, blockNumber: a, blockTag: i = "latest" } = {}) {
+        let o,
+          c = void 0 !== a ? (0, n.cK)(a) : void 0;
+        return (
+          (o = t
+            ? await e.request(
+                { method: "eth_getBlockTransactionCountByHash", params: [t] },
+                { dedupe: !0 },
+              )
+            : await e.request(
+                { method: "eth_getBlockTransactionCountByNumber", params: [c || i] },
+                { dedupe: !!c },
+              )),
+          (0, r.ME)(o)
+        );
+      }
+    },
+    42117: (e, t, a) => {
+      a.d(t, { D: () => c });
+      var r = a(32011),
+        n = a(63588),
+        s = a(83666),
+        i = a(15754),
+        o = a(99798);
+      async function c(e, t) {
+        let { blockNumber: a, blockTag: c, name: l } = t,
+          { chain: u } = e,
+          f = (() => {
+            if (t.universalResolverAddress) return t.universalResolverAddress;
+            if (!u)
+              throw Error("client chain not configured. universalResolverAddress is required.");
+            return (0, r.M)({ blockNumber: a, chain: u, contract: "ensUniversalResolver" });
+          })(),
+          d = u?.ensTlds;
+        if (d && !d.some((e) => l.endsWith(e)))
+          throw Error(
+            `${l} is not a valid ENS TLD (${d?.join(", ")}) for chain "${u.name}" (id: ${u.id}).`,
+          );
+        let [p] = await (0, i.T)(
+          e,
+          o.J,
+          "readContract",
+        )({
+          address: f,
+          abi: [
+            {
+              inputs: [{ type: "bytes" }],
+              name: "findResolver",
+              outputs: [{ type: "address" }, { type: "bytes32" }, { type: "uint256" }],
+              stateMutability: "view",
+              type: "function",
+            },
+          ],
+          functionName: "findResolver",
+          args: [(0, n.nj)((0, s.F)(l))],
+          blockNumber: a,
+          blockTag: c,
+        });
+        return p;
+      }
+    },
+    42815: (e, t, a) => {
+      a.d(t, { l: () => s });
+      var r = a(63588),
+        n = a(95491);
+      async function s(e, { address: t, blockNumber: a, blockTag: i, storageKeys: o }) {
+        let c = void 0 !== a ? (0, r.cK)(a) : void 0;
+        var l = await e.request({ method: "eth_getProof", params: [t, o, c || (i ?? "latest")] });
+        return {
+          ...l,
+          balance: l.balance ? BigInt(l.balance) : void 0,
+          nonce: l.nonce ? (0, n.ME)(l.nonce) : void 0,
+          storageProof: l.storageProof
+            ? l.storageProof.map((e) => ({ ...e, value: BigInt(e.value) }))
+            : void 0,
+        };
+      }
+    },
+    45701: (e, t, a) => {
+      a.d(t, { i: () => E });
+      var r = a(99798),
+        n = a(93313);
+      class s extends n.C {
+        constructor({ data: e }) {
+          super(
+            "Unable to extract image from metadata. The metadata may be malformed or invalid.",
+            {
+              metaMessages: [
+                "- Metadata must be a JSON object with at least an `image`, `image_url` or `image_data` property.",
+                "",
+                `Provided data: ${JSON.stringify(e)}`,
+              ],
+              name: "EnsAvatarInvalidMetadataError",
+            },
+          );
+        }
+      }
+      class i extends n.C {
+        constructor({ reason: e }) {
+          super(`ENS NFT avatar URI is invalid. ${e}`, { name: "EnsAvatarInvalidNftUriError" });
+        }
+      }
+      class o extends n.C {
+        constructor({ uri: e }) {
+          super(
+            `Unable to resolve ENS avatar URI "${e}". The URI may be malformed, invalid, or does not respond with a valid image.`,
+            { name: "EnsAvatarUriResolutionError" },
+          );
+        }
+      }
+      class c extends n.C {
+        constructor({ namespace: e }) {
+          super(
+            `ENS NFT avatar namespace "${e}" is not supported. Must be "erc721" or "erc1155".`,
+            { name: "EnsAvatarUnsupportedNamespaceError" },
+          );
+        }
+      }
+      n.C;
+      let l =
+          /(?<protocol>https?:\/\/[^/]*|ipfs:\/|ipns:\/|ar:\/)?(?<root>\/)?(?<subpath>ipfs\/|ipns\/)?(?<target>[\w\-.]+)(?<subtarget>\/.*)?/,
+        u =
+          /^(Qm[1-9A-HJ-NP-Za-km-z]{44,}|b[A-Za-z2-7]{58,}|B[A-Z2-7]{58,}|z[1-9A-HJ-NP-Za-km-z]{48,}|F[0-9A-F]{50,})(\/(?<target>[\w\-.]+))?(?<subtarget>\/.*)?$/,
+        f = /^data:([a-zA-Z\-/+]*);base64,([^"].*)/,
+        d = /^data:([a-zA-Z\-/+]*)?(;[a-zA-Z0-9].*?)?(,)/;
+      async function p(e) {
+        try {
+          let t = await fetch(e, { method: "HEAD" });
+          if (200 === t.status) {
+            let e = t.headers.get("content-type");
+            return e?.startsWith("image/");
+          }
+          return !1;
+        } catch (t) {
+          if (
+            ("object" == typeof t && void 0 !== t.response) ||
+            !Object.hasOwn(globalThis, "Image")
+          )
+            return !1;
+          return new Promise((t) => {
+            let a = new Image();
+            ((a.onload = () => {
+              t(!0);
+            }),
+              (a.onerror = () => {
+                t(!1);
+              }),
+              (a.src = e));
+          });
+        }
+      }
+      function m(e, t) {
+        return e ? (e.endsWith("/") ? e.slice(0, -1) : e) : t;
+      }
+      function b({ uri: e, gatewayUrls: t }) {
+        let a = f.test(e);
+        if (a) return { uri: e, isOnChain: !0, isEncoded: a };
+        let r = m(t?.ipfs, "https://ipfs.io"),
+          n = m(t?.arweave, "https://arweave.net"),
+          s = e.match(l),
+          { protocol: i, subpath: c, target: p, subtarget: g = "" } = s?.groups || {},
+          h = "ipns:/" === i || "ipns/" === c,
+          v = "ipfs:/" === i || "ipfs/" === c || u.test(e);
+        if (e.startsWith("http") && !h && !v) {
+          let a = e;
+          return (
+            t?.arweave && (a = e.replace(/https:\/\/arweave.net/g, t?.arweave)),
+            { uri: a, isOnChain: !1, isEncoded: !1 }
+          );
+        }
+        if ((h || v) && p)
+          return { uri: `${r}/${h ? "ipns" : "ipfs"}/${p}${g}`, isOnChain: !1, isEncoded: !1 };
+        if ("ar:/" === i && p) return { uri: `${n}/${p}${g || ""}`, isOnChain: !1, isEncoded: !1 };
+        let y = e.replace(d, "");
+        if (
+          (y.startsWith("<svg") && (y = `data:image/svg+xml;base64,${btoa(y)}`),
+          y.startsWith("data:") || y.startsWith("{"))
+        )
+          return { uri: y, isOnChain: !0, isEncoded: !1 };
+        throw new o({ uri: e });
+      }
+      function g(e) {
+        if (
+          "object" != typeof e ||
+          (!("image" in e) && !("image_url" in e) && !("image_data" in e))
+        )
+          throw new s({ data: e });
+        return e.image || e.image_url || e.image_data;
+      }
+      async function h({ gatewayUrls: e, uri: t }) {
+        try {
+          let a = await fetch(t).then((e) => e.json());
+          return await v({ gatewayUrls: e, uri: g(a) });
+        } catch {
+          throw new o({ uri: t });
+        }
+      }
+      async function v({ gatewayUrls: e, uri: t }) {
+        let { uri: a, isOnChain: r } = b({ uri: t, gatewayUrls: e });
+        if (r || (await p(a))) return a;
+        throw new o({ uri: t });
+      }
+      async function y(e, { nft: t }) {
+        if ("erc721" === t.namespace)
+          return (0, r.J)(e, {
+            address: t.contractAddress,
+            abi: [
+              {
+                name: "tokenURI",
+                type: "function",
+                stateMutability: "view",
+                inputs: [{ name: "tokenId", type: "uint256" }],
+                outputs: [{ name: "", type: "string" }],
+              },
+            ],
+            functionName: "tokenURI",
+            args: [BigInt(t.tokenID)],
+          });
+        if ("erc1155" === t.namespace)
+          return (0, r.J)(e, {
+            address: t.contractAddress,
+            abi: [
+              {
+                name: "uri",
+                type: "function",
+                stateMutability: "view",
+                inputs: [{ name: "_id", type: "uint256" }],
+                outputs: [{ name: "", type: "string" }],
+              },
+            ],
+            functionName: "uri",
+            args: [BigInt(t.tokenID)],
+          });
+        throw new c({ namespace: t.namespace });
+      }
+      async function w(e, { gatewayUrls: t, record: a }) {
+        return /eip155:/i.test(a)
+          ? k(e, { gatewayUrls: t, record: a })
+          : v({ uri: a, gatewayUrls: t });
+      }
+      async function k(e, { gatewayUrls: t, record: a }) {
+        let r = (function (e) {
+            let t = e;
+            t.startsWith("did:nft:") && (t = t.replace("did:nft:", "").replace(/_/g, "/"));
+            let [a, r, n] = t.split("/"),
+              [s, o] = a.split(":"),
+              [c, l] = r.split(":");
+            if (!s || "eip155" !== s.toLowerCase())
+              throw new i({ reason: "Only EIP-155 supported" });
+            if (!o) throw new i({ reason: "Chain ID not found" });
+            if (!l) throw new i({ reason: "Contract address not found" });
+            if (!n) throw new i({ reason: "Token ID not found" });
+            if (!c) throw new i({ reason: "ERC namespace not found" });
+            return {
+              chainID: Number.parseInt(o, 10),
+              namespace: c.toLowerCase(),
+              contractAddress: l,
+              tokenID: n,
+            };
+          })(a),
+          {
+            uri: n,
+            isOnChain: s,
+            isEncoded: o,
+          } = b({ uri: await y(e, { nft: r }), gatewayUrls: t });
+        if (s && (n.includes("data:application/json;base64,") || n.startsWith("{")))
+          return v({
+            uri: g(JSON.parse(o ? atob(n.replace("data:application/json;base64,", "")) : n)),
+            gatewayUrls: t,
+          });
+        let c = r.tokenID;
+        return (
+          "erc1155" === r.namespace && (c = c.replace("0x", "").padStart(64, "0")),
+          h({ gatewayUrls: t, uri: n.replace(/(?:0x)?{id}/, c) })
+        );
+      }
+      var T = a(15754),
+        B = a(76180);
+      async function E(
+        e,
+        {
+          blockNumber: t,
+          blockTag: a,
+          assetGatewayUrls: r,
+          name: n,
+          gatewayUrls: s,
+          strict: i,
+          universalResolverAddress: o,
+        },
+      ) {
+        let c = await (0, T.T)(
+          e,
+          B.m,
+          "getEnsText",
+        )({
+          blockNumber: t,
+          blockTag: a,
+          key: "avatar",
+          name: n,
+          universalResolverAddress: o,
+          gatewayUrls: s,
+          strict: i,
+        });
+        if (!c) return null;
+        try {
+          return await w(e, { record: c, gatewayUrls: r });
+        } catch {
+          return null;
+        }
+      }
+    },
+    52421: (e, t, a) => {
+      a.d(t, { O: () => c });
+      var r = a(15754),
+        n = a(4664),
+        s = a(88353),
+        i = a(60529),
+        o = a(77681);
+      function c(
+        e,
+        {
+          blockTag: t = e.experimental_blockTag ?? "latest",
+          emitMissed: a = !1,
+          emitOnBegin: l = !1,
+          onBlock: u,
+          onError: f,
+          includeTransactions: d,
+          poll: p,
+          pollingInterval: m = e.pollingInterval,
+        },
+      ) {
+        let b,
+          g,
+          h,
+          v,
+          y,
+          w =
+            void 0 !== p
+              ? p
+              : "webSocket" !== e.transport.type &&
+                "ipc" !== e.transport.type &&
+                ("fallback" !== e.transport.type ||
+                  ("webSocket" !== e.transport.transports[0].config.type &&
+                    "ipc" !== e.transport.transports[0].config.type)),
+          k = d ?? !1;
+        return w
+          ? ((g = (0, i.A)(["watchBlocks", e.uid, t, a, l, k, m])),
+            (0, n.lB)(g, { onBlock: u, onError: f }, (n) =>
+              (0, s.w)(
+                async () => {
+                  try {
+                    let s = await (0, r.T)(
+                      e,
+                      o.g,
+                      "getBlock",
+                    )({ blockTag: t, includeTransactions: k });
+                    if (null !== s.number && b?.number != null) {
+                      if (s.number === b.number) return;
+                      if (s.number - b.number > 1 && a)
+                        for (let t = b?.number + 1n; t < s.number; t++) {
+                          let a = await (0, r.T)(
+                            e,
+                            o.g,
+                            "getBlock",
+                          )({ blockNumber: t, includeTransactions: k });
+                          (n.onBlock(a, b), (b = a));
+                        }
+                    }
+                    (b?.number == null ||
+                      ("pending" === t && s?.number == null) ||
+                      (null !== s.number && s.number > b.number)) &&
+                      (n.onBlock(s, b), (b = s));
+                  } catch (e) {
+                    n.onError?.(e);
+                  }
+                },
+                { emitOnBegin: l, interval: m },
+              ),
+            ))
+          : ((h = !0),
+            (v = !0),
+            (y = () => (h = !1)),
+            (async () => {
+              try {
+                l &&
+                  (0, r.T)(
+                    e,
+                    o.g,
+                    "getBlock",
+                  )({ blockTag: t, includeTransactions: k })
+                    .then((e) => {
+                      !h || (v && (u(e, void 0), (v = !1)));
+                    })
+                    .catch(f);
+                let a = (() => {
+                    if ("fallback" === e.transport.type) {
+                      let t = e.transport.transports.find(
+                        (e) => "webSocket" === e.config.type || "ipc" === e.config.type,
+                      );
+                      return t ? t.value : e.transport;
+                    }
+                    return e.transport;
+                  })(),
+                  { unsubscribe: n } = await a.subscribe({
+                    params: ["newHeads"],
+                    async onData(t) {
+                      if (!h) return;
+                      let a = await (0, r.T)(
+                        e,
+                        o.g,
+                        "getBlock",
+                      )({ blockNumber: t.result?.number, includeTransactions: k }).catch(() => {});
+                      h && (u(a, b), (v = !1), (b = a));
+                    },
+                    onError(e) {
+                      f?.(e);
+                    },
+                  });
+                ((y = n), h || y());
+              } catch (e) {
+                f?.(e);
+              }
+            })(),
+            () => y());
+      }
+    },
+    56462: (e, t, a) => {
+      a.d(t, { d: () => i });
+      var r = a(15754),
+        n = a(700),
+        s = a(44652);
+      async function i(e, { hash: t, transactionReceipt: a }) {
+        let [o, c] = await Promise.all([
+            (0, r.T)(e, n.G, "getBlockNumber")({}),
+            t ? (0, r.T)(e, s.x, "getTransaction")({ hash: t }) : void 0,
+          ]),
+          l = a?.blockNumber || c?.blockNumber;
+        return l ? o - l + 1n : 0n;
+      }
+    },
+    62167: (e, t, a) => {
+      a.d(t, { w: () => i });
+      var r = a(15754),
+        n = a(37213),
+        s = a(49308);
+      async function i(e, t) {
+        let {
+            address: a,
+            factory: i,
+            factoryData: o,
+            signature: c,
+            message: l,
+            primaryType: u,
+            types: f,
+            domain: d,
+            ...p
+          } = t,
+          m = (0, n.Zh)({ message: l, primaryType: u, types: f, domain: d });
+        return (0, r.T)(
+          e,
+          s.KK,
+          "verifyHash",
+        )({ address: a, factory: i, factoryData: o, hash: m, signature: c, ...p });
+      }
+    },
+    64860: (e, t, a) => {
+      a.d(t, { s: () => l });
+      var r = a(39315),
+        n = a(32011),
+        s = a(49022),
+        i = a(96487),
+        o = a(15754),
+        c = a(99798);
+      async function l(e, t) {
+        let {
+            address: a,
+            blockNumber: l,
+            blockTag: u,
+            coinType: f = 60n,
+            gatewayUrls: d,
+            strict: p,
+          } = t,
+          { chain: m } = e,
+          b = (() => {
+            if (t.universalResolverAddress) return t.universalResolverAddress;
+            if (!m)
+              throw Error("client chain not configured. universalResolverAddress is required.");
+            return (0, n.M)({ blockNumber: l, chain: m, contract: "ensUniversalResolver" });
+          })();
+        try {
+          let t = {
+              address: b,
+              abi: r.oX,
+              args: [a, f, d ?? [i.J]],
+              functionName: "reverseWithGateways",
+              blockNumber: l,
+              blockTag: u,
+            },
+            n = (0, o.T)(e, c.J, "readContract"),
+            [s] = await n(t);
+          return s || null;
+        } catch (e) {
+          if (p) throw e;
+          if ((0, s.J)(e)) return null;
+          throw e;
+        }
+      }
+    },
+    69252: (e, t, a) => {
+      a.d(t, { T: () => n });
+      var r = a(63588);
+      async function n(
+        e,
+        { blockCount: t, blockNumber: a, blockTag: s = "latest", rewardPercentiles: i },
+      ) {
+        var o;
+        let c = "bigint" == typeof a ? (0, r.cK)(a) : void 0;
+        return {
+          baseFeePerGas: (o = await e.request(
+            { method: "eth_feeHistory", params: [(0, r.cK)(t), c || s, i] },
+            { dedupe: !!c },
+          )).baseFeePerGas.map((e) => BigInt(e)),
+          gasUsedRatio: o.gasUsedRatio,
+          oldestBlock: BigInt(o.oldestBlock),
+          reward: o.reward?.map((e) => e.map((e) => BigInt(e))),
+        };
+      }
+    },
+    76180: (e, t, a) => {
+      a.d(t, { m: () => m });
+      var r = a(39315),
+        n = a(79136),
+        s = a(12573),
+        i = a(32011),
+        o = a(63588),
+        c = a(49022),
+        l = a(96487),
+        u = a(254),
+        f = a(83666),
+        d = a(15754),
+        p = a(99798);
+      async function m(e, t) {
+        let { blockNumber: a, blockTag: m, key: b, name: g, gatewayUrls: h, strict: v } = t,
+          { chain: y } = e,
+          w = (() => {
+            if (t.universalResolverAddress) return t.universalResolverAddress;
+            if (!y)
+              throw Error("client chain not configured. universalResolverAddress is required.");
+            return (0, i.M)({ blockNumber: a, chain: y, contract: "ensUniversalResolver" });
+          })(),
+          k = y?.ensTlds;
+        if (k && !k.some((e) => g.endsWith(e))) return null;
+        try {
+          let t = {
+              address: w,
+              abi: r.Ag,
+              args: [
+                (0, o.nj)((0, f.F)(g)),
+                (0, s.p)({ abi: r.SJ, functionName: "text", args: [(0, u.k)(g), b] }),
+                h ?? [l.J],
+              ],
+              functionName: "resolveWithGateways",
+              blockNumber: a,
+              blockTag: m,
+            },
+            i = (0, d.T)(e, p.J, "readContract"),
+            c = await i(t);
+          if ("0x" === c[0]) return null;
+          let v = (0, n.e)({ abi: r.SJ, functionName: "text", data: c[0] });
+          return "" === v ? null : v;
+        } catch (e) {
+          if (v) throw e;
+          if ((0, c.J)(e)) return null;
+          throw e;
+        }
+      }
+    },
+    81800: (e, t, a) => {
+      a.d(t, { P: () => n });
+      var r = a(63588);
+      async function n(e, { address: t, blockNumber: a, blockTag: s = "latest", slot: i }) {
+        let o = void 0 !== a ? (0, r.cK)(a) : void 0;
+        return await e.request({ method: "eth_getStorageAt", params: [t, i, o || s] });
+      }
+    },
+    96271: (e, t, a) => {
+      a.d(t, { $: () => eX });
+      var r = a(71613),
+        n = a(45701),
+        s = a(64860),
+        i = a(42117),
+        o = a(76180),
+        c = a(95845),
+        l = a(66395),
+        u = a(63588),
+        f = a(98374),
+        d = a(42505),
+        p = a(81765),
+        m = a(92244);
+      async function b(e, t) {
+        let {
+            account: a = e.account,
+            blockNumber: r,
+            blockTag: n = "latest",
+            blobs: s,
+            data: i,
+            gas: o,
+            gasPrice: c,
+            maxFeePerBlobGas: b,
+            maxFeePerGas: g,
+            maxPriorityFeePerGas: h,
+            to: v,
+            value: y,
+            ...w
+          } = t,
+          k = a ? (0, l.J)(a) : void 0;
+        try {
+          (0, m.c)(t);
+          let a = "bigint" == typeof r ? (0, u.cK)(r) : void 0,
+            l = e.chain?.formatters?.transactionRequest?.format,
+            f = (l || p.Bv)(
+              {
+                ...(0, d.o)(w, { format: l }),
+                account: k,
+                blobs: s,
+                data: i,
+                gas: o,
+                gasPrice: c,
+                maxFeePerBlobGas: b,
+                maxFeePerGas: g,
+                maxPriorityFeePerGas: h,
+                to: v,
+                value: y,
+              },
+              "createAccessList",
+            ),
+            T = await e.request({ method: "eth_createAccessList", params: [f, a || n] });
+          return { accessList: T.accessList, gasUsed: BigInt(T.gasUsed) };
+        } catch (a) {
+          throw (0, f.d)(a, { ...t, account: k, chain: e.chain });
+        }
+      }
+      var g = a(97217);
+      async function h(e) {
+        let t = (0, g.g)(e, { method: "eth_newBlockFilter" }),
+          a = await e.request({ method: "eth_newBlockFilter" });
+        return { id: a, request: t(a), type: "block" };
+      }
+      var v = a(14120),
+        y = a(90061);
+      async function w(
+        e,
+        { address: t, args: a, event: r, events: n, fromBlock: s, strict: i, toBlock: o } = {},
+      ) {
+        let c = n ?? (r ? [r] : void 0),
+          l = (0, g.g)(e, { method: "eth_newFilter" }),
+          f = [];
+        c &&
+          ((f = [c.flatMap((e) => (0, y.R)({ abi: [e], eventName: e.name, args: a }))]),
+          r && (f = f[0]));
+        let d = await e.request({
+          method: "eth_newFilter",
+          params: [
+            {
+              address: t,
+              fromBlock: "bigint" == typeof s ? (0, u.cK)(s) : s,
+              toBlock: "bigint" == typeof o ? (0, u.cK)(o) : o,
+              ...(f.length ? { topics: f } : {}),
+            },
+          ],
+        });
+        return {
+          abi: c,
+          args: a,
+          eventName: r ? r.name : void 0,
+          fromBlock: s,
+          id: d,
+          request: l(d),
+          strict: !!i,
+          toBlock: o,
+          type: "event",
+        };
+      }
+      var k = a(11787),
+        T = a(12573),
+        B = a(70984),
+        E = a(15754),
+        A = a(42536);
+      async function I(e, t) {
+        let {
+            abi: a,
+            address: r,
+            args: n,
+            functionName: s,
+            dataSuffix: i = "string" == typeof e.dataSuffix ? e.dataSuffix : e.dataSuffix?.value,
+            ...o
+          } = t,
+          c = (0, T.p)({ abi: a, args: n, functionName: s });
+        try {
+          return await (0, E.T)(
+            e,
+            A.Q,
+            "estimateGas",
+          )({ data: `${c}${i ? i.replace("0x", "") : ""}`, to: r, ...o });
+        } catch (t) {
+          let e = o.account ? (0, l.J)(o.account) : void 0;
+          throw (0, B.j)(t, {
+            abi: a,
+            address: r,
+            args: n,
+            docsPath: "/docs/contract/estimateContractGas",
+            functionName: s,
+            sender: e?.address,
+          });
+        }
+      }
+      var N = a(18163),
+        C = a(56660),
+        x = a(43051),
+        R = a(83060);
+      async function _(e) {
+        return BigInt(await e.request({ method: "eth_blobBaseFee" }));
+      }
+      var F = a(77681),
+        D = a(700),
+        O = a(40978),
+        S = a(71920),
+        M = a(71673),
+        q = a(67207),
+        P = a(16469),
+        U = a(70840),
+        J = a(65029);
+      async function $(e, { address: t, blockNumber: a, blockTag: r = "latest" }) {
+        let n = await (0, M.Q)(e, {
+          address: t,
+          ...(void 0 !== a ? { blockNumber: a } : { blockTag: r }),
+        });
+        if (n && 23 === (0, U.E)(n) && n.startsWith("0xef0100"))
+          return (0, P.b)((0, J.di)(n, 3, 23));
+      }
+      var L = a(61656),
+        K = a(69252),
+        W = a(48051),
+        j = a(98429),
+        G = a(52650);
+      async function H(e, { filter: t }) {
+        let a = t.strict ?? !1,
+          r = (await t.request({ method: "eth_getFilterLogs", params: [t.id] })).map((e) =>
+            (0, G.e)(e),
+          );
+        return t.abi ? (0, j.p)({ abi: t.abi, logs: r, strict: a }) : r;
+      }
+      var X = a(62542),
+        Z = a(44071),
+        z = a(42815),
+        Q = a(81800),
+        V = a(44652),
+        Y = a(56462),
+        ee = a(14459),
+        et = a(61876),
+        ea = a(26553),
+        er = a(99798),
+        en = a(17907),
+        es = a(73412),
+        ei = a(9029),
+        eo = a(80582),
+        ec = a(79136),
+        el = a(4677),
+        eu = a(17406),
+        ef = a(32657),
+        ed = a(38789);
+      async function ep(e, t) {
+        let {
+          blockNumber: a,
+          blockTag: r = e.experimental_blockTag ?? "latest",
+          blocks: n,
+          returnFullTransactions: s,
+          traceTransfers: i,
+          validation: o,
+        } = t;
+        try {
+          let t = [];
+          for (let e of n) {
+            let a = e.blockOverrides ? en.J(e.blockOverrides) : void 0,
+              r = e.calls.map((e) => {
+                let t = e.account ? (0, l.J)(e.account) : void 0,
+                  a = e.abi ? (0, T.p)(e) : e.data,
+                  r = {
+                    ...e,
+                    account: t,
+                    data: e.dataSuffix ? (0, el.xW)([a || "0x", e.dataSuffix]) : a,
+                    from: e.from ?? t?.address,
+                  };
+                return ((0, m.c)(r), (0, p.Bv)(r));
+              }),
+              n = e.stateOverrides ? (0, ed.yH)(e.stateOverrides) : void 0;
+            t.push({ blockOverrides: a, calls: r, stateOverrides: n });
+          }
+          let c = "bigint" == typeof a ? (0, u.cK)(a) : void 0;
+          return (
+            await e.request({
+              method: "eth_simulateV1",
+              params: [
+                { blockStateCalls: t, returnFullTransactions: s, traceTransfers: i, validation: o },
+                c || r,
+              ],
+            })
+          ).map((e, t) => ({
+            ...(0, ef.$)(e),
+            calls: e.calls.map((e, a) => {
+              let { abi: r, args: s, functionName: i, to: o } = n[t].calls[a],
+                c = e.error?.data ?? e.returnData,
+                l = BigInt(e.gasUsed),
+                u = e.logs?.map((e) => (0, G.e)(e)),
+                f = "0x1" === e.status ? "success" : "failure",
+                d =
+                  r && "success" === f && "0x" !== c
+                    ? (0, ec.e)({ abi: r, data: c, functionName: i })
+                    : null,
+                p = (() => {
+                  let e;
+                  if (
+                    "success" !== f &&
+                    ("0x" === c ? (e = new es.O()) : c && (e = new ei.$S({ data: c })), e)
+                  )
+                    return (0, B.j)(e, {
+                      abi: r ?? [],
+                      address: o ?? "0x",
+                      args: s,
+                      functionName: i ?? "<unknown>",
+                    });
+                })();
+              return {
+                data: c,
+                gasUsed: l,
+                logs: u,
+                status: f,
+                ...("success" === f ? { result: d } : { error: p }),
+              };
+            }),
+          }));
+        } catch (t) {
+          let e = (0, eu.l)(t, {});
+          if (e instanceof eo.RM) throw t;
+          throw e;
+        }
+      }
+      var em = a(91236),
+        eb = a(51043),
+        eg = a(53576);
+      function eh(e, t = {}) {
+        return em.HT(e, t);
+      }
+      function ev(e, t, a) {
+        let r = em.n1(e, t, a);
+        if ("function" !== r.type) throw new em.m_({ name: t, type: "function" });
+        return r;
+      }
+      var ey = a(5684),
+        ew = a(68731),
+        ek = a(93313),
+        eT = a(95491);
+      async function eB(e, t) {
+        let {
+            blockNumber: a,
+            blockTag: r,
+            calls: n,
+            stateOverrides: s,
+            traceAssetChanges: i,
+            traceTransfers: o,
+            validation: c,
+          } = t,
+          u = t.account ? (0, l.J)(t.account) : void 0;
+        if (i && !u) throw new ek.C("`account` is required when `traceAssetChanges` is true");
+        let f = u
+            ? (function (...e) {
+                let [t, a] = (() => {
+                    if (Array.isArray(e[0])) {
+                      let [t, a] = e;
+                      return [
+                        (function (e) {
+                          let t = e.find((e) => "constructor" === e.type);
+                          if (!t) throw new em.m_({ name: "constructor" });
+                          return t;
+                        })(t),
+                        a,
+                      ];
+                    }
+                    return e;
+                  })(),
+                  { bytecode: r, args: n } = a;
+                return eg.xW(r, t.inputs?.length && n?.length ? eb.lF(t.inputs, n) : "0x");
+              })(em.HT("constructor(bytes, bytes)"), {
+                bytecode: ew.LX,
+                args: [
+                  "0x6080604052348015600e575f80fd5b5061016d8061001c5f395ff3fe608060405234801561000f575f80fd5b5060043610610029575f3560e01c8063f8b2cb4f1461002d575b5f80fd5b610047600480360381019061004291906100db565b61005d565b604051610054919061011e565b60405180910390f35b5f8173ffffffffffffffffffffffffffffffffffffffff16319050919050565b5f80fd5b5f73ffffffffffffffffffffffffffffffffffffffff82169050919050565b5f6100aa82610081565b9050919050565b6100ba816100a0565b81146100c4575f80fd5b50565b5f813590506100d5816100b1565b92915050565b5f602082840312156100f0576100ef61007d565b5b5f6100fd848285016100c7565b91505092915050565b5f819050919050565b61011881610106565b82525050565b5f6020820190506101315f83018461010f565b9291505056fea26469706673582212203b9fe929fe995c7cf9887f0bdba8a36dd78e8b73f149b17d2d9ad7cd09d2dc6264736f6c634300081a0033",
+                  (function (...e) {
+                    var t;
+                    let [a, r = []] = (() => {
+                        if (Array.isArray(e[0])) {
+                          let [t, a, r] = e;
+                          return [ev(t, a, { args: r }), r];
+                        }
+                        let [t, a] = e;
+                        return [t, a];
+                      })(),
+                      { overloads: n } = a,
+                      s = n ? ev([a, ...n], a.name, { args: r }) : a,
+                      i = ((t = s), em.go(t)),
+                      o = r.length > 0 ? eb.lF(s.inputs, r) : void 0;
+                    return o ? eg.xW(i, o) : i;
+                  })(eh("function getBalance(address)"), [u.address]),
+                ],
+              })
+            : void 0,
+          d = i
+            ? await Promise.all(
+                t.calls.map(async (t) => {
+                  if (!t.data && !t.abi) return;
+                  let { accessList: a } = await b(e, {
+                    account: u.address,
+                    ...t,
+                    data: t.abi ? (0, T.p)(t) : t.data,
+                  });
+                  return a.map(({ address: e, storageKeys: t }) => (t.length > 0 ? e : null));
+                }),
+              ).then((e) => e.flat().filter(Boolean))
+            : [],
+          p = await ep(e, {
+            blockNumber: a,
+            blockTag: r,
+            blocks: [
+              ...(i
+                ? [
+                    { calls: [{ data: f }], stateOverrides: s },
+                    {
+                      calls: d.map((e, t) => ({
+                        abi: [eh("function balanceOf(address) returns (uint256)")],
+                        functionName: "balanceOf",
+                        args: [u.address],
+                        to: e,
+                        from: ey.X,
+                        nonce: t,
+                      })),
+                      stateOverrides: [{ address: ey.X, nonce: 0 }],
+                    },
+                  ]
+                : []),
+              {
+                calls: [...n, { to: ey.X }].map((e) => ({ ...e, from: u?.address })),
+                stateOverrides: s,
+              },
+              ...(i
+                ? [
+                    { calls: [{ data: f }] },
+                    {
+                      calls: d.map((e, t) => ({
+                        abi: [eh("function balanceOf(address) returns (uint256)")],
+                        functionName: "balanceOf",
+                        args: [u.address],
+                        to: e,
+                        from: ey.X,
+                        nonce: t,
+                      })),
+                      stateOverrides: [{ address: ey.X, nonce: 0 }],
+                    },
+                    {
+                      calls: d.map((e, t) => ({
+                        to: e,
+                        abi: [eh("function decimals() returns (uint256)")],
+                        functionName: "decimals",
+                        from: ey.X,
+                        nonce: t,
+                      })),
+                      stateOverrides: [{ address: ey.X, nonce: 0 }],
+                    },
+                    {
+                      calls: d.map((e, t) => ({
+                        to: e,
+                        abi: [eh("function tokenURI(uint256) returns (string)")],
+                        functionName: "tokenURI",
+                        args: [0n],
+                        from: ey.X,
+                        nonce: t,
+                      })),
+                      stateOverrides: [{ address: ey.X, nonce: 0 }],
+                    },
+                    {
+                      calls: d.map((e, t) => ({
+                        to: e,
+                        abi: [eh("function symbol() returns (string)")],
+                        functionName: "symbol",
+                        from: ey.X,
+                        nonce: t,
+                      })),
+                      stateOverrides: [{ address: ey.X, nonce: 0 }],
+                    },
+                  ]
+                : []),
+            ],
+            traceTransfers: o,
+            validation: c,
+          }),
+          m = i ? p[2] : p[0],
+          [g, h, , v, y, w, k, B] = i ? p : [],
+          { calls: E, ...A } = m,
+          I = E.slice(0, -1) ?? [],
+          N = [...(g?.calls ?? []), ...(h?.calls ?? [])].map((e) =>
+            "success" === e.status ? (0, eT.uU)(e.data) : null,
+          ),
+          C = [...(v?.calls ?? []), ...(y?.calls ?? [])].map((e) =>
+            "success" === e.status ? (0, eT.uU)(e.data) : null,
+          ),
+          x = (w?.calls ?? []).map((e) => ("success" === e.status ? e.result : null)),
+          R = (B?.calls ?? []).map((e) => ("success" === e.status ? e.result : null)),
+          _ = (k?.calls ?? []).map((e) => ("success" === e.status ? e.result : null)),
+          F = [];
+        for (let [e, t] of C.entries()) {
+          let a = N[e];
+          if ("bigint" != typeof t || "bigint" != typeof a) continue;
+          let r = x[e - 1],
+            n = R[e - 1],
+            s = _[e - 1],
+            i =
+              0 === e
+                ? { address: ey.m, decimals: 18, symbol: "ETH" }
+                : {
+                    address: d[e - 1],
+                    decimals: s || r ? Number(r ?? 1) : void 0,
+                    symbol: n ?? void 0,
+                  };
+          F.some((e) => e.token.address === i.address) ||
+            F.push({ token: i, value: { pre: a, post: t, diff: t - a } });
+        }
+        return { assetChanges: F, block: A, results: I };
+      }
+      var eE = a(93628),
+        eA = a(90672),
+        eI = a(49308),
+        eN = a(9780),
+        eC = a(62167),
+        ex = a(98704),
+        eR = a(83601),
+        e_ = a(52421),
+        eF = a(79671),
+        eD = a(35477),
+        eO = a(44515),
+        eS = a(4664),
+        eM = a(88353),
+        eq = a(60529),
+        eP = a(61947),
+        eU = a(96211);
+      let eJ =
+          /^(?:(?<scheme>[a-zA-Z][a-zA-Z0-9+-.]*):\/\/)?(?<domain>[a-zA-Z0-9+-.]*(?::[0-9]{1,5})?) (?:wants you to sign in with your Ethereum account:\n)(?<address>0x[a-fA-F0-9]{40})\n\n(?:(?<statement>.*)\n\n)?/,
+        e$ =
+          /(?:URI: (?<uri>.+))\n(?:Version: (?<version>.+))\n(?:Chain ID: (?<chainId>\d+))\n(?:Nonce: (?<nonce>[a-zA-Z0-9]+))\n(?:Issued At: (?<issuedAt>.+))(?:\nExpiration Time: (?<expirationTime>.+))?(?:\nNot Before: (?<notBefore>.+))?(?:\nRequest ID: (?<requestId>.+))?/;
+      var eL = a(87355),
+        eK = a(41233);
+      async function eW(e, t) {
+        let {
+            address: a,
+            domain: r,
+            message: n,
+            nonce: s,
+            scheme: i,
+            signature: o,
+            time: c = new Date(),
+            ...l
+          } = t,
+          u = (function (e) {
+            let { scheme: t, statement: a, ...r } = e.match(eJ)?.groups ?? {},
+              {
+                chainId: n,
+                expirationTime: s,
+                issuedAt: i,
+                notBefore: o,
+                requestId: c,
+                ...l
+              } = e.match(e$)?.groups ?? {},
+              u = e.split("Resources:")[1]?.split("\n- ").slice(1);
+            return {
+              ...r,
+              ...l,
+              ...(n ? { chainId: Number(n) } : {}),
+              ...(s ? { expirationTime: new Date(s) } : {}),
+              ...(i ? { issuedAt: new Date(i) } : {}),
+              ...(o ? { notBefore: new Date(o) } : {}),
+              ...(c ? { requestId: c } : {}),
+              ...(u ? { resources: u } : {}),
+              ...(t ? { scheme: t } : {}),
+              ...(a ? { statement: a } : {}),
+            };
+          })(n);
+        if (
+          !u.address ||
+          !(function (e) {
+            let {
+              address: t,
+              domain: a,
+              message: r,
+              nonce: n,
+              scheme: s,
+              time: i = new Date(),
+            } = e;
+            if (
+              (a && r.domain !== a) ||
+              (n && r.nonce !== n) ||
+              (s && r.scheme !== s) ||
+              (r.expirationTime && i >= r.expirationTime) ||
+              (r.notBefore && i < r.notBefore)
+            )
+              return !1;
+            try {
+              if (
+                !r.address ||
+                !(0, eL.P)(r.address, { strict: !1 }) ||
+                (t && !(0, eK.h)(r.address, t))
+              )
+                return !1;
+            } catch {
+              return !1;
+            }
+            return !0;
+          })({ address: a, domain: r, message: u, nonce: s, scheme: i, time: c })
+        )
+          return !1;
+        let f = (0, eU.A)(n);
+        return (0, eI.KK)(e, { address: u.address, hash: f, signature: o, ...l });
+      }
+      var ej = a(20178),
+        eG = a(20696),
+        eH = a(99317);
+      function eX(e) {
+        return {
+          call: (t) => (0, c.T)(e, t),
+          createAccessList: (t) => b(e, t),
+          createBlockFilter: () => h(e),
+          createContractEventFilter: (t) => (0, v.X)(e, t),
+          createEventFilter: (t) => w(e, t),
+          createPendingTransactionFilter: () => (0, k.O)(e),
+          estimateContractGas: (t) => I(e, t),
+          estimateGas: (t) => (0, A.Q)(e, t),
+          getBalance: (t) => (0, R.r)(e, t),
+          getBlobBaseFee: () => _(e),
+          getBlock: (t) => (0, F.g)(e, t),
+          getBlockNumber: (t) => (0, D.G)(e, t),
+          getBlockTransactionCount: (t) => (0, O.L)(e, t),
+          getBytecode: (t) => (0, M.Q)(e, t),
+          getChainId: () => (0, S.T)(e),
+          getCode: (t) => (0, M.Q)(e, t),
+          getContractEvents: (t) => (0, q.u)(e, t),
+          getDelegation: (t) => $(e, t),
+          getEip712Domain: (t) => (0, L.j)(e, t),
+          getEnsAddress: (t) => (0, r.B)(e, t),
+          getEnsAvatar: (t) => (0, n.i)(e, t),
+          getEnsName: (t) => (0, s.s)(e, t),
+          getEnsResolver: (t) => (0, i.D)(e, t),
+          getEnsText: (t) => (0, o.m)(e, t),
+          getFeeHistory: (t) => (0, K.T)(e, t),
+          estimateFeesPerGas: (t) => (0, N._)(e, t),
+          getFilterChanges: (t) => (0, W.I)(e, t),
+          getFilterLogs: (t) => H(e, t),
+          getGasPrice: () => (0, X.L)(e),
+          getLogs: (t) => (0, Z.a)(e, t),
+          getProof: (t) => (0, z.l)(e, t),
+          estimateMaxPriorityFeePerGas: (t) => (0, C.b)(e, t),
+          fillTransaction: (t) => (0, x.a)(e, t),
+          getStorageAt: (t) => (0, Q.P)(e, t),
+          getTransaction: (t) => (0, V.x)(e, t),
+          getTransactionConfirmations: (t) => (0, Y.d)(e, t),
+          getTransactionCount: (t) => (0, ee.y)(e, t),
+          getTransactionReceipt: (t) => (0, et.h)(e, t),
+          multicall: (t) => (0, ea.C)(e, t),
+          prepareTransactionRequest: (t) => (0, ej.ft)(e, t),
+          readContract: (t) => (0, er.J)(e, t),
+          sendRawTransaction: (t) => (0, eG.L)(e, t),
+          sendRawTransactionSync: (t) => (0, eH.s)(e, t),
+          simulate: (t) => ep(e, t),
+          simulateBlocks: (t) => ep(e, t),
+          simulateCalls: (t) => eB(e, t),
+          simulateContract: (t) => (0, eE.v)(e, t),
+          verifyHash: (t) => (0, eI.KK)(e, t),
+          verifyMessage: (t) => (0, eN.l)(e, t),
+          verifySiweMessage: (t) => eW(e, t),
+          verifyTypedData: (t) => (0, eC.w)(e, t),
+          uninstallFilter: (t) => (0, eA.Z)(e, t),
+          waitForTransactionReceipt: (t) => (0, ex.n)(e, t),
+          watchBlocks: (t) => (0, e_.O)(e, t),
+          watchBlockNumber: (t) => (0, eR.q)(e, t),
+          watchContractEvent: (t) => (0, eF.q)(e, t),
+          watchEvent: (t) =>
+            (function (
+              e,
+              {
+                address: t,
+                args: a,
+                batch: r = !0,
+                event: n,
+                events: s,
+                fromBlock: i,
+                onError: o,
+                onLogs: c,
+                poll: l,
+                pollingInterval: u = e.pollingInterval,
+                strict: f,
+              },
+            ) {
+              let d,
+                p,
+                m,
+                b =
+                  void 0 !== l
+                    ? l
+                    : "bigint" == typeof i ||
+                      ("webSocket" !== e.transport.type &&
+                        "ipc" !== e.transport.type &&
+                        ("fallback" !== e.transport.type ||
+                          ("webSocket" !== e.transport.transports[0].config.type &&
+                            "ipc" !== e.transport.transports[0].config.type))),
+                g = f ?? !1;
+              return b
+                ? ((d = (0, eq.A)(["watchEvent", t, a, r, e.uid, n, u, i])),
+                  (0, eS.lB)(d, { onLogs: c, onError: o }, (o) => {
+                    let c, l;
+                    void 0 !== i && (c = i - 1n);
+                    let f = !1,
+                      d = (0, eM.w)(
+                        async () => {
+                          if (!f) {
+                            try {
+                              l = await (0, E.T)(
+                                e,
+                                w,
+                                "createEventFilter",
+                              )({
+                                address: t,
+                                args: a,
+                                event: n,
+                                events: s,
+                                strict: g,
+                                fromBlock: i,
+                              });
+                            } catch {}
+                            f = !0;
+                            return;
+                          }
+                          try {
+                            let i;
+                            if (l) i = await (0, E.T)(e, W.I, "getFilterChanges")({ filter: l });
+                            else {
+                              let r = await (0, E.T)(e, D.G, "getBlockNumber")({});
+                              ((i =
+                                c && c !== r
+                                  ? await (0, E.T)(
+                                      e,
+                                      Z.a,
+                                      "getLogs",
+                                    )({
+                                      address: t,
+                                      args: a,
+                                      event: n,
+                                      events: s,
+                                      fromBlock: c + 1n,
+                                      toBlock: r,
+                                    })
+                                  : []),
+                                (c = r));
+                            }
+                            if (0 === i.length) return;
+                            if (r) o.onLogs(i);
+                            else for (let e of i) o.onLogs([e]);
+                          } catch (e) {
+                            (l && e instanceof eD.Di && (f = !1), o.onError?.(e));
+                          }
+                        },
+                        { emitOnBegin: !0, interval: u },
+                      );
+                    return async () => {
+                      (l && (await (0, E.T)(e, eA.Z, "uninstallFilter")({ filter: l })), d());
+                    };
+                  }))
+                : ((p = !0),
+                  (m = () => (p = !1)),
+                  (async () => {
+                    try {
+                      let r = (() => {
+                          if ("fallback" === e.transport.type) {
+                            let t = e.transport.transports.find(
+                              (e) => "webSocket" === e.config.type || "ipc" === e.config.type,
+                            );
+                            return t ? t.value : e.transport;
+                          }
+                          return e.transport;
+                        })(),
+                        i = s ?? (n ? [n] : void 0),
+                        l = [];
+                      i &&
+                        ((l = [
+                          i.flatMap((e) => (0, y.R)({ abi: [e], eventName: e.name, args: a })),
+                        ]),
+                        n && (l = l[0]));
+                      let { unsubscribe: u } = await r.subscribe({
+                        params: ["logs", { address: t, topics: l }],
+                        onData(e) {
+                          if (!p) return;
+                          let t = e.result;
+                          try {
+                            let { eventName: e, args: a } = (0, eO.j)({
+                                abi: i ?? [],
+                                data: t.data,
+                                topics: t.topics,
+                                strict: g,
+                              }),
+                              r = (0, G.e)(t, { args: a, eventName: e });
+                            c([r]);
+                          } catch (n) {
+                            let e, a;
+                            if (n instanceof es.fo || n instanceof es.l3) {
+                              if (f) return;
+                              ((e = n.abiItem.name),
+                                (a = n.abiItem.inputs?.some((e) => !("name" in e && e.name))));
+                            }
+                            let r = (0, G.e)(t, { args: a ? [] : {}, eventName: e });
+                            c([r]);
+                          }
+                        },
+                        onError(e) {
+                          o?.(e);
+                        },
+                      });
+                      ((m = u), p || m());
+                    } catch (e) {
+                      o?.(e);
+                    }
+                  })(),
+                  () => m());
+            })(e, t),
+          watchPendingTransactions: (t) => (0, eP.u)(e, t),
+        };
+      }
+    },
+    99317: (e, t, a) => {
+      a.d(t, { s: () => s });
+      var r = a(28202),
+        n = a(89524);
+      async function s(e, { serializedTransaction: t, throwOnReceiptRevert: a, timeout: i }) {
+        let o = await e.request(
+            { method: "eth_sendRawTransactionSync", params: i ? [t, i] : [t] },
+            { retryCount: 0 },
+          ),
+          c = (e.chain?.formatters?.transactionReceipt?.format || n.uL)(o);
+        if ("reverted" === c.status && a) throw new r.Sq({ receipt: c });
+        return c;
+      }
+    },
+  },
+]);
