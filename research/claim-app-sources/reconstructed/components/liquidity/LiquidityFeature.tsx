@@ -1,0 +1,113 @@
+"use client";
+
+import Image from "next/image";
+
+import { useExpectedChains } from "../../contexts/ExpectedChainContext";
+import { useLocker } from "../../contexts/LockerContext";
+import {
+  SUP_TOKEN_ADDRESS_BY_CHAIN,
+  WETH_ADDRESS,
+} from "../../contracts/app-contracts";
+import { useAccumulatedLiquidityRewards } from "../../hooks/useAccumulatedLiquidityRewards";
+import { useActiveLiquidityPositions } from "../../hooks/useLiquidityPositions";
+import { useTokenPrice } from "../../hooks/useTokenPrices";
+import type {
+  LiquidityPoolStats,
+  LiquidityRewardStats,
+} from "../../types/liquidity";
+import { AddLiquidityButton } from "./AddLiquidityButton";
+import { calculatePoolUsdMetrics, LiquidityStats } from "./LiquidityStats";
+
+/**
+ * The two optional stats values came from Next server actions whose client-side
+ * references are cataloged in README.md; their server bodies were not present
+ * in the recovered browser artifacts.
+ */
+export function LiquidityFeature({
+  poolStats,
+  rewardsStats,
+}: {
+  poolStats?: LiquidityPoolStats;
+  rewardsStats?: LiquidityRewardStats;
+} = {}) {
+  const { lockerAddress } = useLocker();
+  const { airdropChain } = useExpectedChains();
+  const positions = useActiveLiquidityPositions(lockerAddress);
+  const ethPrice = useTokenPrice(
+    airdropChain.id,
+    WETH_ADDRESS[airdropChain.id],
+  );
+  const supPrice = useTokenPrice(
+    airdropChain.id,
+    SUP_TOKEN_ADDRESS_BY_CHAIN[airdropChain.id],
+  );
+  const earnings = useAccumulatedLiquidityRewards({
+    lockerAddress,
+    distributionPool: rewardsStats?.lpDistributionPool,
+  });
+  const hasPositions = (positions.data?.tokenIds.length ?? 0) > 0;
+  const metrics = calculatePoolUsdMetrics(poolStats, {
+    ethPriceUSD: ethPrice.data ?? undefined,
+    supPriceUSD: supPrice.data ?? undefined,
+    supAddress: SUP_TOKEN_ADDRESS_BY_CHAIN[airdropChain.id],
+  });
+  const apr = rewardsStats?.apr === 0 ? undefined : rewardsStats?.apr;
+  const bonusApr =
+    rewardsStats?.bonusApr === 0 ? undefined : rewardsStats?.bonusApr;
+  return (
+    <div className="space-y-6">
+      <section className="relative flex min-h-[400px] items-center justify-center overflow-hidden rounded-lg border border-[#E9E9E9] bg-[#EEFFE7] px-4 py-8 text-center text-black">
+        <div className="absolute inset-0">
+          <Image
+            src="/liquidity-cover-gradient.png"
+            alt=""
+            fill
+            priority
+            quality={75}
+            className="object-cover object-left-top"
+          />
+          <Image
+            src="/liquidity-cover-fractal-center.svg"
+            alt=""
+            fill
+            className="object-cover object-top opacity-10"
+          />
+          <Image
+            src="/liquidity-cover-left.png"
+            alt=""
+            fill
+            priority
+            quality={75}
+            className="hidden object-contain object-left md:block"
+          />
+          <Image
+            src="/liquidity-cover-right.png"
+            alt=""
+            fill
+            priority
+            quality={75}
+            className="hidden object-contain object-right md:block"
+          />
+        </div>
+        <div className="relative z-10 max-w-2xl">
+          <h1 className="mt-8 mb-4 text-green-superdark text-h4 md:text-h2 lg:text-h1">
+            Make it liquid
+          </h1>
+          <p className="mb-12 text-alto-dark uppercase">
+            ADD YOUR SUP AND ETH TO EARN TRADING FEES
+            <br />
+            AND SUPPORT THE GROWING SUPERFLUID ECOSYSTEM
+          </p>
+          <AddLiquidityButton hasPositions={hasPositions} />
+        </div>
+      </section>
+      <LiquidityStats
+        lpRewardsAPR={apr}
+        bonusAPR={bonusApr}
+        hasPositions={hasPositions}
+        poolMetrics={metrics}
+        earnings={earnings.data}
+      />
+    </div>
+  );
+}

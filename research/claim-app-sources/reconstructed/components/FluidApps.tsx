@@ -1,27 +1,18 @@
 "use client";
 
-// Inferred reconstruction from webpack module 22448 and Sentry source metadata.
-
-import { useEffect, useMemo, useState } from "react";
 import orderBy from "lodash/orderBy";
+import { useEffect, useMemo, useState } from "react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ComponentResetWhenAccountChanges } from "@/components/ComponentResetWhenAccountChanges";
-import { useLockerAccount } from "@/hooks/useLockerAccount";
-import { SUP_SYMBOL } from "@/lib/constants";
-import { FluidAppCard } from "./FluidAppCard";
+import { useLocker } from "../contexts/LockerContext";
+import { SUP_SYMBOL } from "../lib/format";
 import type { ProgramApp } from "../types/program-app";
+import { ComponentResetWhenAccountChanges } from "./ComponentResetWhenAccountChanges";
+import { FluidAppCard } from "./FluidAppCard";
 
-export interface FluidAppsProps {
-  apps: ProgramApp[];
-}
-
-export function FluidApps({ apps }: FluidAppsProps) {
-  const { accountAddress } = useLockerAccount();
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => setIsMounted(true), []);
-
+export function FluidApps({ apps }: { apps: ProgramApp[] }) {
+  const { accountAddress } = useLocker();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const sortedApps = useMemo(
     () =>
       orderBy(apps, [
@@ -36,34 +27,31 @@ export function FluidApps({ apps }: FluidAppsProps) {
       ]),
     [apps],
   );
-
-  if (!isMounted) return null;
-
+  if (!mounted) return null;
   return (
-    <Card className="w-full border-none bg-gray-100 shadow-none">
-      <CardHeader className="text-sm max-md:hidden">
-        <CardTitle className="text-gray-800">
-          <div
-            className="grid gap-4 font-medium"
-            style={{ gridTemplateColumns: `2fr 0.75fr 1fr 2fr${accountAddress ? " 1fr" : ""} 120px` }}
-          >
-            <div>Campaign</div>
-            <div>Category</div>
-            <div>Flow Rate</div>
-            <div>{SUP_SYMBOL} Distributed</div>
-            {!!accountAddress && <div>You Earned</div>}
-            <div>Action</div>
-          </div>
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="space-y-4 p-2">
+    <section className="w-full rounded-lg border-none bg-gray-100 shadow-none">
+      <header className="p-6 text-sm max-md:hidden">
+        <div
+          className="grid gap-4 font-medium text-gray-800"
+          style={{
+            gridTemplateColumns: `2fr 0.75fr 1fr 2fr${accountAddress ? " 1fr" : ""} 120px`,
+          }}
+        >
+          <div>Campaign</div>
+          <div>Category</div>
+          <div>Flow Rate</div>
+          <div>{SUP_SYMBOL} Distributed</div>
+          {accountAddress && <div>You Earned</div>}
+          <div>Action</div>
+        </div>
+      </header>
+      <div className="space-y-4 p-2">
         {sortedApps.map((app) => (
           <ComponentResetWhenAccountChanges key={app.appId}>
             <FluidAppCard programApp={app} />
           </ComponentResetWhenAccountChanges>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }

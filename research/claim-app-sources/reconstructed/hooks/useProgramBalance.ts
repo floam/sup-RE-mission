@@ -1,19 +1,16 @@
 "use client";
 
-// Inferred reconstruction from webpack module 22448.
-// The generated contract-hook imports are inferred names for bundle modules 80751 and 69779.
-
 import { useQuery } from "@tanstack/react-query";
+import { useReadContract } from "wagmi";
+import { programManagerAbi } from "@sfpro/sdk/abi/sup";
+import { gdaPoolAbi } from "@sfpro/sdk/abi/core";
 
-import { useAirdropChain } from "@/hooks/useAirdropChain";
-import {
-  useFluidEPProgramManagerGetProgramPool,
-  useSuperfluidPoolRead,
-} from "@/generated/contracts";
-import type { ProgramBalance } from "../types/program-app";
+import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { PROGRAM_MANAGER_ADDRESS } from "../contracts/app-contracts";
+import type { Address, ProgramBalance } from "../types/program-app";
 
 export interface UseProgramBalanceOptions {
-  lockerAddress?: `0x${string}`;
+  lockerAddress?: Address;
   programId?: bigint;
 }
 
@@ -21,35 +18,38 @@ export function useProgramBalance({
   lockerAddress,
   programId,
 }: UseProgramBalanceOptions) {
-  const { airdropChain } = useAirdropChain();
+  const { airdropChain } = useExpectedChains();
+  const managerAddress = PROGRAM_MANAGER_ADDRESS[airdropChain.id as 8453];
 
-  const { data: poolAddress } = useFluidEPProgramManagerGetProgramPool({
+  const { data: poolAddress } = useReadContract({
+    abi: programManagerAbi,
+    address: managerAddress,
     functionName: "getProgramPool",
     chainId: airdropChain.id,
     account: lockerAddress,
-    args: [programId],
+    args: programId === undefined ? undefined : [programId],
     query: { enabled: Boolean(lockerAddress) && programId !== undefined },
   });
 
-  const {
-    data: totalReceived,
-    dataUpdatedAt: totalReceivedUpdatedAt,
-  } = useSuperfluidPoolRead({
-    functionName: "getTotalAmountReceivedByMember",
-    chainId: airdropChain.id,
-    account: lockerAddress,
-    address: poolAddress,
-    args: [lockerAddress],
-    query: { enabled: Boolean(lockerAddress) && Boolean(poolAddress) },
-  });
+  const { data: totalReceived, dataUpdatedAt: totalReceivedUpdatedAt } =
+    useReadContract({
+      abi: gdaPoolAbi,
+      address: poolAddress,
+      functionName: "getTotalAmountReceivedByMember",
+      chainId: airdropChain.id,
+      account: lockerAddress,
+      args: lockerAddress ? [lockerAddress] : undefined,
+      query: { enabled: Boolean(lockerAddress && poolAddress) },
+    });
 
-  const { data: memberFlowRate } = useSuperfluidPoolRead({
+  const { data: memberFlowRate } = useReadContract({
+    abi: gdaPoolAbi,
+    address: poolAddress,
     functionName: "getMemberFlowRate",
     chainId: airdropChain.id,
     account: lockerAddress,
-    address: poolAddress,
-    args: [lockerAddress],
-    query: { enabled: Boolean(lockerAddress) && Boolean(poolAddress) },
+    args: lockerAddress ? [lockerAddress] : undefined,
+    query: { enabled: Boolean(lockerAddress && poolAddress) },
   });
 
   return useQuery<ProgramBalance | null>({
@@ -70,7 +70,6 @@ export function useProgramBalance({
       ) {
         return null;
       }
-
       return {
         balance: totalReceived,
         flowRate: memberFlowRate,
