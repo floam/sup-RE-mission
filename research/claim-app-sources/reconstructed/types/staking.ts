@@ -5,10 +5,12 @@ export interface SerializedStakingStats {
   totalDistributed: string;
   totalDistributedFlowRate: string;
   totalDistributedTimestamp: number;
-  apr: number | string;
-  bonusApr: number | string;
+  apr: number;
+  bonusApr: number;
   withdrawalPeriodDays: number;
-  taxDistributionPool?: Address;
+  totalStakers: number;
+  lastUpdatedAt: number;
+  taxDistributionPool: Address;
 }
 
 export interface StakingStats

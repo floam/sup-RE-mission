@@ -4,13 +4,8 @@ import { ClaimSection } from "../../components/claim/ClaimSection";
 import { ComponentResetWhenAccountChanges } from "../../components/ComponentResetWhenAccountChanges";
 import { FilteredFluidApps } from "../../components/FilteredFluidApps";
 import { useProgramApps } from "../../hooks/useProgramApps";
-import type { ProgramPoolInfoLoader } from "../../hooks/useClaimFlowMetrics";
 
-export default function ClaimPage({
-  loadProgramPoolInfos,
-}: {
-  loadProgramPoolInfos?: ProgramPoolInfoLoader;
-} = {}) {
+export default function ClaimPage() {
   const apps = useProgramApps();
   return (
     <main className="space-y-8">
@@ -33,7 +28,7 @@ export default function ClaimPage({
           </ol>
         </div>
         <ComponentResetWhenAccountChanges>
-          <ClaimSection loadProgramPoolInfos={loadProgramPoolInfos} />
+          <ClaimSection />
         </ComponentResetWhenAccountChanges>
       </section>
       {apps.isLoading ? (

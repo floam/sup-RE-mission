@@ -1,15 +1,14 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 
 import { useLocker } from "../contexts/LockerContext";
+import { getProgramPoolInfos } from "../server-actions/programs";
 import type { ProgramPoolInfo } from "../types/program-app";
 import type { ProgramPointState } from "../types/transactions";
 import { useAccountProgramPointStates } from "./useClaimTransaction";
 import { useLockerBalance } from "./useLockerBalance";
-
-export type ProgramPoolInfoLoader = () => Promise<ProgramPoolInfo[]>;
 
 export function calculateClaimFlowRates({
   pointStates,
@@ -58,14 +57,7 @@ export function calculateClaimFlowRates({
   };
 }
 
-/**
- * The client called server action `getProgramPoolInfos`
- * (`003f4c4ef5e976bf16920f03d8a97174f1d8ae67e6`). Its server-only body was not
- * emitted, so callers supply that boundary when reconstructing a runnable app.
- */
-export function useClaimFlowMetrics(
-  loadProgramPoolInfos?: ProgramPoolInfoLoader,
-) {
+export function useClaimFlowMetrics() {
   const { accountAddress, lockerAddress } = useLocker();
   const pointStates = useAccountProgramPointStates(accountAddress);
   const lockerBalance = useLockerBalance({ lockerAddress });
@@ -90,8 +82,7 @@ export function useClaimFlowMetrics(
     : 0n;
   const readProgramPoolInfos = useQuery({
     queryKey: ["programPoolInfos"],
-    queryFn: loadProgramPoolInfos!,
-    enabled: Boolean(loadProgramPoolInfos),
+    queryFn: getProgramPoolInfos,
   });
   const flowRates = useMemo(
     () =>

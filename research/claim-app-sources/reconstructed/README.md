@@ -1,7 +1,7 @@
 # Claim app application-source reconstruction
 
 This directory is a semantic reconstruction of the first-party application source
-shipped by `claim.superfluid.org`. It contains 120 readable TypeScript/TSX modules:
+shipped by `claim.superfluid.org`. It contains 124 readable TypeScript/TSX modules:
 10 page routes, the root layout and error boundary, React components and providers,
 transaction/data hooks, application configuration, narrow app-owned contract ABI
 fragments, and inferred domain types.
@@ -23,8 +23,12 @@ table and evidence ledger; each public identity has one owning module there.
 - The immutable production chunk matching the captured deployment, used to resolve
   factories absent from the local beautified catalog (notably claim/delegation,
   account/profile, program schema, Reserve names, and Swap behavior).
-- The deployment's observable SuperJSON `/api/programs` response, used only as the
-  transport counterpart for the client-visible `getProgramApps` boundary.
+- A same-deployment HAR capture of the `getProgramApps` and `getProgramPoolInfos`
+  React Flight responses. Only first-party claim traffic was used; request headers,
+  cookies, and unrelated browsing traffic are not retained in this tree.
+- Live zero-argument action responses for staking, liquidity, and governance,
+  cross-checked against the SUP, Superfluid protocol, Uniswap V3, LiFi, and public
+  SUP metrics APIs.
 
 ## Reconstruction policy
 
@@ -42,26 +46,33 @@ table and evidence ledger; each public identity has one owning module there.
 - When later evidence changed a name or shape, all consumers and the symbol ledger
   were updated together. No alternate public aliases are retained.
 
-## Explicit boundaries
+## Server-action reconstruction
 
-Some implementation was never sent to the browser and therefore cannot be honestly
-reconstructed. The client referenced these Next.js server actions by stable ID:
+The browser does not contain the original server source, so these are semantic
+reconstructions rather than claimed byte-for-byte bodies. The capture and live
+deployment nevertheless expose enough inputs and outputs to restore the action
+contracts and their query/math behavior:
 
-| Client-visible action      | Server action ID                             |
-| -------------------------- | -------------------------------------------- |
-| `getProgramPoolInfos`      | `003f4c4ef5e976bf16920f03d8a97174f1d8ae67e6` |
-| `getProgramApps`           | `0050c3f0d604f9162ceb3faa2d83005031b4be6b5f` |
-| `getStakingStats`          | `00a6446d221d62d46ca41e7294731c14ab30fc9053` |
-| `getLiquidityPoolStats`    | `00c1274b3226ccdf16c1f187bbdd66ac7c5647b0ae` |
-| `getLiquidityRewardsStats` | `0099a827feb87232328ca49a8aaec8daa5598e5c0c` |
-| `getTotalDelegatedAmount`  | `00cfeebe90442ab515b51fba3ba323324474e768b8` |
+| Client-visible action      | Server action ID                             | Recovered behavior                                       |
+| -------------------------- | -------------------------------------------- | -------------------------------------------------------- |
+| `getProgramPoolInfos`      | `003f4c4ef5e976bf16920f03d8a97174f1d8ae67e6` | Protocol-pool units and per-unit flow for active apps    |
+| `getProgramApps`           | `0050c3f0d604f9162ceb3faa2d83005031b4be6b5f` | 72-entry registry plus contract and live pool data       |
+| `getStakingStats`          | `00a6446d221d62d46ca41e7294731c14ab30fc9053` | Staker pool totals, accrued distribution, and APR        |
+| `getLiquidityPoolStats`    | `00c1274b3226ccdf16c1f187bbdd66ac7c5647b0ae` | Uniswap V3 pool/day TVL, volume, fee, and token metadata |
+| `getLiquidityRewardsStats` | `0099a827feb87232328ca49a8aaec8daa5598e5c0c` | LP reward pool accrual and USD-denominated APR           |
+| `getTotalDelegatedAmount`  | `00cfeebe90442ab515b51fba3ba323324474e768b8` | `/v1/total_delegated_score` response projection          |
 
-Their browser-visible call shapes and consumers are reconstructed; unavailable
-server bodies are represented as typed loader/transport boundaries rather than
-invented implementations. Likewise, the full Reown adapter network/connector list
-was assembled from third-party exports in the production bundle. Observable
-first-party AppKit options are recovered in `config/app-kit.ts`, while the adapter
-instance remains an input to `ContextProvider`.
+The public Uniswap V3 Base fallback in `lib/endpoints.ts` is an inferred compatible
+deployment because a server-to-server URL is not present in browser/HAR evidence;
+`UNISWAP_V3_BASE_SUBGRAPH_URL` preserves the likely production configuration
+boundary. All GraphQL selections, pool/token identities, action result fields,
+cache intervals, bigint accrual, unit scaling, and one-decimal APR calculations are
+evidence-backed.
+
+The full Reown adapter network/connector list was assembled from third-party exports
+in the production bundle. Observable first-party AppKit options are recovered in
+`config/app-kit.ts`, while the adapter instance remains an input to
+`ContextProvider`.
 
 Sentry-named UI primitives (`badge`, `dialog`, `drawer`, `pagination`,
 `responsive-dialog`, `sheet`, and `skeleton`) are dependency-owned boilerplate and
