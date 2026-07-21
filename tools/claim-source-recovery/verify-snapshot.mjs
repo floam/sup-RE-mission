@@ -1,0 +1,220 @@
+#!/usr/bin/env node
+import { createHash } from "node:crypto";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import path from "node:path";
+import process from "node:process";
+import prettier from "prettier";
+
+function parseArgs(argv) {
+  const options = {
+    root: "recovered/claim.superfluid.org",
+    liveManifest: null,
+    report: null,
+  };
+  for (let index = 2; index < argv.length; index += 1) {
+    const argument = argv[index];
+    if (argument === "--root") options.root = argv[++index];
+    else if (argument === "--live-manifest") {
+      options.liveManifest = argv[++index];
+    } else if (argument === "--report") options.report = argv[++index];
+    else throw new Error(`Unknown argument: ${argument}`);
+  }
+  return options;
+}
+
+function sha256(value) {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+function assert(condition, message) {
+  if (!condition) throw new Error(message);
+}
+
+async function listFiles(root) {
+  const files = [];
+  async function visit(directory) {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      const filename = path.join(directory, entry.name);
+      if (entry.isDirectory()) await visit(filename);
+      else if (entry.isFile()) files.push(path.relative(root, filename));
+    }
+  }
+  await visit(root);
+  return files.sort();
+}
+
+function assertExactSet(actual, expected, label) {
+  const actualSet = new Set(actual);
+  const expectedSet = new Set(expected);
+  const missing = [...expectedSet].filter((value) => !actualSet.has(value));
+  const extra = [...actualSet].filter((value) => !expectedSet.has(value));
+  assert(
+    missing.length === 0 && extra.length === 0,
+    `${label} mismatch; missing=${JSON.stringify(missing)} extra=${JSON.stringify(extra)}`,
+  );
+}
+
+async function verifyFile(root, record) {
+  const value = await readFile(path.join(root, record.file));
+  assert(
+    value.byteLength === record.bytes,
+    `${record.file}: expected ${record.bytes} bytes, got ${value.byteLength}`,
+  );
+  assert(
+    sha256(value) === record.sha256,
+    `${record.file}: SHA-256 differs from snapshot manifest`,
+  );
+  return value;
+}
+
+async function verifySnapshot(root, manifest) {
+  const expectedRaw = [
+    ...manifest.routes.map(({ file }) => file),
+    ...manifest.assets.map(({ file }) => file),
+  ];
+  const actualRaw = (await listFiles(path.join(root, "raw"))).map((file) =>
+    path.join("raw", file),
+  );
+  assertExactSet(actualRaw, expectedRaw, "raw snapshot files");
+
+  const expectedBeautified = manifest.assets.flatMap(({ beautifiedFile }) =>
+    beautifiedFile ? [beautifiedFile] : [],
+  );
+  const actualBeautified = (await listFiles(path.join(root, "beautified"))).map(
+    (file) => path.join("beautified", file),
+  );
+  assertExactSet(
+    actualBeautified,
+    expectedBeautified,
+    "beautified snapshot files",
+  );
+
+  for (const route of manifest.routes) await verifyFile(root, route);
+  for (const asset of manifest.assets) {
+    const raw = await verifyFile(root, asset);
+    if (!asset.beautifiedFile) continue;
+
+    const beautified = await readFile(path.join(root, asset.beautifiedFile));
+    assert(
+      beautified.byteLength === asset.beautifiedBytes,
+      `${asset.beautifiedFile}: byte count differs from snapshot manifest`,
+    );
+    assert(
+      sha256(beautified) === asset.beautifiedSha256,
+      `${asset.beautifiedFile}: SHA-256 differs from snapshot manifest`,
+    );
+    const regenerated = await prettier.format(raw.toString("utf8"), {
+      parser: manifest.beautifier.parser,
+      filepath: asset.chunkName,
+      ...manifest.beautifier.options,
+    });
+    assert(
+      regenerated === beautified.toString("utf8"),
+      `${asset.beautifiedFile}: not the declared Prettier rendering of ${asset.file}`,
+    );
+  }
+
+  assert(
+    manifest.summary.rawFiles === expectedRaw.length,
+    "snapshot summary rawFiles is stale",
+  );
+  assert(
+    manifest.summary.javascriptChunks === expectedBeautified.length,
+    "snapshot summary javascriptChunks is stale",
+  );
+  return {
+    routes: manifest.routes.length,
+    assets: manifest.assets.length,
+    javascriptChunks: expectedBeautified.length,
+  };
+}
+
+function compareLiveSnapshot(snapshot, live) {
+  const snapshotAssets = new Map(
+    snapshot.assets.map((asset) => [new URL(asset.url).pathname, asset]),
+  );
+  const liveAssets = new Map(
+    live.assets
+      .filter((asset) => !asset.error)
+      .map((asset) => [new URL(asset.url).pathname, asset]),
+  );
+  const added = [...liveAssets.keys()]
+    .filter((pathname) => !snapshotAssets.has(pathname))
+    .sort();
+  const removed = [...snapshotAssets.keys()]
+    .filter((pathname) => !liveAssets.has(pathname))
+    .sort();
+  const changed = [...snapshotAssets.keys()]
+    .filter(
+      (pathname) =>
+        liveAssets.has(pathname) &&
+        liveAssets.get(pathname).sha256 !== snapshotAssets.get(pathname).sha256,
+    )
+    .sort();
+  const unchanged = [...snapshotAssets.keys()].filter(
+    (pathname) =>
+      liveAssets.has(pathname) &&
+      liveAssets.get(pathname).sha256 === snapshotAssets.get(pathname).sha256,
+  );
+
+  const snapshotRoutes = new Map(
+    snapshot.routes.map((route) => [route.route, route]),
+  );
+  const liveRoutes = new Map(
+    live.routes
+      .filter((route) => !route.error)
+      .map((route) => [route.route, route]),
+  );
+  return {
+    snapshotGeneratedAt: snapshot.generatedAt,
+    liveGeneratedAt: live.generatedAt,
+    assets: {
+      added,
+      removed,
+      changed,
+      unchanged: unchanged.length,
+    },
+    routes: {
+      added: [...liveRoutes.keys()]
+        .filter((route) => !snapshotRoutes.has(route))
+        .sort(),
+      removed: [...snapshotRoutes.keys()]
+        .filter((route) => !liveRoutes.has(route))
+        .sort(),
+      changed: [...snapshotRoutes.keys()]
+        .filter(
+          (route) =>
+            liveRoutes.has(route) &&
+            liveRoutes.get(route).sha256 !== snapshotRoutes.get(route).sha256,
+        )
+        .sort(),
+    },
+  };
+}
+
+async function main() {
+  const options = parseArgs(process.argv);
+  const root = path.resolve(options.root);
+  const manifest = JSON.parse(
+    await readFile(path.join(root, "snapshot-manifest.json"), "utf8"),
+  );
+  const verified = await verifySnapshot(root, manifest);
+  const result = { verified };
+
+  if (options.liveManifest) {
+    const live = JSON.parse(await readFile(options.liveManifest, "utf8"));
+    result.liveComparison = compareLiveSnapshot(manifest, live);
+  }
+  if (options.report) {
+    await mkdir(path.dirname(path.resolve(options.report)), {
+      recursive: true,
+    });
+    await writeFile(options.report, `${JSON.stringify(result, null, 2)}\n`);
+  }
+  console.log(JSON.stringify(result));
+}
+
+main().catch((error) => {
+  console.error(error.stack || error);
+  process.exitCode = 1;
+});
