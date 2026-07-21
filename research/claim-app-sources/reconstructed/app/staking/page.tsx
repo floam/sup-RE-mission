@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import confetti from "canvas-confetti";
 import { useEffect, useState } from "react";
 import { formatEther } from "viem";
@@ -21,7 +22,11 @@ import {
   parseTokenAmount,
   sanitizeTokenInput,
 } from "../../lib/format";
-import type { StakingStats } from "../../types/staking";
+import { getStakingStats } from "../../server-actions/stats";
+import {
+  deserializeStakingStats,
+  type StakingStats,
+} from "../../types/staking";
 
 type StakingTab = "stake" | "unstake";
 
@@ -115,12 +120,12 @@ function StakingStatsPanel({ stats }: { stats?: StakingStats }) {
   );
 }
 
-/**
- * `stats` is the normalized result of `getStakingStats`. The recovered client
- * bundle exposed server-action id 00a6446d221d62d46ca41e7294731c14ab30fc9053,
- * but not that server action's body.
- */
-export default function StakingPage({ stats }: { stats?: StakingStats } = {}) {
+export default function StakingPage() {
+  const { data: stats } = useQuery({
+    queryKey: ["stakingStats"],
+    queryFn: getStakingStats,
+    select: deserializeStakingStats,
+  });
   const [tab, setTab] = useState<StakingTab>("stake");
   const [stakeInput, setStakeInput] = useState("");
   const [unstakeInput, setUnstakeInput] = useState("");

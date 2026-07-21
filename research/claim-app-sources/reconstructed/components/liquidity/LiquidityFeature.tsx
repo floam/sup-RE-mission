@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 
 import { useExpectedChains } from "../../contexts/ExpectedChainContext";
@@ -11,25 +12,24 @@ import {
 import { useAccumulatedLiquidityRewards } from "../../hooks/useAccumulatedLiquidityRewards";
 import { useActiveLiquidityPositions } from "../../hooks/useLiquidityPositions";
 import { useTokenPrice } from "../../hooks/useTokenPrices";
-import type {
-  LiquidityPoolStats,
-  LiquidityRewardStats,
-} from "../../types/liquidity";
+import {
+  getLiquidityPoolStats,
+  getLiquidityRewardsStats,
+} from "../../server-actions/stats";
+import { deserializeLiquidityRewardStats } from "../../types/liquidity";
 import { AddLiquidityButton } from "./AddLiquidityButton";
 import { calculatePoolUsdMetrics, LiquidityStats } from "./LiquidityStats";
 
-/**
- * The two optional stats values came from Next server actions whose client-side
- * references are cataloged in README.md; their server bodies were not present
- * in the recovered browser artifacts.
- */
-export function LiquidityFeature({
-  poolStats,
-  rewardsStats,
-}: {
-  poolStats?: LiquidityPoolStats;
-  rewardsStats?: LiquidityRewardStats;
-} = {}) {
+export function LiquidityFeature() {
+  const { data: poolStats } = useQuery({
+    queryKey: ["liquidity-pool-metrics"],
+    queryFn: getLiquidityPoolStats,
+  });
+  const { data: rewardsStats } = useQuery({
+    queryKey: ["liquidityRewardsStats"],
+    queryFn: getLiquidityRewardsStats,
+    select: deserializeLiquidityRewardStats,
+  });
   const { lockerAddress } = useLocker();
   const { airdropChain } = useExpectedChains();
   const positions = useActiveLiquidityPositions(lockerAddress);

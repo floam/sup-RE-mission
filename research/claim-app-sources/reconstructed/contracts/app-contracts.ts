@@ -37,6 +37,15 @@ export const ETH_SUP_POOL_ADDRESS = {
   [BASE_SEPOLIA_CHAIN_ID]: "0xca2054e3e5a940473dd6dcc4a67ecdfdfa8c0b72",
 } as const;
 
+/** Distribution-pool identities returned by the recovered metrics actions. */
+export const TAX_DISTRIBUTION_POOL_ADDRESS = {
+  [BASE_CHAIN_ID]: "0xf0f494f4bd2c3a6bf8b49e6f798875301d944c0a",
+} as const;
+
+export const LP_DISTRIBUTION_POOL_ADDRESS = {
+  [BASE_CHAIN_ID]: "0x7e173C3981bF8a786FE6750e8964DD7b25443977",
+} as const;
+
 export const RESERVE_NAME_REGISTRAR_ADDRESS = {
   [BASE_CHAIN_ID]: "0x5e84F4F6d8e04D1B9Fdf5d83d7d471D45b57245f",
 } as const;

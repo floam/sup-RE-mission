@@ -41,6 +41,11 @@ export interface ProgramApp {
   program?: ClaimProgram;
 }
 
+/** Static campaign metadata before the server action attaches live chain data. */
+export type ProgramAppDefinition = Omit<ProgramApp, "program"> & {
+  program?: Pick<ClaimProgram, "id" | "sharedAllocation">;
+};
+
 export interface ProgramBalance {
   balance: bigint;
   flowRate: bigint;
@@ -50,9 +55,11 @@ export interface ProgramBalance {
 
 /** Result consumed from the `getProgramPoolInfos` server action (webpack 69515). */
 export interface ProgramPoolInfo {
+  poolAddress: Address;
   programId: bigint;
   totalFlowRate: bigint;
   totalUnits: bigint;
+  flowRatePerUnit: bigint;
 }
 
 export interface AddressProfile {

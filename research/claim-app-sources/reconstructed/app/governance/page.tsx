@@ -1,5 +1,6 @@
 import { ConnectedHideGuard } from "../../components/governance/ConnectedHideGuard";
 import { EditDelegateButton } from "../../components/governance/EditDelegateButton";
+import { TotalDelegated } from "../../components/governance/TotalDelegated";
 import { TotalMembers } from "../../components/governance/TotalMembers";
 import { YourDelegate } from "../../components/governance/YourDelegate";
 import { YourVotingPower } from "../../components/governance/YourVotingPower";
@@ -14,11 +15,17 @@ export default function GovernancePage() {
           governance.
         </p>
       </header>
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-4">
         <div className="rounded-lg bg-green-superdark p-6 text-white">
           <div className="text-green-sf uppercase">Total Members</div>
           <strong className="text-h5">
             <TotalMembers />
+          </strong>
+        </div>
+        <div className="rounded-lg bg-[#21014d] p-6 text-white">
+          <div className="text-pink uppercase">Total SUP Delegated</div>
+          <strong data-testid="total-delegated" className="text-h5">
+            <TotalDelegated />
           </strong>
         </div>
         <div className="rounded-lg bg-violet-dark p-6 text-white">

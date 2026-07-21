@@ -6,10 +6,7 @@ import { parseEther } from "viem";
 
 import { useExpectedChains } from "../../contexts/ExpectedChainContext";
 import { useLocker } from "../../contexts/LockerContext";
-import {
-  useClaimFlowMetrics,
-  type ProgramPoolInfoLoader,
-} from "../../hooks/useClaimFlowMetrics";
+import { useClaimFlowMetrics } from "../../hooks/useClaimFlowMetrics";
 import { useClaimTransaction } from "../../hooks/useClaimTransaction";
 import { useCreateLocker } from "../../hooks/useCreateLocker";
 import { useCurrentDelegate } from "../../hooks/useDelegation";
@@ -33,15 +30,11 @@ import { Countdown } from "./Countdown";
 
 type OnboardingStep = "create-reserve" | "delegate" | "claim";
 
-export function ClaimSection({
-  loadProgramPoolInfos,
-}: {
-  loadProgramPoolInfos?: ProgramPoolInfoLoader;
-} = {}) {
+export function ClaimSection() {
   const { accountAddress, lockerAddress, isLockerCreated } = useLocker();
   const wallet = useWalletAccount();
   const lockerBalance = useLockerBalance({ lockerAddress });
-  const metrics = useClaimFlowMetrics(loadProgramPoolInfos);
+  const metrics = useClaimFlowMetrics();
   const { hasExternalDelegate } = useCurrentDelegate({ accountAddress });
   const [onboardingStarted, setOnboardingStarted] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
@@ -53,13 +46,12 @@ export function ClaimSection({
     wallet.isReconnecting ||
     (wallet.isConnected &&
       (!metrics.readAccountProgramPointStates.isSuccess ||
-        (Boolean(loadProgramPoolInfos) &&
-          !metrics.readProgramPoolInfos.isSuccess)));
+        !metrics.readProgramPoolInfos.isSuccess));
 
   if (isLoading) return <ClaimLoading />;
   if (!wallet.isConnected) return <ConnectToClaim />;
   if ((hasClaimed && !onboardingStarted) || showDashboard) {
-    return <ClaimDashboard loadProgramPoolInfos={loadProgramPoolInfos} />;
+    return <ClaimDashboard />;
   }
   if (onboardingStarted) {
     return (
@@ -71,7 +63,6 @@ export function ClaimSection({
               ? "claim"
               : "delegate"
         }
-        loadProgramPoolInfos={loadProgramPoolInfos}
         onClaimSuccess={() => setShowDashboard(true)}
       />
     );
@@ -183,11 +174,9 @@ function EligibilityCheck({
 
 function ClaimOnboarding({
   initialStep,
-  loadProgramPoolInfos,
   onClaimSuccess,
 }: {
   initialStep: OnboardingStep;
-  loadProgramPoolInfos?: ProgramPoolInfoLoader;
   onClaimSuccess(): void;
 }) {
   const [step, setStep] = useState<OnboardingStep>(initialStep);
@@ -220,10 +209,7 @@ function ClaimOnboarding({
         ) : step === "delegate" ? (
           <DelegateStep stepper={{ next }} className="p-6" />
         ) : (
-          <InitialClaimStep
-            loadProgramPoolInfos={loadProgramPoolInfos}
-            onClaimSuccess={onClaimSuccess}
-          />
+          <InitialClaimStep onClaimSuccess={onClaimSuccess} />
         )}
       </div>
     </div>
@@ -276,16 +262,10 @@ function CreateReserveStep({ onComplete }: { onComplete(): void }) {
   );
 }
 
-function InitialClaimStep({
-  loadProgramPoolInfos,
-  onClaimSuccess,
-}: {
-  loadProgramPoolInfos?: ProgramPoolInfoLoader;
-  onClaimSuccess(): void;
-}) {
+function InitialClaimStep({ onClaimSuccess }: { onClaimSuccess(): void }) {
   const { accountAddress, lockerAddress } = useLocker();
   const { airdropChain } = useExpectedChains();
-  const metrics = useClaimFlowMetrics(loadProgramPoolInfos);
+  const metrics = useClaimFlowMetrics();
   const claim = useClaimTransaction({ accountAddress, lockerAddress });
   const lockerBalance = useLockerBalance({ lockerAddress });
   const hasClaimed =
@@ -366,15 +346,11 @@ function InitialClaimStep({
   );
 }
 
-function ClaimDashboard({
-  loadProgramPoolInfos,
-}: {
-  loadProgramPoolInfos?: ProgramPoolInfoLoader;
-}) {
+function ClaimDashboard() {
   const { accountAddress, lockerAddress } = useLocker();
   const { airdropChain } = useExpectedChains();
   const lockerBalance = useLockerBalance({ lockerAddress });
-  const metrics = useClaimFlowMetrics(loadProgramPoolInfos);
+  const metrics = useClaimFlowMetrics();
   const leaderboard = useLeaderboardEntry({
     address: accountAddress,
     enabled: Boolean(lockerAddress),

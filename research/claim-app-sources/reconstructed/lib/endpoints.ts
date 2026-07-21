@@ -34,4 +34,7 @@ export const EXTERNAL_ENDPOINTS = {
     "https://subgraph-endpoints.superfluid.dev/base-mainnet/protocol-v1",
   baseSepoliaProtocolSubgraph:
     "https://subgraph-endpoints.superfluid.dev/base-sepolia/protocol-v1",
+  uniswapV3BaseSubgraph:
+    process.env.UNISWAP_V3_BASE_SUBGRAPH_URL ??
+    "https://api.studio.thegraph.com/query/48211/uniswap-v3-base/version/latest",
 } as const;
