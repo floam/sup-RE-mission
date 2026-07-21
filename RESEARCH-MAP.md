@@ -9,7 +9,7 @@ Load the smallest relevant group for the question at hand.
 
 ## Campaign and endpoint discovery
 
-- `.agents/skills/superfluid-points-research/references/endpoints.md`: endpoint catalog and interpretation rules.
+- `skills/superfluid-points-research/references/endpoints.md`: endpoint catalog and interpretation rules.
 - `research/2026-06-30-spr-campaigns-claim-endpoints.md`: public-app endpoint audit.
 - `tools/point-events/export-point-event-names.ts`: live campaign and program discovery.
 

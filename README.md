@@ -8,7 +8,7 @@ A hacking and research workbench for Superfluid points, emission programs, campa
 - `tools/point-events/`: campaign discovery and point-event evidence generator.
 - `tools/sup-nonces/`: Base claim-history and nonce investigation tooling.
 - `research/`: endpoint audits and security analysis.
-- `.agents/skills/superfluid-points-research/`: the focused Codex skill.
+- `skills/superfluid-points-research/`: the focused Codex skill.
 - `RESEARCH-MAP.md`: task-to-evidence map.
 - `PROVENANCE.md`: external-source and generated-artifact record.
 
@@ -20,7 +20,10 @@ npm run export:point-events
 npm run investigate:nonces -- --user 0x... --program-ids 607
 npm run test:nonces
 npm run bundle:nonces
+npm run build:skill
 ```
+
+`npm run build:skill` writes `dist/superfluid-points-research.zip` for manual skill installation. The archive contains only `skills/superfluid-points-research/` contents and excludes any injector files.
 
 The official Superfluid skill is expected to be installed separately for general protocol knowledge and reusable protocol references.
 
