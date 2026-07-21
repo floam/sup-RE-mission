@@ -36,6 +36,17 @@ and compares the result byte-for-byte. The recovery workflow also captures the
 current deployment separately and emits an added/removed/changed asset report.
 It never silently refreshes this pinned snapshot.
 
+The current live-recovery utility has a broader default route set than this
+historical snapshot. Run it into a separate owned directory, then compare its
+manifest without modifying these evidence files:
+
+```sh
+npm run recover:claim-sources -- --out /tmp/claim-live-recovery
+node tools/claim-source-recovery/verify-snapshot.mjs \
+  --live-manifest /tmp/claim-live-recovery/manifest.json \
+  --report /tmp/claim-live-recovery/snapshot-diff.json
+```
+
 ## Application identity
 
 The strongest recovered identity is `claim-app`:
