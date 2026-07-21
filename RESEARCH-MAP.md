@@ -16,6 +16,7 @@ Load the smallest relevant group for the question at hand.
 ## Point-event evidence
 
 - `tools/point-events/export-point-event-names.ts`: discovery, caching, coalescing, and HTML generation.
+- `tools/point-events/README.md`: invocation, source layering, coverage, and output rules.
 - `tools/point-events/point-event-names.html`: generated observed-event catalog.
 
 ## Nonce and claim-history research
@@ -23,7 +24,15 @@ Load the smallest relevant group for the question at hand.
 - `research/fluid-ep-nonce-staleness-assessment.md`: threat model, conclusions, and evidence limits.
 - `tools/sup-nonces/investigate-sup-nonces.js`: transaction and log scanner with calldata decoding.
 - `tools/sup-nonces/investigate-sup-nonces.live.test.ts`: live smoke test.
+- `tools/sup-nonces/README.md`: invocation, live-test constraints, and decoding limits.
 - `.github/workflows/build-sup-nonce-bundle.yml`: portable JavaScriptCore and a-Shell bundle.
+
+## Claim-app deployment evidence and reconstruction
+
+- `recovered/claim.superfluid.org/README.md`: pinned-snapshot layout and verification.
+- `tools/claim-source-recovery/README.md`: live recovery command, safety boundary, and output layout.
+- `research/claim-app-sources/reconstructed/README.md`: reconstruction scope and evidence policy.
+- `research/claim-app-sources/reconstructed/RUNNABILITY.md`: standalone-app gaps and shortest compatibility path.
 
 ## General protocol questions
 
