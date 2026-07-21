@@ -64,7 +64,9 @@ jobs:
           if [[ ! -f "${live_root}/manifest.json" ]]; then
             exit 0
           fi
-          node tools/claim-source-recovery/verify-snapshot.mjs +            --live-manifest "${live_root}/manifest.json" +            --report "${live_root}/snapshot-diff.json"
+          node tools/claim-source-recovery/verify-snapshot.mjs \
+            --live-manifest "${live_root}/manifest.json" \
+            --report "${live_root}/snapshot-diff.json"
           node -e 'const d=require(process.argv[1]).liveComparison; console.log(`\n## Deployment divergence\n\n- Unchanged assets: ${d.assets.unchanged}\n- Added assets: ${d.assets.added.length}\n- Removed assets: ${d.assets.removed.length}\n- Same-path content changes: ${d.assets.changed.length}\n- Added routes: ${d.routes.added.join(", ") || "none"}\n- Removed routes: ${d.routes.removed.join(", ") || "none"}`)' "${live_root}/snapshot-diff.json" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Package recovery
