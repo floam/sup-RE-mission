@@ -1,0 +1,43 @@
+name: Build Superfluid points research skill archive
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and verify skill archive
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Build skill archive
+        run: npm run build:skill
+
+      - name: Verify skill archive contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="dist/superfluid-points-research.zip"
+          entries="$(unzip -Z1 "$archive")"
+
+          test -n "$entries"
+          ! printf '%s\n' "$entries" | grep -Eq '(^|/)injector[^/]*($|/)'
+          ! printf '%s\n' "$entries" | grep -Eq '(^|/)\.DS_Store$'
+          printf '%s\n' "$entries" | grep -Eq '^superfluid-points-research/'
+          ! printf '%s\n' "$entries" | grep -Ev '^superfluid-points-research/'
+
+      - name: Upload skill archive
+        uses: actions/upload-artifact@v6
+        with:
+          name: superfluid-points-research-skill
+          path: dist/superfluid-points-research.zip
+          if-no-files-found: error
