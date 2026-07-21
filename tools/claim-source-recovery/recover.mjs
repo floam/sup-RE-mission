@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { createHash } from "node:crypto";
-import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { parse } from "acorn";
@@ -10,13 +10,18 @@ const DEFAULT_ORIGIN = "https://claim.superfluid.org";
 const DEFAULT_ROUTES = [
   "/",
   "/reserve",
+  "/reserve-names",
   "/claim",
   "/apps",
   "/leaderboard",
   "/governance",
   "/staking",
   "/liquidity",
+  "/swap",
 ];
+const OUTPUT_MARKER = ".claim-source-recovery-output-v1";
+const OUTPUT_MARKER_CONTENT =
+  "owned by tools/claim-source-recovery/recover.mjs\n";
 
 function parseArgs(argv) {
   const options = {
@@ -37,13 +42,14 @@ function parseArgs(argv) {
         .split(",")
         .map((route) => route.trim())
         .filter(Boolean);
-    } else if (argument === "--max-assets") options.maxAssets = Number(argv[++index]);
+    } else if (argument === "--max-assets")
+      options.maxAssets = Number(argv[++index]);
     else if (argument === "--help" || argument === "-h") {
       console.log(`Usage: node tools/claim-source-recovery/recover.mjs [options]
 
 Options:
   --origin URL       Site origin (default: ${DEFAULT_ORIGIN})
-  --out DIR          Output directory
+  --out DIR          Empty or recovery-owned output directory
   --capture DIR      Read a previously captured site tree instead of the network
   --routes CSV       Comma-separated routes
   --max-assets N     Safety cap for recursively discovered assets
@@ -59,6 +65,39 @@ Options:
 
 function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
+}
+
+async function prepareOwnedOutputDirectory(outputRoot) {
+  let entries;
+  try {
+    entries = await readdir(outputRoot);
+  } catch (error) {
+    if (error?.code !== "ENOENT") throw error;
+    await mkdir(outputRoot, { recursive: true });
+    entries = [];
+  }
+
+  const marker = path.join(outputRoot, OUTPUT_MARKER);
+  if (entries.length === 0) {
+    await writeFile(marker, OUTPUT_MARKER_CONTENT);
+    return;
+  }
+
+  let markerContent;
+  try {
+    markerContent = await readFile(marker, "utf8");
+  } catch {
+    throw new Error(
+      "Refusing to clean non-owned output directory: " +
+        outputRoot +
+        ". Use an empty directory or one containing " +
+        OUTPUT_MARKER +
+        ".",
+    );
+  }
+  if (markerContent !== OUTPUT_MARKER_CONTENT) {
+    throw new Error("Invalid recovery ownership marker in " + outputRoot);
+  }
 }
 
 function normalizeUrl(url) {
@@ -83,7 +122,9 @@ function safePath(value) {
 function assetFileName(url) {
   const parsed = new URL(url);
   const pathname = parsed.pathname.replace(/^\/+/, "");
-  const suffix = parsed.search ? `__q_${sha256(parsed.search).slice(0, 10)}` : "";
+  const suffix = parsed.search
+    ? `__q_${sha256(parsed.search).slice(0, 10)}`
+    : "";
   return `${safePath(pathname)}${suffix}`;
 }
 
@@ -106,7 +147,8 @@ async function fetchText(url, init = {}) {
     redirect: "follow",
     ...init,
     headers: {
-      accept: "text/html,application/javascript,application/json,text/plain,*/*",
+      accept:
+        "text/html,application/javascript,application/json,text/plain,*/*",
       "user-agent": "sup-remission-claim-source-recovery/2.0",
       ...init.headers,
     },
@@ -125,7 +167,9 @@ async function fetchText(url, init = {}) {
 }
 
 function routeCaptureName(route) {
-  return route === "/" ? "index.html" : `${route.replace(/^\//, "").replaceAll("/", "__")}.html`;
+  return route === "/"
+    ? "index.html"
+    : `${route.replace(/^\//, "").replaceAll("/", "__")}.html`;
 }
 
 async function loadRoute(options, route) {
@@ -133,7 +177,11 @@ async function loadRoute(options, route) {
     return fetchText(new URL(route, options.origin).href);
   }
 
-  const filename = path.join(options.captureDir, "pages", routeCaptureName(route));
+  const filename = path.join(
+    options.captureDir,
+    "pages",
+    routeCaptureName(route),
+  );
   return {
     text: await readFile(filename, "utf8"),
     finalUrl: new URL(route, options.origin).href,
@@ -219,11 +267,14 @@ function inferHints(code) {
     ["contracts", /0x[a-fA-F0-9]{40}/u],
     ["ui", /className|jsx|react/iu],
   ];
-  return checks.filter(([, pattern]) => pattern.test(code)).map(([name]) => name);
+  return checks
+    .filter(([, pattern]) => pattern.test(code))
+    .map(([name]) => name);
 }
 
 function propertyName(property) {
-  if (property.computed && property.key.type === "Literal") return String(property.key.value);
+  if (property.computed && property.key.type === "Literal")
+    return String(property.key.value);
   if (property.key.type === "Identifier") return property.key.name;
   if (property.key.type === "Literal") return String(property.key.value);
   return null;
@@ -236,11 +287,18 @@ function findWebpackModuleObjects(ast) {
     const node = stack.pop();
     if (!node || typeof node !== "object") continue;
 
-    if (node.type === "CallExpression" && node.callee?.type === "MemberExpression") {
+    if (
+      node.type === "CallExpression" &&
+      node.callee?.type === "MemberExpression"
+    ) {
       const method = node.callee.property;
       const isPush =
-        (!node.callee.computed && method?.type === "Identifier" && method.name === "push") ||
-        (node.callee.computed && method?.type === "Literal" && method.value === "push");
+        (!node.callee.computed &&
+          method?.type === "Identifier" &&
+          method.name === "push") ||
+        (node.callee.computed &&
+          method?.type === "Literal" &&
+          method.value === "push");
       const first = node.arguments?.[0];
       if (isPush && first?.type === "ArrayExpression") {
         for (const element of first.elements ?? []) {
@@ -251,7 +309,12 @@ function findWebpackModuleObjects(ast) {
 
     for (const value of Object.values(node)) {
       if (Array.isArray(value)) stack.push(...value);
-      else if (value && typeof value === "object" && typeof value.type === "string") stack.push(value);
+      else if (
+        value &&
+        typeof value === "object" &&
+        typeof value.type === "string"
+      )
+        stack.push(value);
     }
   }
   return objects;
@@ -277,7 +340,13 @@ async function synthesizeWebpackModules(js, chunkName, outputRoot) {
       if (property.type !== "Property") continue;
       const moduleId = propertyName(property);
       const fn = property.value;
-      if (!moduleId || !fn || !Number.isInteger(fn.start) || !Number.isInteger(fn.end)) continue;
+      if (
+        !moduleId ||
+        !fn ||
+        !Number.isInteger(fn.start) ||
+        !Number.isInteger(fn.end)
+      )
+        continue;
       const uniqueKey = `${moduleId}:${fn.start}:${fn.end}`;
       if (seen.has(uniqueKey)) continue;
       seen.add(uniqueKey);
@@ -359,7 +428,9 @@ async function saveRaw(outputRoot, category, url, text) {
 }
 
 async function processJavaScript(options, outputRoot, url, js) {
-  const chunkName = new URL(url).pathname.split("/").pop() || `chunk-${sha256(url).slice(0, 10)}.js`;
+  const chunkName =
+    new URL(url).pathname.split("/").pop() ||
+    `chunk-${sha256(url).slice(0, 10)}.js`;
   const prettyRelative = path.join("beautified", assetFileName(url));
   const prettyFilename = path.join(outputRoot, prettyRelative);
   await mkdir(path.dirname(prettyFilename), { recursive: true });
@@ -396,14 +467,21 @@ async function processJavaScript(options, outputRoot, url, js) {
 async function main() {
   const options = parseArgs(process.argv);
   const outputRoot = path.resolve(options.outDir);
+  await prepareOwnedOutputDirectory(outputRoot);
   // Preserve externally-written diagnostics such as recovery.log, while ensuring a
   // rerun cannot mix recovered source files from different deployments.
   await Promise.all(
-    ["raw", "beautified", "original", "synthesized", "manifest.json", "README.md"].map((entry) =>
+    [
+      "raw",
+      "beautified",
+      "original",
+      "synthesized",
+      "manifest.json",
+      "README.md",
+    ].map((entry) =>
       rm(path.join(outputRoot, entry), { recursive: true, force: true }),
     ),
   );
-  await mkdir(outputRoot, { recursive: true });
 
   const queue = [];
   const queued = new Set();
@@ -451,11 +529,22 @@ async function main() {
     try {
       const response = await loadAsset(options, item.url);
       const contentType = response.contentType;
-      const isJavaScript = /javascript|ecmascript/iu.test(contentType) || /\.js(?:\?|$)/iu.test(item.url);
-      const isCss = /text\/css/iu.test(contentType) || /\.css(?:\?|$)/iu.test(item.url);
-      const rawFile = await saveRaw(outputRoot, isCss ? "styles" : "chunks", item.url, response.text);
+      const isJavaScript =
+        /javascript|ecmascript/iu.test(contentType) ||
+        /\.js(?:\?|$)/iu.test(item.url);
+      const isCss =
+        /text\/css/iu.test(contentType) || /\.css(?:\?|$)/iu.test(item.url);
+      const rawFile = await saveRaw(
+        outputRoot,
+        isCss ? "styles" : "chunks",
+        item.url,
+        response.text,
+      );
 
-      const nested = collectNextAssets(response.text, response.finalUrl || item.url);
+      const nested = collectNextAssets(
+        response.text,
+        response.finalUrl || item.url,
+      );
       for (const url of nested) enqueue(url, item.url);
 
       const record = {
@@ -470,7 +559,10 @@ async function main() {
       };
 
       if (isJavaScript) {
-        Object.assign(record, await processJavaScript(options, outputRoot, item.url, response.text));
+        Object.assign(
+          record,
+          await processJavaScript(options, outputRoot, item.url, response.text),
+        );
       }
       assets.push(record);
       console.error(
@@ -489,7 +581,9 @@ async function main() {
   const manifest = {
     generatedAt: new Date().toISOString(),
     origin: options.origin,
-    acquisition: options.captureDir ? { mode: "capture", directory: options.captureDir } : { mode: "live" },
+    acquisition: options.captureDir
+      ? { mode: "capture", directory: options.captureDir }
+      : { mode: "live" },
     routes: routeRecords,
     assets,
     summary: {
@@ -502,8 +596,14 @@ async function main() {
       assets: assets.length,
       successfulAssets: assets.filter((asset) => !asset.error).length,
       failedAssets: assets.filter((asset) => asset.error).length,
-      sourceMappedOriginals: assets.reduce((sum, asset) => sum + (asset.map?.records.length ?? 0), 0),
-      synthesizedModules: assets.reduce((sum, asset) => sum + (asset.synthesized?.length ?? 0), 0),
+      sourceMappedOriginals: assets.reduce(
+        (sum, asset) => sum + (asset.map?.records.length ?? 0),
+        0,
+      ),
+      synthesizedModules: assets.reduce(
+        (sum, asset) => sum + (asset.synthesized?.length ?? 0),
+        0,
+      ),
     },
     provenance: {
       original:
@@ -516,14 +616,17 @@ async function main() {
     },
   };
 
-  await writeFile(path.join(outputRoot, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+  await writeFile(
+    path.join(outputRoot, "manifest.json"),
+    `${JSON.stringify(manifest, null, 2)}\n`,
+  );
   await writeFile(
     path.join(outputRoot, "README.md"),
     `# claim.superfluid.org source recovery\n\nGenerated: ${manifest.generatedAt}\n\n- Routes captured: ${manifest.summary.successfulRoutes}/${manifest.summary.attemptedRoutes}\n- Failed routes: ${manifest.summary.failedRoutes}\n- Assets recovered: ${manifest.summary.successfulAssets}/${manifest.summary.assets}\n- Source-map originals: ${manifest.summary.sourceMappedOriginals}\n- Synthesized webpack modules: ${manifest.summary.synthesizedModules}\n\nSee \`manifest.json\` for per-file provenance and hashes.\n`,
   );
 
   console.log(JSON.stringify(manifest.summary));
-  if (manifest.summary.failedAssets > 0) {
+  if (manifest.summary.failedRoutes > 0 || manifest.summary.failedAssets > 0) {
     process.exitCode = 1;
   }
 }

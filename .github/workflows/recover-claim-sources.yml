@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/recover-claim-sources.yml"
       - "tools/claim-source-recovery/**"
+      - "recovered/claim.superfluid.org/**"
       - "package.json"
   workflow_dispatch:
 
@@ -28,14 +29,19 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Verify pinned deployment snapshot
+        run: npm run verify:claim-snapshot
+
       - name: Recover live sources
         id: recover
         shell: bash
         run: |
           set +e
-          mkdir -p recovered/claim.superfluid.org
-          npm run recover:claim-sources -- --out recovered/claim.superfluid.org 2>&1 | tee recovered/claim.superfluid.org/recovery.log
+          live_root="${RUNNER_TEMP}/claim-live-recovery"
+          mkdir -p "${live_root}"
+          npm run recover:claim-sources -- --out "${live_root}" 2>&1 | tee "${RUNNER_TEMP}/claim-live-recovery.log"
           status=${PIPESTATUS[0]}
+          cp "${RUNNER_TEMP}/claim-live-recovery.log" "${live_root}/recovery.log"
           echo "exit_status=$status" >> "$GITHUB_OUTPUT"
           exit 0
 
@@ -43,15 +49,29 @@ jobs:
         if: always()
         shell: bash
         run: |
-          if [[ -f recovered/claim.superfluid.org/manifest.json ]]; then
-            node -e 'const m=require("./recovered/claim.superfluid.org/manifest.json"); console.log(`## Claim source recovery\n\n- Routes captured: ${m.summary.successfulRoutes}/${m.summary.attemptedRoutes}\n- Failed routes: ${m.summary.failedRoutes}\n- Assets: ${m.summary.successfulAssets}/${m.summary.assets}\n- Published source-map originals: ${m.summary.sourceMappedOriginals}\n- Synthesized webpack modules: ${m.summary.synthesizedModules}\n- Failed assets: ${m.summary.failedAssets}`)' >> "$GITHUB_STEP_SUMMARY"
+          live_root="${RUNNER_TEMP}/claim-live-recovery"
+          if [[ -f "${live_root}/manifest.json" ]]; then
+            node -e 'const m=require(process.argv[1]); console.log(`## Claim source recovery\n\n- Routes captured: ${m.summary.successfulRoutes}/${m.summary.attemptedRoutes}\n- Failed routes: ${m.summary.failedRoutes}\n- Assets: ${m.summary.successfulAssets}/${m.summary.assets}\n- Published source-map originals: ${m.summary.sourceMappedOriginals}\n- Synthesized webpack modules: ${m.summary.synthesizedModules}\n- Failed assets: ${m.summary.failedAssets}`)' "${live_root}/manifest.json" >> "$GITHUB_STEP_SUMMARY"
           else
             printf '## Claim source recovery\n\nRecovery exited with status %s before producing a manifest. See recovery.log in the artifact.\n' '${{ steps.recover.outputs.exit_status }}' >> "$GITHUB_STEP_SUMMARY"
           fi
 
+      - name: Compare live deployment with pinned snapshot
+        if: always()
+        shell: bash
+        run: |
+          live_root="${RUNNER_TEMP}/claim-live-recovery"
+          if [[ ! -f "${live_root}/manifest.json" ]]; then
+            exit 0
+          fi
+          node tools/claim-source-recovery/verify-snapshot.mjs +            --live-manifest "${live_root}/manifest.json" +            --report "${live_root}/snapshot-diff.json"
+          node -e 'const d=require(process.argv[1]).liveComparison; console.log(`\n## Deployment divergence\n\n- Unchanged assets: ${d.assets.unchanged}\n- Added assets: ${d.assets.added.length}\n- Removed assets: ${d.assets.removed.length}\n- Same-path content changes: ${d.assets.changed.length}\n- Added routes: ${d.routes.added.join(", ") || "none"}\n- Removed routes: ${d.routes.removed.join(", ") || "none"}`)' "${live_root}/snapshot-diff.json" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Package recovery
         if: always()
-        run: zip -qr claim-superfluid-source-recovery.zip recovered/claim.superfluid.org
+        run: |
+          cd "${RUNNER_TEMP}"
+          zip -qr "${GITHUB_WORKSPACE}/claim-superfluid-source-recovery.zip" claim-live-recovery
 
       - name: Upload recovered sources and diagnostics
         if: always()

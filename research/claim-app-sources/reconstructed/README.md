@@ -11,11 +11,16 @@ maps, so names and boundaries that cannot be proven are labeled as inference ins
 of being presented as original source. `MODULE_MAP.md` is the canonical global symbol
 table and evidence ledger; each public identity has one owning module there.
 
+This source tree is not yet a bootable standalone Next.js project. See
+`RUNNABILITY.md` for the exact scaffold, provider/bootstrap, API-route,
+styles/assets, server-configuration, and integrated-test gaps.
+
 ## Evidence used
 
-- The captured production webpack chunks under
-  `recovered/claim.superfluid.org/beautified/`, including factory IDs and literal
-  values. These files are evidence only and are not part of this deliverable.
+- The pinned raw production responses under
+  `recovered/claim.superfluid.org/raw/`, including factory IDs and literal values.
+  These exact bytes are canonical evidence; the matching
+  `recovered/claim.superfluid.org/beautified/` files are verified review aids.
 - The Sentry source catalog, which supplies many original source basenames and
   component identities.
 - Next.js route payloads and chunk relationships, used to reconnect route shells to
@@ -88,3 +93,18 @@ checks operate on the reconstructed source itself, not on helper extraction outp
 The result is intended as readable audit material and as source a competent
 developer could plausibly have supplied to the bundler. It should not be described
 as the original private repository.
+
+## Recovered application name
+
+Generated GraphQL modules expose original build paths rooted at
+`/vercel/path0/apps/claim-app`, and every instrumented chunk carries the Sentry
+application key `claim-app`. The observable public metadata says
+`Superfluid Claim App`, while the LiFi integration uses
+`superfluid-claim-app`. The strongest conclusion is therefore:
+
+- original monorepo workspace/directory and build key: `claim-app`;
+- public product name: `Superfluid Claim App`;
+- integration slug: `superfluid-claim-app`.
+
+The unavailable original `package.json` means its exact npm package `name`
+field remains unproven.

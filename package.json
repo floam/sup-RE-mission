@@ -9,7 +9,8 @@
     "investigate:nonces": "node tools/sup-nonces/investigate-sup-nonces.js",
     "test:nonces": "vitest run tools/sup-nonces/investigate-sup-nonces.live.test.ts",
     "bundle:nonces": "esbuild tools/sup-nonces/investigate-sup-nonces.js --bundle --platform=browser --target=es2020 --outfile=investigate-sup-nonces.bundle.js",
-    "recover:claim-sources": "node tools/claim-source-recovery/recover.mjs"
+    "recover:claim-sources": "node tools/claim-source-recovery/recover.mjs",
+    "verify:claim-snapshot": "node tools/claim-source-recovery/verify-snapshot.mjs"
   },
   "dependencies": {
     "viem": "^2.52.2"
