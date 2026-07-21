@@ -2,7 +2,7 @@
 
 This repository is **SUP Re:Mission**, a workbench for Superfluid points, claim, campaign, event, and nonce investigations.
 
-1. Read `.agents/skills/superfluid-points-research/SKILL.md` for points-related work.
+1. Read `skills/superfluid-points-research/SKILL.md` for points-related work.
 2. Read `RESEARCH-MAP.md` and load only the material relevant to the task.
 3. Check `PROVENANCE.md` before modifying externally sourced fragments or generated evidence.
 4. Treat files under `tools/` as executable investigation utilities, not production application code.

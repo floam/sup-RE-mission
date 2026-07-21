@@ -3,3 +3,5 @@ node_modules/
 *.log
 investigate-sup-nonces.bundle.js
 .DS_Store
+
+dist/
