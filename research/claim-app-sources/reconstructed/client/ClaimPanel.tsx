@@ -25,7 +25,7 @@ const publicClient = createPublicClient({
   transport: http(ALCHEMY_RPC_URLS[8453]),
 });
 const factoryAbi = parseAbi([
-  "function getUserLocker(address user) view returns (address)",
+  "function getUserLocker(address user) view returns (bool isCreated, address lockerAddress)",
 ]);
 const batchClaimAbi = parseAbi([
   "function claim(uint256[] programIds, uint256[] totalProgramUnits, uint256 nonce, bytes stackSignature)",
@@ -97,7 +97,7 @@ async function buildPointState(account: Address): Promise<State> {
       ),
     ),
   ];
-  const lockerAddress = await publicClient.readContract({
+  const [, lockerAddress] = await publicClient.readContract({
     authorizationList: undefined,
     address: FLUID_LOCKER_FACTORY_ADDRESS[8453],
     abi: factoryAbi,

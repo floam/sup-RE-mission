@@ -35,6 +35,10 @@ consume the resulting URLs in the browser.
 | Eligibility display  | CMS, Alchemy, SUP and protocol subgraphs             | Reconstructed entirely in the browser      |
 | Voucher creation     | CMS `signed-balance-batch`                           | CMS returns the authorized batch signature |
 | Transaction          | Injected provider, Base chain, and the user's locker | Encoded and submitted entirely client side |
+| Leaderboard          | Rewritten to claim API                               | Ranking semantics are not public           |
+| Delegates            | Rewritten to claim API                               | Production projection is not recovered     |
+| Mystery box          | Rewritten to claim API                               | Eligibility and issuance are a black box   |
+| Bonus flows          | Rewritten to claim API                               | Eligibility and issuance are a black box   |
 
 The claim flow does not proxy `claim.superfluid.org`. It reproduces point states by
 joining CMS capped balances to the locker resolved through Alchemy and the locker's
@@ -43,9 +47,16 @@ set from CMS `signed-balance-batch` and submits that exact signed target. The ap
 has no `app/api` compatibility routes and sends no account through a Vercel
 function.
 
-The recovered read-only server actions remain source-backed implementations. If a
-behavior later proves impossible to reconstruct, call the matching action on the
-original host directly rather than replacing route code with a local proxy.
+The recovered read-only server actions remain source-backed implementations. Four
+unrecovered API families use explicit Next.js rewrites to the original host so the
+retained routes and global providers do not receive local 404 responses. These are
+configuration-level pass-throughs, not replacement route handlers. Leaderboard
+ranking cannot safely be recreated from point events without its unpublished tie,
+cap, and exclusion rules. Delegate response projection is likewise not established
+well enough to invent. Mystery-box and bonus-flow eligibility and reward issuance
+are known black boxes. Requests and responses for these paths therefore retain the
+production behavior; the standalone deployment holds no signing key or copied
+business logic.
 
 ## Functional scope
 
@@ -61,6 +72,8 @@ original host directly rather than replacing route code with a local proxy.
 
 - Direct browser fetches depend on CMS and the public subgraphs continuing to
   permit CORS.
+- Leaderboard, delegate, mystery-box, and bonus-flow features depend on the live
+  claim API through the documented rewrites above.
 - The transaction path supports the observed single and batch `claim` forms. The
   recovered disconnect-finished-pools and claim-and-stake variants are not exposed.
 - Root-relative artwork from the captured deployment is deliberately not copied.
