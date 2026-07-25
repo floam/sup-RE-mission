@@ -1,73 +1,71 @@
-# Run readiness and remaining gaps
+# Running and deploying the recovered claim app
 
-## Current status
+## Status
 
-The reconstructed tree is **not yet a bootable standalone application**.
-It is coherent audit source: its relative imports resolve, its TS/TSX syntax
-transpiles, and the reconstructed read-only server actions can be exercised in
-isolation. A successful syntax/transpile check is not a Next.js production
-build or a browser smoke test.
+The reconstruction is now a runnable, client-first Next.js application. It has
+an app-local dependency lock, TypeScript configuration, production build, basic
+responsive styling, campaign explorer, injected-wallet connection, eligibility
+display, Base claim submission, and the recovered feature routes.
 
-## Hard blockers
+## Local use
 
-| Blocker                       | Evidence in this tree                                                                                                                                                     | Runtime effect                                                                                 |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Missing application scaffold  | No app-local `package.json`, lockfile, `tsconfig.json`, Next configuration, PostCSS/Tailwind configuration, build scripts, or pinned dependency versions                  | There is no supported install/build/start command, and package/API compatibility is untested   |
-| Missing root bootstrap        | `app/layout.tsx` does not mount `ContextProvider`; `ContextProvider` requires a `wagmiConfig` that is never constructed; no recovered `createAppKit`/adapter setup exists | Wallet, Query, expected-chain, Farcaster, and Reserve consumers fail or remain disconnected    |
-| Missing server routes         | No `app/api/**/route.ts` modules exist for the ten client-consumed endpoints below                                                                                        | Claim, leaderboard, governance-directory, mystery-box, and bonus-flow features cannot complete |
-| Missing visual source         | No global CSS/Tailwind source, local-font wiring, or `public/` tree exists; reconstructed code references 91 root-relative images/SVGs                                    | The app is unstyled and most imagery 404s                                                      |
-| Unproven server configuration | The Uniswap V3 server endpoint is an inferred fallback; RPC/cache/deployment settings and production error policy are not fully recovered                                 | Read-only statistics can differ or fail by environment                                         |
-| No integrated validation      | The tree has not passed a real `next build`, local boot, route smoke test, wallet connection, or transaction test                                                         | Additional framework-boundary and behavior defects should be expected                          |
+```sh
+cd research/claim-app-sources/reconstructed
+npm ci
+npm run dev
+```
 
-The missing client-consumed API routes are:
+The production path is `npm run build && npm start`. Vercel can deploy this
+directory as the project root using the detected Next.js preset. The checked-in
+`package-lock.json` is the dependency authority.
 
-| Method and route              | Consumer                   | What is missing                                            |
-| ----------------------------- | -------------------------- | ---------------------------------------------------------- |
-| `GET /api/points/states`      | claim transaction hook     | Offchain capped points joined to onchain pool-member units |
-| `GET /api/points/claim`       | claim transaction hook     | Claim voucher/call data assembly                           |
-| `GET /api/leaderboard`        | leaderboard page           | Paginated leaderboard projection                           |
-| `GET /api/leaderboard/search` | navigation and claim UI    | Address rank lookup                                        |
-| `GET /api/delegates`          | governance UI              | Delegate directory/profile projection                      |
-| `GET /api/delegates/amount`   | governance UI              | Per-delegate amount lookup                                 |
-| `GET /api/mystery-box/check`  | daily mystery-box provider | Eligibility and pending-result check                       |
-| `POST /api/mystery-box/claim` | daily mystery-box provider | Reward issuance/claim response                             |
-| `GET /api/bonus-flows/check`  | bonus modal                | Eligibility check                                          |
-| `POST /api/bonus-flows/claim` | bonus modal                | Bonus issuance/claim response                              |
+Alchemy provides the Base mainnet and Base Sepolia RPC transports. The supplied
+public application key is the zero-configuration default; set
+`NEXT_PUBLIC_ALCHEMY_API_KEY` in Vercel to rotate it without a code change. This
+variable is necessarily public because Reown and injected-wallet chain metadata
+consume the resulting URLs in the browser.
 
-Several read paths can be reconstructed from public CMS, Snapshot, subgraph,
-metrics, and RPC sources. The reward-issuing paths may also depend on
-server-held signing authority, anti-abuse state, or private configuration that
-was never sent to the browser. A locally usable compatibility build could proxy
-the still-live production endpoints; an independent deployment must replace
-those authorities rather than invent them.
+## Data paths and compatibility boundary
 
-## What is already usable
+| Behavior             | Browser data source                                  | Why                                        |
+| -------------------- | ---------------------------------------------------- | ------------------------------------------ |
+| Campaign enumeration | SUP Goldsky subgraph                                 | Public GraphQL replaces a server action    |
+| Campaign filtering   | Local browser state                                  | No server behavior is needed               |
+| Wallet connection    | Injected EIP-1193 provider                           | Accounts never pass through this app       |
+| Eligibility display  | CMS, Alchemy, SUP subgraph and GDA pools             | Reconstructed entirely in the browser      |
+| Voucher creation     | CMS `signed-balance-batch`                           | CMS returns the authorized batch signature |
+| Transaction          | Injected provider, Base chain, and the user's locker | Encoded and submitted entirely client side |
 
-- The 124 reconstructed modules provide readable route, component, hook,
-  provider, type, contract-fragment, and server-query logic.
-- The 72-entry application/program registry and six server-action contracts
-  have observable-response and public-source backing.
-- Exact addresses, endpoints, ABI members, fees, durations, transaction
-  argument order, storage keys, query gates, and bigint behavior are retained
-  where observed.
-- The pinned raw bundle snapshot and verifier now make formatter drift and
-  deployment asset drift machine-detectable.
+The claim flow does not proxy `claim.superfluid.org`. It reproduces point states by
+joining CMS capped balances to the locker resolved through Alchemy and direct
+`getUnits(locker)` reads from each active program's GDA pool. Program lifecycle
+values are normalized as numeric timestamps (`"0"` means not stopped), rather than
+using GraphQL string truthiness. On an explicit claim it requests the selected
+campaign set from CMS `signed-balance-batch` and submits that exact signed target.
+The app has no `app/api` compatibility routes and sends no account through a Vercel
+function.
 
-## Shortest path to a working compatibility build
+The recovered read-only server actions remain source-backed implementations. If a
+behavior later proves impossible to reconstruct, call the matching action on the
+original host directly rather than replacing route code with a local proxy.
 
-1. Recover or create the Next.js/package/Tailwind scaffold with versions
-   compatible with the captured chunks.
-2. Reconstruct the Reown/Wagmi adapter, mount `ContextProvider` from the root
-   layout, and restore cookie hydration.
-3. Restore the generated CSS, fonts, and 91 referenced public assets (or
-   deliberately substitute them).
-4. Implement the ten API routes from public sources where possible and
-   explicitly configure/proxy the signing-authority routes.
-5. Run `next build`, boot all routes, then test disconnected, connected,
-   Reserve-created, and transaction states. Only after that should the result
-   be described as usable application source.
+## Functional scope
 
-Byte-for-byte recompilation is not an appropriate success criterion: bundler
-versions, module IDs, minification, build timestamps, and server-action IDs
-will differ. Behavioral fixtures, exact literals/call arguments, route output,
-and transaction simulations are the meaningful divergence checks.
+- `/` explains the recovered build and links to its working areas.
+- `/apps` enumerates all indexed SUP programs and filters by ID or pool address.
+- `/claim` connects an injected wallet (or checks a pasted address), displays
+  target and onchain units, obtains a voucher only on an explicit claim, switches
+  to Base, and submits `FluidLocker.claim` through the wallet.
+- `/governance`, `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`,
+  `/staking`, and `/swap` retain their recovered route implementations.
+
+## Known limitations
+
+- Direct browser fetches depend on CMS and the public subgraphs continuing to
+  permit CORS.
+- The transaction path supports the observed single and batch `claim` forms. The
+  recovered disconnect-finished-pools and claim-and-stake variants are not exposed.
+- Root-relative artwork from the captured deployment is deliberately not copied.
+  The runnable UI uses CSS rather than fabricating or hotlinking missing assets.
+- This is a behavioral reconstruction, not the original private source tree or a
+  byte-identical recompilation.

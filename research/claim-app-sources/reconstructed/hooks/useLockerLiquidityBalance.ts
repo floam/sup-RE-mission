@@ -75,7 +75,7 @@ export function useLockerLiquidityBalance(lockerAddress?: Address) {
     let totalFeesEarnedSUP = 0n;
     let totalFeesEarnedETH = 0n;
 
-    for (const positionRead of positionReads.data) {
+    for (const positionRead of positionReads.data as readonly any[]) {
       if (positionRead.status !== "success" || !positionRead.result) continue;
       const positionData = positionRead.result as readonly [
         bigint,

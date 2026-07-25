@@ -18,6 +18,18 @@ The official skill lives in `superfluid-org/skills` under `skills/superfluid/`. 
 
 These fragments describe deployed Superfluid contracts and were checked against the official Superfluid contract interfaces and the official skill references. They are intentionally minimal because the investigator needs only decoding and read calls. Do not replace them with copied full ABI files.
 
+`research/claim-app-sources/reconstructed/client/ClaimPanel.tsx` contains only the
+four-argument batch `FluidLocker.claim` interface needed to encode the recovered
+browser transaction. It was reduced from the already documented public claim-app
+bundle and checked against the same official interface. No complete ABI or
+official-skill source is vendored.
+
+`research/claim-app-sources/reconstructed/contracts/app-contracts.ts` contains a
+two-method GDA pool read fragment for member received amount and flow rate. The
+installed `@sfpro/sdk` release does not export its pool ABI, and these two reads are
+required by the restored staking and liquidity routes. The fragment was checked
+against the official GDA pool interface; no complete ABI is vendored.
+
 The Base contract addresses and public RPC/subgraph endpoints in the tools are external deployment metadata, not locally defined protocol configuration.
 
 `tools/point-events/export-point-event-names.ts` contains minimal ABI fragments for:

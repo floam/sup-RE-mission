@@ -11,9 +11,10 @@ maps, so names and boundaries that cannot be proven are labeled as inference ins
 of being presented as original source. `MODULE_MAP.md` is the canonical global symbol
 table and evidence ledger; each public identity has one owning module there.
 
-This source tree is not yet a bootable standalone Next.js project. See
-`RUNNABILITY.md` for the exact scaffold, provider/bootstrap, API-route,
-styles/assets, server-configuration, and integrated-test gaps.
+The audit modules now sit beside a deliberately small, bootable Next.js
+compatibility application. See `RUNNABILITY.md` for local/Vercel commands, the
+client-side data architecture, exact production-endpoint exceptions, functional
+scope, and remaining limitations.
 
 ## Evidence used
 
