@@ -15,6 +15,7 @@ import { base } from "viem/chains";
 import { ALCHEMY_RPC_URLS } from "../config/rpc";
 import { FLUID_LOCKER_FACTORY_ADDRESS } from "../contracts/app-contracts";
 import { PROGRAM_APP_DEFINITIONS } from "../data/program-app-definitions";
+import { isClaimablePointState } from "./claim-state";
 import { getProgramStatus, SUP_SUBGRAPH } from "./programs";
 
 const CMS_BASE = "https://cms.superfluid.pro";
@@ -186,9 +187,7 @@ async function buildPointState(account: Address): Promise<State> {
     canClaim:
       lockerCreated &&
       lockerAddress !== "0x0000000000000000000000000000000000000000" &&
-      programPointStates.some(
-        (row) => row.offchainPoints > 0n && row.isOnchainOutdated,
-      ),
+      programPointStates.some(isClaimablePointState),
     programPointStates,
   };
 }
@@ -260,9 +259,7 @@ export function ClaimPanel() {
       !provider
     )
       return;
-    const selected = state.programPointStates.filter(
-      (row) => row.offchainPoints > 0n && row.isOnchainOutdated,
-    );
+    const selected = state.programPointStates.filter(isClaimablePointState);
     setMessage("Requesting a signed CMS balance…");
     try {
       const signed = await postJson<CmsSignedBalanceResponse>(
