@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useReadContract } from "wagmi";
-import { gdaPoolAbi } from "@sfpro/sdk/abi/core";
+import { gdaPoolReadAbi } from "../contracts/app-contracts";
 
 import { useExpectedChains } from "../contexts/ExpectedChainContext";
 import type { Address } from "../types/program-app";
@@ -16,7 +16,7 @@ export function useAccumulatedStakingRewards({
 }) {
   const { airdropChain } = useExpectedChains();
   const received = useReadContract({
-    abi: gdaPoolAbi,
+    abi: gdaPoolReadAbi,
     address: distributionPool,
     functionName: "getTotalAmountReceivedByMember",
     args: lockerAddress ? [lockerAddress] : undefined,
@@ -24,7 +24,7 @@ export function useAccumulatedStakingRewards({
     query: { enabled: Boolean(lockerAddress && distributionPool) },
   });
   const flowRate = useReadContract({
-    abi: gdaPoolAbi,
+    abi: gdaPoolReadAbi,
     address: distributionPool,
     functionName: "getMemberFlowRate",
     args: lockerAddress ? [lockerAddress] : undefined,

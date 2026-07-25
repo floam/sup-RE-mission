@@ -1,5 +1,5 @@
 import { parseAbi } from "viem";
-import { supTokenAddress } from "@sfpro/sdk/constant/sup";
+import { supTokenAddress } from "@sfpro/sdk/abi/sup";
 
 import { BASE_CHAIN_ID, BASE_SEPOLIA_CHAIN_ID } from "../config/chains";
 
@@ -57,6 +57,12 @@ export const WETH_ADDRESS = {
 
 /** Generated deployment table used by webpack export `Gc`. */
 export const SUP_TOKEN_ADDRESS_BY_CHAIN = supTokenAddress;
+
+/** Narrow GDA pool read fragment retained because @sfpro/sdk does not export it. */
+export const gdaPoolReadAbi = parseAbi([
+  "function getTotalAmountReceivedByMember(address member) view returns (uint256)",
+  "function getMemberFlowRate(address member) view returns (int96)",
+]);
 
 export const NATIVE_TOKEN_ADDRESS =
   "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";

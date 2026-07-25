@@ -56,8 +56,8 @@ export function useLockerUnlock({
   });
   const isOwner = Boolean(
     accountAddress &&
-      lockerOwner &&
-      accountAddress.toLowerCase() === lockerOwner.toLowerCase(),
+    lockerOwner &&
+    accountAddress.toLowerCase() === lockerOwner.toLowerCase(),
   );
   const unlockPeriodSeconds = useMemo(
     () =>
@@ -69,15 +69,15 @@ export function useLockerUnlock({
   const available = availableBalance ?? 0n;
   const isValid = Boolean(
     lockerAddress &&
-      accountAddress &&
-      unlockPeriodSeconds !== undefined &&
-      unlockPeriodDays !== undefined &&
-      (unlockPeriodDays === 0 || unlockPeriodDays >= MIN_UNLOCK_DAYS) &&
-      unlockPeriodDays <= MAX_UNLOCK_DAYS &&
-      amount &&
-      amount >= MIN_UNLOCK_AMOUNT &&
-      amount <= available &&
-      isOwner,
+    accountAddress &&
+    unlockPeriodSeconds !== undefined &&
+    unlockPeriodDays !== undefined &&
+    (unlockPeriodDays === 0 || unlockPeriodDays >= MIN_UNLOCK_DAYS) &&
+    unlockPeriodDays <= MAX_UNLOCK_DAYS &&
+    amount &&
+    amount >= MIN_UNLOCK_AMOUNT &&
+    amount <= available &&
+    isOwner,
   );
   const stateOverride = accountAddress
     ? [{ address: accountAddress, balance: parseEther("100") }]
@@ -159,7 +159,7 @@ export function useLockerUnlock({
       ...request,
       gas: estimate.data,
       value: UNLOCKING_FEE,
-    });
+    } as never);
   }, [estimate.data, request, simulate.error, write]);
   useLogTransactionErrors([simulate, estimate, write, waitFor]);
 

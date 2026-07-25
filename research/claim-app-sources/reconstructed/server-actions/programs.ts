@@ -5,6 +5,7 @@ import { createPublicClient, getAddress, http, type Address } from "viem";
 import { base } from "viem/chains";
 
 import { BASE_CHAIN_ID } from "../config/chains";
+import { ALCHEMY_RPC_URLS } from "../config/rpc";
 import { PROGRAM_MANAGER_ADDRESS } from "../contracts/app-contracts";
 import { PROGRAM_APP_DEFINITIONS } from "../data/program-app-definitions";
 import { EXTERNAL_ENDPOINTS } from "../lib/endpoints";
@@ -58,7 +59,10 @@ const PROTOCOL_POOLS_QUERY = /* GraphQL */ `
   }
 `;
 
-const baseClient = createPublicClient({ chain: base, transport: http() });
+const baseClient = createPublicClient({
+  chain: base,
+  transport: http(ALCHEMY_RPC_URLS[BASE_CHAIN_ID]),
+});
 
 async function loadProgramRuntimeData() {
   const programIds = [
@@ -71,6 +75,7 @@ async function loadProgramRuntimeData() {
 
   const [programDetails, programSubgraphData] = await Promise.all([
     baseClient.multicall({
+      authorizationList: undefined,
       allowFailure: false,
       contracts: programIds.map(
         (programId) =>
