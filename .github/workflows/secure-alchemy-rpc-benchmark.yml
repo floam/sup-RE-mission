@@ -1,0 +1,261 @@
+name: Secure Alchemy RPC benchmark
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/secure-alchemy-rpc-benchmark.yml"
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate one-use key and await encrypted credential
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p rpc-benchmark
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out /tmp/bench-private.pem >/dev/null 2>&1
+          openssl pkey -in /tmp/bench-private.pem -pubout -out /tmp/bench-public.pem >/dev/null 2>&1
+          echo "EPHEMERAL_PUBLIC_KEY_B64=$(base64 -w0 /tmp/bench-public.pem)"
+
+          comments_url="$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments?per_page=100"
+          ciphertext=""
+          for _ in $(seq 1 120); do
+            comments="$(curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" "$comments_url")"
+            ciphertext="$(COMMENTS="$comments" node -e '
+              const comments = JSON.parse(process.env.COMMENTS);
+              const marker = "BENCHMARK_SECRET_RSA_OAEP_SHA256:";
+              const values = comments.map(x => String(x.body || "")).filter(x => x.startsWith(marker));
+              if (values.length) process.stdout.write(values.at(-1).slice(marker.length).trim());
+            ')"
+            [[ -n "$ciphertext" ]] && break
+            sleep 3
+          done
+          [[ -n "$ciphertext" ]] || { echo "No encrypted credential arrived" >&2; exit 1; }
+
+          printf '%s' "$ciphertext" | base64 -d > /tmp/bench-secret.bin
+          openssl pkeyutl -decrypt \
+            -inkey /tmp/bench-private.pem \
+            -in /tmp/bench-secret.bin \
+            -pkeyopt rsa_padding_mode:oaep \
+            -pkeyopt rsa_oaep_md:sha256 \
+            -out /tmp/alchemy-api-key
+          chmod 600 /tmp/alchemy-api-key
+          rm -f /tmp/bench-private.pem /tmp/bench-public.pem /tmp/bench-secret.bin
+
+      - name: Benchmark matching RPC networks
+        shell: bash
+        run: |
+          set -euo pipefail
+          ALCHEMY_API_KEY="$(cat /tmp/alchemy-api-key)"
+          export ALCHEMY_API_KEY
+          rm -f /tmp/alchemy-api-key
+          node <<'NODE'
+          const fs = require('node:fs');
+          const { performance } = require('node:perf_hooks');
+
+          const key = process.env.ALCHEMY_API_KEY;
+          if (!key || !/^[A-Za-z0-9_-]{8,}$/.test(key)) throw new Error('Decrypted key failed validation');
+          const redact = value => String(value ?? '').split(key).join('[REDACTED]');
+          const selectedHeaders = headers => {
+            const out = {};
+            for (const [k, v] of headers.entries()) {
+              if (/^(server|via|content-type|content-length|access-control-|cache-control|cf-|x-alchemy|x-ratelimit|x-request|x-amz|fly-|alt-svc)/i.test(k)) out[k] = redact(v);
+            }
+            return out;
+          };
+          const percentile = (values, p) => {
+            if (!values.length) return null;
+            const a = [...values].sort((x, y) => x - y);
+            return a[Math.min(a.length - 1, Math.ceil((p / 100) * a.length) - 1)];
+          };
+          const hexInt = value => typeof value === 'string' && /^0x[0-9a-f]+$/i.test(value) ? Number.parseInt(value, 16) : null;
+
+          async function request(url, init = {}, timeout = 15000) {
+            const started = performance.now();
+            try {
+              const response = await fetch(url, { ...init, signal: AbortSignal.timeout(timeout) });
+              const text = redact(await response.text());
+              let json = null;
+              try { json = JSON.parse(text); } catch {}
+              return {
+                ok: response.ok,
+                status: response.status,
+                latencyMs: +(performance.now() - started).toFixed(1),
+                headers: selectedHeaders(response.headers),
+                json,
+                body: text.slice(0, 1200),
+              };
+            } catch (error) {
+              return { ok: false, error: redact(error), latencyMs: +(performance.now() - started).toFixed(1) };
+            }
+          }
+          const rpc = (url, method, params = [], id = 1) => request(url, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json', accept: 'application/json' },
+            body: JSON.stringify({ jsonrpc: '2.0', id, method, params }),
+          });
+          const rpcResult = response => response?.json?.result ?? null;
+          const rpcError = response => response?.json?.error ?? response?.error ?? (!response?.ok ? response?.body : null);
+
+          const networks = [
+            {
+              name: 'ethereum-mainnet', expectedChainId: '0x1', oldBlock: '0x1000000',
+              alchemy: `https://eth-mainnet.g.alchemy.com/v2/${key}`,
+              legacy: 'https://rpc-endpoints.superfluid.dev/eth-mainnet',
+              x: 'https://eth-mainnet.arpc.x.superfluid.dev',
+            },
+            {
+              name: 'base-mainnet', expectedChainId: '0x2105', oldBlock: '0x1000000',
+              alchemy: `https://base-mainnet.g.alchemy.com/v2/${key}`,
+              legacy: 'https://rpc-endpoints.superfluid.dev/base-mainnet',
+              x: 'https://base-mainnet.arpc.x.superfluid.dev',
+            },
+            {
+              name: 'arbitrum-one', expectedChainId: '0xa4b1', oldBlock: '0x1000000',
+              alchemy: `https://arb-mainnet.g.alchemy.com/v2/${key}`,
+              legacy: 'https://rpc-endpoints.superfluid.dev/arbitrum-one',
+              x: 'https://arbitrum-one.arpc.x.superfluid.dev',
+            },
+            {
+              name: 'optimism-mainnet', expectedChainId: '0xa', oldBlock: '0x1000000',
+              alchemy: `https://opt-mainnet.g.alchemy.com/v2/${key}`,
+              legacy: 'https://rpc-endpoints.superfluid.dev/optimism-mainnet',
+              x: 'https://optimism-mainnet.arpc.x.superfluid.dev',
+            },
+            {
+              name: 'polygon-mainnet', expectedChainId: '0x89', oldBlock: '0x1000000',
+              alchemy: `https://polygon-mainnet.g.alchemy.com/v2/${key}`,
+              legacy: 'https://rpc-endpoints.superfluid.dev/polygon-mainnet',
+              x: 'https://polygon-mainnet.arpc.x.superfluid.dev',
+            },
+          ];
+
+          async function benchmarkEndpoint(url) {
+            const [chain, block, client, archive, invalid, corsPost, preflight] = await Promise.all([
+              rpc(url, 'eth_chainId'),
+              rpc(url, 'eth_blockNumber'),
+              rpc(url, 'web3_clientVersion'),
+              rpc(url, 'eth_getBalance', ['0x0000000000000000000000000000000000000000', '0x1000000']),
+              rpc(url, 'definitely_not_a_real_method'),
+              request(url, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json', origin: 'https://example.test' },
+                body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_chainId', params: [] }),
+              }),
+              request(url, {
+                method: 'OPTIONS',
+                headers: {
+                  origin: 'https://example.test',
+                  'access-control-request-method': 'POST',
+                  'access-control-request-headers': 'content-type',
+                },
+              }),
+            ]);
+
+            const sequential = [];
+            for (let i = 0; i < 9; i++) sequential.push(await rpc(url, 'eth_chainId', [], i + 10));
+            const concurrent = await Promise.all(Array.from({ length: 20 }, (_, i) => rpc(url, 'eth_chainId', [], i + 100)));
+            const batch = await request(url, {
+              method: 'POST', headers: { 'content-type': 'application/json' },
+              body: JSON.stringify([
+                { jsonrpc: '2.0', id: 201, method: 'eth_chainId', params: [] },
+                { jsonrpc: '2.0', id: 202, method: 'eth_blockNumber', params: [] },
+                { jsonrpc: '2.0', id: 203, method: 'web3_clientVersion', params: [] },
+              ]),
+            });
+            const seqTimes = sequential.filter(x => x.ok).map(x => x.latencyMs);
+            const concTimes = concurrent.filter(x => x.ok).map(x => x.latencyMs);
+            return {
+              chainId: rpcResult(chain), chainError: rpcError(chain),
+              blockNumber: rpcResult(block), blockHeight: hexInt(rpcResult(block)), blockError: rpcError(block),
+              clientVersion: rpcResult(client), clientError: rpcError(client),
+              archiveResult: rpcResult(archive), archiveError: rpcError(archive),
+              invalidMethodError: rpcError(invalid),
+              headers: chain.headers,
+              sequential: { count: seqTimes.length, medianMs: percentile(seqTimes, 50), p95Ms: percentile(seqTimes, 95), valuesMs: seqTimes },
+              concurrent20: { successes: concTimes.length, medianMs: percentile(concTimes, 50), p95Ms: percentile(concTimes, 95), valuesMs: concTimes },
+              batch: { status: batch.status, latencyMs: batch.latencyMs, resultCount: Array.isArray(batch.json) ? batch.json.length : null, error: batch.error || (!batch.ok ? batch.body : null) },
+              cors: {
+                postStatus: corsPost.status,
+                postAllowOrigin: corsPost.headers?.['access-control-allow-origin'] ?? null,
+                postAllowCredentials: corsPost.headers?.['access-control-allow-credentials'] ?? null,
+                preflightStatus: preflight.status,
+                preflightAllowOrigin: preflight.headers?.['access-control-allow-origin'] ?? null,
+                preflightAllowMethods: preflight.headers?.['access-control-allow-methods'] ?? null,
+              },
+            };
+          }
+
+          async function main() {
+            const output = { capturedAt: new Date().toISOString(), runner: process.env.RUNNER_NAME, networks: {}, solana: null };
+            for (const network of networks) {
+              const endpoints = { alchemy: network.alchemy, superfluidLegacy: network.legacy, superfluidX: network.x };
+              const result = { expectedChainId: network.expectedChainId, endpoints: {}, freshnessRounds: [] };
+              for (const [label, url] of Object.entries(endpoints)) result.endpoints[label] = await benchmarkEndpoint(url);
+              for (let i = 0; i < 7; i++) {
+                const labels = Object.keys(endpoints);
+                const responses = await Promise.all(labels.map(label => rpc(endpoints[label], 'eth_blockNumber', [], 500 + i)));
+                const heights = Object.fromEntries(labels.map((label, index) => [label, hexInt(rpcResult(responses[index]))]));
+                const valid = Object.values(heights).filter(Number.isFinite);
+                result.freshnessRounds.push({ heights, spread: valid.length ? Math.max(...valid) - Math.min(...valid) : null });
+              }
+              output.networks[network.name] = result;
+            }
+
+            const solanaUrl = `https://solana-mainnet.g.alchemy.com/v2/${key}`;
+            const solanaMethods = ['getHealth', 'getVersion', 'getSlot', 'getLatestBlockhash'];
+            const solana = { methods: {}, latency: null, batch: null };
+            for (const method of solanaMethods) solana.methods[method] = await rpc(solanaUrl, method);
+            const runs = [];
+            for (let i = 0; i < 9; i++) runs.push(await rpc(solanaUrl, 'getHealth', [], 700 + i));
+            const times = runs.filter(x => x.ok).map(x => x.latencyMs);
+            solana.latency = { count: times.length, medianMs: percentile(times, 50), p95Ms: percentile(times, 95), valuesMs: times };
+            const solBatch = await request(solanaUrl, {
+              method: 'POST', headers: { 'content-type': 'application/json' },
+              body: JSON.stringify([
+                { jsonrpc: '2.0', id: 801, method: 'getHealth' },
+                { jsonrpc: '2.0', id: 802, method: 'getVersion' },
+                { jsonrpc: '2.0', id: 803, method: 'getSlot' },
+              ]),
+            });
+            solana.batch = { status: solBatch.status, latencyMs: solBatch.latencyMs, resultCount: Array.isArray(solBatch.json) ? solBatch.json.length : null, error: solBatch.error || (!solBatch.ok ? solBatch.body : null) };
+            output.solana = solana;
+
+            fs.writeFileSync('rpc-benchmark/results.json', JSON.stringify(output, null, 2));
+            const lines = ['# Alchemy vs Superfluid RPC benchmark', '', `Captured: ${output.capturedAt}`, `Runner: ${output.runner}`, ''];
+            for (const [name, result] of Object.entries(output.networks)) {
+              lines.push(`## ${name}`, '');
+              for (const [label, endpoint] of Object.entries(result.endpoints)) {
+                lines.push(`- ${label}: chain=${endpoint.chainId ?? JSON.stringify(endpoint.chainError)}, block=${endpoint.blockHeight ?? JSON.stringify(endpoint.blockError)}, client=${endpoint.clientVersion ?? JSON.stringify(endpoint.clientError)}, median=${endpoint.sequential.medianMs}ms, p95=${endpoint.sequential.p95Ms}ms, concurrent20=${endpoint.concurrent20.successes}/20, batch=${endpoint.batch.resultCount ?? endpoint.batch.error}, archive=${endpoint.archiveError ? JSON.stringify(endpoint.archiveError) : 'ok'}`);
+              }
+              const spreads = result.freshnessRounds.map(x => x.spread).filter(Number.isFinite);
+              lines.push(`- freshness spread median: ${percentile(spreads, 50)} blocks; max: ${spreads.length ? Math.max(...spreads) : 'n/a'} blocks`, '');
+            }
+            const health = output.solana.methods.getHealth;
+            lines.push('## solana-mainnet Alchemy only', '', `- getHealth: ${JSON.stringify(health.json ?? health.error)}`, `- median latency: ${output.solana.latency.medianMs}ms; p95: ${output.solana.latency.p95Ms}ms`, `- batch results: ${output.solana.batch.resultCount ?? output.solana.batch.error}`, '');
+            fs.writeFileSync('rpc-benchmark/summary.md', `${lines.join('\n')}\n`);
+            console.log(lines.join('\n'));
+          }
+          main().catch(error => { console.error(redact(error?.stack || error)); process.exit(1); });
+          NODE
+          unset ALCHEMY_API_KEY
+
+      - name: Upload benchmark
+        uses: actions/upload-artifact@v4
+        with:
+          name: alchemy-vs-superfluid-rpc-benchmark
+          path: rpc-benchmark
+          if-no-files-found: error
+          retention-days: 3
