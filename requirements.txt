@@ -1,0 +1,3 @@
+# Codex Cloud detects pip projects and installs this before running validation.
+# Used by the installed skill-creator validator for agents/openai.yaml parsing.
+PyYAML==6.0.3
