@@ -1,5 +1,7 @@
 import { base, baseSepolia } from "@reown/appkit/networks";
 
+import { ALCHEMY_RPC_URLS } from "./rpc";
+
 export const REOWN_PROJECT_ID = "8fcff23b035b115b5c1324ad717589ab";
 
 export const APP_METADATA = {
@@ -12,12 +14,8 @@ export const APP_METADATA = {
 } as const;
 
 export const CUSTOM_RPC_URLS = {
-  [`eip155:${base.id}`]: [
-    { url: "https://rpc-endpoints.superfluid.dev/base-mainnet" },
-  ],
-  [`eip155:${baseSepolia.id}`]: [
-    { url: "https://rpc-endpoints.superfluid.dev/base-sepolia" },
-  ],
+  [`eip155:${base.id}`]: [{ url: ALCHEMY_RPC_URLS[base.id] }],
+  [`eip155:${baseSepolia.id}`]: [{ url: ALCHEMY_RPC_URLS[baseSepolia.id] }],
 } as const;
 
 export const SAFE_CONNECTOR_OPTIONS = {

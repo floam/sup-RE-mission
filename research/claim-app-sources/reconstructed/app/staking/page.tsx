@@ -229,9 +229,9 @@ export default function StakingPage() {
   );
   const canUnstake = Boolean(
     unstakeAmount &&
-      unstakeAmount > 0n &&
-      unstakeAmount <= stakedBalance &&
-      unstake.canUnstake,
+    unstakeAmount > 0n &&
+    unstakeAmount <= stakedBalance &&
+    unstake.canUnstake,
   );
   const cooldownActive =
     stakedBalance > 0n && unstake.stakingUnlocksAt > Date.now() / 1_000;

@@ -218,7 +218,7 @@ export function useClaimTransaction({
   });
   const isFinished =
     writeLockerClaim.isSuccess && waitForTransactionClaim.isSuccess;
-  const programApps = useProgramApps(enabled);
+  const programApps = useProgramApps();
   const finishedPrograms = useMemo(
     () =>
       (programApps.data ?? [])
@@ -228,7 +228,7 @@ export function useClaimTransaction({
             app.program.onchainInfo.poolAddress,
         )
         .map((app) => ({
-          id: app.program!.id,
+          id: String(app.program!.id),
           poolAddress: app.program!.onchainInfo.poolAddress!,
         })),
     [programApps.data],
@@ -270,10 +270,10 @@ export function useClaimTransaction({
   );
   const canSimulate = Boolean(
     enabled &&
-      lockerAddress &&
-      readAccountProgramPointStates.data?.canClaim &&
-      claimTransactionData.args &&
-      !isFinished,
+    lockerAddress &&
+    readAccountProgramPointStates.data?.canClaim &&
+    claimTransactionData.args &&
+    !isFinished,
   );
   const stateOverride = accountAddress
     ? [{ address: accountAddress, balance: parseEther("100") }]

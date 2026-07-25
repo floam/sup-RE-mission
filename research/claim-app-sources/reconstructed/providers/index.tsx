@@ -25,7 +25,16 @@ import { ReferralHandler } from "./ReferralHandler";
 
 function createQueryClient() {
   return new QueryClient({
-    defaultOptions: { queries: { staleTime: 15_000 }, mutations: {} },
+    defaultOptions: {
+      queries: {
+        staleTime: 15_000,
+        queryKeyHashFn: (queryKey) =>
+          JSON.stringify(queryKey, (_key, value) =>
+            typeof value === "bigint" ? value.toString() : value,
+          ),
+      },
+      mutations: {},
+    },
   });
 }
 
