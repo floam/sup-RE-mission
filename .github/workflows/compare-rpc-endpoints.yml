@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Probe DNS, TLS, HTTP, and JSON-RPC
+      - name: Compare legacy paths and x subdomains
         shell: bash
         run: |
           node <<'NODE'
@@ -24,14 +24,14 @@ jobs:
           const tls = require('node:tls');
           const fs = require('node:fs');
           const { performance } = require('node:perf_hooks');
+          const { execFileSync } = require('node:child_process');
 
-          const hosts = ['rpc-endpoints.superfluid.dev', 'rpc-endpoints.x.superfluid.dev'];
-          const paths = ['/', '/base-mainnet', '/eth-mainnet', '/polygon-mainnet', '/arbitrum-one', '/optimism-mainnet', '/base-sepolia'];
-          const rpcCalls = [
+          const networks = ['base-mainnet', 'eth-mainnet', 'polygon-mainnet', 'arbitrum-one', 'optimism-mainnet', 'base-sepolia'];
+          const calls = [
             ['web3_clientVersion', []],
             ['eth_chainId', []],
             ['eth_blockNumber', []],
-            ['rpc_modules', []],
+            ['eth_getBalance', ['0x0000000000000000000000000000000000000000', 'latest']],
           ];
 
           const selectedHeaders = (headers) => {
@@ -42,38 +42,33 @@ jobs:
             return out;
           };
 
-          async function resolveHost(host) {
-            const safe = async (fn) => { try { return await fn(); } catch (error) { return { error: String(error) }; } };
+          const safe = async (fn) => { try { return await fn(); } catch (error) { return { error: String(error) }; } };
+
+          async function dnsInfo(host) {
             return {
               a: await safe(() => dns.resolve4(host, { ttl: true })),
               aaaa: await safe(() => dns.resolve6(host, { ttl: true })),
               cname: await safe(() => dns.resolveCname(host)),
-              any: await safe(() => dns.resolveAny(host)),
             };
           }
 
-          function inspectTls(host) {
+          function tlsInfo(host) {
             return new Promise((resolve) => {
               const started = performance.now();
-              let settled = false;
-              const finish = (value) => { if (!settled) { settled = true; resolve(value); } };
+              let done = false;
+              const finish = (value) => { if (!done) { done = true; resolve(value); } };
               const socket = tls.connect({ host, port: 443, servername: host, timeout: 10000 }, () => {
                 const cert = socket.getPeerCertificate(true);
                 finish({
                   latencyMs: +(performance.now() - started).toFixed(1),
                   protocol: socket.getProtocol(),
-                  cipher: socket.getCipher(),
                   authorized: socket.authorized,
                   authorizationError: socket.authorizationError || null,
-                  certificate: cert && {
-                    subject: cert.subject,
-                    issuer: cert.issuer,
-                    subjectaltname: cert.subjectaltname,
-                    valid_from: cert.valid_from,
-                    valid_to: cert.valid_to,
-                    fingerprint256: cert.fingerprint256,
-                    serialNumber: cert.serialNumber,
-                  },
+                  subjectaltname: cert.subjectaltname,
+                  issuer: cert.issuer,
+                  validFrom: cert.valid_from,
+                  validTo: cert.valid_to,
+                  fingerprint256: cert.fingerprint256,
                 });
                 socket.end();
               });
@@ -82,68 +77,122 @@ jobs:
             });
           }
 
-          async function fetchProbe(url, init = {}) {
+          async function request(url, method = 'eth_chainId', params = []) {
             const started = performance.now();
             try {
-              const response = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(15000), ...init });
-              const body = await response.text();
+              const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json', accept: 'application/json' },
+                body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+                signal: AbortSignal.timeout(12000),
+              });
+              const text = await response.text();
+              let json = null;
+              try { json = JSON.parse(text); } catch {}
               return {
-                ok: response.ok,
                 status: response.status,
-                statusText: response.statusText,
                 latencyMs: +(performance.now() - started).toFixed(1),
                 headers: selectedHeaders(response.headers),
-                bodyBytes: Buffer.byteLength(body),
-                body: body.slice(0, 4000),
+                text: text.slice(0, 3000),
+                json,
               };
             } catch (error) {
               return { error: String(error), latencyMs: +(performance.now() - started).toFixed(1) };
             }
           }
 
-          async function probeRpc(url, method, params) {
-            return fetchProbe(url, {
-              method: 'POST',
-              headers: { 'content-type': 'application/json', accept: 'application/json' },
-              body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
-            });
+          async function getProbe(url) {
+            const started = performance.now();
+            try {
+              const response = await fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(12000) });
+              const text = await response.text();
+              return { status: response.status, latencyMs: +(performance.now() - started).toFixed(1), headers: selectedHeaders(response.headers), text: text.slice(0, 1000) };
+            } catch (error) {
+              return { error: String(error), latencyMs: +(performance.now() - started).toFixed(1) };
+            }
+          }
+
+          async function probeEndpoint(url) {
+            const result = { get: await getProbe(url), rpc: {}, chainIdLatencyRuns: [] };
+            for (const [method, params] of calls) result.rpc[method] = await request(url, method, params);
+            for (let i = 0; i < 5; i += 1) result.chainIdLatencyRuns.push(await request(url));
+            const batchStarted = performance.now();
+            try {
+              const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'content-type': 'application/json', accept: 'application/json' },
+                body: JSON.stringify([
+                  { jsonrpc: '2.0', id: 1, method: 'eth_chainId', params: [] },
+                  { jsonrpc: '2.0', id: 2, method: 'eth_blockNumber', params: [] },
+                ]),
+                signal: AbortSignal.timeout(12000),
+              });
+              result.batch = { status: response.status, latencyMs: +(performance.now() - batchStarted).toFixed(1), text: (await response.text()).slice(0, 3000), headers: selectedHeaders(response.headers) };
+            } catch (error) {
+              result.batch = { error: String(error), latencyMs: +(performance.now() - batchStarted).toFixed(1) };
+            }
+            return result;
+          }
+
+          function median(values) {
+            const xs = values.filter(Number.isFinite).sort((a, b) => a - b);
+            if (!xs.length) return null;
+            const i = Math.floor(xs.length / 2);
+            return xs.length % 2 ? xs[i] : (xs[i - 1] + xs[i]) / 2;
           }
 
           async function main() {
-            const output = { capturedAt: new Date().toISOString(), runner: process.env.RUNNER_NAME, hosts: {} };
-            for (const host of hosts) {
-              const hostResult = { dns: await resolveHost(host), tls: await inspectTls(host), paths: {} };
-              for (const pathname of paths) {
-                const url = `https://${host}${pathname}`;
-                const pathResult = { get: await fetchProbe(url), rpc: {} };
-                for (const [method, params] of rpcCalls) pathResult.rpc[method] = await probeRpc(url, method, params);
-                pathResult.chainIdLatencyRuns = [];
-                for (let i = 0; i < 3; i += 1) {
-                  const run = await probeRpc(url, 'eth_chainId', []);
-                  pathResult.chainIdLatencyRuns.push({ latencyMs: run.latencyMs, status: run.status, body: run.body, error: run.error });
-                }
-                hostResult.paths[pathname] = pathResult;
-              }
-              output.hosts[host] = hostResult;
+            const output = {
+              capturedAt: new Date().toISOString(),
+              bareXInsecure: execFileSync('curl', ['-skS', '-D', '-', '--max-time', '15', 'https://rpc-endpoints.x.superfluid.dev/'], { encoding: 'utf8' }).slice(0, 8000),
+              networks: {},
+            };
+
+            for (const network of networks) {
+              const legacyUrl = `https://rpc-endpoints.superfluid.dev/${network}`;
+              const xUrl = `https://${network}.arpc.x.superfluid.dev`;
+              const [legacy, x] = await Promise.all([probeEndpoint(legacyUrl), probeEndpoint(xUrl)]);
+              output.networks[network] = {
+                urls: { legacy: legacyUrl, x: xUrl },
+                dns: {
+                  legacy: await dnsInfo('rpc-endpoints.superfluid.dev'),
+                  x: await dnsInfo(`${network}.arpc.x.superfluid.dev`),
+                },
+                tls: {
+                  legacy: await tlsInfo('rpc-endpoints.superfluid.dev'),
+                  x: await tlsInfo(`${network}.arpc.x.superfluid.dev`),
+                },
+                legacy,
+                x,
+                comparison: {
+                  chainIdEqual: legacy.rpc.eth_chainId?.json?.result === x.rpc.eth_chainId?.json?.result,
+                  legacyChainId: legacy.rpc.eth_chainId?.json?.result ?? null,
+                  xChainId: x.rpc.eth_chainId?.json?.result ?? null,
+                  legacyBlock: legacy.rpc.eth_blockNumber?.json?.result ?? null,
+                  xBlock: x.rpc.eth_blockNumber?.json?.result ?? null,
+                  legacyMedianMs: median(legacy.chainIdLatencyRuns.map((r) => r.latencyMs)),
+                  xMedianMs: median(x.chainIdLatencyRuns.map((r) => r.latencyMs)),
+                  clientEqual: legacy.rpc.web3_clientVersion?.json?.result === x.rpc.web3_clientVersion?.json?.result,
+                  legacyClient: legacy.rpc.web3_clientVersion?.json?.result ?? null,
+                  xClient: x.rpc.web3_clientVersion?.json?.result ?? null,
+                },
+              };
             }
 
             fs.mkdirSync('rpc-endpoint-comparison', { recursive: true });
-            fs.writeFileSync('rpc-endpoint-comparison/probe.json', JSON.stringify(output, null, 2));
-            const lines = ['# RPC endpoint comparison', '', `Captured: ${output.capturedAt}`, ''];
-            for (const [host, data] of Object.entries(output.hosts)) {
-              lines.push(`## ${host}`, '');
-              lines.push(`- DNS A: ${JSON.stringify(data.dns.a)}`);
-              lines.push(`- DNS CNAME: ${JSON.stringify(data.dns.cname)}`);
-              lines.push(`- TLS: ${data.tls.protocol || data.tls.error}; cert ${data.tls.certificate?.subjectaltname || 'n/a'}`);
-              for (const [pathname, result] of Object.entries(data.paths)) {
-                const chain = result.rpc.eth_chainId;
-                const block = result.rpc.eth_blockNumber;
-                const client = result.rpc.web3_clientVersion;
-                lines.push(`- \`${pathname}\`: GET ${result.get.status || result.get.error}; chainId ${chain.body || chain.error}; block ${block.body || block.error}; client ${client.body || client.error}`);
-              }
-              lines.push('');
+            fs.writeFileSync('rpc-endpoint-comparison/pair-probe.json', JSON.stringify(output, null, 2));
+            const lines = ['# Legacy vs x RPC endpoint comparison', '', `Captured: ${output.capturedAt}`, ''];
+            for (const [network, row] of Object.entries(output.networks)) {
+              const c = row.comparison;
+              lines.push(`## ${network}`, '');
+              lines.push(`- Chain IDs: legacy ${c.legacyChainId}, x ${c.xChainId}, equal=${c.chainIdEqual}`);
+              lines.push(`- Blocks: legacy ${c.legacyBlock}, x ${c.xBlock}`);
+              lines.push(`- Clients: legacy ${c.legacyClient}; x ${c.xClient}; equal=${c.clientEqual}`);
+              lines.push(`- Median eth_chainId latency: legacy ${c.legacyMedianMs} ms; x ${c.xMedianMs} ms`);
+              lines.push(`- DNS: legacy ${JSON.stringify(row.dns.legacy)}; x ${JSON.stringify(row.dns.x)}`);
+              lines.push(`- TLS x: ${JSON.stringify(row.tls.x)}`, '');
             }
-            fs.writeFileSync('rpc-endpoint-comparison/summary.md', `${lines.join('\n')}\n`);
+            fs.writeFileSync('rpc-endpoint-comparison/pair-summary.md', `${lines.join('\n')}\n`);
             console.log(lines.join('\n'));
           }
 
@@ -159,7 +208,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: rpc-endpoint-comparison
+          name: rpc-endpoint-comparison-pairs
           path: rpc-endpoint-comparison
           if-no-files-found: warn
           retention-days: 7
