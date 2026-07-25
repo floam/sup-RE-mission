@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   createPublicClient,
   encodeFunctionData,
@@ -23,7 +23,7 @@ const publicClient = createPublicClient({
   transport: http(ALCHEMY_RPC_URLS[8453]),
 });
 const factoryAbi = parseAbi([
-  "function getUserLocker(address user) view returns (address)",
+  "function getUserLocker(address user) view returns (bool isCreated, address lockerAddress)",
 ]);
 const batchClaimAbi = parseAbi([
   "function claim(uint256[] programIds, uint256[] totalProgramUnits, uint256 nonce, bytes stackSignature)",
@@ -40,7 +40,9 @@ interface PointState {
 }
 
 interface State {
+  account: Address;
   lockerAddress: Address;
+  lockerCreated: boolean;
   canClaim: boolean;
   programPointStates: PointState[];
 }
@@ -98,7 +100,7 @@ async function buildPointState(account: Address): Promise<State> {
       ),
     ),
   ];
-  const lockerAddress = await publicClient.readContract({
+  const [lockerCreated, lockerAddress] = await publicClient.readContract({
     authorizationList: undefined,
     address: FLUID_LOCKER_FACTORY_ADDRESS[8453],
     abi: factoryAbi,
@@ -178,10 +180,15 @@ async function buildPointState(account: Address): Promise<State> {
     };
   });
   return {
+    account,
     lockerAddress: getAddress(lockerAddress),
-    canClaim: programPointStates.some(
-      (row) => row.offchainPoints > 0n && row.isOnchainOutdated,
-    ),
+    lockerCreated,
+    canClaim:
+      lockerCreated &&
+      lockerAddress !== "0x0000000000000000000000000000000000000000" &&
+      programPointStates.some(
+        (row) => row.offchainPoints > 0n && row.isOnchainOutdated,
+      ),
     programPointStates,
   };
 }
@@ -198,6 +205,14 @@ export function ClaimPanel() {
   const [account, setAccount] = useState("");
   const [state, setState] = useState<State>();
   const [message, setMessage] = useState("");
+  const checkRequest = useRef(0);
+
+  function updateAccount(nextAccount: string) {
+    checkRequest.current += 1;
+    setAccount(nextAccount);
+    setState(undefined);
+    setMessage("");
+  }
 
   async function connect() {
     const provider = getWalletProvider();
@@ -205,28 +220,46 @@ export function ClaimPanel() {
     const accounts = (await provider.request({
       method: "eth_requestAccounts",
     })) as string[];
-    setAccount(accounts[0] ?? "");
+    updateAccount(accounts[0] ?? "");
   }
 
   async function check() {
     if (!isAddress(account)) return setMessage("Enter a valid EVM address.");
+    const checkedAccount = getAddress(account);
+    const request = ++checkRequest.current;
+    setState(undefined);
     setMessage("Loading CMS targets and onchain units…");
     try {
-      const nextState = await buildPointState(getAddress(account));
+      const nextState = await buildPointState(checkedAccount);
+      if (request !== checkRequest.current) return;
       setState(nextState);
       setMessage(
-        nextState.canClaim
+        !nextState.lockerCreated ||
+          nextState.lockerAddress ===
+            "0x0000000000000000000000000000000000000000"
+          ? "Create a locker before claiming points."
+          : nextState.canClaim
           ? "Updates are ready to claim."
           : "Your onchain units are current.",
       );
     } catch (error) {
+      if (request !== checkRequest.current) return;
       setMessage(String(error));
     }
   }
 
   async function claim() {
     const provider = getWalletProvider();
-    if (!state?.lockerAddress || !provider) return;
+    if (
+      !state?.canClaim ||
+      !state.lockerCreated ||
+      state.lockerAddress ===
+        "0x0000000000000000000000000000000000000000" ||
+      !isAddress(account) ||
+      getAddress(account) !== state.account ||
+      !provider
+    )
+      return;
     const selected = state.programPointStates.filter(
       (row) => row.offchainPoints > 0n && row.isOnchainOutdated,
     );
@@ -279,9 +312,15 @@ export function ClaimPanel() {
     }
   }
 
-  const visibleRows = state?.programPointStates.filter(
-    (row) => row.offchainPoints > 0n || row.onchainPoints > 0n,
-  );
+  const stateMatchesAccount =
+    state !== undefined &&
+    isAddress(account) &&
+    getAddress(account) === state.account;
+  const visibleRows = stateMatchesAccount
+    ? state.programPointStates.filter(
+        (row) => row.offchainPoints > 0n || row.onchainPoints > 0n,
+      )
+    : undefined;
   return (
     <section className="card">
       <h2>Check eligibility</h2>
@@ -293,7 +332,7 @@ export function ClaimPanel() {
         <input
           style={{ flex: 1, minWidth: 240 }}
           value={account}
-          onChange={(event) => setAccount(event.target.value)}
+          onChange={(event) => updateAccount(event.target.value)}
           placeholder="0x…"
         />
         <button
@@ -319,7 +358,9 @@ export function ClaimPanel() {
             ))}
           </div>
           <button
-            disabled={!state?.canClaim || !window.ethereum}
+            disabled={
+              !stateMatchesAccount || !state?.canClaim || !window.ethereum
+            }
             onClick={claim}
           >
             Claim with wallet

@@ -19,10 +19,11 @@ The official skill lives in `superfluid-org/skills` under `skills/superfluid/`. 
 These fragments describe deployed Superfluid contracts and were checked against the official Superfluid contract interfaces and the official skill references. They are intentionally minimal because the investigator needs only decoding and read calls. Do not replace them with copied full ABI files.
 
 `research/claim-app-sources/reconstructed/client/ClaimPanel.tsx` contains only the
-four-argument batch `FluidLocker.claim` interface needed to encode the recovered
-browser transaction. It was reduced from the already documented public claim-app
-bundle and checked against the same official interface. No complete ABI or
-official-skill source is vendored.
+`FluidLockerFactory.getUserLocker` read and four-argument batch
+`FluidLocker.claim` interfaces needed to resolve the user's locker and encode the
+recovered browser transaction. They were reduced from the already documented
+public claim-app bundle and checked against the same official interfaces. No
+complete ABI or official-skill source is vendored.
 
 `research/claim-app-sources/reconstructed/contracts/app-contracts.ts` contains a
 two-method GDA pool read fragment for member received amount and flow rate. The
