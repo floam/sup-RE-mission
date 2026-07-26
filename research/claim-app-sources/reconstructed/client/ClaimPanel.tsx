@@ -298,6 +298,10 @@ export function ClaimPanel() {
             },
           ],
         });
+        await provider.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x2105" }],
+        });
       }
       const hash = await provider.request({
         method: "eth_sendTransaction",
