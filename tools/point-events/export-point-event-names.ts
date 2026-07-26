@@ -606,7 +606,7 @@ async function fetchRpcProgramPools(programIds: number[], concurrency: number) {
 			] as const
 		}
 	})
-	return new Map(entries)
+	return new Map<number, RpcProgramPool>(entries)
 }
 
 async function fetchCampaign(
