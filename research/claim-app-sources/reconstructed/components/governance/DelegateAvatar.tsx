@@ -25,7 +25,9 @@ export function DelegateAvatar({
         <span className="flex h-full w-full items-center justify-center rounded-full bg-gray-100">
           <Jazzicon
             diameter={32}
-            seed={jsNumberForAddress(profile?.addressChecksummed)}
+            seed={jsNumberForAddress(
+              profile?.addressChecksummed ?? delegate.address,
+            )}
           />
         </span>
       )}

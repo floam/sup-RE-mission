@@ -1,22 +1,34 @@
-import type { ReactNode } from "react";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Suspense, type ReactNode } from "react";
+import "./globals.css";
+import { RootProviders } from "../providers/RootProviders";
 
-import { NavBar } from "../components/layout/NavBar";
-import { VotingBanner } from "../components/layout/VotingBanner";
+export const metadata: Metadata = {
+  title: "SUP Re:Claim",
+  description: "Recovered Superfluid claim app",
+};
 
-/**
- * Server-side cookie and font wiring was not present in the browser capture.
- * The recovered client shell retains the observable navigation/banner layout;
- * `providers/index.tsx` contains the provider topology used around this shell.
- */
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <div className="mx-auto max-w-screen-xl p-4">
-          <NavBar />
-          <VotingBanner />
-          <main className="py-6">{children}</main>
-        </div>
+        <Suspense fallback={<div className="shell">Loading application…</div>}>
+          <RootProviders>
+            <div className="shell">
+              <nav>
+                <Link className="brand" href="/">
+                  SUP Re:Claim
+                </Link>
+                <div className="links">
+                  <Link href="/claim">Claim</Link>
+                  <Link href="/apps">Campaigns</Link>
+                </div>
+              </nav>
+              {children}
+            </div>
+          </RootProviders>
+        </Suspense>
       </body>
     </html>
   );

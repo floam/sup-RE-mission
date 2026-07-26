@@ -1,23 +1,15 @@
-"use client";
-
-import { FilteredAppsList } from "../../components/apps/FilteredAppsList";
-import { useProgramApps } from "../../hooks/useProgramApps";
-
-export default function CampaignsPage() {
-  const apps = useProgramApps();
+import { Campaigns } from "../../client/Campaigns";
+export default function Apps() {
   return (
     <main>
-      <header>
-        <h1 className="text-h2">Campaigns</h1>
-        <p>Explore Superfluid-powered apps and active SUP campaigns.</p>
+      <header className="hero">
+        <span className="tag">Live subgraph</span>
+        <h1>Campaigns</h1>
+        <p className="muted">
+          Onchain SUP emission programs, loaded directly in this browser.
+        </p>
       </header>
-      {apps.isLoading ? (
-        <div>Loading campaigns...</div>
-      ) : apps.isError ? (
-        <div>Unable to load campaigns.</div>
-      ) : (
-        <FilteredAppsList apps={apps.data ?? []} />
-      )}
+      <Campaigns />
     </main>
   );
 }
