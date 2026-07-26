@@ -5,6 +5,8 @@
   "type": "module",
   "description": "Superfluid points and claim investigation workbench",
   "scripts": {
+    "build": "npm run build:skill",
+    "typecheck": "tsc --noEmit",
     "export:point-events": "tsx tools/point-events/export-point-event-names.ts",
     "investigate:nonces": "node tools/sup-nonces/investigate-sup-nonces.js",
     "test:nonces": "vitest run tools/sup-nonces/investigate-sup-nonces.live.test.ts",
@@ -18,10 +20,12 @@
     "viem": "^2.52.2"
   },
   "devDependencies": {
+    "@types/node": "^24.0.0",
     "acorn": "^8.15.0",
     "esbuild": "^0.28.0",
     "prettier": "^3.6.2",
     "tsx": "^4.22.4",
+    "typescript": "^5.9.0",
     "undici": "^7.24.4",
     "vitest": "^4.1.8"
   },
