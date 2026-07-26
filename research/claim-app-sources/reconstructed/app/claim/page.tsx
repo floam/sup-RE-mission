@@ -6,8 +6,8 @@ export default function Claim() {
         <span className="tag">Base mainnet</span>
         <h1>Claim SUP</h1>
         <p className="muted">
-          Inspect points, compare them with your onchain units, and submit the
-          recovered locker claim.
+          Find new campaign allocations, understand what will change, and
+          synchronize every update in one transaction.
         </p>
       </header>
       <ClaimPanel />

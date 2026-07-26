@@ -111,3 +111,303 @@ button:disabled {
   font-size: 1.5rem;
   font-weight: 800;
 }
+
+/* Claim workbench */
+.claim-workbench {
+  overflow: hidden;
+  border: 1px solid #315247;
+  border-radius: 24px;
+  background: rgba(7, 26, 20, 0.94);
+}
+.wallet-step,
+.results > *,
+.campaign-change {
+  padding: 1.75rem;
+}
+.wallet-step {
+  max-width: 760px;
+}
+.wallet-step h2,
+.section-heading h3,
+.result-callout h3 {
+  margin: 0.35rem 0 0.55rem;
+}
+.eyebrow {
+  color: #74e9aa;
+  font-size: 0.75rem;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.account-field {
+  display: block;
+  margin: 1.5rem 0 0.75rem;
+}
+.account-field > span {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: #bfd2ca;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.account-field input {
+  width: 100%;
+  min-height: 52px;
+}
+.primary-action {
+  width: 100%;
+  min-height: 52px;
+  background: #64e9a0;
+}
+.wallet-step .status {
+  margin: 0.8rem 0 0;
+}
+.results {
+  border-top: 1px solid #315247;
+}
+.results > * + * {
+  border-top: 1px solid #29483e;
+}
+.result-callout {
+  background: #132d24;
+}
+.result-callout.success {
+  background: linear-gradient(110deg, #14352a, #102920);
+}
+.result-callout h3 {
+  max-width: 760px;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+}
+.result-callout p {
+  max-width: 780px;
+  margin: 0.7rem 0 0;
+  color: #c4d8d0;
+  line-height: 1.6;
+}
+.impact-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  padding: 0 !important;
+  background: #29483e;
+}
+.impact-summary > div {
+  display: flex;
+  min-height: 112px;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.25rem 1.75rem;
+  background: #0b2019;
+}
+.impact-summary span {
+  color: #a8c4b9;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+.impact-summary strong {
+  margin-top: 0.3rem;
+  font-size: 1.55rem;
+}
+.positive {
+  color: #72e9a8;
+}
+.section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+.section-heading p {
+  margin: 0;
+}
+.toggle-current {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: #bfd2ca;
+  font-size: 0.88rem;
+  white-space: nowrap;
+}
+.toggle-current input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: #64e9a0;
+}
+.campaigns {
+  display: grid;
+  gap: 1rem;
+}
+.campaign-change {
+  border: 1px solid #315247;
+  border-radius: 16px;
+  background: #10271f;
+}
+.campaign-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.campaign-heading h4 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+.campaign-meta {
+  margin: 0.3rem 0 0;
+  color: #94b2a6;
+  font-size: 0.82rem;
+}
+.update-pill,
+.current-pill {
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  background: #244237;
+  color: #b9cec5;
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.update-pill {
+  background: #1d4b38;
+  color: #81eeb1;
+}
+.unit-comparison {
+  display: grid;
+  gap: 0.7rem;
+  margin: 1.5rem 0;
+}
+.unit-row {
+  display: grid;
+  grid-template-columns: 64px minmax(100px, 1fr) minmax(60px, auto);
+  align-items: center;
+  gap: 0.8rem;
+  color: #a8c4b9;
+  font-size: 0.82rem;
+}
+.unit-row strong {
+  color: #f4fff9;
+  font-size: 1rem;
+  text-align: right;
+}
+.unit-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #29443a;
+}
+.unit-track span {
+  display: block;
+  min-width: 4px;
+  height: 100%;
+  border-radius: inherit;
+  background: #78998c;
+}
+.unit-row.target .unit-track span {
+  background: #64e9a0;
+}
+.campaign-outcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 10px;
+  background: #0b1e18;
+  color: #a8c4b9;
+}
+.campaign-outcome strong {
+  font-size: 1.15rem;
+}
+.technical-details,
+.account-details {
+  color: #a8c4b9;
+  font-size: 0.82rem;
+}
+.technical-details {
+  margin-top: 1rem;
+}
+.technical-details summary,
+.account-details summary {
+  cursor: pointer;
+  color: #bcd0c7;
+  font-weight: 700;
+}
+.technical-details p {
+  margin-bottom: 0;
+}
+.submit-update {
+  display: grid;
+  grid-template-columns: 1fr minmax(280px, 0.7fr);
+  align-items: center;
+  gap: 2rem;
+}
+.submit-update div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.submit-update span {
+  color: #a8c4b9;
+  font-size: 0.85rem;
+}
+.account-details dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-bottom: 0;
+}
+.account-details dl div {
+  min-width: 150px;
+}
+.account-details dt {
+  color: #77998b;
+}
+.account-details dd {
+  margin: 0.2rem 0 0;
+  color: #f4fff9;
+  font-weight: 700;
+}
+
+@media (max-width: 680px) {
+  main {
+    padding-top: 2rem;
+  }
+  .hero {
+    margin-bottom: 2rem;
+  }
+  .wallet-step,
+  .results > *,
+  .campaign-change {
+    padding: 1.25rem;
+  }
+  .impact-summary {
+    grid-template-columns: 1fr;
+  }
+  .impact-summary > div {
+    min-height: 86px;
+    padding: 1rem 1.25rem;
+  }
+  .section-heading,
+  .submit-update {
+    display: flex;
+    align-items: stretch;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .toggle-current {
+    white-space: normal;
+  }
+  .campaign-heading {
+    flex-direction: column;
+  }
+  .unit-row {
+    grid-template-columns: 52px minmax(72px, 1fr) minmax(52px, auto);
+    gap: 0.55rem;
+  }
+  .campaign-outcome {
+    align-items: start;
+    flex-direction: column;
+  }
+}
