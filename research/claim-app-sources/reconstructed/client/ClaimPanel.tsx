@@ -16,7 +16,7 @@ import { ALCHEMY_RPC_URLS } from "../config/rpc";
 import { FLUID_LOCKER_FACTORY_ADDRESS } from "../contracts/app-contracts";
 import { PROGRAM_APP_DEFINITIONS } from "../data/program-app-definitions";
 import { isClaimablePointState } from "./claim-state";
-import { getProgramStatus, SUP_SUBGRAPH } from "./programs";
+import { getProgramStatus, getPublicPrograms } from "./programs";
 
 const CMS_BASE = "https://cms.superfluid.pro";
 const publicClient = createPublicClient({
@@ -95,22 +95,6 @@ async function postJson<T>(url: string, body: unknown): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-async function queryGraph<T>(
-  url: string,
-  query: string,
-  variables: Record<string, unknown>,
-): Promise<T> {
-  const response = await postJson<{ data?: T; errors?: unknown }>(url, {
-    query,
-    variables,
-  });
-  if (!response.data)
-    throw new Error(
-      `Subgraph query failed: ${JSON.stringify(response.errors)}`,
-    );
-  return response.data;
-}
-
 function chunks<T>(items: readonly T[], size: number): T[][] {
   return Array.from({ length: Math.ceil(items.length / size) }, (_, index) =>
     items.slice(index * size, (index + 1) * size),
@@ -118,13 +102,11 @@ function chunks<T>(items: readonly T[], size: number): T[][] {
 }
 
 async function buildPointState(account: Address): Promise<State> {
-  const programIds = [
-    ...new Set(
-      PROGRAM_APP_DEFINITIONS.flatMap((app) =>
-        app.program ? [app.program.id] : [],
-      ),
-    ),
-  ];
+  const allPrograms = await getPublicPrograms();
+  const programs = allPrograms.filter(
+    (program) => getProgramStatus(program) === "Active",
+  );
+  const programIds = programs.map((program) => Number(program.id));
   const [lockerCreated, lockerAddress] = await publicClient.readContract({
     authorizationList: undefined,
     address: FLUID_LOCKER_FACTORY_ADDRESS[8453],
@@ -153,28 +135,6 @@ async function buildPointState(account: Address): Promise<State> {
       }
     }
   }
-  const { programs: allPrograms } = await queryGraph<{
-    programs: Array<{
-      id: string;
-      distributionPool: string;
-      stoppedDate: string;
-      endDate: string;
-    }>;
-  }>(
-    SUP_SUBGRAPH,
-    `query ClaimPools($ids: [String!]!) {
-      programs(first: 1000, where: { id_in: $ids }) {
-        id
-        distributionPool
-        stoppedDate
-        endDate
-      }
-    }`,
-    { ids: programIds.map(String) },
-  );
-  const programs = allPrograms.filter(
-    (program) => getProgramStatus(program) === "Active",
-  );
   const onchainByProgram = new Map<number, bigint>();
   if (lockerAddress !== "0x0000000000000000000000000000000000000000") {
     const unitReads = await publicClient.multicall({

@@ -20,21 +20,41 @@ export function getProgramStatus(
 }
 
 export async function getPublicPrograms(): Promise<PublicProgram[]> {
-  const response = await fetch(SUP_SUBGRAPH, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      query: `query { programs(first: 1000, orderBy: id, orderDirection: desc) { id distributionPool fundingAmount subsidyAmount endDate stoppedDate } }`,
-    }),
-  });
-  if (!response.ok) throw new Error(`SUP subgraph returned ${response.status}`);
-  const payload = (await response.json()) as {
-    data?: { programs: PublicProgram[] };
-    errors?: unknown;
-  };
-  if (!payload.data)
-    throw new Error(
-      `SUP subgraph query failed: ${JSON.stringify(payload.errors)}`,
-    );
-  return payload.data.programs;
+  const programs: PublicProgram[] = [];
+  let lastId = "";
+
+  while (true) {
+    const response = await fetch(SUP_SUBGRAPH, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        query: `query SupPrograms($lastId: String!) {
+          programs(first: 1000, orderBy: id, orderDirection: asc, where: { id_gt: $lastId }) {
+            id
+            distributionPool
+            fundingAmount
+            subsidyAmount
+            endDate
+            stoppedDate
+          }
+        }`,
+        variables: { lastId },
+      }),
+    });
+    if (!response.ok)
+      throw new Error(`SUP subgraph returned ${response.status}`);
+    const payload = (await response.json()) as {
+      data?: { programs: PublicProgram[] };
+      errors?: unknown;
+    };
+    if (!payload.data)
+      throw new Error(
+        `SUP subgraph query failed: ${JSON.stringify(payload.errors)}`,
+      );
+
+    const page = payload.data.programs;
+    programs.push(...page);
+    if (page.length < 1000) return programs.reverse();
+    lastId = page[page.length - 1].id;
+  }
 }
