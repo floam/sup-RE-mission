@@ -41,6 +41,7 @@ interface PointState {
   offchainPoints: bigint;
   onchainPoints: bigint;
   isOnchainOutdated: boolean;
+  cmsCampaignExists: boolean;
 }
 
 interface State {
@@ -55,6 +56,7 @@ interface CmsBalanceResponse {
   campaignIds: number[];
   points: number[];
   cappedPoints?: number[];
+  warnings?: Array<{ campaignId: number; message: string }>;
 }
 
 interface CmsSignedBalanceResponse {
@@ -139,11 +141,17 @@ async function buildPointState(account: Address): Promise<State> {
     ),
   );
   const cappedByProgram = new Map<number, bigint>();
+  const cmsMissingPrograms = new Set<number>();
   for (const balance of balances) {
     const targets = balance.cappedPoints ?? balance.points;
     balance.campaignIds.forEach((id, index) =>
       cappedByProgram.set(id, BigInt(targets[index] ?? 0)),
     );
+    for (const warning of balance.warnings ?? []) {
+      if (warning.message === "Campaign not found") {
+        cmsMissingPrograms.add(warning.campaignId);
+      }
+    }
   }
   const { programs: allPrograms } = await queryGraph<{
     programs: Array<{
@@ -206,6 +214,7 @@ async function buildPointState(account: Address): Promise<State> {
       offchainPoints,
       onchainPoints,
       isOnchainOutdated: offchainPoints !== onchainPoints,
+      cmsCampaignExists: !cmsMissingPrograms.has(programId),
     };
   });
   return {
@@ -474,7 +483,7 @@ export function ClaimPanel() {
                 {relevantRows.map((row) => (
                   <tr
                     key={String(row.programId)}
-                    className={row.isOnchainOutdated ? "needs-update" : ""}
+                    className={isClaimablePointState(row) ? "needs-update" : ""}
                   >
                     <td data-label="Campaign">
                       <strong>{row.name}</strong>
@@ -501,9 +510,13 @@ export function ClaimPanel() {
                     </td>
                     <td data-label="Status">
                       <span
-                        className={`state-pill ${row.isOnchainOutdated ? "pending" : "current"}`}
+                        className={`state-pill ${isClaimablePointState(row) ? "pending" : "current"}`}
                       >
-                        {row.isOnchainOutdated ? "Update" : "Current"}
+                        {!row.cmsCampaignExists
+                          ? "Unavailable"
+                          : row.isOnchainOutdated
+                            ? "Update"
+                            : "Current"}
                       </span>
                     </td>
                     <td>
