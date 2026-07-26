@@ -28,8 +28,17 @@ complete ABI or official-skill source is vendored.
 `research/claim-app-sources/reconstructed/contracts/app-contracts.ts` contains a
 two-method GDA pool read fragment for member received amount and flow rate. The
 installed `@sfpro/sdk` release does not export its pool ABI, and these two reads are
-required by the restored staking and liquidity routes. The fragment was checked
-against the official GDA pool interface; no complete ABI is vendored.
+required by the restored staking and liquidity routes. The signatures are pinned
+to `superfluid-org/protocol-monorepo`,
+`packages/ethereum-contracts/contracts/interfaces/agreements/gdav1/ISuperfluidPool.sol`,
+commit `a5bf3a6747815b19619c277191344f7f0ce7e135`. The local fragment only removes
+the interface's documentation, parameter names, named return value, and all
+unneeded methods; its two selectors and Solidity types are unchanged. To refresh
+it, fetch that path at the intended protocol-monorepo revision, compare
+`getTotalAmountReceivedByMember` and `getMemberFlowRate` with `gdaPoolReadAbi`,
+then update the pinned commit here. Verify the local strings with Viem's
+`parseAbi` (covered by the reconstructed app's TypeScript build). No complete ABI
+is vendored.
 
 The Base contract addresses and public RPC/subgraph endpoints in the tools are external deployment metadata, not locally defined protocol configuration.
 

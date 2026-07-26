@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   createPublicClient,
   encodeFunctionData,
@@ -234,6 +234,7 @@ interface WalletProvider {
 }
 
 function getWalletProvider() {
+  if (typeof window === "undefined") return undefined;
   return window.ethereum as unknown as WalletProvider | undefined;
 }
 
@@ -245,7 +246,12 @@ export function ClaimPanel() {
   const [eventProgram, setEventProgram] = useState<bigint>();
   const [events, setEvents] = useState<CmsEvent[]>([]);
   const [eventsMessage, setEventsMessage] = useState("");
+  const [walletAvailable, setWalletAvailable] = useState(false);
   const checkRequest = useRef(0);
+
+  useEffect(() => {
+    setWalletAvailable(Boolean(getWalletProvider()));
+  }, []);
 
   function updateAccount(nextAccount: string) {
     checkRequest.current += 1;
@@ -337,6 +343,10 @@ export function ClaimPanel() {
               blockExplorerUrls: ["https://basescan.org"],
             },
           ],
+        });
+        await provider.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: "0x2105" }],
         });
       }
       const hash = await provider.request({
@@ -582,7 +592,7 @@ export function ClaimPanel() {
             </div>
             <button
               disabled={
-                !stateMatchesAccount || !state?.canClaim || !window.ethereum
+                !stateMatchesAccount || !state?.canClaim || !walletAvailable
               }
               onClick={claim}
             >
