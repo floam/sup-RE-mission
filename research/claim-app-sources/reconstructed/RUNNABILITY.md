@@ -19,6 +19,14 @@ The production path is `npm run build && npm start`. Vercel can deploy this
 directory as the project root using the detected Next.js preset. The checked-in
 `package-lock.json` is the dependency authority.
 
+The local npm configuration uses legacy peer-dependency resolution because the
+reconstruction combines packages recovered from an existing deployment rather
+than a newly designed dependency set. The lock pins `@wagmi/connectors` 5.9.9 and
+`@wagmi/core` 2.21.2: newer connector metadata imports the unexported
+`@wagmi/core/tempo` entry point and cannot build with this Wagmi 2 application.
+TypeScript explicitly permits `.ts` test imports because the tests run directly
+through Node's type stripping and the project is configured with `noEmit`.
+
 Alchemy provides the Base mainnet and Base Sepolia RPC transports. The supplied
 public application key is the zero-configuration default; set
 `NEXT_PUBLIC_ALCHEMY_API_KEY` in Vercel to rotate it without a code change. This
