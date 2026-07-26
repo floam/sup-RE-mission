@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   createPublicClient,
   encodeFunctionData,
@@ -15,6 +15,7 @@ import { base } from "viem/chains";
 import { ALCHEMY_RPC_URLS } from "../config/rpc";
 import { FLUID_LOCKER_FACTORY_ADDRESS } from "../contracts/app-contracts";
 import { PROGRAM_APP_DEFINITIONS } from "../data/program-app-definitions";
+import { isClaimablePointState } from "./claim-state";
 import { getProgramStatus, SUP_SUBGRAPH } from "./programs";
 
 const CMS_BASE = "https://cms.superfluid.pro";
@@ -34,6 +35,9 @@ const poolUnitsAbi = parseAbi([
 
 interface PointState {
   programId: bigint;
+  name: string;
+  season?: string;
+  category: string;
   offchainPoints: bigint;
   onchainPoints: bigint;
   isOnchainOutdated: boolean;
@@ -58,6 +62,25 @@ interface CmsSignedBalanceResponse {
   points: number[];
   signatureTimestamp: number;
   signature: `0x${string}`;
+}
+
+interface CmsEvent {
+  id: number;
+  eventName: string;
+  points: number;
+  createdAt: string;
+}
+
+function formatUnits(value: bigint) {
+  return new Intl.NumberFormat().format(value);
+}
+
+function formatDelta(value: bigint) {
+  return `${value >= 0n ? "+" : "−"}${formatUnits(value < 0n ? -value : value)}`;
+}
+
+function shortAddress(value: string) {
+  return `${value.slice(0, 6)}…${value.slice(-4)}`;
 }
 
 async function postJson<T>(url: string, body: unknown): Promise<T> {
@@ -170,10 +193,16 @@ async function buildPointState(account: Address): Promise<State> {
   }
   const activeProgramIds = programs.map((program) => Number(program.id));
   const programPointStates = activeProgramIds.map((programId) => {
+    const app = PROGRAM_APP_DEFINITIONS.find(
+      (definition) => definition.program?.id === programId,
+    );
     const offchainPoints = cappedByProgram.get(programId) ?? 0n;
     const onchainPoints = onchainByProgram.get(programId) ?? 0n;
     return {
       programId: BigInt(programId),
+      name: app?.name ?? `Program ${programId}`,
+      season: app?.season,
+      category: app?.category ?? "Unattributed",
       offchainPoints,
       onchainPoints,
       isOnchainOutdated: offchainPoints !== onchainPoints,
@@ -186,9 +215,7 @@ async function buildPointState(account: Address): Promise<State> {
     canClaim:
       lockerCreated &&
       lockerAddress !== "0x0000000000000000000000000000000000000000" &&
-      programPointStates.some(
-        (row) => row.offchainPoints > 0n && row.isOnchainOutdated,
-      ),
+      programPointStates.some(isClaimablePointState),
     programPointStates,
   };
 }
@@ -205,6 +232,10 @@ export function ClaimPanel() {
   const [account, setAccount] = useState("");
   const [state, setState] = useState<State>();
   const [message, setMessage] = useState("");
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [eventProgram, setEventProgram] = useState<bigint>();
+  const [events, setEvents] = useState<CmsEvent[]>([]);
+  const [eventsMessage, setEventsMessage] = useState("");
   const checkRequest = useRef(0);
 
   function updateAccount(nextAccount: string) {
@@ -239,8 +270,8 @@ export function ClaimPanel() {
             "0x0000000000000000000000000000000000000000"
           ? "Create a locker before claiming points."
           : nextState.canClaim
-          ? "Updates are ready to claim."
-          : "Your onchain units are current.",
+            ? "Updates are ready to claim."
+            : "Your onchain units are current.",
       );
     } catch (error) {
       if (request !== checkRequest.current) return;
@@ -253,16 +284,13 @@ export function ClaimPanel() {
     if (
       !state?.canClaim ||
       !state.lockerCreated ||
-      state.lockerAddress ===
-        "0x0000000000000000000000000000000000000000" ||
+      state.lockerAddress === "0x0000000000000000000000000000000000000000" ||
       !isAddress(account) ||
       getAddress(account) !== state.account ||
       !provider
     )
       return;
-    const selected = state.programPointStates.filter(
-      (row) => row.offchainPoints > 0n && row.isOnchainOutdated,
-    );
+    const selected = state.programPointStates.filter(isClaimablePointState);
     setMessage("Requesting a signed CMS balance…");
     try {
       const signed = await postJson<CmsSignedBalanceResponse>(
@@ -312,59 +340,242 @@ export function ClaimPanel() {
     }
   }
 
+  async function toggleEvents(row: PointState) {
+    if (eventProgram === row.programId) {
+      setEventProgram(undefined);
+      return;
+    }
+    setEventProgram(row.programId);
+    setEvents([]);
+    setEventsMessage("Loading recent point events…");
+    try {
+      const params = new URLSearchParams({
+        campaignId: String(row.programId),
+        account: state?.account ?? account,
+        limit: "8",
+        page: "1",
+      });
+      const response = await fetch(`${CMS_BASE}/points/events?${params}`);
+      if (!response.ok)
+        throw new Error(`CMS events returned ${response.status}`);
+      const result = (await response.json()) as { events?: CmsEvent[] };
+      setEvents(result.events ?? []);
+      setEventsMessage(result.events?.length ? "" : "No recent events found.");
+    } catch (error) {
+      setEventsMessage(String(error));
+    }
+  }
+
   const stateMatchesAccount =
     state !== undefined &&
     isAddress(account) &&
     getAddress(account) === state.account;
-  const visibleRows = stateMatchesAccount
-    ? state.programPointStates.filter(
-        (row) => row.offchainPoints > 0n || row.onchainPoints > 0n,
-      )
-    : undefined;
+  const relevantRows = useMemo(
+    () =>
+      stateMatchesAccount
+        ? state.programPointStates
+            .filter(
+              (row) =>
+                row.isOnchainOutdated ||
+                (showCurrent &&
+                  (row.offchainPoints > 0n || row.onchainPoints > 0n)),
+            )
+            .sort(
+              (a, b) =>
+                Number(b.isOnchainOutdated) - Number(a.isOnchainOutdated),
+            )
+        : undefined,
+    [showCurrent, stateMatchesAccount, state],
+  );
+  const updateRows = stateMatchesAccount
+    ? state.programPointStates.filter(isClaimablePointState)
+    : [];
+  const netDelta = updateRows.reduce(
+    (total, row) => total + row.offchainPoints - row.onchainPoints,
+    0n,
+  );
   return (
-    <section className="card">
-      <h2>Check eligibility</h2>
-      <p className="muted">
-        CMS target points and indexed pool units are read directly in your
-        browser.
-      </p>
-      <div className="toolbar">
-        <input
-          style={{ flex: 1, minWidth: 240 }}
-          value={account}
-          onChange={(event) => updateAccount(event.target.value)}
-          placeholder="0x…"
-        />
-        <button
-          onClick={() => connect().catch((error) => setMessage(String(error)))}
-        >
-          Connect
-        </button>
-        <button onClick={check}>Check</button>
+    <section className="claim-workbench">
+      <div className="account-bar">
+        <div>
+          <span className="eyebrow">Pool unit workbench</span>
+          <h2>Inspect an account</h2>
+        </div>
+        <div className="account-controls">
+          <input
+            value={account}
+            onChange={(event) => updateAccount(event.target.value)}
+            placeholder="0x…"
+          />
+          <button
+            onClick={() =>
+              connect().catch((error) => setMessage(String(error)))
+            }
+          >
+            Connect
+          </button>
+          <button onClick={check}>Check</button>
+        </div>
       </div>
       {message && <p className="status">{message}</p>}
-      {visibleRows && (
+      {relevantRows && (
         <>
-          <div className="grid">
-            {visibleRows.map((row) => (
-              <article key={String(row.programId)}>
-                <span className="tag">Program {String(row.programId)}</span>
-                <p className="amount">{String(row.offchainPoints)} points</p>
-                <p className="muted">
-                  Onchain: {String(row.onchainPoints)} ·{" "}
-                  {row.isOnchainOutdated ? "update available" : "current"}
-                </p>
-              </article>
-            ))}
+          <div className="claim-summary">
+            <div>
+              <span>Account</span>
+              <strong>{shortAddress(state!.account)}</strong>
+            </div>
+            <div>
+              <span>Updates</span>
+              <strong>{updateRows.length}</strong>
+            </div>
+            <div>
+              <span>Net unit delta</span>
+              <strong className={netDelta < 0n ? "negative" : "positive"}>
+                {formatDelta(netDelta)}
+              </strong>
+            </div>
+            <div>
+              <span>Locker</span>
+              <strong>{shortAddress(state!.lockerAddress)}</strong>
+            </div>
           </div>
-          <button
-            disabled={
-              !stateMatchesAccount || !state?.canClaim || !window.ethereum
-            }
-            onClick={claim}
-          >
-            Claim with wallet
-          </button>
+          <div className="table-toolbar">
+            <div>
+              <h3>Campaign pool updates</h3>
+              <p className="muted">
+                CMS targets compared with current locker units.
+              </p>
+            </div>
+            <label className="toggle">
+              <input
+                type="checkbox"
+                checked={showCurrent}
+                onChange={(event) => setShowCurrent(event.target.checked)}
+              />{" "}
+              Show current
+            </label>
+          </div>
+          <div className="update-table-wrap">
+            <table className="update-table">
+              <thead>
+                <tr>
+                  <th>Campaign</th>
+                  <th>Onchain</th>
+                  <th>CMS target</th>
+                  <th>Delta</th>
+                  <th>Status</th>
+                  <th>
+                    <span className="sr-only">Actions</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {relevantRows.map((row) => (
+                  <tr
+                    key={String(row.programId)}
+                    className={row.isOnchainOutdated ? "needs-update" : ""}
+                  >
+                    <td data-label="Campaign">
+                      <strong>{row.name}</strong>
+                      <small>
+                        Season {row.season ?? "—"} · #{String(row.programId)} ·{" "}
+                        {row.category}
+                      </small>
+                    </td>
+                    <td data-label="Onchain">
+                      {formatUnits(row.onchainPoints)}
+                    </td>
+                    <td data-label="CMS target">
+                      {formatUnits(row.offchainPoints)}
+                    </td>
+                    <td
+                      data-label="Delta"
+                      className={
+                        row.offchainPoints < row.onchainPoints
+                          ? "negative"
+                          : "positive"
+                      }
+                    >
+                      {formatDelta(row.offchainPoints - row.onchainPoints)}
+                    </td>
+                    <td data-label="Status">
+                      <span
+                        className={`state-pill ${row.isOnchainOutdated ? "pending" : "current"}`}
+                      >
+                        {row.isOnchainOutdated ? "Update" : "Current"}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        className="text-button"
+                        onClick={() => toggleEvents(row)}
+                      >
+                        {eventProgram === row.programId
+                          ? "Hide events"
+                          : "Recent events"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {eventProgram !== undefined && (
+            <section className="event-drawer">
+              <div className="event-heading">
+                <div>
+                  <span className="eyebrow">CMS evidence</span>
+                  <h3>Recent point events · Campaign {String(eventProgram)}</h3>
+                </div>
+                <button
+                  className="text-button"
+                  onClick={() => setEventProgram(undefined)}
+                >
+                  Close
+                </button>
+              </div>
+              {eventsMessage && <p className="muted">{eventsMessage}</p>}
+              {events.length > 0 && (
+                <div className="event-list">
+                  {events.map((event) => (
+                    <div className="event-row" key={event.id}>
+                      <span>
+                        <strong>{event.eventName}</strong>
+                        <small>
+                          {new Date(event.createdAt).toLocaleString()}
+                        </small>
+                      </span>
+                      <strong
+                        className={event.points < 0 ? "negative" : "positive"}
+                      >
+                        {event.points >= 0 ? "+" : ""}
+                        {event.points}
+                      </strong>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+          <div className="claim-action">
+            <div>
+              <strong>
+                {updateRows.length
+                  ? `${updateRows.length} pool update${updateRows.length === 1 ? "" : "s"} ready`
+                  : "No pool updates needed"}
+              </strong>
+              <span>The wallet submits exact signed CMS targets.</span>
+            </div>
+            <button
+              disabled={
+                !stateMatchesAccount || !state?.canClaim || !window.ethereum
+              }
+              onClick={claim}
+            >
+              Update pool units
+            </button>
+          </div>
         </>
       )}
     </section>
