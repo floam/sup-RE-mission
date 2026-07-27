@@ -13,13 +13,13 @@ import {
   useReadContract,
   useSimulateContract,
   useWaitForTransactionReceipt,
-  useWriteContract,
 } from "wagmi";
 import { lockerAbi } from "@sfpro/sdk/abi/sup";
 
 import { useExpectedChains } from "../contexts/ExpectedChainContext";
 import type { Address } from "../types/program-app";
 import { recordRecentTransaction } from "./useRecentTransactions";
+import { useSuperfluidWriteContract } from "./useSuperfluidWriteContract";
 import {
   getTransactionStatus,
   useLogTransactionErrors,
@@ -106,7 +106,7 @@ function useLockerWrite<
     },
     stateOverride,
   });
-  const write = useWriteContract();
+  const write = useSuperfluidWriteContract();
   const waitFor = useWaitForTransactionReceipt({
     chainId: airdropChain.id,
     hash: write.data,
