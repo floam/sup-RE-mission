@@ -34,7 +34,7 @@ consume the resulting URLs in the browser.
 | Wallet connection    | Injected EIP-1193 provider                           | Accounts never pass through this app       |
 | Eligibility display  | CMS, Alchemy, SUP subgraph and GDA pools             | Reconstructed entirely in the browser      |
 | Voucher creation     | CMS `signed-balance-batch`                           | CMS returns the authorized batch signature |
-| Transaction          | Injected provider, Base chain, and the user's locker | Encoded and submitted entirely client side |
+| Transaction          | Wallet, Base chain, optional Clear Macro relay       | Encoded and submitted entirely client side |
 
 The claim flow does not proxy `claim.superfluid.org`. It reproduces point states by
 joining CMS capped balances to the locker resolved through Alchemy and direct
@@ -48,6 +48,31 @@ function.
 The recovered read-only server actions remain source-backed implementations. If a
 behavior later proves impossible to reconstruct, call the matching action on the
 original host directly rather than replacing route code with a local proxy.
+
+## Shared write executor and Clear Macro
+
+All reconstructed contract writes use `useSuperfluidWriteContract`, a TanStack
+mutation executor modeled on the Superfluid Dashboard. Concrete ABI, function and
+argument typing remains at feature call sites; the request widens only at the shared
+`@wagmi/core/writeContract` boundary. Existing simulation, gas-estimation, receipt
+and transaction-status behavior remains intact while every write passes through one
+executor.
+
+The executor supports the Dashboard Clear Macro relay from the beginning. A caller
+opts in by supplying a typed `clearMacro` action and may set `clearMacroRequired` to
+prohibit self-paid fallback. The implementation performs provider-capability and
+forwarder checks, onchain payload assembly, local-versus-onchain EIP-712 digest
+verification, fee-balance validation, human-readable typed-data signing, relay
+submission, terminal polling and local persistence of accepted executions.
+
+Clear Macro intentionally does not relay arbitrary calldata. Existing locker,
+reserve, governance and reward calls remain direct until a deployed macro exposes an
+equivalent typed action. Supported future actions are Super Token approve, transfer,
+upgrade and downgrade plus create, update, delete and schedule-flow operations.
+
+Browser relay requests use the same-origin `/clearmacro-provider` rewrite because
+the relay provider does not expose browser CORS headers. Set
+`NEXT_PUBLIC_DISABLE_CLEAR_MACRO=true` as an emergency kill switch.
 
 ## Functional scope
 
