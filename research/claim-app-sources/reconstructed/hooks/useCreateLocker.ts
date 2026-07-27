@@ -8,13 +8,13 @@ import {
   useReadContract,
   useSimulateContract,
   useWaitForTransactionReceipt,
-  useWriteContract,
 } from "wagmi";
 import { lockerFactoryAbi } from "@sfpro/sdk/abi/sup";
 
 import { useExpectedChains } from "../contexts/ExpectedChainContext";
 import { FLUID_LOCKER_FACTORY_ADDRESS } from "../contracts/app-contracts";
 import type { Address } from "../types/program-app";
+import { useSuperfluidWriteContract } from "./useSuperfluidWriteContract";
 import {
   getTransactionStatus,
   useLogTransactionErrors,
@@ -59,7 +59,7 @@ export function useCreateLocker(accountAddress?: Address) {
       : undefined,
     query: { select: (gas) => (120n * gas) / 100n, enabled: Boolean(request) },
   });
-  const write = useWriteContract();
+  const write = useSuperfluidWriteContract();
   const waitFor = useWaitForTransactionReceipt({
     chainId: airdropChain.id,
     hash: write.data,
