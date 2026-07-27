@@ -330,7 +330,7 @@ export function ClaimPanel() {
   const [eventsMessage, setEventsMessage] = useState("");
   const checkRequest = useRef(0);
   const eventRequest = useRef(0);
-  const automaticallyReviewedAccount = useRef<Address>();
+  const automaticallyReviewedAccount = useRef<Address | undefined>(undefined);
   const { open } = useAppKit();
   const {
     address: connectedAddress,
