@@ -270,8 +270,8 @@ function CampaignChange({
           {!row.cmsCampaignExists
             ? "CMS unavailable"
             : row.isOnchainOutdated
-              ? "Update available"
-              : "Synchronized"}
+              ? "Change available"
+              : "Matches target"}
         </span>
       </header>
       <div className="unit-comparison">
@@ -330,6 +330,7 @@ export function ClaimPanel() {
   const [eventsMessage, setEventsMessage] = useState("");
   const checkRequest = useRef(0);
   const eventRequest = useRef(0);
+  const automaticallyReviewedAccount = useRef<Address>();
   const { open } = useAppKit();
   const {
     address: connectedAddress,
@@ -340,10 +341,6 @@ export function ClaimPanel() {
   } = useWalletAccount();
   const { switchChainAsync } = useSwitchChain();
   const { writeContractAsync } = useWriteContract();
-
-  useEffect(() => {
-    if (connectedAddress && !account) setAccount(getAddress(connectedAddress));
-  }, [account, connectedAddress]);
 
   function clearEvents() {
     eventRequest.current += 1;
@@ -360,16 +357,23 @@ export function ClaimPanel() {
     setMessage("");
   }
 
-  async function check() {
-    if (!isAddress(account)) return setMessage("Enter a valid EVM address.");
-    const checkedAccount = getAddress(account);
+  async function reviewAccount(candidate = account) {
+    if (!isAddress(candidate)) {
+      setMessage("Enter a valid EVM address.");
+      return;
+    }
+
+    const reviewedAccount = getAddress(candidate);
     const request = ++checkRequest.current;
     clearEvents();
-    setState(undefined);
+    setAccount(reviewedAccount);
+    setState((current) =>
+      current?.account === reviewedAccount ? current : undefined,
+    );
     setIsChecking(true);
-    setMessage("Checking the latest campaign allocations…");
+    setMessage("Reviewing campaign allocations…");
     try {
-      const nextState = await buildPointState(checkedAccount);
+      const nextState = await buildPointState(reviewedAccount);
       if (request !== checkRequest.current) return;
       setState(nextState);
       setMessage("");
@@ -380,6 +384,18 @@ export function ClaimPanel() {
       if (request === checkRequest.current) setIsChecking(false);
     }
   }
+
+  useEffect(() => {
+    if (!isConnected || !connectedAddress) {
+      automaticallyReviewedAccount.current = undefined;
+      return;
+    }
+
+    const nextAccount = getAddress(connectedAddress);
+    if (automaticallyReviewedAccount.current === nextAccount) return;
+    automaticallyReviewedAccount.current = nextAccount;
+    void reviewAccount(nextAccount);
+  }, [connectedAddress, isConnected]);
 
   async function claim() {
     if (
@@ -436,7 +452,7 @@ export function ClaimPanel() {
       const refreshed = await buildPointState(state.account);
       if (request !== checkRequest.current) return;
       setState(refreshed);
-      setMessage("Campaign allocations synchronized and refreshed.");
+      setMessage("Campaign allocations applied and reloaded.");
     } catch (error) {
       if (request !== checkRequest.current) return;
       setMessage(String(error));
@@ -524,25 +540,26 @@ export function ClaimPanel() {
 
   return (
     <section className="claim-workbench">
-      <div className="wallet-step">
-        <span className="eyebrow">Wallet</span>
-        <h2>Check for campaign updates</h2>
-        <p className="muted">
-          Inspect any address, then connect that same wallet to synchronize its
-          current onchain units with the latest campaign allocations.
-        </p>
-        <label className="account-field">
-          <span>Wallet address</span>
-          <input
-            value={account}
-            disabled={isSubmitting}
-            onChange={(event) => updateAccount(event.target.value)}
-            placeholder="0x…"
-            inputMode="text"
-          />
-        </label>
-        <div className="wallet-actions">
-          {!isConnected ? (
+      {!isConnected && (
+        <div className="wallet-step">
+          <span className="eyebrow">Wallet</span>
+          <h2>Review claim allocations</h2>
+          <p className="muted">
+            Enter any wallet to compare its current onchain pool units with the
+            latest campaign targets. Connect that wallet only when you are ready
+            to apply a change.
+          </p>
+          <label className="account-field">
+            <span>Wallet address</span>
+            <input
+              value={account}
+              disabled={isSubmitting}
+              onChange={(event) => updateAccount(event.target.value)}
+              placeholder="0x…"
+              inputMode="text"
+            />
+          </label>
+          <div className="wallet-actions">
             <button
               className="secondary-action"
               type="button"
@@ -551,42 +568,30 @@ export function ClaimPanel() {
             >
               {walletBusy ? "Connecting…" : "Connect wallet"}
             </button>
-          ) : connectedAddress &&
-            (!isAddress(account) ||
-              getAddress(account) !== getAddress(connectedAddress)) ? (
             <button
-              className="secondary-action"
+              className="primary-action"
               type="button"
-              disabled={isSubmitting}
-              onClick={() => updateAccount(getAddress(connectedAddress))}
+              disabled={isChecking || isSubmitting || !isAddress(account)}
+              onClick={() => reviewAccount()}
             >
-              Use connected wallet
+              {isChecking ? "Reviewing…" : "Review allocations"}
             </button>
-          ) : null}
-          <button
-            className="primary-action"
-            type="button"
-            disabled={isChecking || isSubmitting || !isAddress(account)}
-            onClick={check}
-          >
-            {isChecking ? "Checking…" : "Check for updates"}
-          </button>
+          </div>
         </div>
-        {message && (
-          <p className="status" role="status">
-            {message}
-          </p>
-        )}
-      </div>
+      )}
+
+      {message && (
+        <p className="status claim-status" role="status">
+          {message}
+        </p>
+      )}
 
       {stateMatchesAccount && state && (
         <div className="results" aria-live="polite">
           {resultKind === "locker-required" ? (
             <div className="result-callout">
               <span className="eyebrow">Action needed</span>
-              <h3>
-                Create a locker before synchronizing campaign allocations.
-              </h3>
+              <h3>Create a locker before applying campaign allocations.</h3>
             </div>
           ) : resultKind === "no-active-programs" ? (
             <div className="result-callout">
@@ -596,20 +601,21 @@ export function ClaimPanel() {
                 The CMS was checked for {state.cmsCampaignCount} campaign
                 {state.cmsCampaignCount === 1 ? "" : "s"}, but the SUP subgraph
                 currently reports no active programs. This is not reported as a
-                synchronized allocation state.
+                matching allocation state.
               </p>
             </div>
           ) : resultKind === "updates-found" ? (
             <div className="result-callout success">
-              <span className="eyebrow">Updates found</span>
+              <span className="eyebrow">Allocation changes found</span>
               <h3>
-                Your wallet has {changedRows.length} campaign
-                {changedRows.length === 1 ? "" : "s"} that need
-                {changedRows.length === 1 ? "s" : ""} updating.
+                {changedRows.length} campaign allocation
+                {changedRows.length === 1 ? " differs" : "s differ"} from the
+                current onchain units.
               </h3>
               <p>
-                Updating will {totalDelta >= 0n ? "increase" : "adjust"} your
-                allocation{campaignScope} by{" "}
+                Applying the latest targets will
+                {totalDelta >= 0n ? " increase" : " adjust"} your allocation
+                {campaignScope} by{" "}
                 <strong>
                   {totalDelta > 0n ? "+" : ""}
                   {formatUnits(totalDelta)} units
@@ -623,8 +629,10 @@ export function ClaimPanel() {
             </div>
           ) : (
             <div className="result-callout success">
-              <span className="eyebrow">All synchronized</span>
-              <h3>Your campaign allocations are up to date.</h3>
+              <span className="eyebrow">Allocations match</span>
+              <h3>
+                Your onchain allocations match the current campaign targets.
+              </h3>
               <p>
                 The CMS and {state.programPointStates.length} active campaign
                 {state.programPointStates.length === 1 ? "" : "s"} were checked.
@@ -633,7 +641,7 @@ export function ClaimPanel() {
             </div>
           )}
 
-          <div className="impact-summary" aria-label="Update summary">
+          <div className="impact-summary" aria-label="Allocation summary">
             <div>
               <span>Campaigns changing</span>
               <strong>{changedRows.length}</strong>
@@ -655,7 +663,7 @@ export function ClaimPanel() {
             <section className="campaign-list">
               <div className="section-heading">
                 <div>
-                  <span className="eyebrow">Campaign changes</span>
+                  <span className="eyebrow">Campaign allocations</span>
                   <h3>Your allocation details</h3>
                   <p className="muted">
                     Review what is onchain now, the latest campaign target, and
@@ -668,7 +676,7 @@ export function ClaimPanel() {
                     checked={showCurrent}
                     onChange={(event) => setShowCurrent(event.target.checked)}
                   />
-                  <span>Show campaigns with no updates</span>
+                  <span>Show campaigns already matching</span>
                 </label>
               </div>
               <div className="campaigns">
@@ -713,12 +721,12 @@ export function ClaimPanel() {
             <footer className="submit-update">
               <div>
                 <strong>
-                  {changedRows.length} campaign update
+                  {changedRows.length} campaign change
                   {changedRows.length === 1 ? "" : "s"} ready
                 </strong>
                 <span>
                   {transactionCount === 1
-                    ? "One wallet transaction synchronizes every update shown above."
+                    ? "One wallet transaction applies every allocation change shown above."
                     : `${transactionCount} wallet transactions are required because the CMS signs at most ${CMS_BATCH_SIZE} campaigns per batch.`}
                 </span>
               </div>
@@ -733,10 +741,10 @@ export function ClaimPanel() {
                 onClick={claim}
               >
                 {isSubmitting
-                  ? "Synchronizing…"
+                  ? "Applying…"
                   : connectedOwnsAccount
-                    ? "Synchronize campaign allocations"
-                    : "Connect this wallet to synchronize"}
+                    ? "Apply campaign allocations"
+                    : "Connect this wallet to apply changes"}
               </button>
             </footer>
           )}
