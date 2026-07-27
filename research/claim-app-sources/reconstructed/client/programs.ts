@@ -6,15 +6,26 @@ export interface PublicProgram {
   distributionPool: string;
   fundingAmount: string;
   subsidyAmount: string;
+  earlyEndDate: string | null;
   endDate: string;
   stoppedDate: string | null;
+  cancellationDate: string | null;
+}
+
+type ProgramLifecycle = Pick<PublicProgram, "stoppedDate" | "endDate"> &
+  Partial<Pick<PublicProgram, "earlyEndDate" | "cancellationDate">>;
+
+function hasTimestamp(value: string | null | undefined): boolean {
+  return BigInt(value ?? "0") > 0n;
 }
 
 export function getProgramStatus(
-  program: Pick<PublicProgram, "stoppedDate" | "endDate">,
+  program: ProgramLifecycle,
   now = Math.floor(Date.now() / 1_000),
 ) {
-  if (BigInt(program.stoppedDate ?? "0") > 0n) return "Stopped" as const;
+  if (hasTimestamp(program.cancellationDate) || hasTimestamp(program.stoppedDate))
+    return "Stopped" as const;
+  if (hasTimestamp(program.earlyEndDate)) return "Finished" as const;
   if (BigInt(program.endDate || "0") > BigInt(now)) return "Active" as const;
   return "Finished" as const;
 }
@@ -34,8 +45,10 @@ export async function getPublicPrograms(): Promise<PublicProgram[]> {
             distributionPool
             fundingAmount
             subsidyAmount
+            earlyEndDate
             endDate
             stoppedDate
+            cancellationDate
           }
         }`,
         variables: { lastId },

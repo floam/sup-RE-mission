@@ -1,17 +1,27 @@
 "use client";
+
 import { useEffect, useMemo, useState } from "react";
+
+import { PROGRAM_APP_DEFINITIONS } from "../data/program-app-definitions";
+import styles from "./Campaigns.module.css";
 import {
   getProgramStatus,
   getPublicPrograms,
   type PublicProgram,
 } from "./programs";
-import { PROGRAM_APP_DEFINITIONS } from "../data/program-app-definitions";
 
-const appByProgram = new Map(
-  PROGRAM_APP_DEFINITIONS.flatMap((app) =>
-    app.program ? [[String(app.program.id), app] as const] : [],
-  ),
-);
+type ProgramAppDefinition = (typeof PROGRAM_APP_DEFINITIONS)[number];
+type ProgramStatus = ReturnType<typeof getProgramStatus>;
+type ProgramFilter = ProgramStatus | "All";
+
+const appsByProgram = new Map<string, ProgramAppDefinition[]>();
+for (const app of PROGRAM_APP_DEFINITIONS) {
+  if (!app.program) continue;
+  const programId = String(app.program.id);
+  appsByProgram.set(programId, [...(appsByProgram.get(programId) ?? []), app]);
+}
+
+const FILTERS: ProgramFilter[] = ["All", "Active", "Finished", "Stopped"];
 
 function shortAddress(value: string) {
   return `${value.slice(0, 6)}…${value.slice(-4)}`;
@@ -23,46 +33,66 @@ function formatTokenAmount(value: string) {
   );
 }
 
+function unique(values: string[]) {
+  return [...new Set(values)];
+}
+
+function getAttribution(programId: string) {
+  const apps = appsByProgram.get(programId) ?? [];
+  return {
+    names: unique(apps.map((app) => app.name)),
+    descriptors: unique(
+      apps.map((app) => `Season ${app.season ?? "—"} · ${app.category}`),
+    ),
+  };
+}
+
 export function Campaigns() {
   const [programs, setPrograms] = useState<PublicProgram[]>([]);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState("All");
+  const [status, setStatus] = useState<ProgramFilter>("All");
+
   useEffect(() => {
     getPublicPrograms()
       .then(setPrograms)
-      .catch((e) => setError(String(e)));
+      .catch((reason) => setError(String(reason)));
   }, []);
-  const shown = useMemo(
-    () =>
-      programs.filter((p) => {
-        const app = appByProgram.get(p.id);
-        const haystack =
-          `${p.id} ${p.distributionPool} ${app?.name ?? ""} ${app?.category ?? ""}`.toLowerCase();
-        return (
-          haystack.includes(query.toLowerCase()) &&
-          (status === "All" || getProgramStatus(p) === status)
-        );
-      }),
-    [programs, query, status],
-  );
+
+  const shown = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return programs.filter((program) => {
+      const attribution = getAttribution(program.id);
+      const haystack = [
+        program.id,
+        program.distributionPool,
+        ...attribution.names,
+        ...attribution.descriptors,
+      ]
+        .join(" ")
+        .toLowerCase();
+      return (
+        (!needle || haystack.includes(needle)) &&
+        (status === "All" || getProgramStatus(program) === status)
+      );
+    });
+  }, [programs, query, status]);
+
   const counts = useMemo(
-    () => ({
-      Active: programs.filter(
-        (program) => getProgramStatus(program) === "Active",
-      ).length,
-      Finished: programs.filter(
-        (program) => getProgramStatus(program) === "Finished",
-      ).length,
-      Stopped: programs.filter(
-        (program) => getProgramStatus(program) === "Stopped",
-      ).length,
-    }),
+    () =>
+      programs.reduce(
+        (result, program) => {
+          result[getProgramStatus(program)] += 1;
+          return result;
+        },
+        { Active: 0, Finished: 0, Stopped: 0 },
+      ),
     [programs],
   );
+
   return (
     <>
-      <div className="campaign-summary">
+      <section className={styles.summary} aria-label="Campaign summary">
         <div>
           <span>Programs</span>
           <strong>{programs.length || "—"}</strong>
@@ -79,19 +109,21 @@ export function Campaigns() {
           <span>Stopped</span>
           <strong>{counts.Stopped}</strong>
         </div>
-      </div>
-      <div className="campaign-tools">
+      </section>
+
+      <div className={styles.tools}>
         <input
           aria-label="Filter campaigns"
           placeholder="Search name, ID, category, or pool"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(event) => setQuery(event.target.value)}
         />
-        <div className="filter-pills">
-          {["All", "Active", "Finished", "Stopped"].map((value) => (
+        <div className={styles.filters} aria-label="Campaign status">
+          {FILTERS.map((value) => (
             <button
-              className={status === value ? "active" : ""}
+              className={status === value ? styles.activeFilter : undefined}
               key={value}
+              type="button"
               onClick={() => setStatus(value)}
             >
               {value}
@@ -99,14 +131,16 @@ export function Campaigns() {
           ))}
         </div>
       </div>
-      <p className="result-count muted">
+
+      <p className="muted">
         {programs.length
-          ? `${shown.length} matching programs`
+          ? `${shown.length} matching program${shown.length === 1 ? "" : "s"}`
           : "Loading onchain programs…"}
       </p>
       {error && <p className="status error">{error}</p>}
-      <div className="campaign-table-wrap">
-        <table className="campaign-table">
+
+      <div className={styles.tableWrap}>
+        <table className={styles.table}>
           <thead>
             <tr>
               <th>Campaign</th>
@@ -117,40 +151,44 @@ export function Campaigns() {
             </tr>
           </thead>
           <tbody>
-            {shown.map((p) => {
-              const app = appByProgram.get(p.id);
-              const programStatus = getProgramStatus(p);
+            {shown.map((program) => {
+              const attribution = getAttribution(program.id);
+              const programStatus = getProgramStatus(program);
               return (
-                <tr key={p.id}>
+                <tr key={program.id}>
                   <td data-label="Campaign">
-                    <strong>{app?.name ?? `Program ${p.id}`}</strong>
+                    <strong>
+                      {attribution.names.length
+                        ? attribution.names.join(" / ")
+                        : `Program ${program.id}`}
+                    </strong>
                     <small>
-                      {app
-                        ? `Season ${app.season ?? "—"} · ${app.category} · #${p.id}`
-                        : `Unattributed · #${p.id}`}
+                      {attribution.descriptors.length
+                        ? `${attribution.descriptors.join(" / ")} · #${program.id}`
+                        : `Unattributed · #${program.id}`}
                     </small>
                   </td>
                   <td data-label="Status">
                     <span
-                      className={`state-pill ${programStatus.toLowerCase()}`}
+                      className={`${styles.statusPill} ${styles[programStatus.toLowerCase()]}`}
                     >
                       {programStatus}
                     </span>
                   </td>
                   <td data-label="Funding">
-                    {formatTokenAmount(p.fundingAmount)} SUP
+                    {formatTokenAmount(program.fundingAmount)} SUP
                   </td>
                   <td data-label="Subsidy">
-                    {formatTokenAmount(p.subsidyAmount)} SUP
+                    {formatTokenAmount(program.subsidyAmount)} SUP
                   </td>
                   <td data-label="Pool">
                     <a
-                      className="pool-link"
-                      href={`https://basescan.org/address/${p.distributionPool}`}
+                      className={styles.poolLink}
+                      href={`https://basescan.org/address/${program.distributionPool}`}
                       target="_blank"
                       rel="noreferrer"
                     >
-                      {shortAddress(p.distributionPool)} ↗
+                      {shortAddress(program.distributionPool)} ↗
                     </a>
                   </td>
                 </tr>

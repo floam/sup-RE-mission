@@ -3,20 +3,58 @@ import test from "node:test";
 
 import { getProgramStatus, getPublicPrograms } from "./programs.ts";
 
-test('treats GraphQL timestamp "0" as not stopped', () => {
+const lifecycle = {
+  earlyEndDate: "0",
+  cancellationDate: "0",
+};
+
+test('treats GraphQL timestamp "0" as unset', () => {
   assert.equal(
-    getProgramStatus({ stoppedDate: "0", endDate: "200" }, 100),
+    getProgramStatus(
+      { ...lifecycle, stoppedDate: "0", endDate: "200" },
+      100,
+    ),
     "Active",
   );
 });
 
-test("distinguishes stopped and naturally finished programs", () => {
+test("classifies terminal lifecycle fields", () => {
   assert.equal(
-    getProgramStatus({ stoppedDate: "90", endDate: "200" }, 100),
+    getProgramStatus(
+      { ...lifecycle, stoppedDate: "90", endDate: "200" },
+      100,
+    ),
     "Stopped",
   );
   assert.equal(
-    getProgramStatus({ stoppedDate: "0", endDate: "90" }, 100),
+    getProgramStatus(
+      {
+        ...lifecycle,
+        stoppedDate: "0",
+        cancellationDate: "90",
+        endDate: "200",
+      },
+      100,
+    ),
+    "Stopped",
+  );
+  assert.equal(
+    getProgramStatus(
+      {
+        ...lifecycle,
+        stoppedDate: "0",
+        earlyEndDate: "90",
+        endDate: "200",
+      },
+      100,
+    ),
+    "Finished",
+  );
+  assert.equal(
+    getProgramStatus(
+      { ...lifecycle, stoppedDate: "0", endDate: "90" },
+      100,
+    ),
     "Finished",
   );
 });
@@ -31,8 +69,10 @@ test("enumerates every SUP program page", async (t) => {
     distributionPool: "0x0000000000000000000000000000000000000000",
     fundingAmount: "0",
     subsidyAmount: "0",
+    earlyEndDate: "0",
     endDate: "0",
     stoppedDate: "0",
+    cancellationDate: "0",
   }));
   const requestedCursors: string[] = [];
   globalThis.fetch = async (_input, init) => {

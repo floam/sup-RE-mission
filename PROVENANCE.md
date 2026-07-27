@@ -10,6 +10,16 @@ The official skill lives in `superfluid-org/skills` under `skills/superfluid/`. 
 
 ## Embedded external interface fragments
 
+The Wagmi 3 migration types in
+`research/claim-app-sources/reconstructed/hooks/useLiquidityTransactions.ts`
+and their compile-time regression test adapt the ABI-derived
+`ContractFunctionName` / `ContractFunctionArgs`, payable-value gating, and
+explicit Wagmi handoff-cast approach from
+`superfluid-org/superfluid-dashboard` commit
+`ee1af4ff25fba76d5ecfebe7cf0a1e3244f40bbd`. The local implementation is
+limited to the reconstructed claim app's three liquidity calls and retains its
+existing hook lifecycle; no Dashboard source file is vendored.
+
 `tools/sup-nonces/investigate-sup-nonces.js` contains minimal ABI fragments for:
 
 - `FluidLockerFactory.getUserLocker`
@@ -31,14 +41,14 @@ installed `@sfpro/sdk` release does not export its pool ABI, and these two reads
 required by the restored staking and liquidity routes. The signatures are pinned
 to `superfluid-org/protocol-monorepo`,
 `packages/ethereum-contracts/contracts/interfaces/agreements/gdav1/ISuperfluidPool.sol`,
-commit `a5bf3a6747815b19619c277191344f7f0ce7e135`. The local fragment only removes
-the interface's documentation, parameter names, named return value, and all
-unneeded methods; its two selectors and Solidity types are unchanged. To refresh
-it, fetch that path at the intended protocol-monorepo revision, compare
+commit `a5bf3a6747815b19619c277191344f7f0ce7e135`. The local fragment removes only
+documentation, parameter names, the named return value, and unneeded methods;
+its two selectors and Solidity types are unchanged. To refresh it, fetch that
+path at the intended protocol-monorepo revision, compare
 `getTotalAmountReceivedByMember` and `getMemberFlowRate` with `gdaPoolReadAbi`,
 then update the pinned commit here. Verify the local strings with Viem's
-`parseAbi` (covered by the reconstructed app's TypeScript build). No complete ABI
-is vendored.
+`parseAbi`, which is covered by the reconstructed app's TypeScript build. No
+complete ABI is vendored.
 
 The Base contract addresses and public RPC/subgraph endpoints in the tools are external deployment metadata, not locally defined protocol configuration.
 

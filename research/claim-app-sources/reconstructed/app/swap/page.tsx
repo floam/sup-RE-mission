@@ -4,7 +4,8 @@ import { LiFiWidget, WidgetSkeleton } from "@lifi/widget";
 import { useAppKit } from "@reown/appkit/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { useBalance } from "wagmi";
+import { erc20Abi } from "viem";
+import { useReadContract } from "wagmi";
 
 import {
   SWAP_CAMPAIGN_CHAIN_ID,
@@ -52,15 +53,19 @@ function useSwapReferrer() {
 function SupportedTokensList() {
   const { address } = useWalletAccount();
   const { airdropChain } = useExpectedChains();
-  const usdcx = useBalance({
-    address,
-    token: SWAP_CAMPAIGN_TOKENS[0].superTokenAddress,
+  const usdcx = useReadContract({
+    abi: erc20Abi,
+    address: SWAP_CAMPAIGN_TOKENS[0].superTokenAddress,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
     chainId: airdropChain.id,
     query: { enabled: Boolean(address) },
   });
-  const usdsx = useBalance({
-    address,
-    token: SWAP_CAMPAIGN_TOKENS[1].superTokenAddress,
+  const usdsx = useReadContract({
+    abi: erc20Abi,
+    address: SWAP_CAMPAIGN_TOKENS[1].superTokenAddress,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
     chainId: airdropChain.id,
     query: { enabled: Boolean(address) },
   });
@@ -78,8 +83,8 @@ function SupportedTokensList() {
             <span className="w-16">{token.symbol}</span>
             {address && (
               <strong>
-                {balances[index]?.value
-                  ? formatTokenAmount(balances[index]!.value, 2)
+                {balances[index]
+                  ? formatTokenAmount(balances[index], 2)
                   : "0"}
               </strong>
             )}
@@ -140,10 +145,7 @@ export default function SwapPage() {
           }
         : {}),
       chains: {
-        from: {
-          ...(isInMiniApp ? { allow: [SWAP_CAMPAIGN_CHAIN_ID] } : {}),
-          deny: [1337, 988],
-        },
+        from: { allow: [SWAP_CAMPAIGN_CHAIN_ID] },
         to: { allow: [SWAP_CAMPAIGN_CHAIN_ID] },
       },
       tokens: {
@@ -182,7 +184,7 @@ export default function SwapPage() {
         "appearance",
         "toAddress",
         "reverseTokensButton",
-        ...(isInMiniApp ? ["chainSelect"] : []),
+        "chainSelect",
       ],
     };
   }, [isInMiniApp, open, referrerKey]);
