@@ -15,18 +15,37 @@ export interface PublicProgram {
 type ProgramLifecycle = Pick<PublicProgram, "stoppedDate" | "endDate"> &
   Partial<Pick<PublicProgram, "earlyEndDate" | "cancellationDate">>;
 
-function hasTimestamp(value: string | null | undefined): boolean {
-  return BigInt(value ?? "0") > 0n;
+function timestamp(value: string | null | undefined): bigint {
+  return BigInt(value ?? "0");
+}
+
+function hasOccurred(
+  value: string | null | undefined,
+  now: bigint,
+): boolean {
+  const at = timestamp(value);
+  return at > 0n && at <= now;
 }
 
 export function getProgramStatus(
   program: ProgramLifecycle,
   now = Math.floor(Date.now() / 1_000),
 ) {
-  if (hasTimestamp(program.cancellationDate) || hasTimestamp(program.stoppedDate))
+  const currentTime = BigInt(now);
+
+  if (
+    hasOccurred(program.cancellationDate, currentTime) ||
+    hasOccurred(program.stoppedDate, currentTime)
+  )
     return "Stopped" as const;
-  if (hasTimestamp(program.earlyEndDate)) return "Finished" as const;
-  if (BigInt(program.endDate || "0") > BigInt(now)) return "Active" as const;
+
+  if (hasOccurred(program.earlyEndDate, currentTime))
+    return "Finished" as const;
+
+  const scheduledEnd = timestamp(program.endDate);
+  if (scheduledEnd === 0n || scheduledEnd > currentTime)
+    return "Active" as const;
+
   return "Finished" as const;
 }
 
