@@ -7,7 +7,6 @@ import {
   useReadContract,
   useSimulateContract,
   useWaitForTransactionReceipt,
-  useWriteContract,
 } from "wagmi";
 
 import { BASE_CHAIN_ID } from "../config/chains";
@@ -17,6 +16,7 @@ import {
   reserveNameRegistrarAbi,
 } from "../contracts/app-contracts";
 import type { Address } from "../types/program-app";
+import { useSuperfluidWriteContract } from "./useSuperfluidWriteContract";
 import {
   getTransactionStatus,
   useLogTransactionErrors,
@@ -158,7 +158,7 @@ export function useReserveNameRegistration({
       ? [{ address: accountAddress, balance: parseEther("100") }]
       : undefined,
   });
-  const writeRegisterSubdomain = useWriteContract();
+  const writeRegisterSubdomain = useSuperfluidWriteContract();
   const waitForTransactionRegister = useWaitForTransactionReceipt({
     chainId: airdropChain.id,
     hash: writeRegisterSubdomain.data,
