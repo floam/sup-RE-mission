@@ -18,7 +18,40 @@ test('treats GraphQL timestamp "0" as unset', () => {
   );
 });
 
-test("classifies terminal lifecycle fields", () => {
+test("keeps open-ended and future-early-end programs active", () => {
+  assert.equal(
+    getProgramStatus(
+      { ...lifecycle, stoppedDate: "0", endDate: "0" },
+      100,
+    ),
+    "Active",
+  );
+  assert.equal(
+    getProgramStatus(
+      {
+        ...lifecycle,
+        stoppedDate: "0",
+        earlyEndDate: "150",
+        endDate: "200",
+      },
+      100,
+    ),
+    "Active",
+  );
+  assert.equal(
+    getProgramStatus(
+      {
+        ...lifecycle,
+        stoppedDate: "150",
+        endDate: "200",
+      },
+      100,
+    ),
+    "Active",
+  );
+});
+
+test("classifies terminal lifecycle fields only after they occur", () => {
   assert.equal(
     getProgramStatus(
       { ...lifecycle, stoppedDate: "90", endDate: "200" },
