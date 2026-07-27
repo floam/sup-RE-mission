@@ -82,6 +82,8 @@
 
 .scope :global(.event-row) {
   display: flex;
+  min-width: 0;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
   padding: 0.75rem 0;
@@ -90,6 +92,20 @@
 
 .scope :global(.event-row) > span {
   display: grid;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.scope :global(.event-row) > span > strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scope :global(.event-row) > strong {
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .scope :global(.event-row) small {
@@ -118,6 +134,11 @@
 
   .scope :global(.event-list) {
     grid-template-columns: 1fr;
+  }
+
+  .scope :global(.event-row) > span > strong {
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
 
   .scope :global(.text-button) {
