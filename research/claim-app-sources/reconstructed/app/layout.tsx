@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
+import "./recovered.css";
 import "./globals.css";
 
 import { NavConnectAndBalance } from "../components/layout/NavConnectAndBalance";
