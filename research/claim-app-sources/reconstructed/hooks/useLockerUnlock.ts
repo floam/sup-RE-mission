@@ -8,7 +8,6 @@ import {
   useReadContract,
   useSimulateContract,
   useWaitForTransactionReceipt,
-  useWriteContract,
 } from "wagmi";
 import { lockerAbi } from "@sfpro/sdk/abi/sup";
 
@@ -22,6 +21,7 @@ import {
 } from "../contracts/app-contracts";
 import type { Address } from "../types/program-app";
 import { recordRecentTransaction } from "./useRecentTransactions";
+import { useSuperfluidWriteContract } from "./useSuperfluidWriteContract";
 import {
   getTransactionStatus,
   useLogTransactionErrors,
@@ -56,8 +56,8 @@ export function useLockerUnlock({
   });
   const isOwner = Boolean(
     accountAddress &&
-    lockerOwner &&
-    accountAddress.toLowerCase() === lockerOwner.toLowerCase(),
+      lockerOwner &&
+      accountAddress.toLowerCase() === lockerOwner.toLowerCase(),
   );
   const unlockPeriodSeconds = useMemo(
     () =>
@@ -113,7 +113,7 @@ export function useLockerUnlock({
     },
     stateOverride,
   });
-  const write = useWriteContract();
+  const write = useSuperfluidWriteContract();
   const waitFor = useWaitForTransactionReceipt({
     chainId: airdropChain.id,
     hash: write.data,
