@@ -402,6 +402,8 @@ export function ClaimPanel() {
           },
         );
         const hash = await writeContractAsync({
+          account: state.account,
+          chain: base,
           address: state.lockerAddress,
           abi: batchClaimAbi,
           functionName: "claim",
