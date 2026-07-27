@@ -1,3 +1,7 @@
+.scope :global(.claim-workbench) {
+  overflow: clip;
+}
+
 .scope :global(.wallet-actions) {
   display: flex;
   gap: 0.75rem;
@@ -90,6 +94,14 @@
 
 .scope :global(.event-row) small {
   color: #78998c;
+}
+
+.scope :global(.submit-update) {
+  position: sticky;
+  z-index: 10;
+  bottom: 0;
+  background: rgba(8, 26, 20, 0.96);
+  backdrop-filter: blur(12px);
 }
 
 @media (max-width: 680px) {
