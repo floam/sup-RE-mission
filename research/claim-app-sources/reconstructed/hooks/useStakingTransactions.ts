@@ -8,12 +8,12 @@ import {
   useReadContract,
   useSimulateContract,
   useWaitForTransactionReceipt,
-  useWriteContract,
 } from "wagmi";
 import { lockerAbi } from "@sfpro/sdk/abi/sup";
 
 import { useExpectedChains } from "../contexts/ExpectedChainContext";
 import { useLockerBalance } from "./useLockerBalance";
+import { useSuperfluidWriteContract } from "./useSuperfluidWriteContract";
 import {
   getTransactionStatus,
   useLogTransactionErrors,
@@ -63,7 +63,7 @@ function useStakingWrite(input: {
       ? [{ address: input.accountAddress, balance: parseEther("100") }]
       : undefined,
   });
-  const write = useWriteContract();
+  const write = useSuperfluidWriteContract();
   const waitFor = useWaitForTransactionReceipt({
     chainId: airdropChain.id,
     hash: write.data,
