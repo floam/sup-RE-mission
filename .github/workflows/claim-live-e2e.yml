@@ -1,0 +1,47 @@
+name: Claim live CMS and subgraph E2E
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/claim-live-e2e.yml"
+      - "research/claim-app-sources/reconstructed/client/claim-program-plan.ts"
+      - "research/claim-app-sources/reconstructed/client/programs.ts"
+      - "research/claim-app-sources/reconstructed/e2e/**"
+      - "research/claim-app-sources/reconstructed/package.json"
+  schedule:
+    - cron: "17 10 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: claim-live-e2e-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  live-e2e:
+    name: Verify live CMS and SUP subgraph
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: research/claim-app-sources/reconstructed
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Run live end-to-end test
+        env:
+          E2E_ACCOUNT: 0xdBb811EC62338db94858Ec21ef1d56B658111922
+          E2E_CAMPAIGN_ID: "608"
+        run: npm run test:e2e

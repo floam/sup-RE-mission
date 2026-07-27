@@ -145,10 +145,7 @@ export default function SwapPage() {
           }
         : {}),
       chains: {
-        from: {
-          ...(isInMiniApp ? { allow: [SWAP_CAMPAIGN_CHAIN_ID] } : {}),
-          deny: [1337, 988],
-        },
+        from: { allow: [SWAP_CAMPAIGN_CHAIN_ID] },
         to: { allow: [SWAP_CAMPAIGN_CHAIN_ID] },
       },
       tokens: {
@@ -187,7 +184,7 @@ export default function SwapPage() {
         "appearance",
         "toAddress",
         "reverseTokensButton",
-        ...(isInMiniApp ? ["chainSelect"] : []),
+        "chainSelect",
       ],
     };
   }, [isInMiniApp, open, referrerKey]);

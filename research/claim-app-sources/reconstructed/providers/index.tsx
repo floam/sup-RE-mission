@@ -58,8 +58,8 @@ export function ContextProvider({
   cookies?: string | null;
   wagmiConfig: Config;
 }>) {
-  const bonusModalEnabled =
-    process.env.NEXT_PUBLIC_DISABLE_BONUS_MODAL !== "true";
+  const recoveredRewardsEnabled =
+    process.env.NEXT_PUBLIC_ENABLE_RECOVERED_REWARDS === "true";
   const initialState = cookieToInitialState(wagmiConfig, cookies ?? undefined);
   return (
     <QueryClientProvider client={getQueryClient()}>
@@ -78,8 +78,12 @@ export function ContextProvider({
                     <AnalyticsProvider />
                     <GoodDollarProvider />
                     <ReferralHandler />
-                    <DailyMysteryBoxProvider />
-                    {bonusModalEnabled && <BonusModalProvider />}
+                    {recoveredRewardsEnabled && (
+                      <>
+                        <DailyMysteryBoxProvider />
+                        <BonusModalProvider />
+                      </>
+                    )}
                   </LockerProvider>
                 </ExpectedChainProvider>
               </WalletSyncProvider>
