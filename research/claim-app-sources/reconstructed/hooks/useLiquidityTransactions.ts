@@ -2,7 +2,12 @@
 
 import { useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { encodeFunctionData, parseEther } from "viem";
+import {
+  encodeFunctionData,
+  parseEther,
+  type ContractFunctionArgs,
+  type ContractFunctionName,
+} from "viem";
 import {
   useEstimateGas,
   useReadContract,
@@ -20,35 +25,69 @@ import {
   useLogTransactionErrors,
 } from "./useTransactionStatus";
 
-type LockerWriteFunction =
-  | "provideLiquidity"
-  | "withdrawLiquidity"
-  | "collectFees";
-
-function useLockerWrite(input: {
+type WriteMutability = "payable" | "nonpayable";
+type LockerWriteFunction = ContractFunctionName<
+  typeof lockerAbi,
+  WriteMutability
+>;
+export type LockerWriteInput<
+  TFunctionName extends LockerWriteFunction,
+  TArgs extends ContractFunctionArgs<
+    typeof lockerAbi,
+    WriteMutability,
+    TFunctionName
+  >,
+> = {
   accountAddress?: Address;
   lockerAddress?: Address;
-  functionName: LockerWriteFunction;
-  args?: readonly unknown[];
-  value?: bigint;
+  functionName: TFunctionName;
+  args?: TArgs;
+  value?: TFunctionName extends Extract<
+    (typeof lockerAbi)[number],
+    { type: "function"; stateMutability: "payable" }
+  >["name"]
+    ? bigint
+    : never;
   enabled: boolean;
   recentTransactionType?: string;
-}) {
+};
+
+function useLockerWrite<
+  TFunctionName extends LockerWriteFunction,
+  const TArgs extends ContractFunctionArgs<
+    typeof lockerAbi,
+    WriteMutability,
+    TFunctionName
+  >,
+>(input: LockerWriteInput<TFunctionName, TArgs>) {
   const { airdropChain } = useExpectedChains();
   const queryClient = useQueryClient();
   const stateOverride = input.accountAddress
     ? [{ address: input.accountAddress, balance: parseEther("100") }]
     : undefined;
-  const simulate = useSimulateContract({
+  const simulationParameters = {
     abi: lockerAbi,
     address: input.lockerAddress,
     functionName: input.functionName,
     chainId: airdropChain.id,
-    args: input.args as never,
-    value: input.value,
+    args: input.args,
+    ...(input.functionName === "provideLiquidity"
+      ? { value: input.value }
+      : {}),
     query: { enabled: input.enabled },
     stateOverride,
-  });
+  } as unknown as Parameters<
+    typeof useSimulateContract<
+      typeof lockerAbi,
+      TFunctionName,
+      TArgs
+    >
+  >[0];
+  const simulate = useSimulateContract<
+    typeof lockerAbi,
+    TFunctionName,
+    TArgs
+  >(simulationParameters);
   const request = simulate.data?.request;
   const estimate = useEstimateGas({
     chainId: airdropChain.id,
@@ -57,9 +96,10 @@ function useLockerWrite(input: {
       ? encodeFunctionData({
           abi: lockerAbi,
           functionName: input.functionName,
-          args: input.args as never,
-        })
+          args: input.args,
+        } as Parameters<typeof encodeFunctionData>[0])
       : undefined,
+    value: input.functionName === "provideLiquidity" ? input.value : undefined,
     query: {
       select: (gas) => (120n * gas) / 100n,
       enabled: Boolean(request && input.enabled),
@@ -107,8 +147,11 @@ function useLockerWrite(input: {
       console.error("Error! No transaction simulation data available.");
       return;
     }
-    write.writeContract({ ...request, gas: estimate.data, value: input.value });
-  }, [estimate.data, input.value, request, simulate.error, write]);
+    write.writeContract({
+      ...request,
+      gas: estimate.data,
+    } as unknown as Parameters<typeof write.writeContract>[0]);
+  }, [estimate.data, request, simulate.error, write]);
   useLogTransactionErrors([simulate, estimate, write, waitFor]);
   return {
     simulate,

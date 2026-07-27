@@ -10,6 +10,16 @@ The official skill lives in `superfluid-org/skills` under `skills/superfluid/`. 
 
 ## Embedded external interface fragments
 
+The Wagmi 3 migration types in
+`research/claim-app-sources/reconstructed/hooks/useLiquidityTransactions.ts`
+and their compile-time regression test adapt the ABI-derived
+`ContractFunctionName` / `ContractFunctionArgs`, payable-value gating, and
+explicit Wagmi handoff-cast approach from
+`superfluid-org/superfluid-dashboard` commit
+`ee1af4ff25fba76d5ecfebe7cf0a1e3244f40bbd`. The local implementation is
+limited to the reconstructed claim app's three liquidity calls and retains its
+existing hook lifecycle; no Dashboard source file is vendored.
+
 `tools/sup-nonces/investigate-sup-nonces.js` contains minimal ABI fragments for:
 
 - `FluidLockerFactory.getUserLocker`
