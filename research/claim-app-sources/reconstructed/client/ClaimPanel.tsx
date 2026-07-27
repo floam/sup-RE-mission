@@ -1,7 +1,6 @@
 "use client";
 
 import { useAppKit } from "@reown/appkit/react";
-import { writeContract } from "@wagmi/core";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   createPublicClient,
@@ -12,7 +11,7 @@ import {
   type Address,
 } from "viem";
 import { base } from "viem/chains";
-import { useConfig, useSwitchChain } from "wagmi";
+import { useSwitchChain, useWriteContract } from "wagmi";
 
 import { ALCHEMY_RPC_URLS } from "../config/rpc";
 import { FLUID_LOCKER_FACTORY_ADDRESS } from "../contracts/app-contracts";
@@ -320,7 +319,6 @@ export function ClaimPanel() {
   const checkRequest = useRef(0);
   const eventRequest = useRef(0);
   const { open } = useAppKit();
-  const config = useConfig();
   const {
     address: connectedAddress,
     chainId,
@@ -329,6 +327,7 @@ export function ClaimPanel() {
     isReconnecting,
   } = useWalletAccount();
   const { switchChainAsync } = useSwitchChain();
+  const { writeContractAsync } = useWriteContract();
 
   useEffect(() => {
     if (connectedAddress && !account) setAccount(getAddress(connectedAddress));
@@ -402,9 +401,9 @@ export function ClaimPanel() {
             campaignIds: selection.map((row) => Number(row.programId)),
           },
         );
-        const writeRequest = {
-          chainId: base.id,
+        const hash = await writeContractAsync({
           account: state.account,
+          chain: base,
           address: state.lockerAddress,
           abi: batchClaimAbi,
           functionName: "claim",
@@ -414,8 +413,8 @@ export function ClaimPanel() {
             BigInt(signed.signatureTimestamp),
             signed.signature,
           ],
-        } as Parameters<typeof writeContract>[1];
-        const hash = await writeContract(config, writeRequest);
+          chainId: base.id,
+        });
         setMessage(
           `Transaction ${index + 1} of ${selections.length} submitted: ${hash}`,
         );
