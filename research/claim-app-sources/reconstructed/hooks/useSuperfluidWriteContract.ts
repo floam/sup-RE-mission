@@ -71,10 +71,27 @@ export type SuperfluidWriteArgsBuilder = () =>
   | SuperfluidWriteArgs
   | Promise<SuperfluidWriteArgs>;
 
-type CoreWriteRequest = Parameters<typeof coreWriteContract>[1];
-type CompatibleWriteRequest = CoreWriteRequest & {
+/**
+ * Transitional shape accepted only by the Wagmi-hook compatibility aliases.
+ * The real `write` API below remains ABI-generic and payable-aware; old simulation
+ * requests are intentionally widened here because Wagmi fixes their unresolved
+ * function generic before the shared executor can infer it again.
+ */
+type CompatibleWriteRequest = {
+  chainId?: number;
+  chain?: { id?: number };
+  account?: Address | { address: Address };
+  abi: Abi;
+  address: Address;
+  functionName: string;
+  args?: readonly unknown[];
+  value?: bigint;
+  gas?: bigint;
+  maxFeePerGas?: bigint;
+  maxPriorityFeePerGas?: bigint;
   clearMacro?: ClearMacroAction;
   clearMacroRequired?: boolean;
+  [key: string]: unknown;
 };
 
 interface WriteOutcome {
@@ -88,23 +105,18 @@ function normalizeRequest(
   request: CompatibleWriteRequest,
   connectedAddress?: Address,
 ): SuperfluidWriteArgs {
-  const source = request as CompatibleWriteRequest & {
-    chain?: { id?: number };
-    account?: Address | { address: Address };
-    args?: readonly unknown[];
-  };
   const account =
-    typeof source.account === "string"
-      ? source.account
-      : source.account?.address ?? connectedAddress;
-  const chainId = source.chainId ?? source.chain?.id;
+    typeof request.account === "string"
+      ? request.account
+      : request.account?.address ?? connectedAddress;
+  const chainId = request.chainId ?? request.chain?.id;
   if (!chainId) throw new Error("The transaction request has no chain ID.");
   if (!account) throw new Error("No connected account.");
   return {
     ...(request as unknown as SuperfluidWriteArgs),
     chainId,
     account,
-    args: (source.args ?? []) as never,
+    args: (request.args ?? []) as never,
   };
 }
 
