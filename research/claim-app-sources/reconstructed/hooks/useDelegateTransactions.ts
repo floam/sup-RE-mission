@@ -7,7 +7,6 @@ import {
   useEstimateGas,
   useSimulateContract,
   useWaitForTransactionReceipt,
-  useWriteContract,
 } from "wagmi";
 
 import { SNAPSHOT_SPACE_BY_CHAIN } from "../config/governance";
@@ -17,6 +16,7 @@ import {
   delegateManagerAbi,
 } from "../contracts/app-contracts";
 import type { Address } from "../types/program-app";
+import { useSuperfluidWriteContract } from "./useSuperfluidWriteContract";
 import {
   getTransactionStatus,
   useLogTransactionErrors,
@@ -62,7 +62,7 @@ function useDelegateWrite(input: {
       : undefined,
     query: { enabled: Boolean(request && input.enabled) },
   });
-  const write = useWriteContract();
+  const write = useSuperfluidWriteContract();
   const waitFor = useWaitForTransactionReceipt({
     chainId: governanceChain.id,
     hash: write.data,
