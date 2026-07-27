@@ -17,12 +17,18 @@ import { ALCHEMY_RPC_URLS } from "../config/rpc";
 import { FLUID_LOCKER_FACTORY_ADDRESS } from "../contracts/app-contracts";
 import { PROGRAM_APP_DEFINITIONS } from "../data/program-app-definitions";
 import { useWalletAccount } from "../hooks/useWalletAccount";
+import {
+  buildClaimProgramPlan,
+  chunkItems,
+  CMS_BATCH_SIZE,
+  fetchCmsBatches,
+  getClaimResultKind,
+} from "./claim-program-plan";
 import { isClaimablePointState } from "./claim-state";
-import { getProgramStatus, getPublicPrograms } from "./programs";
+import { getPublicPrograms } from "./programs";
 
 const CMS_BASE = "https://cms.superfluid.pro";
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
-const CMS_BATCH_SIZE = 50;
 const publicClient = createPublicClient({
   chain: base,
   transport: http(ALCHEMY_RPC_URLS[8453]),
@@ -50,6 +56,7 @@ interface State {
   lockerAddress: Address;
   lockerCreated: boolean;
   canClaim: boolean;
+  cmsCampaignCount: number;
   programPointStates: PointState[];
 }
 
@@ -89,17 +96,15 @@ async function postJson<T>(url: string, body: unknown): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-function chunks<T>(items: readonly T[], size: number): T[][] {
-  return Array.from({ length: Math.ceil(items.length / size) }, (_, index) =>
-    items.slice(index * size, (index + 1) * size),
-  );
-}
-
 async function buildPointState(account: Address): Promise<State> {
-  const programs = (await getPublicPrograms()).filter(
-    (program) => getProgramStatus(program) === "Active",
-  );
-  const programIds = programs.map((program) => Number(program.id));
+  const plan = buildClaimProgramPlan(await getPublicPrograms());
+  if (plan.cmsCampaignIds.length === 0) {
+    throw new Error(
+      "The SUP subgraph returned no programs, so campaign allocations could not be verified.",
+    );
+  }
+
+  const programs = plan.comparablePrograms;
   const [lockerCreated, lockerAddress] = await publicClient.readContract({
     authorizationList: undefined,
     address: FLUID_LOCKER_FACTORY_ADDRESS[8453],
@@ -108,17 +113,22 @@ async function buildPointState(account: Address): Promise<State> {
     args: [account],
   });
 
-  const balances = await Promise.all(
-    chunks(programIds, CMS_BATCH_SIZE).map((campaignIds) =>
+  const balances = await fetchCmsBatches(
+    plan.cmsBatches,
+    async (campaignIds) =>
       postJson<CmsBalanceResponse>(`${CMS_BASE}/points/balance-batch`, {
         account,
         campaignIds,
       }),
-    ),
   );
   const cappedByProgram = new Map<number, bigint>();
   const cmsMissingPrograms = new Set<number>();
-  for (const balance of balances) {
+  for (const [batchIndex, balance] of balances.entries()) {
+    const returnedIds = new Set(balance.campaignIds);
+    for (const requestedId of plan.cmsBatches[batchIndex] ?? []) {
+      if (!returnedIds.has(requestedId)) cmsMissingPrograms.add(requestedId);
+    }
+
     const targets = balance.cappedPoints ?? balance.points;
     balance.campaignIds.forEach((id, index) =>
       cappedByProgram.set(id, BigInt(targets[index] ?? 0)),
@@ -131,7 +141,7 @@ async function buildPointState(account: Address): Promise<State> {
   }
 
   const onchainByProgram = new Map<number, bigint>();
-  if (lockerAddress !== ZERO_ADDRESS) {
+  if (lockerAddress !== ZERO_ADDRESS && programs.length > 0) {
     const unitReads = await publicClient.multicall({
       authorizationList: undefined,
       allowFailure: true,
@@ -176,6 +186,7 @@ async function buildPointState(account: Address): Promise<State> {
       lockerCreated &&
       lockerAddress !== ZERO_ADDRESS &&
       programPointStates.some(isClaimablePointState),
+    cmsCampaignCount: plan.cmsCampaignIds.length,
     programPointStates,
   };
 }
@@ -383,7 +394,7 @@ export function ClaimPanel() {
       return;
 
     const selected = state.programPointStates.filter(isClaimablePointState);
-    const selections = chunks(selected, CMS_BATCH_SIZE);
+    const selections = chunkItems(selected, CMS_BATCH_SIZE);
     const request = ++checkRequest.current;
     setIsSubmitting(true);
     clearEvents();
@@ -501,6 +512,14 @@ export function ClaimPanel() {
     : "";
   const transactionCount = Math.ceil(changedRows.length / CMS_BATCH_SIZE);
   const walletBusy = isConnecting || isReconnecting;
+  const resultKind = stateMatchesAccount
+    ? getClaimResultKind({
+        lockerReady:
+          state.lockerCreated && state.lockerAddress !== ZERO_ADDRESS,
+        comparableProgramCount: state.programPointStates.length,
+        changedProgramCount: changedRows.length,
+      })
+    : undefined;
 
   return (
     <section className="claim-workbench">
@@ -561,14 +580,25 @@ export function ClaimPanel() {
 
       {stateMatchesAccount && state && (
         <div className="results" aria-live="polite">
-          {!state.lockerCreated || state.lockerAddress === ZERO_ADDRESS ? (
+          {resultKind === "locker-required" ? (
             <div className="result-callout">
               <span className="eyebrow">Action needed</span>
               <h3>
                 Create a locker before synchronizing campaign allocations.
               </h3>
             </div>
-          ) : changedRows.length > 0 ? (
+          ) : resultKind === "no-active-programs" ? (
+            <div className="result-callout">
+              <span className="eyebrow">No active campaigns</span>
+              <h3>There are no active campaign allocations to compare.</h3>
+              <p>
+                The CMS was checked for {state.cmsCampaignCount} campaign
+                {state.cmsCampaignCount === 1 ? "" : "s"}, but the SUP subgraph
+                currently reports no active programs. This is not reported as a
+                synchronized allocation state.
+              </p>
+            </div>
+          ) : resultKind === "updates-found" ? (
             <div className="result-callout success">
               <span className="eyebrow">Updates found</span>
               <h3>
@@ -578,14 +608,27 @@ export function ClaimPanel() {
               </h3>
               <p>
                 Updating will {totalDelta >= 0n ? "increase" : "adjust"} your
-                allocation{campaignScope} by <strong>{totalDelta > 0n ? "+" : ""}{formatUnits(totalDelta)} units</strong>. This requires {transactionCount === 1 ? "one transaction" : `${transactionCount} transactions`} and does not move your funds.
+                allocation{campaignScope} by{" "}
+                <strong>
+                  {totalDelta > 0n ? "+" : ""}
+                  {formatUnits(totalDelta)} units
+                </strong>
+                . This requires{" "}
+                {transactionCount === 1
+                  ? "one transaction"
+                  : `${transactionCount} transactions`} and does not move your
+                funds.
               </p>
             </div>
           ) : (
             <div className="result-callout success">
               <span className="eyebrow">All synchronized</span>
               <h3>Your campaign allocations are up to date.</h3>
-              <p>No transaction is needed.</p>
+              <p>
+                The CMS and {state.programPointStates.length} active campaign
+                {state.programPointStates.length === 1 ? "" : "s"} were checked.
+                No transaction is needed.
+              </p>
             </div>
           )}
 
@@ -667,9 +710,7 @@ export function ClaimPanel() {
                     <div className="event-row" key={event.id}>
                       <span>
                         <strong>{event.eventName}</strong>
-                        <small>
-                          {new Date(event.createdAt).toLocaleString()}
-                        </small>
+                        <small>{new Date(event.createdAt).toLocaleString()}</small>
                       </span>
                       <strong
                         className={event.points < 0 ? "negative" : "positive"}
