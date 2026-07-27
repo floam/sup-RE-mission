@@ -8,7 +8,6 @@ import {
   useEstimateGas,
   useSimulateContract,
   useWaitForTransactionReceipt,
-  useWriteContract,
 } from "wagmi";
 import { lockerAbi } from "@sfpro/sdk/abi/sup";
 
@@ -21,6 +20,7 @@ import type {
   ProgramPointState,
 } from "../types/transactions";
 import { useProgramApps } from "./useProgramApps";
+import { useSuperfluidWriteContract } from "./useSuperfluidWriteContract";
 import {
   getTransactionStatus,
   useLogTransactionErrors,
@@ -210,7 +210,7 @@ export function useClaimTransaction({
 }) {
   const queryClient = useQueryClient();
   const { airdropChain } = useExpectedChains();
-  const writeLockerClaim = useWriteContract();
+  const writeLockerClaim = useSuperfluidWriteContract();
   const waitForTransactionClaim = useWaitForTransactionReceipt({
     chainId: airdropChain.id,
     hash: writeLockerClaim.data,
