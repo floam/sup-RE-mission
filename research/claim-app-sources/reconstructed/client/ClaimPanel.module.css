@@ -1,0 +1,114 @@
+.walletActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.walletActions > button {
+  flex: 1;
+}
+
+.secondaryAction {
+  min-height: 52px;
+  border-color: #466c5e;
+  background: transparent;
+  color: #c7ddd4;
+}
+
+.unavailablePill {
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  background: #492723;
+  color: #ffb4ad;
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.negative {
+  color: #ffb36c;
+}
+
+.campaignActions {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.campaignActions details {
+  margin: 0;
+}
+
+.textButton {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #76ffb5;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.textButton:disabled {
+  color: #78998c;
+}
+
+.eventDrawer {
+  padding: 1.5rem 1.75rem;
+  background: #0b1b16;
+}
+
+.eventHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.eventHeading h3 {
+  margin: 0.35rem 0 0;
+}
+
+.eventList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 1.5rem;
+  margin-top: 0.75rem;
+}
+
+.eventRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-top: 1px solid #203e34;
+}
+
+.eventRow > span {
+  display: grid;
+}
+
+.eventRow small {
+  color: #78998c;
+}
+
+@media (max-width: 680px) {
+  .walletActions,
+  .campaignActions,
+  .eventHeading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .eventDrawer {
+    padding: 1.25rem;
+  }
+
+  .eventList {
+    grid-template-columns: 1fr;
+  }
+
+  .textButton {
+    align-self: flex-start;
+  }
+}
