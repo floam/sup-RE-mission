@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test client/*.test.ts"
+    "test": "node --experimental-strip-types --test client/*.test.ts",
+    "test:e2e": "node --experimental-strip-types --test e2e/*.test.ts"
   },
   "dependencies": {
     "@base-org/account": "2.5.7",
