@@ -6,7 +6,6 @@ import {
   useEstimateGas,
   useSimulateContract,
   useWaitForTransactionReceipt,
-  useWriteContract,
 } from "wagmi";
 
 import { useExpectedChains } from "../contexts/ExpectedChainContext";
@@ -18,6 +17,7 @@ import type {
   MysteryBoxResult,
   PendingMysteryBoxClaim,
 } from "../types/campaign-rewards";
+import { useSuperfluidWriteContract } from "./useSuperfluidWriteContract";
 import {
   getTransactionStatus,
   useLogTransactionErrors,
@@ -122,7 +122,7 @@ export function useMysteryBoxOpen(accountAddress?: Address) {
     value: MYSTERY_BOX_CLAIM_COST,
     query: { enabled: Boolean(request && enabled) },
   });
-  const write = useWriteContract();
+  const write = useSuperfluidWriteContract();
   const waitFor = useWaitForTransactionReceipt({
     chainId: airdropChain.id,
     hash: write.data,
