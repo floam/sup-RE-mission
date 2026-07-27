@@ -142,7 +142,7 @@ export async function executeClearMacro(
       address: forwarderAddress,
       functionName: "getNonce",
       args: [signerAddress, 0n],
-    } as Parameters<typeof readContract>[1])) as bigint;
+    } as unknown as Parameters<typeof readContract>[1])) as bigint;
 
     actionParams = (await readContract(config, {
       chainId,
@@ -150,7 +150,7 @@ export async function executeClearMacro(
       address: macroAddress,
       functionName: callInfo.encodeFunctionName,
       args: [CLEAR_MACRO_LANG, callInfo.tuple],
-    } as Parameters<typeof readContract>[1])) as Hex;
+    } as unknown as Parameters<typeof readContract>[1])) as Hex;
 
     security = {
       domain: capabilities.providerName,
@@ -167,7 +167,7 @@ export async function executeClearMacro(
       address: forwarderAddress,
       functionName: "encodeParams",
       args: [actionParams, security],
-    } as Parameters<typeof readContract>[1])) as Hex;
+    } as unknown as Parameters<typeof readContract>[1])) as Hex;
 
     const [typeDefinition, primaryType, description, eip712Domain] =
       await Promise.all([
@@ -177,27 +177,27 @@ export async function executeClearMacro(
           address: forwarderAddress,
           functionName: "getTypeDefinition",
           args: [macroAddress, encodedPayload],
-        } as Parameters<typeof readContract>[1]) as Promise<string>,
+        } as unknown as Parameters<typeof readContract>[1]) as Promise<string>,
         readContract(config, {
           chainId,
           abi: dashboardClearMacroAbi,
           address: macroAddress,
           functionName: "getPrimaryTypeName",
           args: [encodedPayload],
-        } as Parameters<typeof readContract>[1]) as Promise<string>,
+        } as unknown as Parameters<typeof readContract>[1]) as Promise<string>,
         readContract(config, {
           chainId,
           abi: dashboardClearMacroAbi,
           address: macroAddress,
           functionName: callInfo.describeFunctionName,
           args: [CLEAR_MACRO_LANG, callInfo.tuple],
-        } as Parameters<typeof readContract>[1]) as Promise<string>,
+        } as unknown as Parameters<typeof readContract>[1]) as Promise<string>,
         readContract(config, {
           chainId,
           abi: clearMacroForwarderAbi,
           address: forwarderAddress,
           functionName: "eip712Domain",
-        } as Parameters<typeof readContract>[1]) as Promise<
+        } as unknown as Parameters<typeof readContract>[1]) as Promise<
           readonly [Hex, string, string, bigint, Address, Hex, readonly bigint[]]
         >,
       ]);
@@ -255,7 +255,7 @@ export async function executeClearMacro(
       address: forwarderAddress,
       functionName: "getDigest",
       args: [macroAddress, encodedPayload],
-    } as Parameters<typeof readContract>[1])) as Hex;
+    } as unknown as Parameters<typeof readContract>[1])) as Hex;
     const digestLocal = hashTypedData(
       typedData as Parameters<typeof hashTypedData>[0],
     );
@@ -282,7 +282,7 @@ export async function executeClearMacro(
       address: macroAddress,
       functionName: "previewRelayFee",
       args: [actionParams, signerAddress],
-    } as Parameters<typeof readContract>[1])) as readonly [
+    } as unknown as Parameters<typeof readContract>[1])) as readonly [
       Address,
       Address,
       bigint,
@@ -308,7 +308,7 @@ export async function executeClearMacro(
       address: feeToken,
       functionName: "realtimeBalanceOfNow",
       args: [signerAddress],
-    } as Parameters<typeof readContract>[1])) as readonly [
+    } as unknown as Parameters<typeof readContract>[1])) as readonly [
       bigint,
       bigint,
       bigint,
