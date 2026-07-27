@@ -1,20 +1,20 @@
-:global(.wallet-actions) {
+.scope :global(.wallet-actions) {
   display: flex;
   gap: 0.75rem;
 }
 
-:global(.wallet-actions) > button {
+.scope :global(.wallet-actions) > button {
   flex: 1;
 }
 
-:global(.secondary-action) {
+.scope :global(.secondary-action) {
   min-height: 52px;
   border-color: #466c5e;
   background: transparent;
   color: #c7ddd4;
 }
 
-:global(.unavailable-pill) {
+.scope :global(.unavailable-pill) {
   border-radius: 999px;
   padding: 0.35rem 0.65rem;
   background: #492723;
@@ -24,11 +24,11 @@
   white-space: nowrap;
 }
 
-:global(.negative) {
+.scope :global(.negative) {
   color: #ffb36c;
 }
 
-:global(.campaign-actions) {
+.scope :global(.campaign-actions) {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -36,11 +36,11 @@
   margin-top: 1rem;
 }
 
-:global(.campaign-actions) details {
+.scope :global(.campaign-actions) details {
   margin: 0;
 }
 
-:global(.text-button) {
+.scope :global(.text-button) {
   padding: 0;
   border: 0;
   background: transparent;
@@ -49,34 +49,34 @@
   white-space: nowrap;
 }
 
-:global(.text-button):disabled {
+.scope :global(.text-button):disabled {
   color: #78998c;
 }
 
-:global(.event-drawer) {
+.scope :global(.event-drawer) {
   padding: 1.5rem 1.75rem;
   background: #0b1b16;
 }
 
-:global(.event-heading) {
+.scope :global(.event-heading) {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
 }
 
-:global(.event-heading) h3 {
+.scope :global(.event-heading) h3 {
   margin: 0.35rem 0 0;
 }
 
-:global(.event-list) {
+.scope :global(.event-list) {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0 1.5rem;
   margin-top: 0.75rem;
 }
 
-:global(.event-row) {
+.scope :global(.event-row) {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
@@ -84,31 +84,31 @@
   border-top: 1px solid #203e34;
 }
 
-:global(.event-row) > span {
+.scope :global(.event-row) > span {
   display: grid;
 }
 
-:global(.event-row) small {
+.scope :global(.event-row) small {
   color: #78998c;
 }
 
 @media (max-width: 680px) {
-  :global(.wallet-actions),
-  :global(.campaign-actions),
-  :global(.event-heading) {
+  .scope :global(.wallet-actions),
+  .scope :global(.campaign-actions),
+  .scope :global(.event-heading) {
     align-items: stretch;
     flex-direction: column;
   }
 
-  :global(.event-drawer) {
+  .scope :global(.event-drawer) {
     padding: 1.25rem;
   }
 
-  :global(.event-list) {
+  .scope :global(.event-list) {
     grid-template-columns: 1fr;
   }
 
-  :global(.text-button) {
+  .scope :global(.text-button) {
     align-self: flex-start;
   }
 }
