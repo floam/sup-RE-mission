@@ -21,8 +21,8 @@
     "@tanstack/react-query": "5.101.4",
     "@uniswap/sdk-core": "7.19.0",
     "@uniswap/v3-sdk": "3.31.1",
-    "@wagmi/connectors": "6.2.0",
-    "@wagmi/core": "2.22.1",
+    "@wagmi/connectors": "8.0.25",
+    "@wagmi/core": "3.6.4",
     "@x402/core": "2.19.0",
     "@x402/evm": "2.19.0",
     "@x402/svm": "2.19.0",
@@ -36,8 +36,8 @@
     "react-dom": "19.2.4",
     "react-jazzicon": "1.0.4",
     "superjson": "2.2.2",
-    "viem": "2.52.2",
-    "wagmi": "2.19.5"
+    "viem": "2.55.8",
+    "wagmi": "3.7.4"
   },
   "devDependencies": {
     "@types/canvas-confetti": "1.9.0",
@@ -45,7 +45,7 @@
     "@types/node": "24.1.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "typescript": "5.8.3"
+    "typescript": "5.9.3"
   },
   "overrides": {
     "postcss": "8.5.23",

@@ -2,7 +2,11 @@
 
 import { useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { encodeFunctionData, parseEther } from "viem";
+import {
+  encodeFunctionData,
+  parseEther,
+  type ContractFunctionArgs,
+} from "viem";
 import {
   useEstimateGas,
   useReadContract,
@@ -24,6 +28,11 @@ type LockerWriteFunction =
   | "provideLiquidity"
   | "withdrawLiquidity"
   | "collectFees";
+type LockerWriteArgs = ContractFunctionArgs<
+  typeof lockerAbi,
+  "payable" | "nonpayable",
+  LockerWriteFunction
+>;
 
 function useLockerWrite(input: {
   accountAddress?: Address;
@@ -39,16 +48,29 @@ function useLockerWrite(input: {
   const stateOverride = input.accountAddress
     ? [{ address: input.accountAddress, balance: parseEther("100") }]
     : undefined;
-  const simulate = useSimulateContract({
+  const simulationParameters = {
     abi: lockerAbi,
     address: input.lockerAddress,
     functionName: input.functionName,
     chainId: airdropChain.id,
     args: input.args as never,
-    value: input.value,
+    ...(input.functionName === "provideLiquidity"
+      ? { value: input.value }
+      : {}),
     query: { enabled: input.enabled },
     stateOverride,
-  });
+  } as Parameters<
+    typeof useSimulateContract<
+      typeof lockerAbi,
+      LockerWriteFunction,
+      LockerWriteArgs
+    >
+  >[0];
+  const simulate = useSimulateContract<
+    typeof lockerAbi,
+    LockerWriteFunction,
+    LockerWriteArgs
+  >(simulationParameters);
   const request = simulate.data?.request;
   const estimate = useEstimateGas({
     chainId: airdropChain.id,
@@ -107,8 +129,8 @@ function useLockerWrite(input: {
       console.error("Error! No transaction simulation data available.");
       return;
     }
-    write.writeContract({ ...request, gas: estimate.data, value: input.value });
-  }, [estimate.data, input.value, request, simulate.error, write]);
+    write.writeContract({ ...request, gas: estimate.data });
+  }, [estimate.data, request, simulate.error, write]);
   useLogTransactionErrors([simulate, estimate, write, waitFor]);
   return {
     simulate,
