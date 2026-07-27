@@ -60,6 +60,13 @@ test("keeps active programs comparable while still querying finished programs", 
   );
 });
 
+test("deduplicates campaign IDs before constructing CMS batches", () => {
+  const plan = buildClaimProgramPlan([program(1), program(1), program(2)], 1500);
+
+  assert.deepEqual(plan.cmsCampaignIds, [1, 2]);
+  assert.deepEqual(plan.cmsBatches, [[1, 2]]);
+});
+
 test("propagates a CMS batch failure instead of producing a success state", async () => {
   await assert.rejects(
     fetchCmsBatches([[1, 2]], async () => {
@@ -88,5 +95,16 @@ test("labels a verified unchanged comparison set as synchronized", () => {
       changedProgramCount: 0,
     }),
     "synchronized",
+  );
+});
+
+test("prioritizes a missing locker over campaign result labels", () => {
+  assert.equal(
+    getClaimResultKind({
+      lockerReady: false,
+      comparableProgramCount: 3,
+      changedProgramCount: 2,
+    }),
+    "locker-required",
   );
 });
