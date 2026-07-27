@@ -25,6 +25,7 @@ import {
   getClaimResultKind,
 } from "./claim-program-plan";
 import { isClaimablePointState } from "./claim-state";
+import { GroupedEventList } from "./GroupedEventList";
 import { getPublicPrograms } from "./programs";
 
 const CMS_BASE = "https://cms.superfluid.pro";
@@ -463,7 +464,7 @@ export function ClaimPanel() {
       const params = new URLSearchParams({
         campaignId: String(selection.programId),
         account: selection.account,
-        limit: "8",
+        limit: "100",
         page: "1",
       });
       const response = await fetch(`${CMS_BASE}/points/events?${params}`);
@@ -704,24 +705,7 @@ export function ClaimPanel() {
                 </button>
               </div>
               {eventsMessage && <p className="muted">{eventsMessage}</p>}
-              {events.length > 0 && (
-                <div className="event-list">
-                  {events.map((event) => (
-                    <div className="event-row" key={event.id}>
-                      <span>
-                        <strong>{event.eventName}</strong>
-                        <small>{new Date(event.createdAt).toLocaleString()}</small>
-                      </span>
-                      <strong
-                        className={event.points < 0 ? "negative" : "positive"}
-                      >
-                        {event.points >= 0 ? "+" : ""}
-                        {event.points}
-                      </strong>
-                    </div>
-                  ))}
-                </div>
-              )}
+              {events.length > 0 && <GroupedEventList events={events} />}
             </section>
           )}
 
