@@ -6,6 +6,7 @@ import {
   encodeFunctionData,
   parseEther,
   type ContractFunctionArgs,
+  type ContractFunctionName,
 } from "viem";
 import {
   useEstimateGas,
@@ -24,25 +25,41 @@ import {
   useLogTransactionErrors,
 } from "./useTransactionStatus";
 
-type LockerWriteFunction =
-  | "provideLiquidity"
-  | "withdrawLiquidity"
-  | "collectFees";
-type LockerWriteArgs = ContractFunctionArgs<
+type WriteMutability = "payable" | "nonpayable";
+type LockerWriteFunction = ContractFunctionName<
   typeof lockerAbi,
-  "payable" | "nonpayable",
-  LockerWriteFunction
+  WriteMutability
 >;
-
-function useLockerWrite(input: {
+export type LockerWriteInput<
+  TFunctionName extends LockerWriteFunction,
+  TArgs extends ContractFunctionArgs<
+    typeof lockerAbi,
+    WriteMutability,
+    TFunctionName
+  >,
+> = {
   accountAddress?: Address;
   lockerAddress?: Address;
-  functionName: LockerWriteFunction;
-  args?: readonly unknown[];
-  value?: bigint;
+  functionName: TFunctionName;
+  args?: TArgs;
+  value?: TFunctionName extends Extract<
+    (typeof lockerAbi)[number],
+    { type: "function"; stateMutability: "payable" }
+  >["name"]
+    ? bigint
+    : never;
   enabled: boolean;
   recentTransactionType?: string;
-}) {
+};
+
+function useLockerWrite<
+  TFunctionName extends LockerWriteFunction,
+  const TArgs extends ContractFunctionArgs<
+    typeof lockerAbi,
+    WriteMutability,
+    TFunctionName
+  >,
+>(input: LockerWriteInput<TFunctionName, TArgs>) {
   const { airdropChain } = useExpectedChains();
   const queryClient = useQueryClient();
   const stateOverride = input.accountAddress
@@ -53,23 +70,23 @@ function useLockerWrite(input: {
     address: input.lockerAddress,
     functionName: input.functionName,
     chainId: airdropChain.id,
-    args: input.args as never,
+    args: input.args,
     ...(input.functionName === "provideLiquidity"
       ? { value: input.value }
       : {}),
     query: { enabled: input.enabled },
     stateOverride,
-  } as Parameters<
+  } as unknown as Parameters<
     typeof useSimulateContract<
       typeof lockerAbi,
-      LockerWriteFunction,
-      LockerWriteArgs
+      TFunctionName,
+      TArgs
     >
   >[0];
   const simulate = useSimulateContract<
     typeof lockerAbi,
-    LockerWriteFunction,
-    LockerWriteArgs
+    TFunctionName,
+    TArgs
   >(simulationParameters);
   const request = simulate.data?.request;
   const estimate = useEstimateGas({
@@ -79,9 +96,10 @@ function useLockerWrite(input: {
       ? encodeFunctionData({
           abi: lockerAbi,
           functionName: input.functionName,
-          args: input.args as never,
-        })
+          args: input.args,
+        } as Parameters<typeof encodeFunctionData>[0])
       : undefined,
+    value: input.functionName === "provideLiquidity" ? input.value : undefined,
     query: {
       select: (gas) => (120n * gas) / 100n,
       enabled: Boolean(request && input.enabled),
@@ -129,7 +147,10 @@ function useLockerWrite(input: {
       console.error("Error! No transaction simulation data available.");
       return;
     }
-    write.writeContract({ ...request, gas: estimate.data });
+    write.writeContract({
+      ...request,
+      gas: estimate.data,
+    } as unknown as Parameters<typeof write.writeContract>[0]);
   }, [estimate.data, request, simulate.error, write]);
   useLogTransactionErrors([simulate, estimate, write, waitFor]);
   return {
