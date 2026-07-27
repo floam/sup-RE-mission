@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import "./globals.css";
+
+import { NavConnectAndBalance } from "../components/layout/NavConnectAndBalance";
 import { RootProviders } from "../providers/RootProviders";
 
 export const metadata: Metadata = {
@@ -23,6 +25,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <div className="links">
                   <Link href="/claim">Claim</Link>
                   <Link href="/apps">Campaigns</Link>
+                  <NavConnectAndBalance />
                 </div>
               </nav>
               {children}
