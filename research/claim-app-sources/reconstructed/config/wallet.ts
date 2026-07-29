@@ -1,37 +1,35 @@
 "use client";
 
-import { createAppKit } from "@reown/appkit/react";
-import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
-import { base, baseSepolia } from "@reown/appkit/networks";
-
 import {
-  APP_KIT_FEATURES,
-  APP_KIT_THEME,
-  APP_METADATA,
-  CUSTOM_RPC_URLS,
-  REOWN_PROJECT_ID,
-} from "./app-kit";
+  coinbaseWallet,
+  injected,
+  safe,
+  walletConnect,
+} from "wagmi/connectors";
+import { createConfig, http } from "wagmi";
 
-const networks = [base, baseSepolia] as [typeof base, typeof baseSepolia];
-const customRpcUrls = {
-  [`eip155:${base.id}`]: [...CUSTOM_RPC_URLS[`eip155:${base.id}`]],
-  [`eip155:${baseSepolia.id}`]: [
-    ...CUSTOM_RPC_URLS[`eip155:${baseSepolia.id}`],
+import { APP_CHAIN } from "./chains";
+import { ALCHEMY_RPC_URLS } from "./rpc";
+
+const WALLETCONNECT_PROJECT_ID = "8fcff23b035b115b5c1324ad717589ab";
+
+export const wagmiConfig = createConfig({
+  chains: [APP_CHAIN],
+  connectors: [
+    injected(),
+    coinbaseWallet({ appName: "Superfluid Claim App" }),
+    walletConnect({
+      projectId: WALLETCONNECT_PROJECT_ID,
+      metadata: {
+        name: "Superfluid Claim App",
+        description: "Earn SUP every second by using Superfluid-powered apps.",
+        url: "https://claim.superfluid.org",
+        icons: [],
+      },
+    }),
+    safe(),
   ],
-};
-export const wagmiAdapter = new WagmiAdapter({
-  networks,
-  projectId: REOWN_PROJECT_ID,
-  customRpcUrls,
-});
-
-createAppKit({
-  adapters: [wagmiAdapter],
-  networks,
-  projectId: REOWN_PROJECT_ID,
-  metadata: { ...APP_METADATA, icons: [...APP_METADATA.icons] },
-  customRpcUrls,
-  features: APP_KIT_FEATURES,
-  themeMode: APP_KIT_THEME.themeMode,
-  themeVariables: APP_KIT_THEME.themeVariables,
+  transports: {
+    [APP_CHAIN.id]: http(ALCHEMY_RPC_URLS[APP_CHAIN.id]),
+  },
 });

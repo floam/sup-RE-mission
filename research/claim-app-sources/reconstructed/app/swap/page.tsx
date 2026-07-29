@@ -1,7 +1,6 @@
 "use client";
 
 import { LiFiWidget, WidgetSkeleton } from "@lifi/widget";
-import { useAppKit } from "@reown/appkit/react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { erc20Abi } from "viem";
@@ -14,7 +13,8 @@ import {
   SWAP_REFERRER_SESSION_KEY,
 } from "../../config/swap";
 import { useFarcasterFrame } from "../../contexts/FarcasterFrameProvider";
-import { useExpectedChains } from "../../contexts/ExpectedChainContext";
+import { useWalletDialog } from "../../contexts/WalletDialogContext";
+import { APP_CHAIN } from "../../config/chains";
 import { useWalletAccount } from "../../hooks/useWalletAccount";
 import { formatTokenAmount, SUP_SYMBOL } from "../../lib/format";
 
@@ -52,13 +52,12 @@ function useSwapReferrer() {
 
 function SupportedTokensList() {
   const { address } = useWalletAccount();
-  const { airdropChain } = useExpectedChains();
   const usdcx = useReadContract({
     abi: erc20Abi,
     address: SWAP_CAMPAIGN_TOKENS[0].superTokenAddress,
     functionName: "balanceOf",
     args: address ? [address] : undefined,
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     query: { enabled: Boolean(address) },
   });
   const usdsx = useReadContract({
@@ -66,7 +65,7 @@ function SupportedTokensList() {
     address: SWAP_CAMPAIGN_TOKENS[1].superTokenAddress,
     functionName: "balanceOf",
     args: address ? [address] : undefined,
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     query: { enabled: Boolean(address) },
   });
   const balances = [usdcx.data, usdsx.data];
@@ -83,9 +82,7 @@ function SupportedTokensList() {
             <span className="w-16">{token.symbol}</span>
             {address && (
               <strong>
-                {balances[index]
-                  ? formatTokenAmount(balances[index], 2)
-                  : "0"}
+                {balances[index] ? formatTokenAmount(balances[index], 2) : "0"}
               </strong>
             )}
           </div>
@@ -108,7 +105,7 @@ function ListItem({ index, children }: { index: number; children: ReactNode }) {
 
 export default function SwapPage() {
   const { isInMiniApp } = useFarcasterFrame();
-  const { open } = useAppKit();
+  const { open } = useWalletDialog();
   const referrerKey = useSwapReferrer();
   const config = useMemo(() => {
     const targetAddresses = new Set(
@@ -176,7 +173,7 @@ export default function SwapPage() {
       walletConfig: {
         usePartialWalletManagement: true,
         onConnect: () => {
-          if (!isInMiniApp) void open({ view: "Connect" });
+          if (!isInMiniApp) open("connect");
         },
       },
       hiddenUI: [

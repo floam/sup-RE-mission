@@ -8,7 +8,7 @@ import {
   FLUID_LOCKER_FACTORY_ADDRESS,
   ZERO_ADDRESS,
 } from "../contracts/app-contracts";
-import { useExpectedChains } from "./ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import { useWalletAccount } from "../hooks/useWalletAccount";
 import type { Address } from "../types/program-app";
 
@@ -23,13 +23,12 @@ const LockerContext = createContext<LockerContextValue | null>(null);
 
 export function LockerProvider({ children }: PropsWithChildren) {
   const { address: accountAddress } = useWalletAccount();
-  const { airdropChain } = useExpectedChains();
-  const factoryAddress = FLUID_LOCKER_FACTORY_ADDRESS[airdropChain.id as 8453];
+  const factoryAddress = FLUID_LOCKER_FACTORY_ADDRESS[APP_CHAIN.id];
   const { data, isLoading } = useReadContract({
     abi: lockerFactoryAbi,
     address: factoryAddress,
     functionName: "getLockerAddress",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     args: accountAddress ? [accountAddress] : undefined,
     query: { enabled: Boolean(accountAddress && factoryAddress) },
   });

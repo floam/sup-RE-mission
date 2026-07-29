@@ -4,7 +4,7 @@ import { useEffect } from "react";
 
 import type { TransactionStatus } from "../types/transactions";
 
-interface QueryState {
+export interface QueryState {
   isFetching?: boolean;
   isError?: boolean;
   isSuccess?: boolean;

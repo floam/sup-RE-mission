@@ -11,7 +11,7 @@ import {
 } from "wagmi";
 
 import { BASE_CHAIN_ID } from "../config/chains";
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import {
   RESERVE_NAME_REGISTRAR_ADDRESS,
   reserveNameRegistrarAbi,
@@ -68,16 +68,15 @@ export function useReserveNameRegistration({
   accountAddress?: Address;
   subdomain: string;
 }) {
-  const { airdropChain } = useExpectedChains();
   const registrarAddress =
-    airdropChain.id === BASE_CHAIN_ID
+    APP_CHAIN.id === BASE_CHAIN_ID
       ? RESERVE_NAME_REGISTRAR_ADDRESS[BASE_CHAIN_ID]
       : undefined;
   const readDomainName = useReadContract({
     address: registrarAddress,
     abi: reserveNameRegistrarAbi,
     functionName: "domainName",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     query: { enabled: Boolean(registrarAddress) },
   });
   const readUserSubdomain = useReadContract({
@@ -85,21 +84,21 @@ export function useReserveNameRegistration({
     abi: reserveNameRegistrarAbi,
     functionName: "getUserSubdomain",
     args: accountAddress ? [accountAddress] : undefined,
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     query: { enabled: Boolean(registrarAddress && accountAddress) },
   });
   const userSubdomainNode = readUserSubdomain.data;
   const hasExistingSubdomain = Boolean(
     userSubdomainNode &&
-      userSubdomainNode !== EMPTY_NODE &&
-      userSubdomainNode !== "0x00",
+    userSubdomainNode !== EMPTY_NODE &&
+    userSubdomainNode !== "0x00",
   );
   const readUserSubdomainName = useReadContract({
     address: registrarAddress,
     abi: reserveNameRegistrarAbi,
     functionName: "name",
     args: userSubdomainNode ? [userSubdomainNode] : undefined,
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     query: {
       enabled: Boolean(
         registrarAddress && hasExistingSubdomain && userSubdomainNode,
@@ -115,16 +114,16 @@ export function useReserveNameRegistration({
     abi: reserveNameRegistrarAbi,
     functionName: "isSubdomainAvailable",
     args: subdomainNode ? [subdomainNode] : undefined,
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     query: { enabled: Boolean(registrarAddress && subdomainNode) },
   });
   const [isAvailable] = readSubdomainAvailability.data ?? [false];
   const canRegister = Boolean(
     registrarAddress &&
-      accountAddress &&
-      subdomain &&
-      isAvailable &&
-      !hasExistingSubdomain,
+    accountAddress &&
+    subdomain &&
+    isAvailable &&
+    !hasExistingSubdomain,
   );
   const fee = useMemo(() => getReserveNameFee(subdomain), [subdomain]);
   const simulateRegisterSubdomain = useSimulateContract({
@@ -132,7 +131,7 @@ export function useReserveNameRegistration({
     abi: reserveNameRegistrarAbi,
     functionName: "registerSubdomain",
     args: accountAddress ? [accountAddress, subdomain] : undefined,
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     query: { enabled: canRegister },
     value: fee,
     stateOverride: accountAddress
@@ -141,7 +140,7 @@ export function useReserveNameRegistration({
   });
   const request = simulateRegisterSubdomain.data?.request;
   const estimateRegister = useEstimateGas({
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     to: request?.address,
     data: request
       ? encodeFunctionData({
@@ -160,7 +159,7 @@ export function useReserveNameRegistration({
   });
   const writeRegisterSubdomain = useWriteContract();
   const waitForTransactionRegister = useWaitForTransactionReceipt({
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     hash: writeRegisterSubdomain.data,
     query: { enabled: Boolean(writeRegisterSubdomain.data) },
   });

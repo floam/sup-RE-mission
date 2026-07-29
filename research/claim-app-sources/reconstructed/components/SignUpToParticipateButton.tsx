@@ -1,9 +1,7 @@
 "use client";
 
-import { useAppKit, useAppKitState } from "@reown/appkit/react";
-import { useEffect, useState } from "react";
-
 import { useFarcasterFrame } from "../contexts/FarcasterFrameProvider";
+import { useWalletDialog } from "../contexts/WalletDialogContext";
 import { useWalletAccount } from "../hooks/useWalletAccount";
 
 export function SignUpToParticipateButton({
@@ -14,7 +12,7 @@ export function SignUpToParticipateButton({
   return isInMiniApp ? (
     <FrameSignUpButton buttonText={buttonText} />
   ) : (
-    <AppKitSignUpButton buttonText={buttonText} />
+    <WalletSignUpButton buttonText={buttonText} />
   );
 }
 
@@ -23,18 +21,13 @@ function FrameSignUpButton({ buttonText }: { buttonText: string }) {
   return isConnected ? null : <button disabled>{buttonText}</button>;
 }
 
-function AppKitSignUpButton({ buttonText }: { buttonText: string }) {
-  const { open } = useAppKit();
-  const { initialized, loading } = useAppKitState();
+function WalletSignUpButton({ buttonText }: { buttonText: string }) {
+  const { open } = useWalletDialog();
   const { isConnecting } = useWalletAccount();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted || !initialized || loading)
-    return <button className="invisible">.</button>;
   return (
     <button
       data-testid="card-connect-wallet-button"
-      onClick={() => open({ view: "Connect" })}
+      onClick={() => open("connect")}
       disabled={isConnecting}
     >
       {isConnecting ? "Connecting..." : buttonText}

@@ -12,7 +12,7 @@ import {
 } from "wagmi";
 import { lockerAbi } from "@sfpro/sdk/abi/sup";
 
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import { SUP_TOKEN_ADDRESS_BY_CHAIN } from "../contracts/app-contracts";
 import type { Address } from "../types/program-app";
 import { recordRecentTransaction } from "./useRecentTransactions";
@@ -30,14 +30,13 @@ function useApproveSup({
   lockerAddress?: Address;
   amount?: bigint;
 }) {
-  const { airdropChain } = useExpectedChains();
   const queryClient = useQueryClient();
-  const token = SUP_TOKEN_ADDRESS_BY_CHAIN[airdropChain.id];
+  const token = SUP_TOKEN_ADDRESS_BY_CHAIN[APP_CHAIN.id];
   const balance = useReadContract({
     abi: erc20Abi,
     address: token,
     functionName: "balanceOf",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     args: accountAddress ? [accountAddress] : undefined,
     query: { enabled: Boolean(accountAddress) },
   });
@@ -45,7 +44,7 @@ function useApproveSup({
     abi: erc20Abi,
     address: token,
     functionName: "allowance",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     args:
       accountAddress && lockerAddress
         ? [accountAddress, lockerAddress]
@@ -58,17 +57,17 @@ function useApproveSup({
     !amount || allowance.data === undefined || amount > approved;
   const isValid = Boolean(
     lockerAddress &&
-      accountAddress &&
-      amount &&
-      amount > 0n &&
-      amount <= supBalance &&
-      needsApproval,
+    accountAddress &&
+    amount &&
+    amount > 0n &&
+    amount <= supBalance &&
+    needsApproval,
   );
   const simulate = useSimulateContract({
     abi: erc20Abi,
     address: token,
     functionName: "approve",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     args: lockerAddress && amount ? [lockerAddress, amount] : undefined,
     query: { enabled: isValid },
     stateOverride: accountAddress
@@ -77,7 +76,7 @@ function useApproveSup({
   });
   const request = simulate.data?.request;
   const estimate = useEstimateGas({
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     to: request?.address,
     data: request
       ? encodeFunctionData({
@@ -96,7 +95,7 @@ function useApproveSup({
   });
   const write = useWriteContract();
   const waitFor = useWaitForTransactionReceipt({
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     hash: write.data,
     query: { enabled: Boolean(write.data) },
   });
@@ -134,14 +133,13 @@ function useLockSup({
   lockerAddress?: Address;
   amount?: bigint;
 }) {
-  const { airdropChain } = useExpectedChains();
   const queryClient = useQueryClient();
-  const token = SUP_TOKEN_ADDRESS_BY_CHAIN[airdropChain.id];
+  const token = SUP_TOKEN_ADDRESS_BY_CHAIN[APP_CHAIN.id];
   const balance = useReadContract({
     abi: erc20Abi,
     address: token,
     functionName: "balanceOf",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     args: accountAddress ? [accountAddress] : undefined,
     query: { enabled: Boolean(accountAddress), refetchInterval: 30_000 },
   });
@@ -149,7 +147,7 @@ function useLockSup({
     abi: erc20Abi,
     address: token,
     functionName: "allowance",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     args:
       accountAddress && lockerAddress
         ? [accountAddress, lockerAddress]
@@ -160,17 +158,17 @@ function useLockSup({
   const approved = allowance.data ?? 0n;
   const isValid = Boolean(
     lockerAddress &&
-      accountAddress &&
-      amount &&
-      amount > 0n &&
-      amount <= supBalance &&
-      approved >= amount,
+    accountAddress &&
+    amount &&
+    amount > 0n &&
+    amount <= supBalance &&
+    approved >= amount,
   );
   const simulate = useSimulateContract({
     abi: lockerAbi,
     address: lockerAddress,
     functionName: "lock",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     args: amount ? [amount] : undefined,
     query: { enabled: isValid },
     stateOverride: accountAddress
@@ -179,7 +177,7 @@ function useLockSup({
   });
   const request = simulate.data?.request;
   const estimate = useEstimateGas({
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     to: request?.address,
     data: request
       ? encodeFunctionData({
@@ -198,7 +196,7 @@ function useLockSup({
   });
   const write = useWriteContract();
   const waitFor = useWaitForTransactionReceipt({
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     hash: write.data,
     query: { enabled: Boolean(write.data) },
   });

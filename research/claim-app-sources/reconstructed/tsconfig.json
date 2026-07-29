@@ -13,6 +13,10 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+    "baseUrl": ".",
+    "paths": {
+      "@reown/appkit/react": ["./compat/appkit-react.ts"]
+    },
     "plugins": [
       {
         "name": "next"
@@ -26,6 +30,7 @@
     "app/**/*.tsx",
     "client/**/*.ts",
     "client/**/*.tsx",
+    "compat/**/*.ts",
     "data/**/*.ts",
     "types/**/*.ts",
     ".next/types/**/*.ts",

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { formatEther } from "viem";
 import { useBalance } from "wagmi";
 
-import { useExpectedChains } from "../../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../../config/chains";
 import { useLocker } from "../../contexts/LockerContext";
 import { UNLOCKING_FEE } from "../../contracts/app-contracts";
 import { useActiveLiquidityPositions } from "../../hooks/useLiquidityPositions";
@@ -62,10 +62,9 @@ export function AddLiquidityDialog({
   const [withdrawSucceeded, setWithdrawSucceeded] = useState(false);
   const [feesSucceeded, setFeesSucceeded] = useState(false);
   const { accountAddress, lockerAddress } = useLocker();
-  const { airdropChain } = useExpectedChains();
   const walletBalance = useBalance({
     address: accountAddress,
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
   });
   const lockerBalance = useLockerBalance({ lockerAddress });
   const activePositions = useActiveLiquidityPositions(lockerAddress);
@@ -219,22 +218,21 @@ export function AddLiquidityDialog({
     walletBalance.data.value >= requiredEth;
   const canProvide = Boolean(
     ethAmount &&
-      ethAmount > 0n &&
-      ethAmount <= ethAvailable &&
-      supAmount &&
-      supAmount > 0n &&
-      supAmount <= supAvailable &&
-      hasEnoughEth,
+    ethAmount > 0n &&
+    ethAmount <= ethAvailable &&
+    supAmount &&
+    supAmount > 0n &&
+    supAmount <= supAvailable &&
+    hasEnoughEth,
   );
   const hasFees = Boolean(
     selectedPosition.data &&
-      (selectedPosition.data.feesETH > 0n ||
-        selectedPosition.data.feesSUP > 0n),
+    (selectedPosition.data.feesETH > 0n || selectedPosition.data.feesSUP > 0n),
   );
   const onCooldown = Boolean(
     selectedTokenId &&
-      selectedPosition.data?.cooldownTimestamp &&
-      !withdraw.isCooldownExpired,
+    selectedPosition.data?.cooldownTimestamp &&
+    !withdraw.isCooldownExpired,
   );
   const cooldownDays =
     onCooldown && selectedPosition.data?.cooldownTimestamp
@@ -367,7 +365,7 @@ export function AddLiquidityDialog({
           </p>
           <TransactionButton
             dataTestId="provide-liquidity-button"
-            chain={airdropChain}
+            chain={APP_CHAIN}
             onClick={provide.provideLiquidity}
             status={provide.status}
             ButtonProps={{ disabled: !canProvide || provideSucceeded }}
@@ -413,7 +411,7 @@ export function AddLiquidityDialog({
           {selectedTokenId && hasFees && (
             <TransactionButton
               dataTestId="collect-fees-button"
-              chain={airdropChain}
+              chain={APP_CHAIN}
               onClick={collect.collectFees}
               status={collect.status}
               ButtonProps={{ disabled: feesSucceeded }}
@@ -423,7 +421,7 @@ export function AddLiquidityDialog({
           )}
           <TransactionButton
             dataTestId="withdraw-liquidity-button"
-            chain={airdropChain}
+            chain={APP_CHAIN}
             onClick={withdraw.withdrawLiquidity}
             status={withdraw.status}
             ButtonProps={{

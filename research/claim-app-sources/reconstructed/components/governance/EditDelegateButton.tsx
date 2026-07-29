@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { useExpectedChains } from "../../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../../config/chains";
 import { useLocker } from "../../contexts/LockerContext";
 import { useAddressProfile } from "../../hooks/useAddressProfile";
 import { useClearDelegate } from "../../hooks/useDelegateTransactions";
@@ -17,7 +17,6 @@ import { DelegateStep } from "./DelegateStep";
 
 export function EditDelegateButton() {
   const { accountAddress } = useLocker();
-  const { governanceChain } = useExpectedChains();
   const { delegate, hasExternalDelegate } = useCurrentDelegate({
     accountAddress,
   });
@@ -56,7 +55,6 @@ export function EditDelegateButton() {
                 hasExternalDelegate={hasExternalDelegate}
                 clearDelegate={clear.clearDelegate}
                 status={clear.status}
-                governanceChain={governanceChain}
               />
             )}
             <DelegateStep stepper={null} className="flex-1 max-md:h-[70vh]" />
@@ -72,13 +70,11 @@ function CurrentDelegateCard({
   hasExternalDelegate,
   clearDelegate,
   status,
-  governanceChain,
 }: {
   delegate: NonNullable<ReturnType<typeof useCurrentDelegate>["delegate"]>;
   hasExternalDelegate: boolean;
   clearDelegate(): void;
   status: ReturnType<typeof useClearDelegate>["status"];
-  governanceChain: ReturnType<typeof useExpectedChains>["governanceChain"];
 }) {
   const profile = useAddressProfile(delegate.address);
   const { delegatedAmount, isDelegatedAmountLoaded } =
@@ -121,7 +117,7 @@ function CurrentDelegateCard({
       {hasExternalDelegate && (
         <TransactionButton
           dataTestId="undelegate-button"
-          chain={governanceChain}
+          chain={APP_CHAIN}
           ButtonProps={{ className: "mt-3" }}
           onClick={clearDelegate}
           status={status}

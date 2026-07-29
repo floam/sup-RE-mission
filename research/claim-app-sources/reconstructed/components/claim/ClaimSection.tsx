@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { parseEther } from "viem";
 
-import { useExpectedChains } from "../../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../../config/chains";
 import { useLocker } from "../../contexts/LockerContext";
 import { useClaimFlowMetrics } from "../../hooks/useClaimFlowMetrics";
 import { useClaimTransaction } from "../../hooks/useClaimTransaction";
@@ -218,11 +218,9 @@ function ClaimOnboarding({
 
 function CreateReserveStep({ onComplete }: { onComplete(): void }) {
   const { accountAddress } = useLocker();
-  const { airdropChain } = useExpectedChains();
   const create = useCreateLocker(accountAddress);
   const [isCreated] = (create.readGetUserLocker.data as
-    | readonly [boolean, unknown]
-    | undefined) ?? [false];
+    readonly [boolean, unknown] | undefined) ?? [false];
   const pending =
     create.writeCreateLocker.isPending ||
     create.waitForTransactionCreateLocker.isFetching;
@@ -248,7 +246,7 @@ function CreateReserveStep({ onComplete }: { onComplete(): void }) {
       ) : (
         <TransactionButton
           dataTestId="create-locker-button"
-          chain={airdropChain}
+          chain={APP_CHAIN}
           onClick={create.createLocker}
           status={create.status}
           ButtonProps={{
@@ -264,7 +262,6 @@ function CreateReserveStep({ onComplete }: { onComplete(): void }) {
 
 function InitialClaimStep({ onClaimSuccess }: { onClaimSuccess(): void }) {
   const { accountAddress, lockerAddress } = useLocker();
-  const { airdropChain } = useExpectedChains();
   const metrics = useClaimFlowMetrics();
   const claim = useClaimTransaction({ accountAddress, lockerAddress });
   const lockerBalance = useLockerBalance({ lockerAddress });
@@ -333,7 +330,7 @@ function InitialClaimStep({ onClaimSuccess }: { onClaimSuccess(): void }) {
       )}
       <TransactionButton
         dataTestId="claim-button"
-        chain={airdropChain}
+        chain={APP_CHAIN}
         onClick={claim.claim}
         status={claim.status}
         ButtonProps={{
@@ -348,7 +345,6 @@ function InitialClaimStep({ onClaimSuccess }: { onClaimSuccess(): void }) {
 
 function ClaimDashboard() {
   const { accountAddress, lockerAddress } = useLocker();
-  const { airdropChain } = useExpectedChains();
   const lockerBalance = useLockerBalance({ lockerAddress });
   const metrics = useClaimFlowMetrics();
   const leaderboard = useLeaderboardEntry({
@@ -469,7 +465,7 @@ function ClaimDashboard() {
   const canClaim = Boolean(
     (claim.claimTransactionData.canClaim ||
       claimAndStake.claimTransactionData.canClaim) &&
-      !claimFinished,
+    !claimFinished,
   );
   const nextClaim = nextClaimTarget();
   const showTimer = !canClaim && shouldShowClaimTimer();
@@ -526,7 +522,7 @@ function ClaimDashboard() {
             !hasAvailableStake || extra === 0n || showTimer ? "invisible" : ""
           }
           dataTestId="claim-and-stake-button"
-          chain={airdropChain}
+          chain={APP_CHAIN}
           onClick={claimAndStake.claim}
           status={claimAndStake.status}
           ButtonProps={{ disabled: !canClaim || extra === 0n }}
@@ -536,7 +532,7 @@ function ClaimDashboard() {
         </TransactionButton>
         <TransactionButton
           dataTestId="claim-button"
-          chain={airdropChain}
+          chain={APP_CHAIN}
           onClick={claim.claim}
           status={claim.status}
           ButtonProps={{

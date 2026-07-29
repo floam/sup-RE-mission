@@ -8,14 +8,12 @@ import {
 import { cookieToInitialState, WagmiProvider, type Config } from "wagmi";
 import type { PropsWithChildren } from "react";
 
-import { AppKitAccountProvider } from "../contexts/AppKitAccountContext";
-import { ExpectedChainProvider } from "../contexts/ExpectedChainContext";
 import {
   FarcasterFrameProvider,
   useFarcasterFrame,
 } from "../contexts/FarcasterFrameProvider";
 import { LockerProvider } from "../contexts/LockerContext";
-import { WalletSyncProvider } from "../contexts/WalletSyncContext";
+import { WalletDialogProvider } from "../contexts/WalletDialogContext";
 import { AnalyticsProvider } from "./AnalyticsProvider";
 import { AutoConnectFarcaster } from "./AutoConnectFarcaster";
 import { BonusModalProvider } from "./BonusModalProvider";
@@ -69,26 +67,22 @@ export function ContextProvider({
         reconnectOnMount
       >
         <FarcasterFrameProvider>
-          <AppKitAccountProvider>
+          <WalletDialogProvider>
             <ConditionalWalletComponents>
-              <WalletSyncProvider>
-                <ExpectedChainProvider>
-                  <LockerProvider>
-                    {children}
-                    <AnalyticsProvider />
-                    <GoodDollarProvider />
-                    <ReferralHandler />
-                    {recoveredRewardsEnabled && (
-                      <>
-                        <DailyMysteryBoxProvider />
-                        <BonusModalProvider />
-                      </>
-                    )}
-                  </LockerProvider>
-                </ExpectedChainProvider>
-              </WalletSyncProvider>
+              <LockerProvider>
+                {children}
+                <AnalyticsProvider />
+                <GoodDollarProvider />
+                <ReferralHandler />
+                {recoveredRewardsEnabled && (
+                  <>
+                    <DailyMysteryBoxProvider />
+                    <BonusModalProvider />
+                  </>
+                )}
+              </LockerProvider>
             </ConditionalWalletComponents>
-          </AppKitAccountProvider>
+          </WalletDialogProvider>
         </FarcasterFrameProvider>
       </WagmiProvider>
     </QueryClientProvider>

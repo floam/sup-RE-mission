@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useBalance } from "wagmi";
 
-import { useExpectedChains } from "../../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../../config/chains";
 import { useLocker } from "../../contexts/LockerContext";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import {
@@ -107,7 +107,6 @@ function RegisterState({
   debouncedSubdomain: string;
   registration: ReturnType<typeof useReserveNameRegistration>;
 }) {
-  const { airdropChain } = useExpectedChains();
   const validation = validateReserveSubdomain(subdomain);
   const availabilityLoading =
     debouncedSubdomain !== subdomain ||
@@ -115,17 +114,17 @@ function RegisterState({
   const fee = getReserveNameFee(subdomain);
   const balance = useBalance({
     address: accountAddress,
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     query: { enabled: Boolean(accountAddress) },
   });
   const hasSufficientEth = !balance.data || balance.data.value >= fee;
   const canRegister = Boolean(
     validation.isValid &&
-      registration.isAvailable &&
-      debouncedSubdomain === subdomain &&
-      !registration.isFinished &&
-      !registration.status?.isLoading &&
-      hasSufficientEth,
+    registration.isAvailable &&
+    debouncedSubdomain === subdomain &&
+    !registration.isFinished &&
+    !registration.status?.isLoading &&
+    hasSufficientEth,
   );
   const success = Boolean(
     registration.status?.isFinished && !registration.status.isError,
@@ -198,7 +197,7 @@ function RegisterState({
       </div>
       <TransactionButton
         dataTestId="register-ens-name-button"
-        chain={airdropChain}
+        chain={APP_CHAIN}
         onClick={registration.register}
         status={registration.status}
         ButtonProps={{ disabled: !canRegister }}

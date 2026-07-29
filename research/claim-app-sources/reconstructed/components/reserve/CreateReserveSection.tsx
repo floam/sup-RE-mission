@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { useExpectedChains } from "../../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../../config/chains";
 import { useLocker } from "../../contexts/LockerContext";
 import { useCreateLocker } from "../../hooks/useCreateLocker";
 import { useWalletAccount } from "../../hooks/useWalletAccount";
@@ -27,11 +27,9 @@ export function CreateReserveSection({
 }) {
   const { isConnected } = useWalletAccount();
   const { accountAddress } = useLocker();
-  const { airdropChain } = useExpectedChains();
   const transaction = useCreateLocker(accountAddress);
   const [isCreated] = (transaction.readGetUserLocker.data as
-    | readonly [boolean, string]
-    | undefined) ?? [false];
+    readonly [boolean, string] | undefined) ?? [false];
   const totalApr = Math.max(
     (stakingStats?.apr ?? 0) + (stakingStats?.bonusApr ?? 0),
     (liquidityStats?.apr ?? 0) + (liquidityStats?.bonusApr ?? 0),
@@ -70,7 +68,7 @@ export function CreateReserveSection({
         <div className="mx-auto max-w-md pt-4">
           {isConnected ? (
             <TransactionButton
-              chain={airdropChain}
+              chain={APP_CHAIN}
               onClick={transaction.createLocker}
               status={transaction.status}
               dataTestId="create-reserve-button"

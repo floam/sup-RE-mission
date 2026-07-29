@@ -1,23 +1,14 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { encodeFunctionData, parseEther } from "viem";
-import {
-  useEstimateGas,
-  useReadContract,
-  useSimulateContract,
-  useWaitForTransactionReceipt,
-  useWriteContract,
-} from "wagmi";
+import { useEstimateGas, useReadContract, useSimulateContract } from "wagmi";
 import { lockerAbi } from "@sfpro/sdk/abi/sup";
 
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import { useLockerBalance } from "./useLockerBalance";
-import {
-  getTransactionStatus,
-  useLogTransactionErrors,
-} from "./useTransactionStatus";
+import { useContractTransaction } from "./useContractTransaction";
 import type { Address } from "../types/program-app";
 
 function useStakingWrite(input: {
@@ -28,7 +19,6 @@ function useStakingWrite(input: {
   enabled: boolean;
   distributionPool?: Address;
 }) {
-  const { airdropChain } = useExpectedChains();
   const queryClient = useQueryClient();
   const lockerBalance = useLockerBalance({
     lockerAddress: input.lockerAddress,
@@ -38,7 +28,7 @@ function useStakingWrite(input: {
     address: input.lockerAddress,
     functionName: input.functionName,
     args: input.amount ? [input.amount] : undefined,
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     query: { enabled: input.enabled },
     stateOverride: input.accountAddress
       ? [{ address: input.accountAddress, balance: parseEther("100") }]
@@ -46,7 +36,7 @@ function useStakingWrite(input: {
   });
   const request = simulate.data?.request;
   const estimate = useEstimateGas({
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     to: request?.address,
     data: request
       ? encodeFunctionData({
@@ -63,12 +53,13 @@ function useStakingWrite(input: {
       ? [{ address: input.accountAddress, balance: parseEther("100") }]
       : undefined,
   });
-  const write = useWriteContract();
-  const waitFor = useWaitForTransactionReceipt({
-    chainId: airdropChain.id,
-    hash: write.data,
-    query: { enabled: Boolean(write.data) },
+  const transaction = useContractTransaction({
+    request,
+    gas: estimate.data,
+    simulate,
+    estimate,
   });
+  const { write, waitFor, execute } = transaction;
   const isFinished = write.isSuccess && waitFor.isSuccess;
   useEffect(() => {
     if (!isFinished) return;
@@ -89,15 +80,6 @@ function useStakingWrite(input: {
       ],
     });
   }, [input.distributionPool, input.lockerAddress, isFinished, queryClient]);
-  const execute = useCallback(() => {
-    if (!request) {
-      if (simulate.error) console.error(simulate.error);
-      console.error("Error! No transaction simulation data available.");
-      return;
-    }
-    write.writeContract({ ...request, gas: estimate.data });
-  }, [estimate.data, request, simulate.error, write]);
-  useLogTransactionErrors([simulate, estimate, write, waitFor]);
   return {
     lockerBalance,
     simulate,
@@ -106,7 +88,7 @@ function useStakingWrite(input: {
     waitFor,
     isFinished,
     execute,
-    status: getTransactionStatus({ simulate, estimate, write, waitFor }),
+    status: transaction.status,
     reset: write.reset,
   };
 }
@@ -126,10 +108,10 @@ export function useLockerStake(input: {
     functionName: "stake",
     enabled: Boolean(
       input.accountAddress &&
-        input.lockerAddress &&
-        input.amount &&
-        input.amount > 0n &&
-        input.amount <= availableBalance,
+      input.lockerAddress &&
+      input.amount &&
+      input.amount > 0n &&
+      input.amount <= availableBalance,
     ),
   });
   return { ...transaction, stake: transaction.execute };
@@ -141,7 +123,6 @@ export function useLockerUnstake(input: {
   amount?: bigint;
   distributionPool?: Address;
 }) {
-  const { airdropChain } = useExpectedChains();
   const lockerBalance = useLockerBalance({
     lockerAddress: input.lockerAddress,
   });
@@ -150,7 +131,7 @@ export function useLockerUnstake(input: {
     abi: lockerAbi,
     address: input.lockerAddress,
     functionName: "stakingUnlocksAt",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     query: { enabled: Boolean(input.lockerAddress) },
   });
   const stakingUnlocksAt = Number(unlocksAt.data ?? 0);
@@ -161,11 +142,11 @@ export function useLockerUnstake(input: {
     functionName: "unstake",
     enabled: Boolean(
       input.accountAddress &&
-        input.lockerAddress &&
-        input.amount &&
-        input.amount > 0n &&
-        input.amount <= stakedBalance &&
-        canUnstake,
+      input.lockerAddress &&
+      input.amount &&
+      input.amount > 0n &&
+      input.amount <= stakedBalance &&
+      canUnstake,
     ),
   });
   return {

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useReadContract } from "wagmi";
 import { gdaPoolReadAbi } from "../contracts/app-contracts";
 
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import type { Address } from "../types/program-app";
 
 export function useAccumulatedLiquidityRewards({
@@ -14,12 +14,11 @@ export function useAccumulatedLiquidityRewards({
   lockerAddress?: Address;
   distributionPool?: Address;
 }) {
-  const { airdropChain } = useExpectedChains();
   const received = useReadContract({
     abi: gdaPoolReadAbi,
     address: distributionPool,
     functionName: "getTotalAmountReceivedByMember",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     args: lockerAddress ? [lockerAddress] : undefined,
     query: { enabled: Boolean(lockerAddress && distributionPool) },
   });
@@ -27,7 +26,7 @@ export function useAccumulatedLiquidityRewards({
     abi: gdaPoolReadAbi,
     address: distributionPool,
     functionName: "getMemberFlowRate",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     args: lockerAddress ? [lockerAddress] : undefined,
     query: { enabled: Boolean(lockerAddress && distributionPool) },
   });

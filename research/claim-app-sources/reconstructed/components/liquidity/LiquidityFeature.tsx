@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 
-import { useExpectedChains } from "../../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../../config/chains";
 import { useLocker } from "../../contexts/LockerContext";
 import {
   SUP_TOKEN_ADDRESS_BY_CHAIN,
@@ -31,15 +31,11 @@ export function LiquidityFeature() {
     select: deserializeLiquidityRewardStats,
   });
   const { lockerAddress } = useLocker();
-  const { airdropChain } = useExpectedChains();
   const positions = useActiveLiquidityPositions(lockerAddress);
-  const ethPrice = useTokenPrice(
-    airdropChain.id,
-    WETH_ADDRESS[airdropChain.id],
-  );
+  const ethPrice = useTokenPrice(APP_CHAIN.id, WETH_ADDRESS[APP_CHAIN.id]);
   const supPrice = useTokenPrice(
-    airdropChain.id,
-    SUP_TOKEN_ADDRESS_BY_CHAIN[airdropChain.id],
+    APP_CHAIN.id,
+    SUP_TOKEN_ADDRESS_BY_CHAIN[APP_CHAIN.id],
   );
   const earnings = useAccumulatedLiquidityRewards({
     lockerAddress,
@@ -49,7 +45,7 @@ export function LiquidityFeature() {
   const metrics = calculatePoolUsdMetrics(poolStats, {
     ethPriceUSD: ethPrice.data ?? undefined,
     supPriceUSD: supPrice.data ?? undefined,
-    supAddress: SUP_TOKEN_ADDRESS_BY_CHAIN[airdropChain.id],
+    supAddress: SUP_TOKEN_ADDRESS_BY_CHAIN[APP_CHAIN.id],
   });
   const apr = rewardsStats?.apr === 0 ? undefined : rewardsStats?.apr;
   const bonusApr =

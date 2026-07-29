@@ -6,7 +6,7 @@ import { Pool, Position } from "@uniswap/v3-sdk";
 import { useReadContract, useSimulateContract } from "wagmi";
 import { lockerAbi } from "@sfpro/sdk/abi/sup";
 
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import {
   ETH_SUP_POOL_ADDRESS,
   MAX_UINT128,
@@ -26,8 +26,7 @@ export function useLiquidityPosition(
   tokenId?: bigint,
   lockerAddress?: Address,
 ) {
-  const { airdropChain } = useExpectedChains();
-  const chainId = airdropChain.id;
+  const chainId = APP_CHAIN.id;
   const poolAddress = ETH_SUP_POOL_ADDRESS[chainId];
   const managerAddress = NONFUNGIBLE_POSITION_MANAGER_ADDRESS[chainId];
   const enabled = tokenId !== undefined;
@@ -185,14 +184,13 @@ export function useLiquidityPosition(
     ),
     isTaxFreeExpired: Boolean(
       taxFreeExit.data &&
-        Math.floor(Date.now() / 1_000) > Number(taxFreeExit.data),
+      Math.floor(Date.now() / 1_000) > Number(taxFreeExit.data),
     ),
   };
 }
 
 export function useEthSupPool() {
-  const { airdropChain } = useExpectedChains();
-  const chainId = airdropChain.id;
+  const chainId = APP_CHAIN.id;
   const poolAddress = ETH_SUP_POOL_ADDRESS[chainId];
   const token0 = useReadContract({
     abi: uniswapV3PoolAbi,

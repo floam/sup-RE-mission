@@ -22,12 +22,13 @@ export function AutoConnectFarcaster() {
     let timer: ReturnType<typeof setTimeout> | null = null;
     const tryConnect = () => {
       if (attempt.current >= 10) return;
-      const connector = connectors.find(
-        (candidate) =>
-          candidate.id === "farcaster" ||
-          candidate.type === "farcasterMiniApp" ||
-          candidate.name.toLowerCase().includes("farcaster"),
-      );
+      const connector =
+        connectors.find(
+          (candidate) =>
+            candidate.id === "farcaster" ||
+            candidate.type === "farcasterMiniApp" ||
+            candidate.name.toLowerCase().includes("farcaster"),
+        ) ?? connectors.find((candidate) => candidate.type === "injected");
       if (connector) connect({ connector });
       const delay = RETRY_DELAYS_MS[attempt.current] ?? RETRY_DELAYS_MS.at(-1)!;
       attempt.current += 1;
