@@ -34,26 +34,22 @@ export function buildClaimProgramPlan(
   programs: readonly PublicProgram[],
   now = Math.floor(Date.now() / 1_000),
 ): ClaimProgramPlan {
+  const comparablePrograms = programs.filter(
+    (program) => getProgramStatus(program, now) === "Active",
+  );
   const cmsCampaignIds = [
     ...new Set(
-      programs.map((program) => Number(program.id)).filter(Number.isSafeInteger),
+      comparablePrograms
+        .map((program) => Number(program.id))
+        .filter(Number.isSafeInteger),
     ),
   ];
 
   return {
     cmsCampaignIds,
     cmsBatches: chunkItems(cmsCampaignIds, CMS_BATCH_SIZE),
-    comparablePrograms: programs.filter(
-      (program) => getProgramStatus(program, now) === "Active",
-    ),
+    comparablePrograms,
   };
-}
-
-export async function fetchCmsBatches<T>(
-  batches: readonly (readonly number[])[],
-  fetchBatch: (campaignIds: number[]) => Promise<T>,
-): Promise<T[]> {
-  return Promise.all(batches.map((batch) => fetchBatch([...batch])));
 }
 
 export function getClaimResultKind({

@@ -1,0 +1,206 @@
+.scope :global(.wallet-actions) {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.scope :global(.wallet-actions) > button {
+  flex: 1;
+}
+
+.scope :global(.secondary-action) {
+  min-height: 52px;
+  border-color: #466c5e;
+  background: transparent;
+  color: #c7ddd4;
+}
+
+.scope :global(.claim-status) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.scope :global(.unavailable-pill) {
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  background: #492723;
+  color: #ffb4ad;
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.scope :global(.negative) {
+  color: #ffb36c;
+}
+
+.scope :global(.flow-comparison) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.2rem;
+}
+
+.scope :global(.flow-comparison) > div {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid #294b3f;
+  border-radius: 0.8rem;
+  background: #0b1b16;
+}
+
+.scope :global(.flow-comparison) > :global(.target) {
+  border-color: #3f8068;
+  background: #102b21;
+}
+
+.scope :global(.flow-comparison) span {
+  color: #93afa3;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.scope :global(.flow-comparison) strong {
+  overflow: hidden;
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scope :global(.campaign-actions) {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.scope :global(.campaign-actions) details {
+  margin: 0;
+}
+
+.scope :global(.text-button) {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #76ffb5;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.scope :global(.text-button):disabled {
+  color: #78998c;
+}
+
+.scope :global(.event-drawer) {
+  margin-top: 1rem;
+  padding: 1.5rem 1.75rem;
+  border-radius: 0.85rem;
+  background: #0b1b16;
+}
+
+.scope :global(.event-drawer) h3 {
+  margin: 0.35rem 0 0;
+}
+
+.scope :global(.event-drawer) > p {
+  max-width: 720px;
+  margin: 0.65rem 0 0;
+}
+
+.scope :global(.event-list) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+  margin-top: 1rem;
+}
+
+.scope :global(.event-group) {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid #294b3f;
+  border-radius: 0.85rem;
+  background: #0d241c;
+}
+
+.scope :global(.event-group-summary) {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.scope :global(.event-group-summary) > span {
+  display: grid;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.scope :global(.event-equation) {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 0.45rem;
+  font-size: 1rem;
+}
+
+.scope :global(.event-equation) > span:first-child {
+  font-variant-numeric: tabular-nums;
+}
+
+.scope :global(.event-equation) > span:nth-child(2),
+.scope :global(.event-equals) {
+  color: #78998c;
+  font-weight: 500;
+}
+
+.scope :global(.event-group-summary) > strong {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.scope :global(.event-group-summary) small {
+  color: #93afa3;
+}
+
+.scope :global(.claim-reconciliation) {
+  margin: 1rem 0 0;
+  font-size: 0.82rem;
+}
+
+.scope :global(footer.submit-update) {
+  position: sticky;
+  z-index: 10;
+  bottom: 0;
+  background: rgba(8, 26, 20, 0.96);
+  backdrop-filter: blur(12px);
+}
+
+@media (max-width: 680px) {
+  .scope :global(.wallet-actions),
+  .scope :global(.claim-status),
+  .scope :global(.campaign-actions) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .scope :global(.flow-comparison),
+  .scope :global(.event-list) {
+    grid-template-columns: 1fr;
+  }
+
+  .scope :global(.event-drawer) {
+    padding: 1.25rem;
+  }
+
+  .scope :global(.text-button) {
+    align-self: flex-start;
+  }
+}
