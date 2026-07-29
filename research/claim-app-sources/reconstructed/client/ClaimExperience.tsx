@@ -75,7 +75,7 @@ export function ClaimExperience() {
 
   function clearBreakdown() {
     eventRequest.current += 1;
-    setBreakdown(undefined);
+    breakdownCache.current.clear(), setBreakdown(undefined);
   }
 
   function startLookup() {

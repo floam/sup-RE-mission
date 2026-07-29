@@ -114,7 +114,7 @@ The helper:
 6. returns one `EventBreakdown` per row.
 
 The browser caches every returned explanation by account, campaign, onchain units, and
-uncapped balance. A claim-state refresh changes the cache key.
+uncapped balance until the explanation or reviewed claim state is cleared.
 
 No local API endpoint remains. The deleted route repeated public program, locker, unit,
 CMS, and nonce work and supplied no private credential, authentication, durable shared
