@@ -8,8 +8,9 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test client/*.test.ts",
-    "test:e2e": "node --experimental-strip-types --test e2e/*.test.ts"
+    "test": "node --experimental-strip-types --test client/*.test.ts lib/*.test.ts",
+    "test:e2e": "node --experimental-strip-types --test e2e/*.test.ts",
+    "generate:cms-openapi": "openapi-typescript https://cms.superfluid.pro/points/openapi.json -o lib/cms-openapi.d.ts"
   },
   "dependencies": {
     "@base-org/account": "2.5.7",
@@ -39,6 +40,7 @@
     "lodash": "4.18.1",
     "lucide-react": "1.26.0",
     "next": "16.2.11",
+    "openapi-fetch": "0.17.0",
     "porto": "0.2.37",
     "react": "19.2.4",
     "react-dom": "19.2.4",
@@ -53,6 +55,7 @@
     "@types/node": "24.1.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "openapi-typescript": "7.13.0",
     "typescript": "5.9.3"
   },
   "overrides": {
