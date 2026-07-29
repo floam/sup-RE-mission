@@ -20,7 +20,42 @@ import {
   type CmsPointEvent,
 } from "../lib/cms-client.ts";
 
-const cms = createCmsClient({ origin: process.env.CMS_BASE_URL });
+const REQUEST_TIMEOUT_MS = Number(process.env.E2E_REQUEST_TIMEOUT_MS ?? "15000");
+const REQUEST_ATTEMPTS = Number(process.env.E2E_REQUEST_ATTEMPTS ?? "3");
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+const fetchWithRetry: typeof fetch = async (input, init) => {
+  const request = new Request(input, init);
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= REQUEST_ATTEMPTS; attempt += 1) {
+    const timeout = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+    const signal = AbortSignal.any([request.signal, timeout]);
+
+    try {
+      const response = await fetch(request.clone(), { signal });
+      const retryable =
+        response.status === 408 || response.status === 429 || response.status >= 500;
+      if (!retryable || attempt === REQUEST_ATTEMPTS) return response;
+      await response.body?.cancel();
+    } catch (error) {
+      lastError = error;
+      if (request.signal.aborted || attempt === REQUEST_ATTEMPTS) throw error;
+    }
+
+    await sleep(250 * 2 ** (attempt - 1));
+  }
+
+  throw lastError;
+};
+
+const cms = createCmsClient({
+  origin: process.env.CMS_BASE_URL,
+  fetch: fetchWithRetry,
+});
 const FALLBACK_ACCOUNT =
   process.env.E2E_ACCOUNT ?? "0xdBb811EC62338db94858Ec21ef1d56B658111922";
 const PREFERRED_CAMPAIGN_ID = Number(process.env.E2E_CAMPAIGN_ID ?? "608");
