@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useAccount, useConnect } from "wagmi";
 
+import { APP_CHAIN } from "../config/chains";
 import { useFarcasterFrame } from "../contexts/FarcasterFrameProvider";
 
 const RETRY_DELAYS_MS = [
@@ -22,14 +23,10 @@ export function AutoConnectFarcaster() {
     let timer: ReturnType<typeof setTimeout> | null = null;
     const tryConnect = () => {
       if (attempt.current >= 10) return;
-      const connector =
-        connectors.find(
-          (candidate) =>
-            candidate.id === "farcaster" ||
-            candidate.type === "farcasterMiniApp" ||
-            candidate.name.toLowerCase().includes("farcaster"),
-        ) ?? connectors.find((candidate) => candidate.type === "injected");
-      if (connector) connect({ connector });
+      const connector = connectors.find(
+        (candidate) => candidate.type === "farcasterMiniApp",
+      );
+      if (connector) connect({ connector, chainId: APP_CHAIN.id });
       const delay = RETRY_DELAYS_MS[attempt.current] ?? RETRY_DELAYS_MS.at(-1)!;
       attempt.current += 1;
       if (attempt.current < 10) timer = setTimeout(tryConnect, delay);
