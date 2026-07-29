@@ -6,7 +6,7 @@ import {
   safe,
   walletConnect,
 } from "wagmi/connectors";
-import { createConfig, http } from "wagmi";
+import { cookieStorage, createConfig, createStorage, http } from "wagmi";
 
 import { APP_CHAIN } from "./chains";
 import { farcasterMiniApp } from "./farcaster-connector";
@@ -15,6 +15,10 @@ import { ALCHEMY_RPC_URLS } from "./rpc";
 const WALLETCONNECT_PROJECT_ID = "8fcff23b035b115b5c1324ad717589ab";
 
 export const wagmiConfig = createConfig({
+  ssr: true,
+  storage: createStorage({
+    storage: cookieStorage,
+  }),
   chains: [APP_CHAIN],
   connectors: [
     farcasterMiniApp(),

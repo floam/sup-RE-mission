@@ -26,45 +26,56 @@ export function WalletDialogProvider({ children }: PropsWithChildren) {
     >
       {children}
       {view && (
-        <div role="dialog" aria-modal="true" className="modal">
-          <button
-            aria-label="Close wallet dialog"
-            onClick={() => setView(null)}
+        <div className="wallet-dialog-overlay">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="wallet-dialog-title"
+            className="wallet-dialog"
           >
-            ×
-          </button>
-          {view === "account" && address ? (
-            <>
-              <h2>Wallet</h2>
-              <p>{address}</p>
-              <button
-                onClick={() => {
-                  disconnect();
-                  setView(null);
-                }}
-              >
-                Disconnect
-              </button>
-            </>
-          ) : (
-            <>
-              <h2>Connect wallet</h2>
-              <div className="flex flex-col gap-2">
-                {connectors.map((connector) => (
-                  <button
-                    key={connector.uid}
-                    disabled={isPending}
-                    onClick={() =>
-                      connect({ connector }, { onSuccess: () => setView(null) })
-                    }
-                  >
-                    {connector.name}
-                  </button>
-                ))}
-              </div>
-              {error && <p className="text-sm">{error.message}</p>}
-            </>
-          )}
+            <button
+              className="wallet-dialog-close"
+              aria-label="Close wallet dialog"
+              onClick={() => setView(null)}
+            >
+              ×
+            </button>
+            {view === "account" && address ? (
+              <>
+                <h2 id="wallet-dialog-title">Wallet</h2>
+                <p className="wallet-dialog-address">{address}</p>
+                <button
+                  onClick={() => {
+                    disconnect();
+                    setView(null);
+                  }}
+                >
+                  Disconnect
+                </button>
+              </>
+            ) : (
+              <>
+                <h2 id="wallet-dialog-title">Connect wallet</h2>
+                <div className="flex flex-col gap-2">
+                  {connectors.map((connector) => (
+                    <button
+                      key={connector.uid}
+                      disabled={isPending}
+                      onClick={() =>
+                        connect(
+                          { connector },
+                          { onSuccess: () => setView(null) },
+                        )
+                      }
+                    >
+                      {connector.name}
+                    </button>
+                  ))}
+                </div>
+                {error && <p className="text-sm">{error.message}</p>}
+              </>
+            )}
+          </div>
         </div>
       )}
     </WalletDialogContext.Provider>

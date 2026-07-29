@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test client/*.test.ts lib/*.test.ts",
+    "test": "node --experimental-strip-types --test client/*.test.ts config/*.test.ts lib/*.test.ts",
     "test:e2e": "node --experimental-strip-types --test e2e/*.test.ts",
     "generate:cms-openapi": "openapi-typescript https://cms.superfluid.pro/points/openapi.json -o lib/cms-openapi.d.ts"
   },
