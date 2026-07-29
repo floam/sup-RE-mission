@@ -6,7 +6,7 @@ import {
   requireCmsData,
   requireCmsSignature,
 } from "./cms-client.ts";
-import { getCmsEventsSince } from "./cms-events.ts";
+import { getCmsEventsForDelta } from "./cms-events.ts";
 
 const ACCOUNT = "0xdBb811EC62338db94858Ec21ef1d56B658111922";
 
@@ -97,25 +97,24 @@ test("rejects a malformed signed-balance signature", async () => {
   assert.throws(() => requireCmsSignature(signed.signature), /malformed signature/);
 });
 
-test("paginates eventTime-backed createdAt values after the strict boundary", async () => {
-  const boundary = "2026-07-06T14:44:03.000Z";
+test("stops at the newest event suffix whose net points match the delta", async () => {
   const { fetch, requests } = captureFetch((_request, call) =>
     call === 1
       ? json({
           events: [
             {
               id: 1,
-              eventName: "swap-0xabc",
+              eventName: "mint-0xabc",
               account: ACCOUNT,
-              points: 10,
+              points: 20,
               uniqueId: null,
-              createdAt: boundary,
+              createdAt: "2026-07-08T00:00:00.000Z",
             },
             {
               id: 2,
-              eventName: "swap-0xdef",
+              eventName: "adjustment-0xdef",
               account: ACCOUNT,
-              points: 20,
+              points: -15,
               uniqueId: null,
               createdAt: "2026-07-07T00:00:00.000Z",
             },
@@ -123,7 +122,7 @@ test("paginates eventTime-backed createdAt values after the strict boundary", as
           pagination: {
             page: 1,
             limit: 100,
-            totalDocs: 3,
+            totalDocs: 4,
             totalPages: 2,
             hasNextPage: true,
             hasPrevPage: false,
@@ -133,17 +132,25 @@ test("paginates eventTime-backed createdAt values after the strict boundary", as
           events: [
             {
               id: 3,
-              eventName: "mint-0x123",
+              eventName: "swap-0x123",
               account: ACCOUNT,
-              points: 30,
+              points: 5,
               uniqueId: null,
-              createdAt: "2026-07-08T00:00:00.000Z",
+              createdAt: "2026-07-06T00:00:00.000Z",
+            },
+            {
+              id: 4,
+              eventName: "older-0x456",
+              account: ACCOUNT,
+              points: 99,
+              uniqueId: null,
+              createdAt: "2026-07-05T00:00:00.000Z",
             },
           ],
           pagination: {
             page: 2,
             limit: 100,
-            totalDocs: 3,
+            totalDocs: 4,
             totalPages: 2,
             hasNextPage: false,
             hasPrevPage: true,
@@ -152,25 +159,62 @@ test("paginates eventTime-backed createdAt values after the strict boundary", as
   );
   const cms = createCmsClient({ origin: "https://cms.example", fetch });
 
-  const events = await getCmsEventsSince(
+  const reconciliation = await getCmsEventsForDelta(
     {
       account: ACCOUNT,
       campaignId: 608,
-      startTime: boundary,
+      targetPoints: 10,
     },
     cms,
   );
 
+  assert.equal(reconciliation.matched, true);
+  assert.equal(reconciliation.explainedPoints, 10);
   assert.deepEqual(
-    events.map((event) => event.id),
-    [2, 3],
+    reconciliation.events.map((event) => event.id),
+    [1, 2, 3],
   );
   assert.equal(requests.length, 2);
   const firstUrl = new URL(requests[0].url);
   const secondUrl = new URL(requests[1].url);
   assert.equal(firstUrl.searchParams.get("campaignId"), "608");
   assert.equal(firstUrl.searchParams.get("account"), ACCOUNT);
-  assert.equal(firstUrl.searchParams.get("startTime"), boundary);
+  assert.equal(firstUrl.searchParams.has("startTime"), false);
   assert.equal(firstUrl.searchParams.get("page"), "1");
   assert.equal(secondUrl.searchParams.get("page"), "2");
+});
+
+test("returns an explicit partial reconciliation when history is exhausted", async () => {
+  const { fetch } = captureFetch(() =>
+    json({
+      events: [
+        {
+          id: 1,
+          eventName: "swap",
+          account: ACCOUNT,
+          points: 7,
+          uniqueId: null,
+          createdAt: "2026-07-08T00:00:00.000Z",
+        },
+      ],
+      pagination: {
+        page: 1,
+        limit: 100,
+        totalDocs: 1,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPrevPage: false,
+      },
+    }),
+  );
+  const cms = createCmsClient({ origin: "https://cms.example", fetch });
+
+  const reconciliation = await getCmsEventsForDelta(
+    { account: ACCOUNT, campaignId: 608, targetPoints: 10 },
+    cms,
+  );
+
+  assert.equal(reconciliation.matched, false);
+  assert.equal(reconciliation.exhausted, true);
+  assert.equal(reconciliation.explainedPoints, 7);
 });

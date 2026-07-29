@@ -1,7 +1,6 @@
 import { GroupedEventList } from "./GroupedEventList";
 import type { PointState } from "./claim-chain";
 import {
-  formatBoundary,
   formatList,
   formatMonthlyFlow,
   getCampaignAttribution,
@@ -26,6 +25,8 @@ export function ClaimCampaignChange({
     (sum, event) => sum + event.points,
     0,
   );
+  const eventsReconcile =
+    Number.isSafeInteger(eventTotal) && BigInt(eventTotal) === unitDelta;
 
   const statusLabel = !row.cmsCampaignExists
     ? "Reward unavailable"
@@ -108,22 +109,26 @@ export function ClaimCampaignChange({
       {breakdown && (
         <section className="event-drawer" aria-live="polite">
           <span className="eyebrow">Pending update</span>
-          <h3>Events dated since your last claim</h3>
+          <h3>Newest events explaining this point difference</h3>
           <p className="muted">
-            {breakdown.lastClaimAt
-              ? `The public points API returned events dated after your verified claim on ${formatBoundary(breakdown.lastClaimAt)}.`
-              : "We only request events after a verified previous claim."}
+            CMS returns events newest first. We include them one at a time until their
+            net points equal the difference between the CMS target and your current
+            onchain units.
           </p>
-          {breakdown.message && <p className="muted">{breakdown.message}</p>}
           {breakdown.events.length > 0 && (
             <>
               <GroupedEventList events={breakdown.events} />
               <p className="claim-reconciliation muted">
-                {numberFormat.format(eventTotal)} CMS points shown ·{" "}
-                {formatMonthlyFlow(flowDelta, true)} projected stream change. Backfilled
-                events dated before the claim are not visible in this time-bounded view.
+                {eventsReconcile
+                  ? `${numberFormat.format(eventTotal)} CMS points exactly reconcile the ${numberFormat.format(unitDelta)}-unit update.`
+                  : `${numberFormat.format(eventTotal)} of ${numberFormat.format(unitDelta)} pending points are explained by the available newest-event suffix.`}
               </p>
             </>
+          )}
+          {breakdown.events.length === 0 && (
+            <p className="muted">
+              No event suffix was returned for this point difference.
+            </p>
           )}
         </section>
       )}
