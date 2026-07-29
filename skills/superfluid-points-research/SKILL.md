@@ -1,168 +1,170 @@
 ---
 name: superfluid-points-research
-description: Research and implement Superfluid points / SPR campaign discovery, claim-app program lookup, SUP onchain emission programs, CMS points-event enumeration, and claim voucher tooling. Use when Codex needs to find hidden Superfluid points programs, inspect claim.superfluid.org APIs/routes/server actions, query SUP or protocol subgraphs, cross-check cms.superfluid.pro points endpoints, export point event names, or update claim voucher tools.
+description: Research and implement Superfluid points / SPR campaign discovery, claim-app program lookup, SUP onchain emission programs, CMS point events, nonce-bounded pending-claim explanations, flow projections, caps, and claim voucher tooling.
 ---
 
 # Superfluid Points Research
 
-## Core workflow
+## Start here
 
-1. Treat the SUP Goldsky subgraph as the authoritative enumerator for onchain emission `Program` existence and lifecycle fields.
-2. Use direct Base RPC to verify `FluidEPProgramManager.getProgramPool(programId)` and, for current state, pool `getTotalFlowRate`.
-3. Use the Base protocol subgraph for bulk GDA pool enrichment: indexed pool state, members, units, and distributions.
-4. Treat `https://claim.superfluid.org/api/programs` as attribution only: app IDs, seasons, display names, claim-app `onchainInfo`, and other human-readable metadata. Do not use it as the primary source for onchain program existence.
-5. Treat `cms.superfluid.pro` `/points/*` routes as the source for offchain point-event data and CMS campaign metadata where that metadata exists.
-6. Cross-check SUP subgraph, RPC, protocol subgraph, claim API, CMS, and `/points/balance-batch` before concluding a campaign/program is missing.
-7. Prefer batched endpoints and caching; do not brute-force `GET /points/campaign` one ID at a time unless no batch route is available.
+1. Open `RESEARCH-MAP.md` and load the smallest relevant evidence set.
+2. Open `references/endpoints.md` for public response shapes and errors.
+3. Open `references/runtime-endpoints.md` for runnable routes and SDK/Wagmi procedures.
+4. Open `references/pending-event-reconciliation.md` for the authoritative claim
+   explanation and cap algorithm.
+5. Check `PROVENANCE.md` before changing ABI fragments, deployment metadata, generated
+   artifacts, or recovered-source claims.
 
 ## Source hierarchy
 
-When researching Superfluid points / SPR campaigns, prefer sources in this order:
+Use each source only for what it can prove:
 
-1. Live CMS, claim-app, SUP subgraph, protocol subgraph, and RPC responses.
-2. Committed research notes and captured evidence under `research/`.
-3. The endpoint reference in this skill and the locally authored tools under `tools/`.
-4. Narrow external source fragments documented in `PROVENANCE.md`.
-5. Reverse-engineered public app bundles and app-local routes.
-6. Explicitly labeled inference.
+1. SUP Goldsky subgraph: program/locker/indexed claim entities.
+2. Direct Base RPC: contract state, nonces, units, flows, receipts, and logs.
+3. Base protocol subgraph: indexed bulk GDA enrichment.
+4. `claim.superfluid.org/api/programs`: human-readable attribution.
+5. `cms.superfluid.pro/points/*`: raw/capped/signed balances and point events.
+6. `balances.superfluid.dev`: optional token-ledger diagnostics only.
+7. Committed evidence, recovered bundles, then explicitly labeled inference.
 
-When answering campaign ID, funding-start, leaderboard, or account-placement questions, cite or name the source category used. If multiple categories disagree, call out the conflict and prefer the highest-ranking applicable source.
+CMS event `createdAt` is `eventTime`, not insertion time. An empty ledger response does
+not prove no claim occurred. A nonce snapshot does not identify a transaction hash or
+mined timestamp.
 
-## Known useful endpoints
+## Campaign workflow
 
-- `GET https://claim.superfluid.org/api/programs` returns claim-app program metadata as `{ json: ProgramApp[] }`. Use it before the legacy Next.js server action. Important fields: `appId`, `name`, `season`, `category`, `program.id`, `program.onchainInfo.poolAddress`, `fundingFlowRate`, `fundingStartDate`, `fundingEndDate`, `totalAllocated`, `totalClaimed`, `isFundingStarted`, `isFundingFinished`, and `totalMembers`.
-- `GET https://cms.superfluid.pro/points/campaign?campaignId=<id>` returns offchain CMS campaign metadata if the campaign exists.
-- `GET https://cms.superfluid.pro/points/events?campaignId=<id>&limit=100&page=<page>` returns point events plus pagination.
-- `GET https://claim.superfluid.org/api/points/states?accountAddress=<address>` returns SuperJSON as `{ json: { accountAddress, lockerAddress, programPointStates, canClaim } }`. Observed state rows use `{ programId, offchainPoints, onchainPoints, isOnchainOutdated }`.
-  - Treat `offchainPoints` as the CMS signed/capped target units for that account/program. In live probes, it matched CMS `/points/balance-batch` `cappedPoints` / signed-batch `points`, not uncapped raw `points` from `/points/balance-batch`.
-  - Treat `onchainPoints` as current onchain pool member units for the account locker/member in that program. `isOnchainOutdated` means the signed CMS target differs from current onchain units and the user can claim/update.
-  - The claim frontend bundle only calls this route; the route implementation is not in the client bundle. Reconstruct it by joining CMS capped balances with onchain pool-member units from the locker/program pools.
-- `POST https://cms.superfluid.pro/points/balance-batch` accepts up to 50 IDs:
+1. Enumerate SUP `Program` entities.
+2. Verify pools with direct RPC when high confidence is required.
+3. Read current pool flow and enrich through the protocol subgraph when useful.
+4. Join claim-app attribution.
+5. Resolve CMS existence/raw/capped account targets in chunks of 50.
+6. Fetch campaign metadata or events only for known CMS campaigns.
+7. Report SUP, claim-app, CMS, missing, CMS-only, and attribution-only sets separately.
 
-```json
-{
-  "account": "0x0000000000000000000000000000000000000000",
-  "campaignIds": [611, 9999]
-}
-```
+Prefer batched operations and bounded concurrency.
 
-The response includes `warnings: [{ campaignId, message: "Campaign not found" }]` for IDs missing from the offchain CMS. Use this to scan ranges such as `1..9999` in chunks of 50.
+## Primary endpoints
 
-## SUP and protocol subgraphs
+- `GET https://claim.superfluid.org/api/programs`
+- `GET https://claim.superfluid.org/api/points/states?accountAddress=<address>`
+- `GET https://claim.superfluid.org/api/points/claim?accountAddress=<address>`
+- `GET https://cms.superfluid.pro/points/campaign?campaignId=<id>`
+- `GET https://cms.superfluid.pro/points/events?...`
+- `POST https://cms.superfluid.pro/points/balance-batch`
+- `POST https://cms.superfluid.pro/points/signed-balance-batch`
+- SUP subgraph: `https://api.goldsky.com/api/public/project_clsnd6xsoma5j012qepvucfpp/subgraphs/sup/v2/gn`
+- Base protocol subgraph: `https://subgraph-endpoints.superfluid.dev/base-mainnet/protocol-v1`
+- Optional ledger: `https://balances.superfluid.dev/v1/accounts/{account}/tokens/{token}/entries`
 
-SUP onchain emission programs are indexed in the Goldsky-hosted SUP subgraph:
+The exhaustive operational list is in `references/runtime-endpoints.md`.
 
-```text
-https://api.goldsky.com/api/public/project_clsnd6xsoma5j012qepvucfpp/subgraphs/sup/v2/gn
-```
+## CMS OpenAPI boundary
 
-Query `programs` to enumerate onchain claim programs and lifecycle fields:
+`research/claim-app-sources/reconstructed/lib/cms-client.ts` is the sole CMS transport
+boundary. Use generated path calls such as:
 
-```graphql
-query SupPrograms($lastId: String!) {
-  programs(first: 1000, orderBy: id, orderDirection: asc, where: { id_gt: $lastId }) {
-    id
-    distributionPool
-    fundingAmount
-    subsidyAmount
-    earlyEndDate
-    endDate
-    stoppedDate
-    cancellationDate
-    returnedDeposit
-    blockTimestamp
-    transactionHash
-  }
-}
-```
+- `cmsClient.POST("/points/balance-batch", …)`
+- `cmsClient.POST("/points/signed-balance-batch", …)`
+- `cmsClient.GET("/points/events", …)`
 
-Base protocol pool state is available from:
+Do not construct CMS URLs in claim components, chain-state helpers, or local API routes.
+Validate account identity, campaign order, and parallel array lengths for every batch.
+`@sfpro/sdk` 0.2.3 supplies contracts, not this CMS HTTP client.
 
-```text
-https://subgraph-endpoints.superfluid.dev/base-mainnet/protocol-v1
-```
+## Build claim state
 
-After SUP `Program` enumeration, verify pools by direct RPC against `FluidEPProgramManager.getProgramPool(programId)`. Use `pools(where: { id_in: [...] })` for indexed GDA pool fields such as `flowRate`, `totalMembers`, `totalUnits`, `totalAmountDistributedUntilUpdatedAt`, and `updatedAtTimestamp`. Do **not** interpret `Pool.updatedAtTimestamp` as "last SUP flowed"; member/unit updates also change it. For current real-time flow/balance state, prefer Base RPC calls to `FluidEPProgramManager.getProgramPool(programId)` and pool methods such as `getTotalFlowRate`.
+1. Import locker/factory ABIs and addresses from `@sfpro/sdk/abi/sup`.
+2. Use Wagmi reads/hooks and `waitForTransactionReceipt`.
+3. Resolve `getUserLocker(account)`.
+4. Retain active SUP programs.
+5. Fetch unsigned raw/capped values through `balance-batch` in chunks of 50.
+6. Read `getUnitsPerProgram`, `getFlowRatePerProgram`, pool `getTotalUnits`, and
+   `getTotalFlowRate`.
+7. Mark a row claimable when the CMS campaign exists and capped target differs from
+   onchain units.
+8. On explicit submission, request `signed-balance-batch`, validate it, and submit
+   signed `points`, campaign IDs, timestamp, and signature. Never submit
+   `uncappedPoints`.
+9. Require receipt `status: success`; refresh after partial multi-batch success.
 
-Known Base program manager:
-
-```text
-0x1e32cf099992E9D3b17eDdDFFfeb2D07AED95C6a
-```
-
-## claim.superfluid.org program list
-
-Prefer `GET /api/programs`. Use the legacy Next.js server action only as a fallback or cross-check. The claim app uses a Next.js server action named `getProgramApps`. The action ID observed on July 2, 2026 was:
+## Show flows
 
 ```text
-0050c3f0d604f9162ceb3faa2d83005031b4be6b5f
+projectedTotalUnits = poolTotalUnits - currentMemberUnits + targetMemberUnits
+projectedFlowRate = poolTotalFlowRate * targetMemberUnits / projectedTotalUnits
 ```
 
-Call it like this:
+Use `2,628,000` seconds per average month and label projections as estimates.
 
-```bash
-curl -sS -L 'https://claim.superfluid.org/' \
-  -H 'next-action: 0050c3f0d604f9162ceb3faa2d83005031b4be6b5f' \
-  -H 'content-type: text/plain;charset=UTF-8' \
-  -H 'accept: text/x-component' \
-  --data-raw '[]'
-```
+## Explain a pending uncapped delta
 
-The response is React Flight text. The line beginning with `1:` contains a JSON array of program apps. Parse that line by stripping the `1:` prefix and `JSON.parse` it. Extract IDs from `app.program?.id`.
+Use `client/pending-event-explanations.ts` from the reviewed claim state. Do not add a
+local API proxy unless it provides a real server-only responsibility.
 
-If the action ID stops working, fetch `https://claim.superfluid.org`, download its `/_next/static/...js` chunks, and search for `getProgramApps`, `createServerReference`, `programApps`, `/api/points/states`, or `/api/points/claim` to find the new server action ID and related routes.
+Procedure:
 
-## Get position of an account on a leaderboard
+1. Filter the reviewed `PointState` rows to existing, changed, uncapped campaigns.
+2. Pass the complete filtered set to the helper once; reuse each row's onchain units.
+3. Request fresh `signed-balance-batch` values in chunks of 50 and validate them.
+4. Reject the explanation if fresh raw or claimable values differ from the reviewed row.
+5. Read only `getNextValidNonce(programId, account)` onchain for each row.
+6. Derive `lastClaimNonce = nextValidNonce - 1` and use the fresh
+   `signatureTimestamp` as `currentNonce`.
+7. Require `currentNonce > lastClaimNonce`; an equal or older voucher is unusable.
+8. Request events inside the inclusive nonce-derived `startTime`/`endTime` interval,
+   newest first.
+9. Add signed event points one at a time and stop at the first prefix equal to
+   `uncappedPoints - onchainUnits`.
+10. Return the selected events or an explicit partial-explanation message; group
+    semantic event families in the UI.
 
-Use this procedure for account position, place, rank, or leaderboard lookups. Campaign lookups require `campaignId`.
+The lower nonce is the signed balance snapshot last accepted onchain, not the claim
+transaction's block time. To identify the actual claim transaction, inspect calldata and
+verify its receipt/logs separately.
 
-1. Validate and normalize the account address.
-2. For campaign placement, confirm the campaign exists with `GET https://cms.superfluid.pro/points/campaign?campaignId=<id>`.
-3. For campaign placement, use `GET https://cms.superfluid.pro/points/accounts?campaignId=<id>&account=<account>`. The returned `accounts[]` list is the sorted campaign leaderboard for the request.
-4. For overall placement, use `GET https://claim.superfluid.org/api/leaderboard`.
-5. Use server-provided `rank`, `place`, or list order. Do not recompute ranks from raw point events unless CMS code or docs define the ranking algorithm, tie handling, capped points behavior, and excluded events.
+Boundary seconds are included because nonces have second resolution. CMS backfills can
+still have an event time outside the nonce interval.
 
-Campaign example:
+## Capped campaigns
 
-```text
-https://cms.superfluid.pro/points/accounts?campaignId=699&account=0xdBb811EC62338db94858Ec21ef1d56B658111922
-```
+The CMS raw/claimable pair is authoritative. When they differ:
 
-Known campaign fields: `accounts[]`, `accounts[].account`, `accounts[].totalPoints`, `accounts[].eventCount`, and `accounts[].lastEventAt`. Also document any returned `rank`, `place`, `points`, `cappedPoints`, or equivalent fields when present.
+- render `Capped out` prominently;
+- show raw balance and claim target in details;
+- state that additional activity will not increase this campaign's stream;
+- skip incremental event retrieval;
+- keep the state visible after synchronization;
+- still submit the capped target if it is not yet onchain.
 
-## Important interpretation
+## Historical claim research
 
-- Claim API/route program IDs are onchain claim programs; not all of them resolve in `/points/campaign`.
-- SUP subgraph `Program` IDs are onchain emission programs; some have no claim-app attribution and some have no CMS point events.
-- `/points/balance-batch` identifies offchain CMS campaign IDs, including hidden IDs above 1000.
-- Report these sets separately: claim API IDs, legacy claim route IDs, SUP subgraph IDs, balance-batch IDs, resolved CMS IDs, missing-from-CMS IDs, onchain-only IDs, and CMS-only IDs.
-- For point-event names, only resolved CMS campaigns can be enumerated with `/points/events`.
+For transaction hash, caller, calldata, block time, or receipt status, use
+`tools/sup-nonces/investigate-sup-nonces.js`, SUP indexed claims, and direct Base receipt
+or SDK-defined log verification. Do not substitute snapshot nonce time for block time.
+
+## Leaderboards
+
+Use CMS campaign account/rank endpoints or claim-app leaderboard/search endpoints.
+Prefer server-provided order/rank unless tie, cap, and exclusion rules are proven.
 
 ## Claim voucher tooling
 
-For `tools/claim-voucher/injector.js` and its README:
+- Sign through `signed-balance-batch`.
+- Submit capped `points`.
+- Independently verify onchain units for high-confidence conclusions.
+- Reuse a voucher only when account, campaign IDs, targets, and nonce remain exact.
 
-1. Keep voucher signing through `POST https://cms.superfluid.pro/points/signed-balance-batch`. The CMS batch endpoint signs selected campaign subsets and supports one or many campaigns.
-   - `signed-balance-batch.points` are the signed target units. When `uncappedPoints` is present, keep it diagnostic-only; do not submit it as `totalProgramUnits`.
-2. Use `GET https://claim.superfluid.org/api/points/states?accountAddress=<address>` for account point-state rows.
-3. Use `GET https://claim.superfluid.org/api/programs` for program names, seasons, app IDs, pool addresses, and claim-app `onchainInfo` in the UI. Do not use the SUP/protocol subgraphs for the actual signed voucher payload.
-4. Use `GET https://claim.superfluid.org/api/points/claim?accountAddress=<address>` only as optional reference/debug data.
-5. Preserve cache correctness: voucher reuse requires the same selected program IDs, non-stale nonce/timestamp, and exact current offchain target totals.
+## Performance and evidence defaults
 
-## Performance defaults
+- Cache successful broad-scan responses.
+- Chunk CMS balance/signature operations at 50.
+- Use event pages of 100 and explicit page caps.
+- Batch changed-campaign explanations once per wallet state.
+- Fail explicitly rather than silently truncating.
+- Preserve disagreements between live sources.
 
-- Use HTTP/2 curl requests when Node fetch cannot reach the network in the agent environment.
-- Cache successful HTTP responses in a local JSON cache.
-- Scan `/points/balance-batch` with chunks of 50 and bounded concurrency.
-- For finished pre-Season-6 campaigns, sampling first and final `limit=100` pages may be enough for exploratory event-name reports; for Season 6+ and known in-progress older campaigns, fetch all pages.
+## Documentation synchronization
 
-
-## Repository map
-
-Open `RESEARCH-MAP.md` before substantial work. It maps questions to the smallest useful set of research notes, evidence, and executable tools.
-
-## Official Superfluid skill boundary
-
-The official `superfluid` skill is expected to be installed beside this skill. Use it for protocol-wide contract ABIs, selectors, deployed-address catalogs, architecture, generic SDK usage, standard subgraph guidance, and reusable protocol helper scripts.
-
-Do not copy those materials into this repository. Add a narrow external fragment only when an investigation must modify it or pin an exact source version, and record its repository, path, commit, reason, and local changes in `PROVENANCE.md`.
+Update the skill, runtime inventory, reconciliation reference, research map,
+reconstructed README/RUNNABILITY, and provenance together when claim behavior,
+endpoints, ABIs, CMS operations, nonce/cap semantics, or authority changes.

@@ -62,6 +62,8 @@ export const SUP_TOKEN_ADDRESS_BY_CHAIN = supTokenAddress;
 export const gdaPoolReadAbi = parseAbi([
   "function getTotalAmountReceivedByMember(address member) view returns (uint256)",
   "function getMemberFlowRate(address member) view returns (int96)",
+  "function getTotalFlowRate() view returns (int96)",
+  "function getTotalUnits() view returns (uint128)",
 ]);
 
 export const NATIVE_TOKEN_ADDRESS =

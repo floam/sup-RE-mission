@@ -1,0 +1,47 @@
+name: Refresh CMS OpenAPI types
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 9 * * 1"
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: research/claim-app-sources/reconstructed/package-lock.json
+
+      - name: Install dependencies
+        working-directory: research/claim-app-sources/reconstructed
+        run: npm ci
+
+      - name: Regenerate CMS OpenAPI types
+        working-directory: research/claim-app-sources/reconstructed
+        run: npm run generate:cms-openapi
+
+      - name: Verify generated client integration
+        working-directory: research/claim-app-sources/reconstructed
+        run: npm run typecheck && npm test && npm run test:e2e
+
+      - name: Commit refreshed types
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add research/claim-app-sources/reconstructed/lib/cms-openapi.d.ts
+          if git diff --cached --quiet; then
+            echo "CMS OpenAPI types are already current."
+            exit 0
+          fi
+          git commit -m "Refresh CMS OpenAPI types"
+          git push origin HEAD:${GITHUB_REF_NAME}

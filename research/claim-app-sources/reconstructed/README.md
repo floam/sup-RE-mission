@@ -1,111 +1,84 @@
 # Claim app application-source reconstruction
 
 This directory is a semantic reconstruction of the first-party application source
-shipped by `claim.superfluid.org`. It contains 124 readable TypeScript/TSX modules:
-10 page routes, the root layout and error boundary, React components and providers,
-transaction/data hooks, application configuration, narrow app-owned contract ABI
-fragments, and inferred domain types.
+shipped by `claim.superfluid.org`, plus a deliberately small runnable compatibility
+application used to validate and extend the recovered behavior.
 
 It is **not** a byte-for-byte recovery. The deployment did not publish usable source
-maps, so names and boundaries that cannot be proven are labeled as inference instead
-of being presented as original source. `MODULE_MAP.md` is the canonical global symbol
-table and evidence ledger; each public identity has one owning module there.
+maps, so names and boundaries that cannot be proven are labeled as inference rather
+than original private source. `MODULE_MAP.md` is the symbol/evidence ledger.
 
-The audit modules now sit beside a deliberately small, bootable Next.js
-compatibility application. See `RUNNABILITY.md` for local/Vercel commands, the
-client-side data architecture, exact production-endpoint exceptions, functional
-scope, and remaining limitations.
+See `RUNNABILITY.md` for local/Vercel commands, SDK/Wagmi architecture, the CMS OpenAPI
+boundary, nonce-bounded pending-event reconciliation, cap behavior, verification, and
+limitations.
+
+## Recovered source versus compatibility code
+
+Repository-authored compatibility modules include:
+
+- `client/ClaimExperience.tsx`: staged account review, batched explanation loading,
+  client explanation cache, and claim orchestration;
+- `client/ClaimCampaignChange.tsx`: current/projected flow, capped-out state, and event
+  reconciliation UI;
+- `client/claim-chain.ts`: active program, CMS raw/capped target, and Wagmi state assembly;
+- `client/claim-batch.ts`: strict CMS batch response validation;
+- `client/claim-display.ts`, `client/claim-event-breakdown.ts`,
+  `client/GroupedEventList.tsx`, and `client/event-groups.ts`: presentation and grouping;
+- `client/flow-projection.ts`: deterministic member-flow projection;
+- `client/pending-event-explanations.ts`: client-side batching, signed-balance drift
+  checks, nonce reads, and CMS event reconciliation using reviewed point state;
+- `lib/cms-client.ts`: typed `openapi-fetch` CMS transport boundary;
+- `lib/cms-events.ts`: bounded newest-first event pagination and lazy summation;
+- `lib/claim-nonce-window.ts`: signed-snapshot nonce interval derivation.
+
+There is no local pending-event API route or separate server-side Wagmi configuration.
+Those layers duplicated public CMS/RPC work already available to the client and added no
+private credential, durable cache, authentication, or authority boundary.
+
+These modules are local product/reconstruction work, not recovered private source.
 
 ## Evidence used
 
-- The pinned raw production responses under
-  `recovered/claim.superfluid.org/raw/`, including factory IDs and literal values.
-  These exact bytes are canonical evidence; the matching
-  `recovered/claim.superfluid.org/beautified/` files are verified review aids.
-- The Sentry source catalog, which supplies many original source basenames and
-  component identities.
-- Next.js route payloads and chunk relationships, used to reconnect route shells to
-  their client modules.
-- The immutable production chunk matching the captured deployment, used to resolve
-  factories absent from the local beautified catalog (notably claim/delegation,
-  account/profile, program schema, Reserve names, and Swap behavior).
-- A same-deployment HAR capture of the `getProgramApps` and `getProgramPoolInfos`
-  React Flight responses. Only first-party claim traffic was used; request headers,
-  cookies, and unrelated browsing traffic are not retained in this tree.
-- Live zero-argument action responses for staking, liquidity, and governance,
-  cross-checked against the SUP, Superfluid protocol, Uniswap V3, LiFi, and public
-  SUP metrics APIs.
+- Hash-pinned public responses under `recovered/claim.superfluid.org/raw/`.
+- Sentry source-catalog names and Next.js route/chunk relationships.
+- Same-deployment HAR captures of first-party React Flight responses.
+- Public claim-app, SUP subgraph, Base RPC, protocol subgraph, and CMS behavior.
+- CMS OpenAPI schemas from `superfluid-org/superfluid.pro` commit
+  `a79f0cd7969fbd96f97c7451079a538d8fc7202c`.
+- Program-manager nonce semantics checked against `superfluid-org/sup-token` commit
+  `91179958d5555ba47f68b0bb9a666cd2ac973e82`.
 
 ## Reconstruction policy
 
-- Exact observed endpoint paths, URLs, chain IDs, contract addresses, ABI members,
-  transaction function names, argument order, fees, durations, storage keys, query
-  gates, and bigint arithmetic are preserved.
-- Webpack factories, export indirection, React compiler memo arrays, transpiler
-  helpers, and Next.js runtime machinery are simplified back into plausible
-  human-written React and TypeScript.
-- Radix/shadcn primitives, wagmi, Reown, TanStack Query, Segment, viem, Uniswap,
-  Superfluid SDK, and generated GraphQL machinery remain dependencies. Their
-  implementation bodies are not mislabeled as first-party source.
-- Protocol-wide Superfluid ABIs remain in `@sfpro/sdk`. The reconstruction includes
-  only narrow app-owned or directly consumed ABI fragments embedded in the bundle.
-- When later evidence changed a name or shape, all consumers and the symbol ledger
-  were updated together. No alternate public aliases are retained.
+- Preserve observed endpoint paths, chain IDs, addresses, ABI members, transaction
+  names, argument order, and bigint arithmetic.
+- Keep dependency-owned code in dependencies and import SUP contract surfaces from
+  `@sfpro/sdk/abi/sup`.
+- Keep CMS HTTP access behind `lib/cms-client.ts` and validate batch account/order/arrays.
+- Submit only signed/capped `points`; use `uncappedPoints` only for explanation.
+- Treat `getNextValidNonce - 1` as the nonce of the last accepted signed snapshot, not
+  the claim transaction's mined timestamp.
+- Treat CMS `createdAt` as event occurrence time, not insertion time.
+- Show capped campaigns explicitly and skip event additions that cannot increase their
+  claim target.
+- Update consumers, docs, tests, and provenance together when evidence changes.
 
 ## Server-action reconstruction
 
-The browser does not contain the original server source, so these are semantic
-reconstructions rather than claimed byte-for-byte bodies. The capture and live
-deployment nevertheless expose enough inputs and outputs to restore the action
-contracts and their query/math behavior:
-
-| Client-visible action      | Server action ID                             | Recovered behavior                                       |
-| -------------------------- | -------------------------------------------- | -------------------------------------------------------- |
-| `getProgramPoolInfos`      | `003f4c4ef5e976bf16920f03d8a97174f1d8ae67e6` | Protocol-pool units and per-unit flow for active apps    |
-| `getProgramApps`           | `0050c3f0d604f9162ceb3faa2d83005031b4be6b5f` | 72-entry registry plus contract and live pool data       |
-| `getStakingStats`          | `00a6446d221d62d46ca41e7294731c14ab30fc9053` | Staker pool totals, accrued distribution, and APR        |
-| `getLiquidityPoolStats`    | `00c1274b3226ccdf16c1f187bbdd66ac7c5647b0ae` | Uniswap V3 pool/day TVL, volume, fee, and token metadata |
-| `getLiquidityRewardsStats` | `0099a827feb87232328ca49a8aaec8daa5598e5c0c` | LP reward pool accrual and USD-denominated APR           |
-| `getTotalDelegatedAmount`  | `00cfeebe90442ab515b51fba3ba323324474e768b8` | `/v1/total_delegated_score` response projection          |
-
-The public Uniswap V3 Base fallback in `lib/endpoints.ts` is an inferred compatible
-deployment because a server-to-server URL is not present in browser/HAR evidence;
-`UNISWAP_V3_BASE_SUBGRAPH_URL` preserves the likely production configuration
-boundary. All GraphQL selections, pool/token identities, action result fields,
-cache intervals, bigint accrual, unit scaling, and one-decimal APR calculations are
-evidence-backed.
-
-The full Reown adapter network/connector list was assembled from third-party exports
-in the production bundle. Observable first-party AppKit options are recovered in
-`config/app-kit.ts`, while the adapter instance remains an input to
-`ContextProvider`.
-
-Sentry-named UI primitives (`badge`, `dialog`, `drawer`, `pagination`,
-`responsive-dialog`, `sheet`, and `skeleton`) are dependency-owned boilerplate and
-are intentionally excluded. All other cataloged first-party source basenames are
-represented in the reconstructed tree.
+Browser-visible server actions are semantic reconstructions, not claimed original
+bodies. The current evidence supports their inputs, outputs, query structure, and math.
+The public Uniswap V3 Base fallback remains an inferred compatible deployment because
+the original server-to-server URL is absent from captured browser evidence.
 
 ## Validation
 
-The final tree is checked as a unit for resolvable relative imports, TypeScript/TSX
-syntax through an ES2022 ESM transpile, and unique exported symbol ownership. The
-checks operate on the reconstructed source itself, not on helper extraction output.
-
-The result is intended as readable audit material and as source a competent
-developer could plausibly have supplied to the bundler. It should not be described
-as the original private repository.
+The tree is checked for resolvable imports, TypeScript/TSX syntax, deterministic claim
+tests, live CMS/SUP smoke tests, and a production Next.js build. The result is readable
+audit material and plausible application source, not the original private repository.
 
 ## Recovered application name
 
-Generated GraphQL modules expose original build paths rooted at
-`/vercel/path0/apps/claim-app`, and every instrumented chunk carries the Sentry
-application key `claim-app`. The observable public metadata says
-`Superfluid Claim App`, while the LiFi integration uses
-`superfluid-claim-app`. The strongest conclusion is therefore:
-
-- original monorepo workspace/directory and build key: `claim-app`;
-- public product name: `Superfluid Claim App`;
-- integration slug: `superfluid-claim-app`.
-
-The unavailable original `package.json` means its exact npm package `name`
-field remains unproven.
+Generated GraphQL modules expose paths rooted at `/vercel/path0/apps/claim-app`, and
+instrumented chunks use the Sentry key `claim-app`. Public metadata says
+`Superfluid Claim App`; LiFi uses `superfluid-claim-app`. The unavailable original
+`package.json` leaves its exact npm package name unproven.

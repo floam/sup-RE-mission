@@ -2,10 +2,10 @@
 
 ## Status
 
-The reconstruction is now a runnable, client-first Next.js application. It has
-an app-local dependency lock, TypeScript configuration, production build, basic
-responsive styling, campaign explorer, injected-wallet connection, eligibility
-display, Base claim submission, and the recovered feature routes.
+The reconstruction is a runnable client-first Next.js application with a small server
+compatibility layer for recovered features. The claim path itself uses Reown/Wagmi in
+the browser for eligibility review, projected SUP flows, nonce-bounded event
+explanations, capped-campaign UX, and Base claim submission.
 
 ## Local use
 
@@ -15,57 +15,131 @@ npm ci
 npm run dev
 ```
 
-The production path is `npm run build && npm start`. Vercel can deploy this
-directory as the project root using the detected Next.js preset. The checked-in
-`package-lock.json` is the dependency authority.
+Production: `npm run build && npm start`. Vercel can deploy this directory as project
+root. `package-lock.json` is the dependency authority.
 
-Alchemy provides the Base mainnet and Base Sepolia RPC transports. The supplied
-public application key is the zero-configuration default; set
-`NEXT_PUBLIC_ALCHEMY_API_KEY` in Vercel to rotate it without a code change. This
-variable is necessarily public because Reown and injected-wallet chain metadata
-consume the resulting URLs in the browser.
+## Contract and service stack
 
-## Data paths and compatibility boundary
+The runnable claim path uses:
 
-| Behavior             | Browser data source                                  | Why                                        |
-| -------------------- | ---------------------------------------------------- | ------------------------------------------ |
-| Campaign enumeration | SUP Goldsky subgraph                                 | Public GraphQL replaces a server action    |
-| Campaign filtering   | Local browser state                                  | No server behavior is needed               |
-| Wallet connection    | Injected EIP-1193 provider                           | Accounts never pass through this app       |
-| Eligibility display  | CMS, Alchemy, SUP subgraph and GDA pools             | Reconstructed entirely in the browser      |
-| Voucher creation     | CMS `signed-balance-batch`                           | CMS returns the authorized batch signature |
-| Transaction          | Injected provider, Base chain, and the user's locker | Encoded and submitted entirely client side |
+- `@sfpro/sdk/abi/sup` for locker, locker-factory, and program-manager ABIs/addresses;
+- Wagmi core `readContract` for locker, flow, pool, and nonce reads;
+- Wagmi hooks for chain switching and `useWriteContract`;
+- `waitForTransactionReceipt` for confirmation and explicit success checking;
+- `lib/cms-client.ts` as the sole CMS transport boundary;
+- `client/pending-event-explanations.ts` for client-side explanation orchestration;
+- `lib/claim-nonce-window.ts` for signed-snapshot interval derivation;
+- a narrow local GDA pool ABI because `@sfpro/sdk` 0.2.3 does not export the pool ABI.
 
-The claim flow does not proxy `claim.superfluid.org`. It reproduces point states by
-joining CMS capped balances to the locker resolved through Alchemy and direct
-`getUnits(locker)` reads from each active program's GDA pool. Program lifecycle
-values are normalized as numeric timestamps (`"0"` means not stopped), rather than
-using GraphQL string truthiness. On an explicit claim it requests the selected
-campaign set from CMS `signed-balance-batch` and submits that exact signed target.
-The app has no `app/api` compatibility routes and sends no account through a Vercel
-function.
+Do not duplicate SDK ABIs or construct CMS `/points/*` URLs outside the generated-client
+boundary.
 
-The recovered read-only server actions remain source-backed implementations. If a
-behavior later proves impossible to reconstruct, call the matching action on the
-original host directly rather than replacing route code with a local proxy.
+## Data paths
+
+| Behavior | Data source |
+| --- | --- |
+| Campaign enumeration | SUP Goldsky subgraph |
+| Campaign attribution | Recovered app definitions / public claim metadata |
+| Raw and capped claim state | `POST /points/balance-batch` |
+| Locker, units, and member flow | SDK ABIs through Wagmi |
+| Pool totals | Narrow GDA pool reads through Wagmi |
+| Last applied signed snapshot | `programManager.getNextValidNonce(programId, account) - 1` |
+| Fresh upper snapshot | `POST /points/signed-balance-batch` `signatureTimestamp` |
+| Pending event explanation | Client helper plus bounded `GET /points/events` calls |
+| Voucher creation for submission | `POST /points/signed-balance-batch` |
+| Transaction | SDK `lockerAbi`, Wagmi, Base, user's locker |
+
+Claim-state and signed-balance batches require matching account, exact campaign order,
+and equal parallel array lengths. The contract receives only signed/capped `points`;
+raw `uncappedPoints` are explanatory data.
+
+## SUP flow projection
+
+```text
+projectedTotalUnits = poolTotalUnits - currentMemberUnits + targetMemberUnits
+projectedFlowRate = poolTotalFlowRate * targetMemberUnits / projectedTotalUnits
+```
+
+The UI uses `2,628,000` seconds per average month. Projection is an estimate because
+pool flow or other members' units can change before execution.
+
+## Pending claim explanations
+
+`ClaimExperience` already has reviewed `PointState` rows containing the CMS raw and
+claimable values plus current onchain units. When a user opens one uncapped changed
+campaign, it passes the complete changed uncapped set to
+`client/pending-event-explanations.ts`.
+
+The helper:
+
+1. chunks fresh `signed-balance-batch` requests at 50 campaigns and validates them;
+2. rejects the explanation if fresh raw or claimable values no longer match the
+   reviewed rows;
+3. reads `getNextValidNonce` for each row, without repeating locker or unit reads;
+4. derives `lastClaimNonce = nextValidNonce - 1` and uses the fresh signed response
+   timestamp as `currentNonce`;
+5. requests CMS events within the inclusive nonce-derived event-time interval;
+6. consumes events newest-first until their signed sum equals
+   `uncappedPoints - onchainUnits`;
+7. returns the selected events or an explicit partial-explanation message.
+
+The claim UI excludes synchronized and capped campaigns before calling the helper. A
+nonce is the timestamp of a signed balance snapshot, not the transaction's block
+timestamp. A task needing the actual claim transaction must locate/decode the
+transaction and verify its successful receipt or SDK-defined logs.
+
+Boundary-second events are retained because nonces have second resolution; arithmetic
+reconciliation determines whether the selected prefix needs them. CMS `createdAt` is
+`eventTime`, so a later backfill with an older event time can still fall outside the
+window.
+
+No local pending-event API route remains. The removed route repeated active-program,
+locker, unit, signed-balance, and nonce work already available in the browser and had no
+private credential, durable cache, authentication, or server-only authority.
+
+## Capped campaigns
+
+The unsigned state exposes raw `points` and claimable `cappedPoints`; signed responses
+expose the same domains as `uncappedPoints` and `points`. When those values differ, the
+UI displays `Capped out`, keeps the state visible after synchronization, and does not
+load incremental events because further activity cannot increase the claim target.
+A pending capped target is still submitted normally.
+
+## Client batching and cache
+
+The first explanation action processes all changed uncapped campaigns together. Signed
+balances are batched, independent nonce/event work runs concurrently, and each result is
+cached by account, campaign, onchain units, and uncapped balance. A claim-state refresh
+naturally changes the key.
 
 ## Functional scope
 
-- `/` explains the recovered build and links to its working areas.
-- `/apps` enumerates all indexed SUP programs and filters by ID or pool address.
-- `/claim` connects an injected wallet (or checks a pasted address), displays
-  target and onchain units, obtains a voucher only on an explicit claim, switches
-  to Base, and submits `FluidLocker.claim` through the wallet.
-- `/governance`, `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`,
-  `/staking`, and `/swap` retain their recovered route implementations.
+- `/claim` connects or inspects a wallet, shows flows and capped states, explains
+  uncapped deltas, and submits claims only for the owning connected wallet.
+- `/apps`, `/governance`, `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`,
+  `/staking`, and `/swap` retain their reconstructed implementations.
+
+## Verification
+
+```sh
+npm run typecheck
+npm test
+npm run test:e2e
+npm run build
+```
+
+Also exercise `/claim`, open more than one changed campaign explanation to confirm cache
+reuse, and confirm capped campaigns never request incremental events.
 
 ## Known limitations
 
-- Direct browser fetches depend on CMS and the public subgraphs continuing to
-  permit CORS.
-- The transaction path supports the observed single and batch `claim` forms. The
-  recovered disconnect-finished-pools and claim-and-stake variants are not exposed.
-- Root-relative artwork from the captured deployment is deliberately not copied.
-  The runnable UI uses CSS rather than fabricating or hotlinking missing assets.
-- This is a behavioral reconstruction, not the original private source tree or a
-  byte-identical recompilation.
+- Public subgraphs, RPC, and CMS availability remain runtime dependencies.
+- Event ordering is by event time; insertion-time backfills are not observable.
+- Same-second event order cannot be proven from second-resolution nonces alone.
+- Multiple newest-first prefixes can share a net value; the algorithm chooses the first.
+- A fresh signed-balance request creates a valid read-only voucher; the helper discards
+  its signature and uses only typed balance values and nonce.
+- Flow projections can move before execution.
+- Claim-and-stake, disconnect-finished-pools, and future clear-macro variants remain
+  outside this UI PR.
+- This is a behavioral reconstruction, not the original private source tree.

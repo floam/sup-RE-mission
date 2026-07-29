@@ -4,111 +4,138 @@ This file records external material and generated artifacts used by SUP Re:Missi
 
 ## Whole-file vendoring
 
-No complete file from the official Superfluid skill is currently vendored in this repository.
-
-The official skill lives in `superfluid-org/skills` under `skills/superfluid/`. It is expected to be installed separately and remains the source for protocol-wide ABIs, selectors, deployed-address information, architecture, SDK guidance, generic subgraph references, and reusable protocol scripts.
+No complete file from the official Superfluid skill is vendored. The official skill
+remains the source for protocol-wide ABIs, selectors, deployments, architecture, SDK
+guidance, generic subgraph references, and reusable helpers.
 
 ## Embedded external interface fragments
 
 The Wagmi 3 migration types in
-`research/claim-app-sources/reconstructed/hooks/useLiquidityTransactions.ts`
-and their compile-time regression test adapt the ABI-derived
-`ContractFunctionName` / `ContractFunctionArgs`, payable-value gating, and
-explicit Wagmi handoff-cast approach from
-`superfluid-org/superfluid-dashboard` commit
-`ee1af4ff25fba76d5ecfebe7cf0a1e3244f40bbd`. The local implementation is
-limited to the reconstructed claim app's three liquidity calls and retains its
-existing hook lifecycle; no Dashboard source file is vendored.
+`research/claim-app-sources/reconstructed/hooks/useLiquidityTransactions.ts` adapt the
+ABI-derived typing approach from `superfluid-org/superfluid-dashboard` commit
+`ee1af4ff25fba76d5ecfebe7cf0a1e3244f40bbd`. No Dashboard file is vendored.
 
-`tools/sup-nonces/investigate-sup-nonces.js` contains minimal ABI fragments for:
+`tools/sup-nonces/investigate-sup-nonces.js` contains minimal ABI fragments for
+`FluidLockerFactory.getUserLocker`, `FluidEPProgramManager.getNextValidNonce`, and
+locker claim variants/events. They are intentionally narrow decoding/read surfaces.
 
-- `FluidLockerFactory.getUserLocker`
-- `FluidEPProgramManager.getNextValidNonce`
-- `FluidLocker` claim variants and claim events
+The runnable claim path imports `lockerFactoryAddress`, `lockerFactoryAbi`, `lockerAbi`,
+`programManagerAddress`, and `programManagerAbi` from `@sfpro/sdk/abi/sup` 0.2.3.
+This is dependency use, not vendored source.
 
-These fragments describe deployed Superfluid contracts and were checked against the official Superfluid contract interfaces and the official skill references. They are intentionally minimal because the investigator needs only decoding and read calls. Do not replace them with copied full ABI files.
+Program-manager nonce semantics were checked against
+`superfluid-org/sup-token` commit
+`91179958d5555ba47f68b0bb9a666cd2ac973e82`,
+`packages/contracts/src/EPProgramManager.sol`:
 
-`research/claim-app-sources/reconstructed/client/ClaimPanel.tsx` contains only the
-`FluidLockerFactory.getUserLocker` read and four-argument batch
-`FluidLocker.claim` interfaces needed to resolve the user's locker and encode the
-recovered browser transaction. They were reduced from the already documented
-public claim-app bundle and checked against the same official interfaces. No
-complete ABI or official-skill source is vendored.
+- a successful single or batch update stores the submitted nonce in
+  `_lastValidNonces[programId][user]`;
+- `getNextValidNonce(programId, user)` returns that stored nonce plus one;
+- a new nonce is valid only when greater than the stored nonce.
 
-`research/claim-app-sources/reconstructed/contracts/app-contracts.ts` contains a
-two-method GDA pool read fragment for member received amount and flow rate. The
-installed `@sfpro/sdk` release does not export its pool ABI, and these two reads are
-required by the restored staking and liquidity routes. The signatures are pinned
-to `superfluid-org/protocol-monorepo`,
-`packages/ethereum-contracts/contracts/interfaces/agreements/gdav1/ISuperfluidPool.sol`,
-commit `a5bf3a6747815b19619c277191344f7f0ce7e135`. The local fragment removes only
-documentation, parameter names, the named return value, and unneeded methods;
-its two selectors and Solidity types are unchanged. To refresh it, fetch that
-path at the intended protocol-monorepo revision, compare
-`getTotalAmountReceivedByMember` and `getMemberFlowRate` with `gdaPoolReadAbi`,
-then update the pinned commit here. Verify the local strings with Viem's
-`parseAbi`, which is covered by the reconstructed app's TypeScript build. No
-complete ABI is vendored.
+The reconstruction therefore derives the last applied signed snapshot as
+`getNextValidNonce(...) - 1`. It does not describe that snapshot nonce as the claim
+transaction's mined timestamp.
 
-The Base contract addresses and public RPC/subgraph endpoints in the tools are external deployment metadata, not locally defined protocol configuration.
+`research/claim-app-sources/reconstructed/contracts/app-contracts.ts` contains only the
+GDA pool reads needed by restored behavior and flow projection:
 
-`tools/point-events/export-point-event-names.ts` contains minimal ABI fragments for:
+- `getTotalAmountReceivedByMember(address)`
+- `getMemberFlowRate(address)`
+- `getTotalUnits()`
+- `getTotalFlowRate()`
 
-- `FluidEPProgramManager.getProgramPool`
-- GDA pool `getTotalFlowRate`
+They were checked against `superfluid-org/protocol-monorepo` commit
+`414109689d9041a8b6900b67b947f3f203c1da5d`, path
+`packages/ethereum-contracts/contracts/interfaces/agreements/gdav1/ISuperfluidPool.sol`.
+No complete pool ABI is vendored.
 
-These fragments are limited to direct RPC verification of SUP `Program` pool addresses and current pool flow state during campaign-history export.
+Base addresses, RPC/subgraph URLs, CMS routes, historical-balance APIs, and metrics URLs
+are external deployment metadata.
 
-## Repository-authored material
+## Repository-authored compatibility code
 
-The points research skill, endpoint notes, claim-voucher injector, event exporter, nonce investigator, tests, audits, and security assessment were authored and iterated in this repository.
+Local product/reconstruction modules include:
+
+- `client/ClaimExperience.tsx`
+- `client/ClaimCampaignChange.tsx`
+- `client/claim-batch.ts`
+- `client/claim-chain.ts`
+- `client/claim-display.ts`
+- `client/claim-event-breakdown.ts`
+- `client/GroupedEventList.tsx`
+- `client/event-groups.ts`
+- `client/flow-projection.ts`
+- `client/pending-event-explanations.ts`
+- `lib/cms-client.ts`
+- `lib/cms-events.ts`
+- `lib/claim-nonce-window.ts`
+
+`lib/cms-client.ts` is a small repository-authored `openapi-fetch` integration. Its
+path/request/response types come from committed `lib/cms-openapi.d.ts`, generated from
+`https://cms.superfluid.pro/points/openapi.json` using `openapi-typescript` 7.13.0.
+The runtime uses `openapi-fetch` 0.17.0. `@sfpro/sdk` does not provide this HTTP client.
+
+The generated CMS schema establishes:
+
+- unsigned `points` are the true accumulated balance;
+- unsigned `cappedPoints` are the claimable post-cap target;
+- signed `uncappedPoints` and signed `points` are the same raw/claimable domains;
+- signed `signatureTimestamp` is the nonce included in the voucher;
+- capped accounts currently receive a one-unit target;
+- events can be positive or negative and are ordered newest-first by `eventTime`,
+  exposed as `createdAt`.
+
+`client/pending-event-explanations.ts` is client-side orchestration. It reuses the
+reviewed `PointState` rows, obtains fresh signed balances in validated chunks of 50,
+rejects balance drift, reads only `getNextValidNonce` onchain, bounds CMS event time
+between the last accepted signed nonce and the fresh signed nonce, and lazily sums the
+bounded events until they explain `uncappedPoints - onchainUnits` or history is
+exhausted. The claim UI filters out capped and synchronized rows before calling it.
+
+No local pending-event API route or server-only Wagmi configuration remains. There was
+no private credential, durable cache, authentication boundary, or server-only authority
+to justify that proxy.
+
+This is an arithmetic explanation of signed-snapshot change, not proof of the actual
+claim transaction hash or block time. Those require transaction/receipt/log research.
+CMS event time is not insertion time, so a backfill can still fall outside the window.
+
+`balances.superfluid.dev` remains an optional ledger diagnostic and is not used for the
+runnable claim decision or reconciliation path.
 
 ## Generated material
 
-`tools/point-events/point-event-names.html` is generated by `tools/point-events/export-point-event-names.ts` from public CMS, claim-app, SUP subgraph, direct RPC, and protocol-subgraph responses. It is evidence captured at generation time, not a canonical protocol registry.
+`research/claim-app-sources/reconstructed/lib/cms-openapi.d.ts` is generated and
+committed so normal builds do not depend on live schema availability. Regenerate with
+`npm run generate:cms-openapi`; the refresh workflow runs TypeScript, deterministic
+tests, and live CMS/SUP coverage before committing a changed declaration.
+
+`tools/point-events/point-event-names.html` is generated from public CMS, claim-app,
+SUP subgraph, direct RPC, and protocol-subgraph responses. It is dated evidence, not a
+canonical registry.
 
 ### claim.superfluid.org deployment snapshot
 
-`recovered/claim.superfluid.org/raw/` pins unauthenticated public HTTP response
-bodies from claim-app deployment
-`dpl_CSoxxmednYKCCZSxAMCUZxSP89CC`, captured at
-`2026-07-20T09:11:15.056Z` by GitHub Actions run `29730392853`, artifact
-`8456046548` (artifact digest
-`sha256:ae42b5d1174c89c0d209afdf25e940134dede54366cda80a17531b37fc8e0b2f`).
-`snapshot-manifest.json` records the source URL, byte count, and SHA-256 of
-every committed response.
+`recovered/claim.superfluid.org/raw/` pins unauthenticated public responses from
+deployment `dpl_CSoxxmednYKCCZSxAMCUZxSP89CC`, captured at
+`2026-07-20T09:11:15.056Z` by GitHub Actions run `29730392853`, artifact `8456046548`
+with digest
+`sha256:ae42b5d1174c89c0d209afdf25e940134dede54366cda80a17531b37fc8e0b2f`.
+`snapshot-manifest.json` records source URL, byte count, and SHA-256 for every response.
 
-The raw files are unmodified and authoritative. The files under `beautified/`
-are local Prettier 3.6.2 derivatives made for review. Run
-`npm run verify:claim-snapshot` to verify raw hashes, exact file coverage, and
-raw-to-beautified equivalence. The live recovery workflow captures into a
-separate temporary output and reports deployment divergence without mutating
-the pinned snapshot.
+Raw files are authoritative; `beautified/` files are Prettier 3.6.2 derivatives. Run
+`npm run verify:claim-snapshot` for hash, coverage, and equivalence checks.
 
 ## Adding external material
 
-For every future vendored file or substantial copied fragment, record:
-
-1. source repository and path;
-2. exact commit, tag, or package version;
-3. reason it must live here instead of the official skill;
-4. local modifications;
-5. how to refresh or verify it.
+Record source repository/path, exact revision, reason, local modifications, and refresh
+procedure for every future vendored file or substantial copied fragment.
 
 ## Claim-app source recovery
 
-`research/claim-app-sources/use-claim-transaction.recovered.ts` is a
-repository-authored, human-readable semantic reconstruction of part of the public
-claim app client. It was derived on 2026-07-19 from deployment
-`dpl_CSoxxmednYKCCZSxAMCUZxSP89CC`, specifically the public chunk
+`research/claim-app-sources/use-claim-transaction.recovered.ts` is a repository-authored
+semantic reconstruction derived from public deployment chunk
 `/_next/static/chunks/9443-ee8d2452e07f5651.js` (Sentry debug ID
-`131b676a-515c-4305-b4d2-ed8d8eef7317`). The deployment did not publish a usable
-source map: requesting the `.map` URL returned the JavaScript payload. No minified
-JavaScript, whole external source file, or third-party generated GraphQL client code
-is committed. The reconstruction preserves the observed endpoint paths, query
-conditions, method choices, and argument ordering, while naming and type boundaries
-are local synthesis. `chunk-inventory.md` and `source-catalog.md` record all 40
-HTML-referenced chunks and all Sentry-exposed application filenames from the same
-capture; they contain metadata only. Refresh them with
-`tools/claim-app-sources/recover-claim-app-sources.mjs` and record any changed chunk
-identity here.
+`131b676a-515c-4305-b4d2-ed8d8eef7317`). The deployment did not publish a usable source
+map. No minified JavaScript or whole third-party generated client is committed.

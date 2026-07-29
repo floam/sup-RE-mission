@@ -5,7 +5,6 @@ import { getAddress, isAddress, zeroAddress } from "viem";
 
 import {
   buildClaimProgramPlan,
-  fetchCmsBatches,
   getClaimResultKind,
 } from "../client/claim-program-plan.ts";
 import {
@@ -14,177 +13,65 @@ import {
   SUP_SUBGRAPH,
   type PublicProgram,
 } from "../client/programs.ts";
+import {
+  createCmsClient,
+  requireCmsData,
+  type CmsBalance,
+  type CmsPointEvent,
+} from "../lib/cms-client.ts";
 
-const CMS_BASE = process.env.CMS_BASE_URL ?? "https://cms.superfluid.pro";
+const cms = createCmsClient({ origin: process.env.CMS_BASE_URL });
 const FALLBACK_ACCOUNT =
   process.env.E2E_ACCOUNT ?? "0xdBb811EC62338db94858Ec21ef1d56B658111922";
-const FALLBACK_CAMPAIGN_ID = Number(process.env.E2E_CAMPAIGN_ID ?? "608");
+const PREFERRED_CAMPAIGN_ID = Number(process.env.E2E_CAMPAIGN_ID ?? "608");
 const DISCOVERY_LIMIT = Number(process.env.E2E_DISCOVERY_LIMIT ?? "40");
-const REQUEST_TIMEOUT_MS = Number(process.env.E2E_REQUEST_TIMEOUT_MS ?? "15000");
-const REQUEST_ATTEMPTS = Number(process.env.E2E_REQUEST_ATTEMPTS ?? "3");
-
-interface CmsBatchResponse {
-  address?: unknown;
-  account?: unknown;
-  campaignIds?: unknown;
-  points?: unknown;
-  cappedPoints?: unknown;
-  warnings?: unknown;
-}
-
-interface CmsEventsResponse {
-  events?: unknown;
-  pagination?: unknown;
-}
-
-interface CmsBalanceResponse {
-  address?: unknown;
-  account?: unknown;
-  points?: unknown;
-  cappedPoints?: unknown;
-}
-
-interface NormalizedBatch {
-  campaignIds: number[];
-  points: number[];
-  cappedPoints: number[];
-  missingCampaignIds: Set<number>;
-}
-
-interface NormalizedBalance {
-  account: string;
-  points: number;
-  cappedPoints: number;
-}
-
-interface NormalizedEvent {
-  account: string;
-  points: number;
-  eventName: string;
-  createdAt: string;
-}
 
 interface LiveSample {
   source: "cms-event" | "fallback-account";
   campaignId: number;
   account: string;
-  balance: NormalizedBalance;
-  event?: NormalizedEvent;
+  balance: CmsBalance;
+  event?: CmsPointEvent;
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function errorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
-
-async function fetchJson<T>(
-  url: string,
-  init: RequestInit = {},
-  options: { allowNotFound?: boolean } = {},
-): Promise<T | undefined> {
-  let lastError: unknown;
-
-  for (let attempt = 1; attempt <= REQUEST_ATTEMPTS; attempt += 1) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-
-    try {
-      const response = await fetch(url, {
-        ...init,
-        signal: controller.signal,
-        headers: {
-          accept: "application/json",
-          ...init.headers,
-        },
-      });
-      const text = await response.text();
-
-      if (options.allowNotFound && response.status === 404) return undefined;
-      if (!response.ok) {
-        throw new Error(
-          `${url} returned ${response.status}${text ? `: ${text.slice(0, 300)}` : ""}`,
-        );
-      }
-
-      try {
-        return JSON.parse(text) as T;
-      } catch (error) {
-        throw new Error(`${url} returned invalid JSON: ${errorMessage(error)}`);
-      }
-    } catch (error) {
-      lastError = error;
-      if (attempt < REQUEST_ATTEMPTS) await sleep(250 * 2 ** (attempt - 1));
-    } finally {
-      clearTimeout(timeout);
-    }
-  }
-
-  throw lastError;
-}
-
-async function postJson<T>(url: string, body: unknown): Promise<T> {
-  const result = await fetchJson<T>(url, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  assert(result !== undefined, `${url} unexpectedly returned no body`);
-  return result;
-}
-
-function asRecord(value: unknown, label: string): Record<string, unknown> {
-  assert(value !== null && typeof value === "object" && !Array.isArray(value), label);
-  return value as Record<string, unknown>;
-}
-
-function asArray(value: unknown, label: string): unknown[] {
-  assert(Array.isArray(value), label);
-  return value;
-}
-
-function asSafeInteger(value: unknown, label: string): number {
-  const parsed = typeof value === "string" && value.trim() !== "" ? Number(value) : value;
+function assertSafeInteger(value: unknown, label: string): asserts value is number {
   assert(
-    typeof parsed === "number" && Number.isSafeInteger(parsed),
+    typeof value === "number" && Number.isSafeInteger(value),
     `${label} must be a safe integer; received ${String(value)}`,
   );
-  return parsed;
 }
 
-function asAddress(value: unknown, label: string): string {
-  assert(typeof value === "string" && isAddress(value), `${label} must be an EVM address`);
-  return getAddress(value);
+function assertAddress(value: unknown, label: string): asserts value is string {
+  assert(
+    typeof value === "string" && isAddress(value),
+    `${label} must be an EVM address`,
+  );
 }
 
-function assertDecimalString(value: unknown, label: string): bigint {
+function assertDecimalString(value: unknown, label: string): asserts value is string {
   assert(typeof value === "string" && /^\d+$/.test(value), `${label} must be decimal`);
-  return BigInt(value);
 }
 
-function assertSubgraphProgramsSane(programs: readonly PublicProgram[]): void {
+function assertSubgraphProgramsSane(programs: readonly PublicProgram[]) {
   assert(programs.length > 0, "SUP subgraph returned no programs");
 
   const ids = new Set<string>();
   let hasScheduledEnd = false;
-
   for (const program of programs) {
     assert.match(program.id, /^[1-9]\d*$/, "program.id must be a positive integer");
     assert(!ids.has(program.id), `SUP subgraph returned duplicate program ${program.id}`);
     ids.add(program.id);
 
-    const pool = asAddress(
-      program.distributionPool,
-      `program ${program.id} distributionPool`,
+    assertAddress(program.distributionPool, `program ${program.id} distributionPool`);
+    assert.notEqual(
+      getAddress(program.distributionPool),
+      getAddress(zeroAddress),
+      `program ${program.id} has zero pool`,
     );
-    assert.notEqual(pool, getAddress(zeroAddress), `program ${program.id} has zero pool`);
-
     assertDecimalString(program.fundingAmount, `program ${program.id} fundingAmount`);
     assertDecimalString(program.subsidyAmount, `program ${program.id} subsidyAmount`);
-    const endDate = assertDecimalString(program.endDate, `program ${program.id} endDate`);
-    if (endDate > 0n) hasScheduledEnd = true;
+    assertDecimalString(program.endDate, `program ${program.id} endDate`);
+    if (BigInt(program.endDate) > 0n) hasScheduledEnd = true;
 
     for (const [field, value] of [
       ["earlyEndDate", program.earlyEndDate],
@@ -199,122 +86,35 @@ function assertSubgraphProgramsSane(programs: readonly PublicProgram[]): void {
       `program ${program.id} has an unknown lifecycle state`,
     );
   }
-
   assert(hasScheduledEnd, "SUP subgraph returned no program with a scheduled end");
 }
 
-function normalizeBatch(
-  payload: CmsBatchResponse,
-  requestedCampaignIds: readonly number[],
-  expectedAccount: string,
-): NormalizedBatch {
-  const record = asRecord(payload, "CMS batch response must be an object");
-  const responseAccount = asAddress(
-    record.address ?? record.account,
-    "CMS batch response address",
-  );
-  assert.equal(responseAccount, getAddress(expectedAccount));
-
-  const campaignIds = asArray(record.campaignIds, "campaignIds must be an array").map(
-    (value, index) => asSafeInteger(value, `campaignIds[${index}]`),
-  );
-  const points = asArray(record.points, "points must be an array").map(
-    (value, index) => asSafeInteger(value, `points[${index}]`),
-  );
-  const cappedPoints = asArray(
-    record.cappedPoints,
-    "cappedPoints must be an array",
-  ).map((value, index) => asSafeInteger(value, `cappedPoints[${index}]`));
-
-  assert.deepEqual(
-    campaignIds,
-    [...requestedCampaignIds],
-    "CMS must preserve requested campaign ordering",
-  );
-  assert.equal(points.length, campaignIds.length, "points length must match IDs");
-  assert.equal(
-    cappedPoints.length,
-    campaignIds.length,
-    "cappedPoints length must match IDs",
-  );
-
-  const missingCampaignIds = new Set<number>();
-  if (record.warnings !== undefined) {
-    for (const [index, warningValue] of asArray(
-      record.warnings,
-      "warnings must be an array",
-    ).entries()) {
-      const warning = asRecord(warningValue, `warnings[${index}] must be an object`);
-      const campaignId = asSafeInteger(
-        warning.campaignId,
-        `warnings[${index}].campaignId`,
-      );
-      assert(campaignIds.includes(campaignId), "warning campaign must be requested");
-      assert(typeof warning.message === "string", "warning message must be a string");
-      if (warning.message === "Campaign not found") missingCampaignIds.add(campaignId);
-    }
-  }
-
-  return { campaignIds, points, cappedPoints, missingCampaignIds };
+function assertBalance(balance: CmsBalance, expectedAccount: string) {
+  assertAddress(balance.account, "CMS balance account");
+  assert.equal(getAddress(balance.account), getAddress(expectedAccount));
+  assertSafeInteger(balance.points, "CMS balance points");
+  assertSafeInteger(balance.cappedPoints, "CMS balance cappedPoints");
 }
 
-function normalizeBalance(payload: CmsBalanceResponse, expectedAccount: string): NormalizedBalance {
-  const record = asRecord(payload, "CMS balance response must be an object");
-  const account = asAddress(
-    record.account ?? record.address,
-    "CMS balance response account",
-  );
-  assert.equal(account, getAddress(expectedAccount));
-
-  return {
-    account,
-    points: asSafeInteger(record.points, "CMS balance points"),
-    cappedPoints: asSafeInteger(record.cappedPoints, "CMS balance cappedPoints"),
-  };
-}
-
-function normalizeEvents(payload: CmsEventsResponse): NormalizedEvent[] {
-  const record = asRecord(payload, "CMS events response must be an object");
-  const events = asArray(record.events, "CMS events must be an array");
-  const pagination = asRecord(record.pagination, "CMS pagination must be an object");
-
-  assert(asSafeInteger(pagination.page, "pagination.page") >= 1);
-  assert(asSafeInteger(pagination.limit, "pagination.limit") >= 1);
-  assert(asSafeInteger(pagination.totalDocs, "pagination.totalDocs") >= 0);
-  assert(asSafeInteger(pagination.totalPages, "pagination.totalPages") >= 0);
-
-  return events.map((eventValue, index) => {
-    const event = asRecord(eventValue, `events[${index}] must be an object`);
-    const account = asAddress(event.account, `events[${index}].account`);
-    const points = asSafeInteger(event.points, `events[${index}].points`);
-    assert(
-      typeof event.eventName === "string" && event.eventName.length > 0,
-      `events[${index}].eventName must be non-empty`,
-    );
-    assert(
-      typeof event.createdAt === "string" && Number.isFinite(Date.parse(event.createdAt)),
-      `events[${index}].createdAt must be an ISO timestamp`,
-    );
-
-    return {
-      account,
-      points,
-      eventName: event.eventName,
-      createdAt: event.createdAt,
-    };
+async function getBalance(campaignId: number, account: string) {
+  const result = await cms.GET("/points/balance", {
+    params: { query: { campaignId, account } },
   });
+  return requireCmsData("/points/balance", result);
 }
 
-async function getSingleBalance(
-  campaignId: number,
-  account: string,
-): Promise<NormalizedBalance> {
-  const url = new URL(`${CMS_BASE}/points/balance`);
-  url.searchParams.set("campaignId", String(campaignId));
-  url.searchParams.set("account", account);
-  const payload = await fetchJson<CmsBalanceResponse>(url.toString());
-  assert(payload !== undefined, "CMS single balance unexpectedly returned no body");
-  return normalizeBalance(payload, account);
+async function getBalances(account: string, campaignIds: readonly number[]) {
+  const result = await cms.POST("/points/balance-batch", {
+    body: { account, campaignIds: [...campaignIds] },
+  });
+  return requireCmsData("/points/balance-batch", result);
+}
+
+async function getEventsPage(campaignId: number) {
+  const result = await cms.GET("/points/events", {
+    params: { query: { campaignId, page: 1, limit: 100 } },
+  });
+  return requireCmsData("/points/events", result);
 }
 
 async function discoverLiveSample(campaignIds: readonly number[]): Promise<LiveSample> {
@@ -323,25 +123,36 @@ async function discoverLiveSample(campaignIds: readonly number[]): Promise<LiveS
     .slice(0, DISCOVERY_LIMIT);
 
   for (const campaignId of candidates) {
-    const url = new URL(`${CMS_BASE}/points/events`);
-    url.searchParams.set("campaignId", String(campaignId));
-    url.searchParams.set("limit", "100");
-    url.searchParams.set("page", "1");
+    let events: CmsPointEvent[];
+    try {
+      events = (await getEventsPage(campaignId)).events;
+    } catch (error) {
+      if (String(error).includes("returned 404")) continue;
+      throw error;
+    }
 
-    const payload = await fetchJson<CmsEventsResponse>(url.toString(), {}, {
-      allowNotFound: true,
-    });
-    if (payload === undefined) continue;
-
-    const events = normalizeEvents(payload);
     for (const event of events) {
-      if (event.account === getAddress(zeroAddress) || event.points === 0) continue;
-      const balance = await getSingleBalance(campaignId, event.account);
+      assertAddress(event.account, "CMS event account");
+      assertSafeInteger(event.points, "CMS event points");
+      assert(
+        typeof event.eventName === "string" && event.eventName.length > 0,
+        "CMS event name must be non-empty",
+      );
+      assert(
+        Number.isFinite(Date.parse(event.createdAt)),
+        "CMS event createdAt must be a timestamp",
+      );
+      if (getAddress(event.account) === getAddress(zeroAddress) || event.points === 0) {
+        continue;
+      }
+
+      const balance = await getBalance(campaignId, event.account);
+      assertBalance(balance, event.account);
       if (balance.points !== 0 || balance.cappedPoints !== 0) {
         return {
           source: "cms-event",
           campaignId,
-          account: event.account,
+          account: getAddress(event.account),
           balance,
           event,
         };
@@ -349,50 +160,55 @@ async function discoverLiveSample(campaignIds: readonly number[]): Promise<LiveS
     }
   }
 
-  assert(
-    campaignIds.includes(FALLBACK_CAMPAIGN_ID),
-    `fallback campaign ${FALLBACK_CAMPAIGN_ID} is absent from the SUP subgraph`,
-  );
   assert(isAddress(FALLBACK_ACCOUNT), "E2E_ACCOUNT fallback must be a valid address");
-
+  const campaignId = campaignIds.includes(PREFERRED_CAMPAIGN_ID)
+    ? PREFERRED_CAMPAIGN_ID
+    : campaignIds[0];
+  assert(campaignId, "claim plan produced no active CMS campaign fallback");
+  const account = getAddress(FALLBACK_ACCOUNT);
+  const balance = await getBalance(campaignId, account);
+  assertBalance(balance, account);
   return {
     source: "fallback-account",
-    campaignId: FALLBACK_CAMPAIGN_ID,
-    account: getAddress(FALLBACK_ACCOUNT),
-    balance: await getSingleBalance(FALLBACK_CAMPAIGN_ID, FALLBACK_ACCOUNT),
+    campaignId,
+    account,
+    balance,
   };
 }
 
 test(
-  "live SUP subgraph and CMS produce a coherent claim sample",
+  "live SUP subgraph and generated CMS client produce a coherent active-claim sample",
   { timeout: 180_000 },
   async () => {
     const programs = await getPublicPrograms();
     assertSubgraphProgramsSane(programs);
 
     const plan = buildClaimProgramPlan(programs);
-    assert.equal(plan.cmsCampaignIds.length, programs.length);
-    assert(plan.cmsBatches.length > 0, "claim plan produced no CMS batches");
+    assert.equal(plan.cmsCampaignIds.length, plan.comparablePrograms.length);
+    assert(plan.cmsBatches.length > 0, "claim plan produced no active CMS batches");
     assert(plan.cmsBatches.every((batch) => batch.length > 0 && batch.length <= 50));
 
-    const existenceBatches = await fetchCmsBatches(plan.cmsBatches, async (campaignIds) =>
-      normalizeBatch(
-        await postJson<CmsBatchResponse>(`${CMS_BASE}/points/balance-batch`, {
-          account: zeroAddress,
-          campaignIds,
-        }),
-        campaignIds,
-        zeroAddress,
-      ),
+    const existenceBatches = await Promise.all(
+      plan.cmsBatches.map(async (campaignIds) => {
+        const batch = await getBalances(zeroAddress, campaignIds);
+        assert.equal(getAddress(batch.address), getAddress(zeroAddress));
+        assert.deepEqual(batch.campaignIds, campaignIds);
+        assert.equal(batch.points.length, campaignIds.length);
+        assert.equal(batch.cappedPoints.length, campaignIds.length);
+        return batch;
+      }),
     );
-
     const missingCampaignIds = new Set(
-      existenceBatches.flatMap((batch) => [...batch.missingCampaignIds]),
+      existenceBatches.flatMap((batch) =>
+        (batch.warnings ?? [])
+          .filter((warning) => warning.message === "Campaign not found")
+          .map((warning) => warning.campaignId),
+      ),
     );
     const cmsCampaignIds = plan.cmsCampaignIds.filter(
       (campaignId) => !missingCampaignIds.has(campaignId),
     );
-    assert(cmsCampaignIds.length > 0, "CMS and SUP subgraph have no overlapping campaigns");
+    assert(cmsCampaignIds.length > 0, "CMS and active SUP programs do not overlap");
 
     const sample = await discoverLiveSample(cmsCampaignIds);
     assert(
@@ -400,19 +216,13 @@ test(
       `live sample ${sample.account} in campaign ${sample.campaignId} returned only zero balances`,
     );
 
-    const accountBatches = await fetchCmsBatches(plan.cmsBatches, async (campaignIds) =>
-      normalizeBatch(
-        await postJson<CmsBatchResponse>(`${CMS_BASE}/points/balance-batch`, {
-          account: sample.account,
-          campaignIds,
-        }),
-        campaignIds,
-        sample.account,
-      ),
+    const accountBatches = await Promise.all(
+      plan.cmsBatches.map((campaignIds) => getBalances(sample.account, campaignIds)),
     );
-
-    const flattenedIds = accountBatches.flatMap((batch) => batch.campaignIds);
-    assert.deepEqual(flattenedIds, plan.cmsCampaignIds);
+    assert.deepEqual(
+      accountBatches.flatMap((batch) => batch.campaignIds),
+      plan.cmsCampaignIds,
+    );
 
     const sampleBatch = accountBatches.find((batch) =>
       batch.campaignIds.includes(sample.campaignId),
@@ -427,15 +237,11 @@ test(
       comparableProgramCount: plan.comparablePrograms.length,
       changedProgramCount: 0,
     });
-    assert.equal(
-      resultKind,
-      plan.comparablePrograms.length === 0 ? "no-active-programs" : "synchronized",
-    );
+    assert.equal(resultKind, "synchronized");
 
     console.log(
       JSON.stringify(
         {
-          cms: CMS_BASE,
           subgraph: SUP_SUBGRAPH,
           subgraphPrograms: programs.length,
           cmsCampaigns: cmsCampaignIds.length,

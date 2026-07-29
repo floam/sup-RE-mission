@@ -3,7 +3,6 @@ import test from "node:test";
 
 import {
   buildClaimProgramPlan,
-  fetchCmsBatches,
   getClaimResultKind,
 } from "./claim-program-plan.ts";
 import type { PublicProgram } from "./programs.ts";
@@ -25,25 +24,18 @@ function program(
   };
 }
 
-test("queries every authoritative program even when none are active", async () => {
+test("does not query CMS for finished programs", () => {
   const programs = Array.from({ length: 75 }, (_, index) =>
     program(index + 1, { stoppedDate: "1000" }),
   );
   const plan = buildClaimProgramPlan(programs, 1500);
-  const calls: number[][] = [];
-
-  await fetchCmsBatches(plan.cmsBatches, async (campaignIds) => {
-    calls.push(campaignIds);
-    return { campaignIds };
-  });
 
   assert.equal(plan.comparablePrograms.length, 0);
-  assert.equal(plan.cmsCampaignIds.length, 75);
-  assert.deepEqual(calls.map((batch) => batch.length), [50, 25]);
-  assert.deepEqual(calls.flat(), plan.cmsCampaignIds);
+  assert.deepEqual(plan.cmsCampaignIds, []);
+  assert.deepEqual(plan.cmsBatches, []);
 });
 
-test("keeps active programs comparable while still querying finished programs", () => {
+test("queries only active programs", () => {
   const plan = buildClaimProgramPlan(
     [
       program(1, { endDate: "2000" }),
@@ -53,27 +45,28 @@ test("keeps active programs comparable while still querying finished programs", 
     1500,
   );
 
-  assert.deepEqual(plan.cmsCampaignIds, [1, 2, 3]);
+  assert.deepEqual(plan.cmsCampaignIds, [1]);
+  assert.deepEqual(plan.cmsBatches, [[1]]);
   assert.deepEqual(
     plan.comparablePrograms.map((item) => item.id),
     ["1"],
   );
 });
 
-test("deduplicates campaign IDs before constructing CMS batches", () => {
+test("deduplicates active campaign IDs before constructing CMS batches", () => {
   const plan = buildClaimProgramPlan([program(1), program(1), program(2)], 1500);
 
   assert.deepEqual(plan.cmsCampaignIds, [1, 2]);
   assert.deepEqual(plan.cmsBatches, [[1, 2]]);
 });
 
-test("propagates a CMS batch failure instead of producing a success state", async () => {
-  await assert.rejects(
-    fetchCmsBatches([[1, 2]], async () => {
-      throw new Error("CMS unavailable");
-    }),
-    /CMS unavailable/,
+test("chunks active campaigns at the CMS request limit", () => {
+  const plan = buildClaimProgramPlan(
+    Array.from({ length: 75 }, (_, index) => program(index + 1)),
+    1500,
   );
+
+  assert.deepEqual(plan.cmsBatches.map((batch) => batch.length), [50, 25]);
 });
 
 test("does not label an empty comparison set as synchronized", () => {
