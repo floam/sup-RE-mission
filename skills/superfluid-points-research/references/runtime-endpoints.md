@@ -5,53 +5,14 @@ public response/error catalog remains in `references/endpoints.md`.
 
 Keep synchronized with `lib/cms-client.ts`, `lib/cms-events.ts`,
 `lib/claim-nonce-window.ts`, `client/claim-chain.ts`, `client/claim-batch.ts`, and
-`app/api/pending-claim-events/route.ts`.
+`client/pending-event-explanations.ts`.
 
 ## Runnable reconstruction routes
 
-| Method | Route | Purpose |
-| --- | --- | --- |
-| `POST` | `/api/pending-claim-events` | Batch explanation for changed campaigns. Resolves one locker, fetches fresh signed balances, reads onchain units and next valid nonces, skips capped/synchronized campaigns, and lazily reconciles bounded CMS events. |
-
-Request:
-
-```json
-{
-  "account": "0x...",
-  "campaignIds": [502, 607, 608]
-}
-```
-
-Response shape:
-
-```json
-{
-  "account": "0x...",
-  "lockerAddress": "0x...",
-  "results": [
-    {
-      "campaignId": 608,
-      "reconciliationStatus": "matched",
-      "onchainPoints": 100,
-      "uncappedPoints": 130,
-      "claimablePoints": 130,
-      "targetPoints": 30,
-      "explainedPoints": 30,
-      "lastClaimNonce": 1780000000,
-      "currentNonce": 1780000100,
-      "windowStart": "2026-05-28T20:26:40.000Z",
-      "windowEnd": "2026-05-28T20:28:20.000Z",
-      "events": []
-    }
-  ]
-}
-```
-
-`reconciliationStatus` is `matched`, `partial`, `capped`, or `no-change`.
-
-The route accepts at most 250 unique positive campaign IDs, requires all requested IDs
-to be active SUP programs, chunks signed CMS requests at 50 IDs, and retains an
-explicit event-page safety limit.
+The pending-event explanation is not an HTTP route. `ClaimExperience` calls
+`client/pending-event-explanations.ts` directly with reviewed changed uncapped rows.
+Recovered and compatibility application routes remain under `app/`; no
+`/api/pending-claim-events` endpoint exists.
 
 ## Public claim-app-local routes
 
@@ -130,17 +91,19 @@ and verify the actual transaction.
 
 ## Pending-event explanation procedure
 
-1. Resolve active programs and one locker.
-2. Fetch fresh signed balances in validated chunks of 50.
-3. Read current units and next valid nonce for each requested campaign.
-4. Compute `targetDelta = uncappedPoints - onchainUnits`.
-5. If raw and claimable values differ, return `capped` and fetch no events.
-6. If the delta is zero, return `no-change`.
-7. Otherwise query `/points/events` with account, campaign, inclusive `startTime` from
-   last accepted nonce when nonzero, and inclusive `endTime` from the fresh signed nonce.
+1. Build reviewed claim state: active programs, locker, raw/claimable values, current
+   units, and flow projection.
+2. Filter to existing, changed, uncapped `PointState` rows.
+3. Pass the complete set once to `client/pending-event-explanations.ts`.
+4. Fetch fresh signed balances in validated chunks of 50 and reject value drift.
+5. Read `getNextValidNonce` for each row; do not repeat locker or unit reads.
+6. Compute `targetDelta = row.uncappedPoints - row.onchainPoints`.
+7. Query `/points/events` with account, campaign, inclusive `startTime` from the last
+   accepted nonce when nonzero, and inclusive `endTime` from the fresh signed nonce.
 8. Consume newest-first signed event points until the first prefix equals the delta.
-9. Return `matched`, or `partial` when bounded history is exhausted.
-10. Group event names by semantic family in the UI.
+9. Return the selected events or an explicit partial-explanation message.
+10. Group event names by semantic family in the UI and cache each result against the
+    reviewed row values.
 
 CMS sorts by `eventTime`, exposed as `createdAt`. Boundary-second events remain because
 nonce resolution is one second. A backfilled event can carry a time outside the window.
@@ -180,23 +143,6 @@ claims or GDA unit history.
 | SUP test subgraph | `https://api.goldsky.com/api/public/project_clsnd6xsoma5j012qepvucfpp/subgraphs/sup_test/latest/gn` |
 | Base protocol subgraph | `https://subgraph-endpoints.superfluid.dev/base-mainnet/protocol-v1` |
 | Base Sepolia protocol subgraph | `https://subgraph-endpoints.superfluid.dev/base-sepolia/protocol-v1` |
-| Uniswap V3 Base fallback | `https://api.studio.thegraph.com/query/48211/uniswap-v3-base/version/latest` |
-| Base RPC | Alchemy URL assembled in `config/rpc.ts`; override with `NEXT_PUBLIC_ALCHEMY_API_KEY`. |
 
-Use the SUP subgraph for program/indexed history discovery, direct RPC for current
-contract truth and transaction verification, and protocol subgraph for bulk GDA data.
-The runnable pending-event explanation no longer needs SUP claim-event discovery.
-
-## Other public services
-
-| Method | Endpoint | Purpose |
-| --- | --- | --- |
-| `GET` | `https://whois.superfluid.finance/api/resolve/<address>` | Address identity. |
-| `GET` | `https://li.quest/v1/token?chain=8453&token=<address>` | Token price. |
-| `POST` | `https://superfluid-eligibility-api.s.superfluid.dev/api/referrals/log-referral` | Referral log. |
-| `GET` | `https://sup-metrics-api.superfluid.dev/v1/total_delegated_score` | Governance delegated total. |
-| `GET` | `https://sup-metrics-api.superfluid.dev/v1/dao_members_count` | Governance member count. |
-| `GET` | `https://sup-metrics-api.superfluid.dev/v1/distribution_metrics` | Distribution timeline/metrics. |
-| `GET` | `https://superfluid-airdrop.goodworker.workers.dev/?address=<address>` | Airdrop status. |
-| `GET` | `https://campaigns.superfluid.org/api/points/balance?account=<address>` | Campaigns-app balance proxy. |
-| `GET` | `https://campaigns.superfluid.org/api/markee/leaderboards` | Markee leaderboard. |
+Use the SUP subgraph for program and indexed claim research, direct Base RPC for current
+contract truth, and the protocol subgraph for bulk GDA enrichment.

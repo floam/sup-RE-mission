@@ -1,3 +1,3 @@
 display_name: Superfluid Points Research
-short_description: Discover SUP programs, claim state, flows, and bounded CMS events.
-default_prompt: Use this skill to discover Superfluid points campaigns/programs, inspect claim.superfluid.org routes, use the repository CMS OpenAPI client for claim data, verify claim boundaries through SUP-subgraph and SDK/Wagmi logs, explain pending claims, and implement SDK/Wagmi claim flows.
+short_description: Discover SUP programs, claim state, flows, caps, and bounded CMS events.
+default_prompt: Use this skill to discover Superfluid points campaigns/programs, inspect claim.superfluid.org routes, use the repository CMS OpenAPI client for claim data, explain reviewed uncapped deltas with nonce-bounded client-side event reconciliation, distinguish capped campaigns, and investigate actual historical claim transactions separately through SUP indexes and Base receipts/logs.

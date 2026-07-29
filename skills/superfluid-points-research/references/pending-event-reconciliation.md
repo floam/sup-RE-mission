@@ -1,11 +1,11 @@
 # Pending-event reconciliation
 
-This file defines the runnable claim UI's explanation algorithm for
-`POST /api/pending-claim-events`.
+This file defines the runnable claim UI's client-side explanation algorithm.
 
-The route explains the difference between the current uncapped CMS balance and the
-units already applied onchain. It uses claim nonces to bound the relevant CMS event
-window, then applies newest-first lazy summation inside that window.
+The helper explains the difference between the current uncapped CMS balance and the
+units already applied onchain. It reuses reviewed claim state, uses claim nonces to
+bound the relevant CMS event window, then applies newest-first lazy summation inside
+that window.
 
 ## Value domains
 
@@ -34,7 +34,7 @@ A campaign is capped when `uncappedPoints !== claim target`.
 `_lastValidNonces[programId][user]`. Its public `getNextValidNonce(programId, user)`
 returns that stored nonce plus one.
 
-For each requested campaign:
+For each explained campaign:
 
 ```text
 lastClaimNonce = getNextValidNonce(programId, account) - 1
@@ -42,9 +42,9 @@ currentNonce   = signed-balance-batch.signatureTimestamp
 ```
 
 The prior nonce is the timestamp of the balance snapshot last applied onchain, not the
-block timestamp at which its transaction was mined. This is the useful boundary: events
-processed after that signed snapshot were not included in the claimed target even when
-the transaction confirmed later.
+block timestamp at which its transaction was mined. Events processed after that signed
+snapshot were not included in the applied target even when the transaction confirmed
+later.
 
 The fresh signed-balance nonce is the upper snapshot boundary. Request CMS events with:
 
@@ -63,24 +63,25 @@ research task needs the actual historical claim transaction or mined timestamp.
 
 ## Uncapped explanation algorithm
 
-For an active, existing, uncapped campaign whose onchain units differ from the CMS
+For an existing, uncapped campaign whose reviewed onchain units differ from the CMS
 balance:
 
-1. Compute `targetDelta = uncappedPoints - onchainUnits`.
-2. Read the last claimed nonce from `getNextValidNonce(...) - 1`.
-3. Fetch a fresh signed balance and use its `signatureTimestamp` as the upper nonce.
-4. Request `/points/events` inside that nonce-derived time window. Results are newest
+1. Compute `targetDelta = uncappedPoints - onchainUnits` from the reviewed row.
+2. Fetch a fresh signed balance and reject the explanation if its raw or claimable value
+   differs from the reviewed row.
+3. Read the last claimed nonce from `getNextValidNonce(...) - 1`.
+4. Use the fresh signed balance's `signatureTimestamp` as the upper nonce.
+5. Request `/points/events` inside that nonce-derived time window. Results are newest
    first by `eventTime`.
-5. Consume events in returned order and add each signed `points` value, including
+6. Consume events in returned order and add each signed `points` value, including
    negative adjustments.
-6. Stop immediately when the accumulated sum equals `targetDelta`.
-7. Return only that newest ordered prefix.
-8. If the bounded pages are exhausted without equality, return the consumed events with
-   `partial` status and the explained/target totals.
+7. Stop immediately when the accumulated sum equals `targetDelta`.
+8. Return only that newest ordered prefix.
+9. If bounded pages are exhausted without equality, return the consumed events with an
+   explicit partial-explanation message.
 
-The arithmetic still chooses the first newest-first prefix that reaches the target. The
-nonce interval prevents it from wandering into events older than the last balance
-snapshot applied onchain.
+The nonce interval prevents the arithmetic from wandering into events older than the
+last balance snapshot applied onchain.
 
 ## Capped campaigns
 
@@ -97,49 +98,39 @@ When the CMS response has different raw and claimable values:
 Do not infer a cap from a local threshold. The CMS raw/claimable value pair is the
 source of truth.
 
-## Batched local endpoint
+## Batched client helper
 
-The claim UI sends the whole changed uncapped campaign set once:
+`ClaimExperience` filters the reviewed state to changed uncapped campaigns and calls
+`client/pending-event-explanations.ts` once with the complete set.
 
-```http
-POST /api/pending-claim-events
-Content-Type: application/json
+The helper:
 
-{
-  "account": "0x...",
-  "campaignIds": [502, 607, 608]
-}
-```
-
-The route:
-
-1. validates unique positive campaign IDs and requires every ID to be an active SUP
-   program;
-2. resolves the wallet's locker once;
-3. chunks `/points/signed-balance-batch` calls at 50 IDs and validates account, order,
+1. chunks `/points/signed-balance-batch` calls at 50 rows and validates account, order,
    and parallel arrays;
-4. reads current onchain units and `getNextValidNonce` for each meaningful campaign;
-5. derives the lower and upper nonce boundaries;
-6. skips event retrieval for synchronized or capped campaigns;
-7. reconciles meaningful uncapped differences concurrently;
-8. returns one result per requested campaign, including both nonce boundaries.
+2. verifies the fresh raw and claimable values still equal each reviewed row;
+3. reads only `getNextValidNonce` onchain, reusing each row's current units;
+4. derives the lower and upper nonce boundaries;
+5. reconciles independent campaign histories concurrently;
+6. returns one `EventBreakdown` per row.
 
 The browser caches every returned explanation by account, campaign, onchain units, and
 uncapped balance. A claim-state refresh changes the cache key.
 
+No local API endpoint remains. The deleted route repeated public program, locker, unit,
+CMS, and nonce work and supplied no private credential, authentication, durable shared
+cache, or server-only authority.
+
 ## Safety bounds and limitations
 
-- The local request accepts at most 250 campaign IDs.
-- Signed CMS balance calls are internally chunked at 50 IDs.
+- Signed CMS balance calls are chunked at 50 campaigns.
 - Event pages contain at most 100 records and retain an explicit page safety limit.
 - Point values, nonces, and accumulated totals must remain JavaScript safe integers at
-  the HTTP boundary; onchain values are checked before conversion.
+  conversion boundaries.
 - A fresh signed-balance request is read-only but produces an otherwise valid voucher;
-  the explanation route discards its signature and uses only the typed balance values
-  and nonce.
+  the helper discards its signature and uses only typed balance values and nonce.
 - CMS `createdAt` is event time rather than insertion time. A later backfill can carry
   a time outside the nonce window even though it changes the current balance; that case
-  must report partial reconciliation.
+  produces a partial explanation.
 - Several event prefixes can share the same net value. The algorithm deliberately uses
   the first newest-first prefix that reaches the target.
 - Same-second event ordering cannot be proven from a second-resolution nonce alone.

@@ -17,19 +17,19 @@ campaigns, event evidence, flow projections, and nonce investigations.
 7. Distinguish recovered semantic source from repository-authored compatibility code.
    Do not describe `ClaimExperience`, `ClaimCampaignChange`, `claim-chain`,
    `claim-batch`, `flow-projection`, `cms-client`, `cms-events`, `claim-nonce-window`,
-   server Wagmi, or `/api/pending-claim-events` as original private source.
+   or `client/pending-event-explanations.ts` as original private source.
 8. For an uncapped pending explanation, compute `uncappedPoints - onchainUnits`, read
    `getNextValidNonce(programId, account) - 1` as the last applied signed snapshot,
    use a fresh signed-balance timestamp as the upper snapshot boundary, and consume
    newest CMS events inside that window until their signed sum equals the delta.
 9. Do not describe the nonce snapshot boundary as the claim transaction's mined time.
    Actual transaction history still requires calldata/receipt/log verification.
-10. Treat `uncappedPoints !== points` on the signed response, or equivalently unsigned
+10. Treat `uncappedPoints !== points` on a signed response, or equivalently unsigned
     `points !== cappedPoints`, as the CMS-declared capped state. Show the cap
     prominently and do not fetch incremental events for that campaign.
-11. Fetch changed uncapped campaign explanations through one batched local request.
-    Resolve the locker once, chunk signed CMS balances at 50 campaigns, and request CMS
-    event pages only for nonzero uncapped/onchain differences.
+11. Reuse the reviewed `ClaimState` when explaining changed uncapped campaigns. Batch
+    fresh signed balances at 50 campaigns, read only `getNextValidNonce` onchain, and
+    request event pages only for the already-known nonzero uncapped/onchain deltas.
 12. For new claim reads/writes, use `@sfpro/sdk/abi/sup` contract exports with Wagmi.
     Do not add duplicate hand-written locker, factory, or program-manager ABIs.
 13. Use `research/claim-app-sources/reconstructed/lib/cms-client.ts` for every CMS

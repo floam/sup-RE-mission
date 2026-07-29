@@ -63,12 +63,11 @@ The current claim experience:
 - shows current and projected `SUP/month` flows, retaining units as technical detail;
 - marks `uncappedPoints !== claimable points` as a first-class capped-out state and does
   not load incremental events for capped campaigns;
-- batches changed uncapped campaign explanations through
-  `POST /api/pending-claim-events`;
-- reads `getNextValidNonce(programId, account) - 1` as the last signed balance snapshot
-  applied onchain, uses a fresh signed-balance `signatureTimestamp` as the upper bound,
-  and lazily sums newest CMS events inside that interval until they match
-  `uncappedPoints - onchainUnits`;
+- sends all changed uncapped rows to one client helper, which reuses their onchain units
+  instead of repeating claim-state or locker reads;
+- batches fresh signed balances, reads `getNextValidNonce(programId, account) - 1` as
+  the last signed balance snapshot applied onchain, and lazily sums newest CMS events
+  inside the nonce window until they match `uncappedPoints - onchainUnits`;
 - signs only changed campaigns through `POST /points/signed-balance-batch`, requires a
   successful receipt, and refreshes state after a partial multi-batch claim.
 
@@ -76,6 +75,10 @@ The nonce interval bounds signed balance snapshots. It does not identify the pre
 claim transaction's hash or mined timestamp; those require transaction/receipt/log
 research. CMS event `createdAt` is `eventTime`, not insertion time, so a backfill can
 still fall outside the interval.
+
+No local pending-event API route remains. The explanation path uses the browser's
+existing Wagmi configuration and public CMS client directly, avoiding duplicate locker,
+program, and unit reads and removing an unauthenticated request-fanout endpoint.
 
 `research/claim-app-sources/reconstructed/lib/cms-client.ts` is the sole CMS transport
 boundary. It is repository-authored against the CMS OpenAPI contract; `@sfpro/sdk`

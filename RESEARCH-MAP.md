@@ -4,15 +4,15 @@ Load the smallest relevant group for the question at hand.
 
 ## Claim UX, claim state, flows, caps, and pending-event explanations
 
-- `research/claim-app-sources/reconstructed/RUNNABILITY.md`: current SDK/Wagmi/OpenAPI architecture, flow projection, local API boundary, verification, and limitations.
+- `research/claim-app-sources/reconstructed/RUNNABILITY.md`: current SDK/Wagmi/OpenAPI architecture, flow projection, client-helper boundary, verification, and limitations.
 - `research/claim-app-sources/reconstructed/client/ClaimExperience.tsx`: staged account review, ownership-aware submission, batched explanation loading, and client explanation cache.
 - `research/claim-app-sources/reconstructed/client/ClaimCampaignChange.tsx`: per-campaign current/projected flows, capped-out state, and event reconciliation UI.
 - `research/claim-app-sources/reconstructed/client/claim-chain.ts`: active CMS uncapped/capped targets plus SDK/Wagmi onchain state assembly.
 - `research/claim-app-sources/reconstructed/client/claim-batch.ts`: CMS account/order/parallel-array validation.
+- `research/claim-app-sources/reconstructed/client/pending-event-explanations.ts`: reuses reviewed point state, batches fresh signed balances, reads next-valid nonces, and reconciles bounded CMS events without a local API proxy.
 - `research/claim-app-sources/reconstructed/lib/cms-client.ts`: sole typed CMS transport boundary for the runnable claim path.
 - `research/claim-app-sources/reconstructed/lib/cms-events.ts`: nonce-bounded newest-first event pagination and lazy signed-point reconciliation.
 - `research/claim-app-sources/reconstructed/lib/claim-nonce-window.ts`: derives the last applied signed snapshot and fresh upper snapshot boundary.
-- `research/claim-app-sources/reconstructed/app/api/pending-claim-events/route.ts`: wallet-level batched explanation endpoint; one locker lookup, chunked signed balances, program-manager nonce reads, and per-campaign event prefixes only when meaningful.
 - `skills/superfluid-points-research/references/pending-event-reconciliation.md`: authoritative explanation, nonce-boundary, and cap procedure.
 - `skills/superfluid-points-research/references/runtime-endpoints.md`: broader operational endpoint inventory.
 

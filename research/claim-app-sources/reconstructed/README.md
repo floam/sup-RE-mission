@@ -25,12 +25,15 @@ Repository-authored compatibility modules include:
 - `client/claim-display.ts`, `client/claim-event-breakdown.ts`,
   `client/GroupedEventList.tsx`, and `client/event-groups.ts`: presentation and grouping;
 - `client/flow-projection.ts`: deterministic member-flow projection;
+- `client/pending-event-explanations.ts`: client-side batching, signed-balance drift
+  checks, nonce reads, and CMS event reconciliation using reviewed point state;
 - `lib/cms-client.ts`: typed `openapi-fetch` CMS transport boundary;
 - `lib/cms-events.ts`: bounded newest-first event pagination and lazy summation;
-- `lib/claim-nonce-window.ts`: signed-snapshot nonce interval derivation;
-- `app/api/pending-claim-events/route.ts`: batched signed-balance, onchain-unit, nonce,
-  and CMS event explanation service;
-- `config/server-wagmi.ts`: server-side Base read configuration.
+- `lib/claim-nonce-window.ts`: signed-snapshot nonce interval derivation.
+
+There is no local pending-event API route or separate server-side Wagmi configuration.
+Those layers duplicated public CMS/RPC work already available to the client and added no
+private credential, durable cache, authentication, or authority boundary.
 
 These modules are local product/reconstruction work, not recovered private source.
 

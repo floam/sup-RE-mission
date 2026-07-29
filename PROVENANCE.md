@@ -66,11 +66,10 @@ Local product/reconstruction modules include:
 - `client/GroupedEventList.tsx`
 - `client/event-groups.ts`
 - `client/flow-projection.ts`
-- `config/server-wagmi.ts`
+- `client/pending-event-explanations.ts`
 - `lib/cms-client.ts`
 - `lib/cms-events.ts`
 - `lib/claim-nonce-window.ts`
-- `app/api/pending-claim-events/route.ts`
 
 `lib/cms-client.ts` is a small repository-authored `openapi-fetch` integration. Its
 path/request/response types come from committed `lib/cms-openapi.d.ts`, generated from
@@ -87,16 +86,16 @@ The generated CMS schema establishes:
 - events can be positive or negative and are ordered newest-first by `eventTime`,
   exposed as `createdAt`.
 
-The runnable `/api/pending-claim-events` service:
+`client/pending-event-explanations.ts` is client-side orchestration. It reuses the
+reviewed `PointState` rows, obtains fresh signed balances in validated chunks of 50,
+rejects balance drift, reads only `getNextValidNonce` onchain, bounds CMS event time
+between the last accepted signed nonce and the fresh signed nonce, and lazily sums the
+bounded events until they explain `uncappedPoints - onchainUnits` or history is
+exhausted. The claim UI filters out capped and synchronized rows before calling it.
 
-- resolves one locker for the request;
-- obtains fresh signed balances in validated chunks of 50;
-- reads current onchain units and `getNextValidNonce` per campaign;
-- bounds event time between the last accepted signed nonce and the fresh signed nonce;
-- marks raw/claimable mismatches as capped and skips their event retrieval;
-- consumes bounded events newest-first until their signed sum equals
-  `uncappedPoints - onchainUnits`;
-- reports explicit partial reconciliation when bounded history does not match.
+No local pending-event API route or server-only Wagmi configuration remains. There was
+no private credential, durable cache, authentication boundary, or server-only authority
+to justify that proxy.
 
 This is an arithmetic explanation of signed-snapshot change, not proof of the actual
 claim transaction hash or block time. Those require transaction/receipt/log research.

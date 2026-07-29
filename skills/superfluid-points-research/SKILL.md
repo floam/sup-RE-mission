@@ -98,32 +98,25 @@ Use `2,628,000` seconds per average month and label projections as estimates.
 
 ## Explain a pending uncapped delta
 
-Use the batched local endpoint:
-
-```http
-POST /api/pending-claim-events
-Content-Type: application/json
-
-{"account":"0x...","campaignIds":[502,607,608]}
-```
+Use `client/pending-event-explanations.ts` from the reviewed claim state. Do not add a
+local API proxy unless it provides a real server-only responsibility.
 
 Procedure:
 
-1. Resolve the locker once.
-2. Request fresh `signed-balance-batch` values in chunks of 50.
-3. Import `programManagerAddress` and `programManagerAbi` from `@sfpro/sdk/abi/sup`.
-4. For each campaign read current units and
-   `getNextValidNonce(programId, account)`.
-5. Derive `lastClaimNonce = nextValidNonce - 1` and use the fresh
+1. Filter the reviewed `PointState` rows to existing, changed, uncapped campaigns.
+2. Pass the complete filtered set to the helper once; reuse each row's onchain units.
+3. Request fresh `signed-balance-batch` values in chunks of 50 and validate them.
+4. Reject the explanation if fresh raw or claimable values differ from the reviewed row.
+5. Read only `getNextValidNonce(programId, account)` onchain for each row.
+6. Derive `lastClaimNonce = nextValidNonce - 1` and use the fresh
    `signatureTimestamp` as `currentNonce`.
-6. Require `currentNonce > lastClaimNonce`; an equal or older voucher is unusable.
-7. If `uncappedPoints !== points`, show `Capped out` and do not request events.
-8. If `uncappedPoints === onchainUnits`, return `no-change`.
-9. Otherwise request events inside the inclusive nonce-derived `startTime`/`endTime`
-   interval, newest first.
-10. Add signed event points one at a time and stop at the first prefix equal to
-    `uncappedPoints - onchainUnits`.
-11. Return `matched` or explicit `partial` status; group semantic event families in UI.
+7. Require `currentNonce > lastClaimNonce`; an equal or older voucher is unusable.
+8. Request events inside the inclusive nonce-derived `startTime`/`endTime` interval,
+   newest first.
+9. Add signed event points one at a time and stop at the first prefix equal to
+   `uncappedPoints - onchainUnits`.
+10. Return the selected events or an explicit partial-explanation message; group
+    semantic event families in the UI.
 
 The lower nonce is the signed balance snapshot last accepted onchain, not the claim
 transaction's block time. To identify the actual claim transaction, inspect calldata and

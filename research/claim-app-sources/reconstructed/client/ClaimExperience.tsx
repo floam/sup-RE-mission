@@ -29,10 +29,8 @@ import {
   getCampaignAttribution,
   shortAddress,
 } from "./claim-display";
-import type {
-  EventBreakdown,
-  PendingClaimEventsBatchResponse,
-} from "./claim-event-breakdown";
+import type { EventBreakdown } from "./claim-event-breakdown";
+import { explainPendingCampaigns } from "./pending-event-explanations";
 import {
   chunkItems,
   CMS_BATCH_SIZE,
@@ -299,56 +297,28 @@ export function ClaimExperience() {
           candidate.isOnchainOutdated &&
           !candidate.isCapped,
       );
-      const response = await fetch("/api/pending-claim-events", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          account: state.account,
-          campaignIds: explanatoryRows.map((candidate) =>
-            Number(candidate.programId),
-          ),
-        }),
-      });
-      const result = (await response.json()) as PendingClaimEventsBatchResponse;
-      if (!response.ok) {
-        throw new Error(
-          result.message ?? `Pending claim events returned ${response.status}`,
-        );
-      }
+      const explanations = await explainPendingCampaigns(
+        config,
+        state.account,
+        explanatoryRows,
+      );
       if (request !== eventRequest.current) return;
 
       const rowsByProgram = new Map(
-        explanatoryRows.map((candidate) => [
-          Number(candidate.programId),
-          candidate,
-        ]),
+        explanatoryRows.map((candidate) => [candidate.programId, candidate]),
       );
-      for (const explanation of result.results) {
-        const candidate = rowsByProgram.get(explanation.campaignId);
+      for (const explanation of explanations) {
+        const candidate = rowsByProgram.get(explanation.selection.programId);
         if (!candidate) continue;
-        const candidateBreakdown: EventBreakdown = {
-          selection: {
-            account: state.account,
-            programId: candidate.programId,
-          },
-          events: explanation.events,
-          message:
-            explanation.reconciliationStatus === "partial"
-              ? `The available event history explains ${numberFormat.format(explanation.explainedPoints)} of ${numberFormat.format(explanation.targetPoints)} points.`
-              : "",
-          reconciliationStatus: explanation.reconciliationStatus,
-          targetPoints: explanation.targetPoints,
-          explainedPoints: explanation.explainedPoints,
-        };
         breakdownCache.current.set(
           breakdownKey(state.account, candidate),
-          candidateBreakdown,
+          explanation,
         );
       }
 
       const selected = breakdownCache.current.get(selectedKey);
       if (!selected) {
-        throw new Error("The event explanation response omitted this campaign.");
+        throw new Error("The event explanation omitted this campaign.");
       }
       setBreakdown(selected);
     } catch (error) {
@@ -381,9 +351,7 @@ export function ClaimExperience() {
   const cappedRows = populatedRows.filter((row) => row.isCapped);
   const visibleRows = showCurrent
     ? populatedRows
-    : populatedRows.filter(
-        (row) => row.isCapped || isClaimablePointState(row),
-      );
+    : populatedRows.filter((row) => row.isCapped || isClaimablePointState(row));
   const totalUnitDelta = changedRows.reduce(
     (sum, row) => sum + row.offchainPoints - row.onchainPoints,
     0n,
@@ -514,7 +482,9 @@ export function ClaimExperience() {
                     <button
                       className="primary-action"
                       type="button"
-                      disabled={isChecking || isSubmitting || !isAddress(account)}
+                      disabled={
+                        isChecking || isSubmitting || !isAddress(account)
+                      }
                       onClick={() => void reviewAccount()}
                     >
                       {isChecking ? "Checking…" : "Check eligibility"}
@@ -568,7 +538,9 @@ export function ClaimExperience() {
               {resultKind === "locker-required" ? (
                 <div className="submit-update">
                   <div>
-                    <strong>A Reserve is required before rewards can stream.</strong>
+                    <strong>
+                      A Reserve is required before rewards can stream.
+                    </strong>
                     <span>Create it once, then return to this claim.</span>
                   </div>
                   {connectedOwnsAccount ? (
@@ -599,7 +571,9 @@ export function ClaimExperience() {
                     <div>
                       <span>Stream change</span>
                       <strong
-                        className={totalFlowDelta < 0n ? "negative" : "positive"}
+                        className={
+                          totalFlowDelta < 0n ? "negative" : "positive"
+                        }
                       >
                         {formatMonthlyFlow(totalFlowDelta, true)}
                       </strong>
@@ -620,7 +594,9 @@ export function ClaimExperience() {
                         <input
                           type="checkbox"
                           checked={showCurrent}
-                          onChange={(event) => setShowCurrent(event.target.checked)}
+                          onChange={(event) =>
+                            setShowCurrent(event.target.checked)
+                          }
                         />
                         <span>Show all campaign details</span>
                       </label>
@@ -675,14 +651,18 @@ export function ClaimExperience() {
                       <input
                         type="checkbox"
                         checked={showCurrent}
-                        onChange={(event) => setShowCurrent(event.target.checked)}
+                        onChange={(event) =>
+                          setShowCurrent(event.target.checked)
+                        }
                       />
                       <span>Show all campaign details</span>
                     </label>
                   </div>
                   {(showCurrent || cappedRows.length > 0) && (
                     <div className="campaigns">
-                      {(showCurrent ? populatedRows : cappedRows).map(renderCampaign)}
+                      {(showCurrent ? populatedRows : cappedRows).map(
+                        renderCampaign,
+                      )}
                     </div>
                   )}
                 </section>
