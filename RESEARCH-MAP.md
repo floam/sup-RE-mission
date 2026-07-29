@@ -2,28 +2,41 @@
 
 Load the smallest relevant group for the question at hand.
 
-## Claim UX, claim state, flows, and pending events
+## Claim UX, claim state, flows, caps, and pending-event explanations
 
-- `research/claim-app-sources/reconstructed/RUNNABILITY.md`: current SDK/Wagmi/CMS-SDK architecture, flow projection, local API boundary, verification, and limitations.
-- `research/claim-app-sources/reconstructed/client/ClaimExperience.tsx`: staged account review, ownership-aware submission, and batch claim orchestration.
-- `research/claim-app-sources/reconstructed/client/ClaimCampaignChange.tsx`: per-campaign current/projected flows and event-time-bounded explanation.
-- `research/claim-app-sources/reconstructed/client/claim-chain.ts`: active CMS target plus SDK/Wagmi onchain state assembly.
+- `research/claim-app-sources/reconstructed/RUNNABILITY.md`: current SDK/Wagmi/OpenAPI architecture, flow projection, local API boundary, verification, and limitations.
+- `research/claim-app-sources/reconstructed/client/ClaimExperience.tsx`: staged account review, ownership-aware submission, batched explanation loading, and client explanation cache.
+- `research/claim-app-sources/reconstructed/client/ClaimCampaignChange.tsx`: per-campaign current/projected flows, capped-out state, and event reconciliation UI.
+- `research/claim-app-sources/reconstructed/client/claim-chain.ts`: active CMS uncapped/capped targets plus SDK/Wagmi onchain state assembly.
 - `research/claim-app-sources/reconstructed/client/claim-batch.ts`: CMS account/order/parallel-array validation.
 - `research/claim-app-sources/reconstructed/lib/cms-client.ts`: sole typed CMS transport boundary for the runnable claim path.
-- `research/claim-app-sources/reconstructed/app/api/pending-claim-events/route.ts`: indexed-and-RPC-verified claim boundary plus bounded CMS event join.
-- `skills/superfluid-points-research/references/runtime-endpoints.md`: exact operational endpoint inventory and procedures.
+- `research/claim-app-sources/reconstructed/lib/cms-events.ts`: nonce-bounded newest-first event pagination and lazy signed-point reconciliation.
+- `research/claim-app-sources/reconstructed/lib/claim-nonce-window.ts`: derives the last applied signed snapshot and fresh upper snapshot boundary.
+- `research/claim-app-sources/reconstructed/app/api/pending-claim-events/route.ts`: wallet-level batched explanation endpoint; one locker lookup, chunked signed balances, program-manager nonce reads, and per-campaign event prefixes only when meaningful.
+- `skills/superfluid-points-research/references/pending-event-reconciliation.md`: authoritative explanation, nonce-boundary, and cap procedure.
+- `skills/superfluid-points-research/references/runtime-endpoints.md`: broader operational endpoint inventory.
 
 Use this group for questions such as:
 
-- What is about to be claimed, and what evidence supports the explanation?
-- What event rows should appear in the claim UI?
-- What was the last verified claim boundary?
+- What is about to be claimed, and what arithmetic supports the explanation?
+- Which newest CMS events inside the signed-snapshot interval reconcile the delta?
+- What was the last signed balance snapshot applied onchain?
+- Has CMS capped the campaign target?
 - What are the current and projected SUP flows?
-- Which SDK/Wagmi/CMS-SDK calls should implement the transaction?
+- Which SDK/Wagmi/OpenAPI calls implement the transaction?
 
-Remember that CMS event `createdAt` is the API name for `eventTime`, not record
-insertion time. A time-bounded result can omit a later-inserted backfill whose event
-time predates the claim.
+For an uncapped campaign, the runnable UI computes `uncapped CMS points - onchain
+units`. It derives the lower event-time bound from
+`getNextValidNonce(programId, account) - 1`, derives the upper bound from a fresh
+signed-balance `signatureTimestamp`, and stops at the first newest-first event prefix
+whose signed sum equals the difference. This identifies snapshot bounds, not the claim
+transaction's mined timestamp. If bounded history is exhausted first, the UI reports
+partial reconciliation.
+
+When CMS returns different uncapped and claimable values, the campaign is shown as
+capped out and event additions are not requested because they no longer increase the
+claim target. CMS event `createdAt` remains the API name for `eventTime`, not insertion
+time.
 
 ## Claim voucher injector
 
@@ -33,7 +46,7 @@ time predates the claim.
 ## Campaign and endpoint discovery
 
 - `skills/superfluid-points-research/references/endpoints.md`: detailed public endpoint response/error catalog.
-- `skills/superfluid-points-research/references/runtime-endpoints.md`: current route inventory, CMS OpenAPI client mapping, optional balances API, external services, SDK/Wagmi claim procedure, and local compatibility endpoint.
+- `skills/superfluid-points-research/references/runtime-endpoints.md`: runtime route inventory, CMS OpenAPI mapping, program-manager nonce boundary, optional balances API, and SDK/Wagmi procedures.
 - `research/2026-06-30-spr-campaigns-claim-endpoints.md`: dated public-app endpoint audit.
 - `tools/point-events/export-point-event-names.ts`: live campaign and program discovery.
 
@@ -42,9 +55,9 @@ time predates the claim.
 - `tools/point-events/export-point-event-names.ts`: discovery, caching, coalescing, and HTML generation.
 - `tools/point-events/README.md`: invocation, source layering, coverage, and output rules.
 - `tools/point-events/point-event-names.html`: generated observed-event catalog.
-- `research/claim-app-sources/reconstructed/client/event-groups.ts`: compact semantic-family grouping used by pending-claim explanations.
+- `research/claim-app-sources/reconstructed/client/event-groups.ts`: compact semantic-family grouping used by claim explanations.
 
-## Nonce and claim-history research
+## Nonce and historical claim research
 
 - `research/fluid-ep-nonce-staleness-assessment.md`: threat model, conclusions, and evidence limits.
 - `tools/sup-nonces/investigate-sup-nonces.js`: transaction and log scanner with calldata decoding.
@@ -52,9 +65,9 @@ time predates the claim.
 - `tools/sup-nonces/README.md`: invocation, live-test constraints, and decoding limits.
 - `.github/workflows/build-sup-nonce-bundle.yml`: portable JavaScriptCore and a-Shell bundle.
 
-For a true “last claim” timestamp, prefer SUP-subgraph locker claim entities verified
-against SDK-defined locker events through Base RPC. The historical balances service is
-an optional ledger diagnostic, not a claim-history index.
+`getNextValidNonce - 1` proves the nonce of the last accepted signed balance for a
+program/user. It does not identify its transaction hash or mined timestamp. For those,
+locate and decode the claim transaction and verify its successful receipt or logs.
 
 ## Claim-app deployment evidence and reconstruction
 
@@ -66,14 +79,12 @@ an optional ledger diagnostic, not a claim-history index.
 
 ## Documentation synchronization
 
-When a branch changes claim behavior, endpoints, CMS OpenAPI client operations, ABI fragments,
-flow math, or data-source authority, update the points skill, endpoint inventory,
-runnability notes, reconstruction README, research map, and provenance in the same
-branch. Do not leave exact test counts, obsolete route names, or deleted component
-names in durable documentation.
+When a branch changes claim behavior, endpoints, CMS OpenAPI operations, ABI fragments,
+flow math, nonce or cap semantics, or data-source authority, update the points skill,
+endpoint inventory, reconciliation reference, runnability notes, reconstruction README,
+research map, and provenance in the same branch.
 
 ## General protocol questions
 
 Use the separately installed official `superfluid` skill. Do not reproduce its full
-ABIs, selectors, address catalogs, architecture guides, generic SDK documentation,
-standard subgraph references, or helper scripts here.
+protocol reference here.

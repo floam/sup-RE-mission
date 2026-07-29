@@ -18,10 +18,12 @@ import { getPublicPrograms } from "./programs";
 export interface PointState {
   programId: bigint;
   offchainPoints: bigint;
+  uncappedPoints: bigint;
   onchainPoints: bigint;
   currentFlowRate: bigint;
   projectedFlowRate: bigint;
   isOnchainOutdated: boolean;
+  isCapped: boolean;
   cmsCampaignExists: boolean;
 }
 
@@ -70,6 +72,7 @@ export async function buildClaimState(
     }),
   );
 
+  const uncappedByProgram = new Map<number, bigint>();
   const cappedByProgram = new Map<number, bigint>();
   const cmsMissingPrograms = new Set<number>();
   for (const [batchIndex, balance] of balances.entries()) {
@@ -83,9 +86,10 @@ export async function buildClaimState(
       pointArrays: [balance.points, balance.cappedPoints],
     });
 
-    balance.campaignIds.forEach((id, index) =>
-      cappedByProgram.set(id, BigInt(balance.cappedPoints[index])),
-    );
+    balance.campaignIds.forEach((id, index) => {
+      uncappedByProgram.set(id, BigInt(balance.points[index]));
+      cappedByProgram.set(id, BigInt(balance.cappedPoints[index]));
+    });
     for (const warning of balance.warnings ?? []) {
       if (warning.message === "Campaign not found") {
         cmsMissingPrograms.add(warning.campaignId);
@@ -150,6 +154,7 @@ export async function buildClaimState(
 
   const programPointStates = plan.comparablePrograms.map((program) => {
     const programId = Number(program.id);
+    const uncappedPoints = uncappedByProgram.get(programId) ?? 0n;
     const offchainPoints = cappedByProgram.get(programId) ?? 0n;
     const chainState = chainStateByProgram.get(programId);
     const onchainPoints = chainState?.units ?? 0n;
@@ -166,10 +171,12 @@ export async function buildClaimState(
     return {
       programId: BigInt(programId),
       offchainPoints,
+      uncappedPoints,
       onchainPoints,
       currentFlowRate,
       projectedFlowRate,
       isOnchainOutdated: offchainPoints !== onchainPoints,
+      isCapped: uncappedPoints !== offchainPoints,
       cmsCampaignExists: !cmsMissingPrograms.has(programId),
     };
   });

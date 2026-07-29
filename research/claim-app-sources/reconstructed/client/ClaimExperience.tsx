@@ -24,7 +24,6 @@ import {
   type PointState,
 } from "./claim-chain";
 import {
-  formatBoundary,
   formatList,
   formatMonthlyFlow,
   getCampaignAttribution,
@@ -32,7 +31,7 @@ import {
 } from "./claim-display";
 import type {
   EventBreakdown,
-  PendingClaimEventsResponse,
+  PendingClaimEventsBatchResponse,
 } from "./claim-event-breakdown";
 import {
   chunkItems,
@@ -43,6 +42,10 @@ import { isClaimablePointState } from "./claim-state";
 
 const numberFormat = new Intl.NumberFormat("en-US");
 
+function breakdownKey(account: Address, row: PointState) {
+  return `${account}:${row.programId}:${row.onchainPoints}:${row.uncappedPoints}`;
+}
+
 export function ClaimExperience() {
   const [account, setAccount] = useState("");
   const [state, setState] = useState<ClaimState>();
@@ -52,6 +55,7 @@ export function ClaimExperience() {
   const [showCurrent, setShowCurrent] = useState(false);
   const [isLookupOpen, setIsLookupOpen] = useState(false);
   const [breakdown, setBreakdown] = useState<EventBreakdown>();
+  const breakdownCache = useRef(new Map<string, EventBreakdown>());
   const checkRequest = useRef(0);
   const eventRequest = useRef(0);
   const autoReview = useRef<{
@@ -257,7 +261,14 @@ export function ClaimExperience() {
   }
 
   async function toggleBreakdown(row: PointState) {
-    if (!state || !row.cmsCampaignExists || !row.isOnchainOutdated) return;
+    if (
+      !state ||
+      !row.cmsCampaignExists ||
+      !row.isOnchainOutdated ||
+      row.isCapped
+    ) {
+      return;
+    }
     const selection = { account: state.account, programId: row.programId };
     if (
       breakdown?.selection.account === selection.account &&
@@ -267,20 +278,38 @@ export function ClaimExperience() {
       return;
     }
 
+    const selectedKey = breakdownKey(state.account, row);
+    const cached = breakdownCache.current.get(selectedKey);
+    if (cached) {
+      setBreakdown(cached);
+      return;
+    }
+
     const request = ++eventRequest.current;
     setBreakdown({
       selection,
       events: [],
-      message: "Finding rewards earned since your last verified claim…",
+      message: "Finding the newest events that explain this point difference…",
     });
 
     try {
-      const params = new URLSearchParams({
-        campaignId: String(selection.programId),
-        account: selection.account,
+      const explanatoryRows = state.programPointStates.filter(
+        (candidate) =>
+          candidate.cmsCampaignExists &&
+          candidate.isOnchainOutdated &&
+          !candidate.isCapped,
+      );
+      const response = await fetch("/api/pending-claim-events", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          account: state.account,
+          campaignIds: explanatoryRows.map((candidate) =>
+            Number(candidate.programId),
+          ),
+        }),
       });
-      const response = await fetch(`/api/pending-claim-events?${params}`);
-      const result = (await response.json()) as PendingClaimEventsResponse;
+      const result = (await response.json()) as PendingClaimEventsBatchResponse;
       if (!response.ok) {
         throw new Error(
           result.message ?? `Pending claim events returned ${response.status}`,
@@ -288,29 +317,40 @@ export function ClaimExperience() {
       }
       if (request !== eventRequest.current) return;
 
-      let nextMessage = "";
-      if (result.events.length === 0) {
-        if (result.boundaryStatus === "confirmed-claim") {
-          nextMessage =
-            "No CMS reward events are dated after the last verified claim.";
-        } else if (result.boundaryStatus === "indexed-claim-unverified") {
-          nextMessage = result.lastIndexedClaimAt
-            ? `A claim was indexed on ${formatBoundary(result.lastIndexedClaimAt)}, but RPC could not verify it. Full campaign history is hidden here.`
-            : "A claim was indexed, but RPC could not verify it. Full campaign history is hidden here.";
-        } else if (result.boundaryStatus === "no-claim") {
-          nextMessage =
-            "No previous claim was found for this campaign, so full campaign history is hidden here.";
-        } else {
-          nextMessage = "This wallet does not have a Reserve yet.";
-        }
+      const rowsByProgram = new Map(
+        explanatoryRows.map((candidate) => [
+          Number(candidate.programId),
+          candidate,
+        ]),
+      );
+      for (const explanation of result.results) {
+        const candidate = rowsByProgram.get(explanation.campaignId);
+        if (!candidate) continue;
+        const candidateBreakdown: EventBreakdown = {
+          selection: {
+            account: state.account,
+            programId: candidate.programId,
+          },
+          events: explanation.events,
+          message:
+            explanation.reconciliationStatus === "partial"
+              ? `The available event history explains ${numberFormat.format(explanation.explainedPoints)} of ${numberFormat.format(explanation.targetPoints)} points.`
+              : "",
+          reconciliationStatus: explanation.reconciliationStatus,
+          targetPoints: explanation.targetPoints,
+          explainedPoints: explanation.explainedPoints,
+        };
+        breakdownCache.current.set(
+          breakdownKey(state.account, candidate),
+          candidateBreakdown,
+        );
       }
 
-      setBreakdown({
-        selection,
-        events: result.events,
-        message: nextMessage,
-        lastClaimAt: result.lastClaimAt,
-      });
+      const selected = breakdownCache.current.get(selectedKey);
+      if (!selected) {
+        throw new Error("The event explanation response omitted this campaign.");
+      }
+      setBreakdown(selected);
     } catch (error) {
       if (request !== eventRequest.current) return;
       setBreakdown({
@@ -331,11 +371,19 @@ export function ClaimExperience() {
     getAddress(connectedAddress) === state.account;
   const populatedRows = stateMatchesAccount
     ? state.programPointStates.filter(
-        (row) => row.offchainPoints > 0n || row.onchainPoints > 0n,
+        (row) =>
+          row.uncappedPoints > 0n ||
+          row.offchainPoints > 0n ||
+          row.onchainPoints > 0n,
       )
     : [];
   const changedRows = populatedRows.filter(isClaimablePointState);
-  const visibleRows = showCurrent ? populatedRows : changedRows;
+  const cappedRows = populatedRows.filter((row) => row.isCapped);
+  const visibleRows = showCurrent
+    ? populatedRows
+    : populatedRows.filter(
+        (row) => row.isCapped || isClaimablePointState(row),
+      );
   const totalUnitDelta = changedRows.reduce(
     (sum, row) => sum + row.offchainPoints - row.onchainPoints,
     0n,
@@ -392,7 +440,9 @@ export function ClaimExperience() {
       );
     } else {
       heroTitle = "Your SUP stream is up to date.";
-      heroDescription = `We checked ${state.programPointStates.length} active campaign${state.programPointStates.length === 1 ? "" : "s"}. No transaction is needed.`;
+      heroDescription = cappedRows.length
+        ? `No transaction is needed. ${cappedRows.length} campaign${cappedRows.length === 1 ? " has" : "s have"} reached the maximum allocation.`
+        : `We checked ${state.programPointStates.length} active campaign${state.programPointStates.length === 1 ? "" : "s"}. No transaction is needed.`;
     }
   }
 
@@ -572,7 +622,7 @@ export function ClaimExperience() {
                           checked={showCurrent}
                           onChange={(event) => setShowCurrent(event.target.checked)}
                         />
-                        <span>Show campaigns already up to date</span>
+                        <span>Show all campaign details</span>
                       </label>
                     </div>
                     <div className="campaigns">
@@ -627,12 +677,12 @@ export function ClaimExperience() {
                         checked={showCurrent}
                         onChange={(event) => setShowCurrent(event.target.checked)}
                       />
-                      <span>Show campaign details</span>
+                      <span>Show all campaign details</span>
                     </label>
                   </div>
-                  {showCurrent && (
+                  {(showCurrent || cappedRows.length > 0) && (
                     <div className="campaigns">
-                      {populatedRows.map(renderCampaign)}
+                      {(showCurrent ? populatedRows : cappedRows).map(renderCampaign)}
                     </div>
                   )}
                 </section>

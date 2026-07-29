@@ -97,7 +97,7 @@ test("rejects a malformed signed-balance signature", async () => {
   assert.throws(() => requireCmsSignature(signed.signature), /malformed signature/);
 });
 
-test("stops at the newest event suffix whose net points match the delta", async () => {
+test("stops at the newest-first prefix whose net points match the delta", async () => {
   const { fetch, requests } = captureFetch((_request, call) =>
     call === 1
       ? json({
@@ -180,8 +180,90 @@ test("stops at the newest event suffix whose net points match the delta", async 
   assert.equal(firstUrl.searchParams.get("campaignId"), "608");
   assert.equal(firstUrl.searchParams.get("account"), ACCOUNT);
   assert.equal(firstUrl.searchParams.has("startTime"), false);
+  assert.equal(firstUrl.searchParams.has("endTime"), false);
   assert.equal(firstUrl.searchParams.get("page"), "1");
   assert.equal(secondUrl.searchParams.get("page"), "2");
+});
+
+test("keeps boundary-second events and excludes events outside the nonce window", async () => {
+  const startTime = "2026-07-06T14:44:03.000Z";
+  const endTime = "2026-07-06T14:44:05.000Z";
+  const { fetch, requests } = captureFetch(() =>
+    json({
+      events: [
+        {
+          id: 1,
+          eventName: "after-window",
+          account: ACCOUNT,
+          points: 99,
+          uniqueId: null,
+          createdAt: "2026-07-06T14:44:06.000Z",
+        },
+        {
+          id: 2,
+          eventName: "upper-boundary",
+          account: ACCOUNT,
+          points: 20,
+          uniqueId: null,
+          createdAt: endTime,
+        },
+        {
+          id: 3,
+          eventName: "adjustment",
+          account: ACCOUNT,
+          points: -15,
+          uniqueId: null,
+          createdAt: "2026-07-06T14:44:04.000Z",
+        },
+        {
+          id: 4,
+          eventName: "lower-boundary",
+          account: ACCOUNT,
+          points: 5,
+          uniqueId: null,
+          createdAt: startTime,
+        },
+        {
+          id: 5,
+          eventName: "before-window",
+          account: ACCOUNT,
+          points: 99,
+          uniqueId: null,
+          createdAt: "2026-07-06T14:44:02.000Z",
+        },
+      ],
+      pagination: {
+        page: 1,
+        limit: 100,
+        totalDocs: 5,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPrevPage: false,
+      },
+    }),
+  );
+  const cms = createCmsClient({ origin: "https://cms.example", fetch });
+
+  const reconciliation = await getCmsEventsForDelta(
+    {
+      account: ACCOUNT,
+      campaignId: 608,
+      targetPoints: 10,
+      startTime,
+      endTime,
+    },
+    cms,
+  );
+
+  assert.equal(reconciliation.matched, true);
+  assert.deepEqual(
+    reconciliation.events.map((event) => event.id),
+    [2, 3, 4],
+  );
+  assert.equal(requests.length, 1);
+  const requestUrl = new URL(requests[0].url);
+  assert.equal(requestUrl.searchParams.get("startTime"), startTime);
+  assert.equal(requestUrl.searchParams.get("endTime"), endTime);
 });
 
 test("returns an explicit partial reconciliation when history is exhausted", async () => {

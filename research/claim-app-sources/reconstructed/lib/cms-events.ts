@@ -22,11 +22,22 @@ function requireSafePoints(points: number, label: string) {
   return points;
 }
 
+function parseBoundary(value: string | undefined, label: string) {
+  if (value === undefined) return undefined;
+  const timestamp = Date.parse(value);
+  if (!Number.isFinite(timestamp)) {
+    throw new Error(`${label} must be a valid timestamp.`);
+  }
+  return timestamp;
+}
+
 export async function getCmsEventsForDelta(
   input: {
     account: string;
     campaignId: number;
     targetPoints: number;
+    startTime?: string;
+    endTime?: string;
     maxPages?: number;
   },
   client: CmsClient = cmsClient,
@@ -35,6 +46,16 @@ export async function getCmsEventsForDelta(
     input.targetPoints,
     "CMS event reconciliation target",
   );
+  const lowerBoundary = parseBoundary(input.startTime, "CMS event lower boundary");
+  const upperBoundary = parseBoundary(input.endTime, "CMS event upper boundary");
+  if (
+    lowerBoundary !== undefined &&
+    upperBoundary !== undefined &&
+    lowerBoundary > upperBoundary
+  ) {
+    throw new Error("CMS event lower boundary must not exceed its upper boundary.");
+  }
+
   const maxPages = input.maxPages ?? 100;
   if (!Number.isSafeInteger(maxPages) || maxPages < 1) {
     throw new Error("CMS event page limit must be a positive safe integer.");
@@ -57,6 +78,8 @@ export async function getCmsEventsForDelta(
         query: {
           campaignId: input.campaignId,
           account: input.account,
+          startTime: input.startTime,
+          endTime: input.endTime,
           limit: MAX_EVENTS_PER_PAGE,
           page,
         },
@@ -64,7 +87,19 @@ export async function getCmsEventsForDelta(
     });
     const data = requireCmsData("/points/events", result);
     for (const event of data.events) {
+      const eventTime = Date.parse(event.createdAt);
+      if (!Number.isFinite(eventTime)) {
+        throw new Error("CMS event createdAt must be a valid timestamp.");
+      }
+      // Nonces are second-resolution signed-balance snapshots. Keep events at the
+      // boundary second and let exact delta reconciliation decide whether they belong.
+      if (lowerBoundary !== undefined && eventTime < lowerBoundary) continue;
+      if (upperBoundary !== undefined && eventTime > upperBoundary) continue;
+
       explainedPoints += requireSafePoints(event.points, "CMS event points");
+      if (!Number.isSafeInteger(explainedPoints)) {
+        throw new Error("CMS event reconciliation sum exceeds the safe integer range.");
+      }
       events.push(event);
       if (explainedPoints === targetPoints) {
         return {
