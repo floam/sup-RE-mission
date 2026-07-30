@@ -1,12 +1,9 @@
 name: Compare claim preview deployment
 
 on:
-  pull_request:
+  push:
     paths:
       - ".github/workflows/recover-claim-preview-sources.yml"
-      - "tools/claim-source-recovery/**"
-      - "recovered/claim.superfluid.org/**"
-      - "package.json"
   workflow_dispatch:
 
 permissions:
