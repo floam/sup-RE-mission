@@ -1,0 +1,32 @@
+.wallet-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(1, 10, 7, 0.78);
+}
+
+.wallet-dialog {
+  position: relative;
+  width: min(100%, 28rem);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  padding: 2rem;
+  border: 1px solid #466c5e;
+  border-radius: 18px;
+  background: #10251e;
+  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.45);
+}
+
+.wallet-dialog-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  padding: 0.35rem 0.65rem;
+}
+
+.wallet-dialog-address {
+  overflow-wrap: anywhere;
+}

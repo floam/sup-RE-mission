@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
 import "./recovered.css";
 import "./globals.css";
+import "./wallet-dialog.css";
 
 import { NavConnectAndBalance } from "../components/layout/NavConnectAndBalance";
 import { RootProviders } from "../providers/RootProviders";
@@ -12,12 +14,14 @@ export const metadata: Metadata = {
   description: "Recovered Superfluid claim app",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const cookieHeader = (await headers()).get("cookie");
+
   return (
     <html lang="en" className="dark">
       <body>
         <Suspense fallback={<div className="shell">Loading application…</div>}>
-          <RootProviders>
+          <RootProviders cookies={cookieHeader}>
             <div className="shell">
               <nav>
                 <Link className="brand" href="/">
