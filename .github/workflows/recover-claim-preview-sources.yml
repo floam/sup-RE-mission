@@ -4,6 +4,10 @@ on:
   push:
     paths:
       - ".github/workflows/recover-claim-preview-sources.yml"
+  pull_request:
+    paths:
+      - ".github/workflows/recover-claim-preview-sources.yml"
+      - "audit/claim-preview-comparison-trigger-branch.txt"
   workflow_dispatch:
 
 permissions:
