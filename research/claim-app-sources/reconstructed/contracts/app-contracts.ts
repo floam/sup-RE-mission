@@ -1,7 +1,7 @@
 import { parseAbi } from "viem";
 import { supTokenAddress } from "@sfpro/sdk/abi/sup";
 
-import { BASE_CHAIN_ID, BASE_SEPOLIA_CHAIN_ID } from "../config/chains";
+import { BASE_CHAIN_ID } from "../config/chains";
 
 /**
  * Protocol-wide ABIs are imported by consumers from `@sfpro/sdk/abi/sup`.
@@ -19,22 +19,18 @@ export const PROGRAM_MANAGER_ADDRESS = {
 
 export const DELEGATE_MANAGER_ADDRESS = {
   [BASE_CHAIN_ID]: "0x469788fE6E9E9681C6ebF3bF78e7Fd26Fc015446",
-  [BASE_SEPOLIA_CHAIN_ID]: "0x469788fE6E9E9681C6ebF3bF78e7Fd26Fc015446",
 } as const;
 
 export const MYSTERY_BOX_ADDRESS = {
   [BASE_CHAIN_ID]: "0x7D3228cbF6dB5Cb6E50C6d15B386c3bc8066e1bC",
-  [BASE_SEPOLIA_CHAIN_ID]: "0x5C83d0A9eC07d0821d5c59ffcDe42d7F689362fB",
 } as const;
 
 export const NONFUNGIBLE_POSITION_MANAGER_ADDRESS = {
   [BASE_CHAIN_ID]: "0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1",
-  [BASE_SEPOLIA_CHAIN_ID]: "0x27F971cb582BF9E50F397e4d29a5C7A34f11faA2",
 } as const;
 
 export const ETH_SUP_POOL_ADDRESS = {
   [BASE_CHAIN_ID]: "0xba154beaa14172ff9384b82499732c669527d85d",
-  [BASE_SEPOLIA_CHAIN_ID]: "0xca2054e3e5a940473dd6dcc4a67ecdfdfa8c0b72",
 } as const;
 
 /** Distribution-pool identities returned by the recovered metrics actions. */
@@ -52,7 +48,6 @@ export const RESERVE_NAME_REGISTRAR_ADDRESS = {
 
 export const WETH_ADDRESS = {
   [BASE_CHAIN_ID]: "0x4200000000000000000000000000000000000006",
-  [BASE_SEPOLIA_CHAIN_ID]: "0x4200000000000000000000000000000000000006",
 } as const;
 
 /** Generated deployment table used by webpack export `Gc`. */

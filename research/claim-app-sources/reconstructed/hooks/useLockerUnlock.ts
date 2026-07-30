@@ -12,7 +12,7 @@ import {
 } from "wagmi";
 import { lockerAbi } from "@sfpro/sdk/abi/sup";
 
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import {
   MAX_UNLOCK_DAYS,
   MIN_UNLOCK_AMOUNT,
@@ -38,20 +38,19 @@ export function useLockerUnlock({
   unlockPeriodDays?: number;
   amount?: bigint;
 }) {
-  const { airdropChain } = useExpectedChains();
   const queryClient = useQueryClient();
   const { data: availableBalance } = useReadContract({
     abi: lockerAbi,
     address: lockerAddress,
     functionName: "getAvailableBalance",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     query: { enabled: Boolean(lockerAddress) },
   });
   const { data: lockerOwner } = useReadContract({
     abi: lockerAbi,
     address: lockerAddress,
     functionName: "lockerOwner",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     query: { enabled: Boolean(lockerAddress) },
   });
   const isOwner = Boolean(
@@ -86,7 +85,7 @@ export function useLockerUnlock({
     abi: lockerAbi,
     address: lockerAddress,
     functionName: "unlock",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     args:
       amount && unlockPeriodSeconds && accountAddress
         ? [amount, unlockPeriodSeconds, accountAddress]
@@ -97,7 +96,7 @@ export function useLockerUnlock({
   });
   const request = simulate.data?.request;
   const estimate = useEstimateGas({
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     to: request?.address,
     data: request
       ? encodeFunctionData({
@@ -115,7 +114,7 @@ export function useLockerUnlock({
   });
   const write = useWriteContract();
   const waitFor = useWaitForTransactionReceipt({
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     hash: write.data,
     query: { enabled: Boolean(write.data) },
   });
@@ -136,12 +135,12 @@ export function useLockerUnlock({
     void queryClient.invalidateQueries({
       queryKey: [
         "balance",
-        SUP_TOKEN_ADDRESS_BY_CHAIN[airdropChain.id],
+        SUP_TOKEN_ADDRESS_BY_CHAIN[APP_CHAIN.id],
         lockerAddress,
       ],
     });
   }, [
-    airdropChain.id,
+    APP_CHAIN.id,
     isFinished,
     lockerAddress,
     queryClient,

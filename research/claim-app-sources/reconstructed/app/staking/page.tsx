@@ -8,7 +8,7 @@ import { formatEther } from "viem";
 import { FlowingBalance } from "../../components/FlowingBalance";
 import { GenesisNftCard } from "../../components/staking/GenesisNftCard";
 import { TransactionButton } from "../../components/TransactionButton";
-import { useExpectedChains } from "../../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../../config/chains";
 import { useLocker } from "../../contexts/LockerContext";
 import { useAccumulatedStakingRewards } from "../../hooks/useAccumulatedStakingRewards";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
@@ -132,7 +132,6 @@ export default function StakingPage() {
   const [stakeSucceeded, setStakeSucceeded] = useState(false);
   const [unstakeSucceeded, setUnstakeSucceeded] = useState(false);
   const { accountAddress, lockerAddress, isLockerCreated } = useLocker();
-  const { airdropChain } = useExpectedChains();
   const lockerBalance = useLockerBalance({ lockerAddress });
   const rewards = useAccumulatedStakingRewards({
     lockerAddress,
@@ -344,7 +343,7 @@ export default function StakingPage() {
             {tab === "stake" ? (
               <TransactionButton
                 dataTestId="stake-button"
-                chain={airdropChain}
+                chain={APP_CHAIN}
                 onClick={stake.stake}
                 status={stake.status}
                 ButtonProps={{
@@ -358,7 +357,7 @@ export default function StakingPage() {
             ) : (
               <TransactionButton
                 dataTestId="unstake-button"
-                chain={airdropChain}
+                chain={APP_CHAIN}
                 onClick={unstake.unstake}
                 status={unstake.status}
                 ButtonProps={{

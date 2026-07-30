@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import { useLocker } from "../contexts/LockerContext";
 
 async function requestGoodDollarSponsorship(address: string) {
@@ -27,7 +27,6 @@ async function requestGoodDollarSponsorship(address: string) {
 
 export function GoodDollarProvider() {
   const queryClient = useQueryClient();
-  const { airdropChain } = useExpectedChains();
   const { accountAddress, isLockerCreated } = useLocker();
   const eligibleAddress =
     isLockerCreated !== undefined ? accountAddress : undefined;
@@ -43,7 +42,7 @@ export function GoodDollarProvider() {
       void queryClient.invalidateQueries({
         queryKey: [
           "balance",
-          { address: eligibleAddress, chainId: airdropChain.id },
+          { address: eligibleAddress, chainId: APP_CHAIN.id },
         ],
         refetchType: "all",
       });

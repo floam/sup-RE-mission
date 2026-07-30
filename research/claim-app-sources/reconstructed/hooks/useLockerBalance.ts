@@ -5,7 +5,7 @@ import { useReadContract } from "wagmi";
 import { lockerAbi } from "@sfpro/sdk/abi/sup";
 import { useReadCfaForwarder } from "@sfpro/sdk/hook";
 
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import { SUP_TOKEN_ADDRESS_BY_CHAIN } from "../contracts/app-contracts";
 import { useRecentTransactions } from "./useRecentTransactions";
 import { useLockerLiquidityBalance } from "./useLockerLiquidityBalance";
@@ -16,28 +16,27 @@ export function useLockerBalance({
 }: {
   lockerAddress?: Address;
 }) {
-  const { airdropChain } = useExpectedChains();
   const depositedRecently =
     useRecentTransactions("deposited-in-reserve", 30).length > 0;
   const liquidity = useLockerLiquidityBalance(lockerAddress).data;
   const { data: flowRate } = useReadCfaForwarder({
     functionName: "getNetFlow",
-    chainId: airdropChain.id,
-    args: [SUP_TOKEN_ADDRESS_BY_CHAIN[airdropChain.id], lockerAddress],
+    chainId: APP_CHAIN.id,
+    args: [SUP_TOKEN_ADDRESS_BY_CHAIN[APP_CHAIN.id], lockerAddress],
     query: { enabled: Boolean(lockerAddress) },
   } as never);
   const { data: availableBalance } = useReadContract({
     abi: lockerAbi,
     address: lockerAddress,
     functionName: "getAvailableBalance",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     query: { enabled: Boolean(lockerAddress) },
   });
   const { data: stakedBalance } = useReadContract({
     abi: lockerAbi,
     address: lockerAddress,
     functionName: "getStakedBalance",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     query: { enabled: Boolean(lockerAddress) },
   });
   return useQuery({

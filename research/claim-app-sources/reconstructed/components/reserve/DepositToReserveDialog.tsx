@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { formatEther, erc20Abi } from "viem";
 import { useReadContract } from "wagmi";
 
-import { useExpectedChains } from "../../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../../config/chains";
 import { useLocker } from "../../contexts/LockerContext";
 import { SUP_TOKEN_ADDRESS_BY_CHAIN } from "../../contracts/app-contracts";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
@@ -33,16 +33,15 @@ export function DepositToReserveDialog({
   const [approvalPending, setApprovalPending] = useState(false);
   const [success, setSuccess] = useState(false);
   const { accountAddress, lockerAddress } = useLocker();
-  const { airdropChain } = useExpectedChains();
   const debounced = useDebouncedValue(input, DEBOUNCE_MS);
   const amount = debounced ? parseTokenAmount(debounced) : undefined;
-  const token = SUP_TOKEN_ADDRESS_BY_CHAIN[airdropChain.id];
-  const { data: supPriceUSD } = useTokenPrice(airdropChain.id, token);
+  const token = SUP_TOKEN_ADDRESS_BY_CHAIN[APP_CHAIN.id];
+  const { data: supPriceUSD } = useTokenPrice(APP_CHAIN.id, token);
   const { data: supBalance } = useReadContract({
     abi: erc20Abi,
     address: token,
     functionName: "balanceOf",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     args: accountAddress ? [accountAddress] : undefined,
     query: { enabled: Boolean(accountAddress), refetchInterval: 60_000 },
   });
@@ -148,7 +147,7 @@ export function DepositToReserveDialog({
         ) : (
           <TransactionButton
             dataTestId="deposit-to-reserve-button"
-            chain={airdropChain}
+            chain={APP_CHAIN}
             onClick={needsApproval ? approval.approve : lock.lock}
             status={needsApproval ? approval.status : lock.status}
             ButtonProps={{ disabled: !valid, className: "w-full" }}

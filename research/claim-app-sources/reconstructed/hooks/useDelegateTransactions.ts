@@ -1,26 +1,18 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { encodeFunctionData, parseEther } from "viem";
-import {
-  useEstimateGas,
-  useSimulateContract,
-  useWaitForTransactionReceipt,
-  useWriteContract,
-} from "wagmi";
+import { useEstimateGas, useSimulateContract } from "wagmi";
 
 import { SNAPSHOT_SPACE_BY_CHAIN } from "../config/governance";
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import {
   DELEGATE_MANAGER_ADDRESS,
   delegateManagerAbi,
 } from "../contracts/app-contracts";
 import type { Address } from "../types/program-app";
-import {
-  getTransactionStatus,
-  useLogTransactionErrors,
-} from "./useTransactionStatus";
+import { useContractTransaction } from "./useContractTransaction";
 
 function useDelegateWrite(input: {
   accountAddress?: Address;
@@ -28,11 +20,9 @@ function useDelegateWrite(input: {
   functionName: "setDelegate" | "clearDelegate";
   enabled: boolean;
 }) {
-  const { governanceChain } = useExpectedChains();
   const queryClient = useQueryClient();
-  const contractAddress =
-    DELEGATE_MANAGER_ADDRESS[governanceChain.id as 8453 | 84532];
-  const snapshotSpace = SNAPSHOT_SPACE_BY_CHAIN[governanceChain.id];
+  const contractAddress = DELEGATE_MANAGER_ADDRESS[APP_CHAIN.id];
+  const snapshotSpace = SNAPSHOT_SPACE_BY_CHAIN[APP_CHAIN.id];
   const args =
     input.functionName === "setDelegate"
       ? ([snapshotSpace.id, input.delegateAddress] as const)
@@ -41,7 +31,7 @@ function useDelegateWrite(input: {
     abi: delegateManagerAbi,
     address: contractAddress,
     functionName: input.functionName,
-    chainId: governanceChain.id,
+    chainId: APP_CHAIN.id,
     account: input.accountAddress,
     args: args as never,
     query: { enabled: input.enabled },
@@ -51,7 +41,7 @@ function useDelegateWrite(input: {
   });
   const request = simulate.data?.request;
   const estimate = useEstimateGas({
-    chainId: governanceChain.id,
+    chainId: APP_CHAIN.id,
     to: request?.address,
     data: request
       ? encodeFunctionData({
@@ -62,28 +52,19 @@ function useDelegateWrite(input: {
       : undefined,
     query: { enabled: Boolean(request && input.enabled) },
   });
-  const write = useWriteContract();
-  const waitFor = useWaitForTransactionReceipt({
-    chainId: governanceChain.id,
-    hash: write.data,
-    query: { enabled: Boolean(write.data) },
+  const transaction = useContractTransaction({
+    request,
+    gas: estimate.data,
+    simulate,
+    estimate,
   });
+  const { write, waitFor, execute } = transaction;
 
   useEffect(() => {
     if (waitFor.status !== "success") return;
     void queryClient.invalidateQueries({ queryKey: ["readContract"] });
     void queryClient.invalidateQueries({ queryKey: ["currentDelegate"] });
   }, [queryClient, waitFor.status]);
-
-  const execute = useCallback(() => {
-    if (!request) {
-      if (simulate.error) console.error(simulate.error);
-      console.error("Error! No transaction simulation data available.");
-      return;
-    }
-    write.writeContract({ ...request, gas: estimate.data });
-  }, [estimate.data, request, simulate.error, write]);
-  useLogTransactionErrors([simulate, estimate, write, waitFor]);
 
   return {
     simulate,
@@ -92,7 +73,7 @@ function useDelegateWrite(input: {
     waitFor,
     hash: write.data,
     execute,
-    status: getTransactionStatus({ simulate, estimate, write, waitFor }),
+    status: transaction.status,
   };
 }
 
@@ -135,9 +116,9 @@ export function useSetDelegate({
     functionName: "setDelegate",
     enabled: Boolean(
       accountAddress &&
-        !hasExternalDelegate &&
-        delegateAddress &&
-        !isSelfDelegate,
+      !hasExternalDelegate &&
+      delegateAddress &&
+      !isSelfDelegate,
     ),
   });
   return {

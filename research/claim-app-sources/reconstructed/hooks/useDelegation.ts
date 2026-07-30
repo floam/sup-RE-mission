@@ -5,7 +5,7 @@ import { parseUnits } from "viem";
 import { useReadContract } from "wagmi";
 
 import { SNAPSHOT_SPACE_BY_CHAIN } from "../config/governance";
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import { useLocker } from "../contexts/LockerContext";
 import {
   DELEGATE_MANAGER_ADDRESS,
@@ -86,16 +86,14 @@ export function useCurrentDelegate({
 }: {
   accountAddress?: Address;
 }) {
-  const { governanceChain } = useExpectedChains();
   const { currentClaimedFlowRate } = useClaimFlowMetrics();
-  const registryAddress =
-    DELEGATE_MANAGER_ADDRESS[governanceChain.id as 8453 | 84532];
-  const snapshotSpace = SNAPSHOT_SPACE_BY_CHAIN[governanceChain.id];
+  const registryAddress = DELEGATE_MANAGER_ADDRESS[APP_CHAIN.id];
+  const snapshotSpace = SNAPSHOT_SPACE_BY_CHAIN[APP_CHAIN.id];
   const readRegistryDelegation = useReadContract({
     abi: delegateManagerAbi,
     address: registryAddress,
     functionName: "delegation",
-    chainId: governanceChain.id,
+    chainId: APP_CHAIN.id,
     account: accountAddress,
     args: accountAddress ? [accountAddress, snapshotSpace.id] : undefined,
     query: { enabled: Boolean(accountAddress) },

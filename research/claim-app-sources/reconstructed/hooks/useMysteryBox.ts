@@ -1,15 +1,9 @@
 "use client";
 
-import { useCallback } from "react";
 import { encodeFunctionData, parseEther } from "viem";
-import {
-  useEstimateGas,
-  useSimulateContract,
-  useWaitForTransactionReceipt,
-  useWriteContract,
-} from "wagmi";
+import { useEstimateGas, useSimulateContract } from "wagmi";
 
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import { MYSTERY_BOX_ADDRESS, mysteryBoxAbi } from "../contracts/app-contracts";
 import { API_ENDPOINTS } from "../lib/endpoints";
 import type { Address } from "../types/program-app";
@@ -18,10 +12,7 @@ import type {
   MysteryBoxResult,
   PendingMysteryBoxClaim,
 } from "../types/campaign-rewards";
-import {
-  getTransactionStatus,
-  useLogTransactionErrors,
-} from "./useTransactionStatus";
+import { useContractTransaction } from "./useContractTransaction";
 
 export const MYSTERY_BOX_CLAIM_COST = parseEther("0.0001");
 export const MYSTERY_BOX_PENDING_CLAIM_KEY = "mystery-box-pending-claim";
@@ -98,14 +89,13 @@ export function writePendingMysteryBoxClaim(
 }
 
 export function useMysteryBoxOpen(accountAddress?: Address) {
-  const { airdropChain } = useExpectedChains();
-  const address = MYSTERY_BOX_ADDRESS[airdropChain.id];
+  const address = MYSTERY_BOX_ADDRESS[APP_CHAIN.id];
   const enabled = Boolean(accountAddress && address);
   const simulate = useSimulateContract({
     abi: mysteryBoxAbi,
     address,
     functionName: "open",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     value: MYSTERY_BOX_CLAIM_COST,
     query: { enabled },
     stateOverride: accountAddress
@@ -114,7 +104,7 @@ export function useMysteryBoxOpen(accountAddress?: Address) {
   });
   const request = simulate.data?.request;
   const estimate = useEstimateGas({
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     to: request?.address,
     data: request
       ? encodeFunctionData({ abi: mysteryBoxAbi, functionName: "open" })
@@ -122,21 +112,13 @@ export function useMysteryBoxOpen(accountAddress?: Address) {
     value: MYSTERY_BOX_CLAIM_COST,
     query: { enabled: Boolean(request && enabled) },
   });
-  const write = useWriteContract();
-  const waitFor = useWaitForTransactionReceipt({
-    chainId: airdropChain.id,
-    hash: write.data,
-    query: { enabled: Boolean(write.data) },
+  const transaction = useContractTransaction({
+    request,
+    gas: estimate.data,
+    simulate,
+    estimate,
   });
-  const open = useCallback(() => {
-    if (!request) {
-      if (simulate.error) console.error(simulate.error);
-      console.error("Error! No transaction simulation data available.");
-      return;
-    }
-    write.writeContract({ ...request, gas: estimate.data });
-  }, [estimate.data, request, simulate.error, write]);
-  useLogTransactionErrors([simulate, estimate, write, waitFor]);
+  const { write, waitFor, execute: open } = transaction;
   return {
     simulateMysteryBoxOpen: simulate,
     estimateOpen: estimate,
@@ -144,7 +126,7 @@ export function useMysteryBoxOpen(accountAddress?: Address) {
     waitForTransactionOpen: waitFor,
     isFinished: write.isSuccess && waitFor.isSuccess,
     open,
-    status: getTransactionStatus({ simulate, estimate, write, waitFor }),
+    status: transaction.status,
     reset: write.reset,
     txHash: write.data,
   };

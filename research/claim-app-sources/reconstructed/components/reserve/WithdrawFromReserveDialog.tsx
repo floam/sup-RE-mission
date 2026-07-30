@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { formatEther } from "viem";
 
-import { useExpectedChains } from "../../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../../config/chains";
 import { useLocker } from "../../contexts/LockerContext";
 import {
   MIN_UNLOCK_AMOUNT,
@@ -41,7 +41,6 @@ export function WithdrawFromReserveDialog({
   const [success, setSuccess] = useState(false);
   const didCelebrate = useRef(false);
   const { accountAddress, lockerAddress } = useLocker();
-  const { airdropChain } = useExpectedChains();
   const debounced = useDebouncedValue(input, 500);
   const amount = debounced ? parseTokenAmount(debounced) : undefined;
   const lockerBalance = useLockerBalance({ lockerAddress });
@@ -207,7 +206,7 @@ export function WithdrawFromReserveDialog({
                 (candidate) => candidate.id === selectedFontaine,
               );
               if (!fontaine) return null;
-              const url = `https://app.superfluid.org/stream/base/${fontaine.id}-${fontaine.recipient}-${SUP_TOKEN_ADDRESS_BY_CHAIN[airdropChain.id]}`;
+              const url = `https://app.superfluid.org/stream/base/${fontaine.id}-${fontaine.recipient}-${SUP_TOKEN_ADDRESS_BY_CHAIN[APP_CHAIN.id]}`;
               return (
                 <Link
                   className="button button-outline gap-2"
@@ -314,7 +313,7 @@ export function WithdrawFromReserveDialog({
                   ? "drain-reserve-button"
                   : "stream-withdraw-button"
               }
-              chain={airdropChain}
+              chain={APP_CHAIN}
               onClick={activeTransaction.unlock}
               status={status}
               ButtonProps={{ disabled: !isValid || success }}

@@ -3,19 +3,15 @@
 import { isAddress } from "viem";
 import { useAccount } from "wagmi";
 
-import { useAppKitAccountSafe } from "../contexts/AppKitAccountContext";
 import { useFarcasterFrame } from "../contexts/FarcasterFrameProvider";
-import { useWalletSync } from "../contexts/WalletSyncContext";
 import { ZERO_ADDRESS } from "../contracts/app-contracts";
 import type { Address } from "../types/program-app";
 
 /** Canonical account facade recovered from webpack 32224. */
 export function useWalletAccount() {
   const wagmi = useAccount();
-  const appKit = useAppKitAccountSafe();
-  const { isInMiniApp, isMiniAppLoading } = useFarcasterFrame();
-  const { isSyncing, isSynced, chainId } = useWalletSync();
-  const candidateAddress = isInMiniApp ? wagmi.address : appKit.address;
+  const { isMiniAppLoading } = useFarcasterFrame();
+  const candidateAddress = wagmi.address;
   const normalizedAddress = candidateAddress?.toLowerCase();
   const address =
     normalizedAddress &&
@@ -23,17 +19,9 @@ export function useWalletAccount() {
     isAddress(normalizedAddress)
       ? (normalizedAddress as Address)
       : undefined;
-  const isConnecting =
-    isMiniAppLoading ||
-    (isInMiniApp && wagmi.isConnecting) ||
-    appKit.status === "connecting";
-  const isReconnecting =
-    isMiniAppLoading ||
-    (isInMiniApp && wagmi.isReconnecting) ||
-    appKit.status === "reconnecting";
-  const isConnected =
-    ((isInMiniApp && wagmi.isConnected) || appKit.status === "connected") &&
-    Boolean(address);
+  const isConnecting = isMiniAppLoading || wagmi.isConnecting;
+  const isReconnecting = isMiniAppLoading || wagmi.isReconnecting;
+  const isConnected = wagmi.isConnected && Boolean(address);
 
   return {
     address,
@@ -41,9 +29,9 @@ export function useWalletAccount() {
     isConnecting,
     isReconnecting,
     chain: wagmi.chain,
-    chainId,
-    isSyncing,
-    isSynced,
+    chainId: wagmi.chainId,
+    isSyncing: isMiniAppLoading || wagmi.isReconnecting,
+    isSynced: !isMiniAppLoading && !wagmi.isReconnecting,
     connector: wagmi.connector,
   };
 }

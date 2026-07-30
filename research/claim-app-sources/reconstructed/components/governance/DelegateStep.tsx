@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useExpectedChains } from "../../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../../config/chains";
 import { useLocker } from "../../contexts/LockerContext";
 import {
   useClearDelegate,
@@ -89,7 +89,6 @@ export function DelegateStep({
   className?: string;
 }) {
   const isOnboarding = Boolean(stepper);
-  const { governanceChain } = useExpectedChains();
   const { accountAddress } = useLocker();
   const { delegates, readDelegates } = useDelegates();
   const { delegateAddress, hasExternalDelegate } = useCurrentDelegate({
@@ -146,7 +145,7 @@ export function DelegateStep({
   }, [clear, hasExternalDelegate, isSelfSelection, set]);
   const complete = Boolean(
     isOnboarding &&
-      (delegateAddress || selectedStatus?.isFinished || selectedSelf),
+    (delegateAddress || selectedStatus?.isFinished || selectedSelf),
   );
 
   useEffect(() => {
@@ -157,9 +156,9 @@ export function DelegateStep({
     !selectedDelegate || (hasExternalDelegate && !isSelfSelection);
   const mustUndelegateFirst = Boolean(
     disabled &&
-      hasExternalDelegate &&
-      selectedDelegate &&
-      selectedDelegate !== currentDelegate,
+    hasExternalDelegate &&
+    selectedDelegate &&
+    selectedDelegate !== currentDelegate,
   );
 
   return (
@@ -201,7 +200,7 @@ export function DelegateStep({
       ) : mustUndelegateFirst ? (
         <TransactionButton
           dataTestId="undelegate-button"
-          chain={governanceChain}
+          chain={APP_CHAIN}
           onClick={clear.clearDelegate}
           status={clear.status}
           ButtonProps={{ disabled: true }}
@@ -211,7 +210,7 @@ export function DelegateStep({
       ) : (
         <TransactionButton
           dataTestId="delegate-button"
-          chain={governanceChain}
+          chain={APP_CHAIN}
           onClick={submit}
           status={selectedStatus}
           ButtonProps={{ disabled }}

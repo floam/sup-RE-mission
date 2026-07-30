@@ -35,6 +35,11 @@ There is no local pending-event API route or separate server-side Wagmi configur
 Those layers duplicated public CMS/RPC work already available to the client and added no
 private credential, durable cache, authentication, or authority boundary.
 
+The runnable compatibility app replaces the recovered Reown AppKit boundary with a
+Base-only Wagmi configuration and a small local wallet dialog. Injected, Coinbase,
+WalletConnect, Safe, and Farcaster mini-app connectors remain available without
+maintaining duplicate AppKit and Wagmi account state.
+
 These modules are local product/reconstruction work, not recovered private source.
 
 ## Evidence used

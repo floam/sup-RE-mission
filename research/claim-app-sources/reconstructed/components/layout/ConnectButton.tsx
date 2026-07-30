@@ -1,8 +1,7 @@
 "use client";
 
-import { useAppKit } from "@reown/appkit/react";
-
 import { useFarcasterFrame } from "../../contexts/FarcasterFrameProvider";
+import { useWalletDialog } from "../../contexts/WalletDialogContext";
 import { useAddressProfile } from "../../hooks/useAddressProfile";
 import { useWalletAccount } from "../../hooks/useWalletAccount";
 import { LoadingText } from "./LoadingText";
@@ -11,7 +10,7 @@ export function ConnectButton() {
   const { isInMiniApp, isMiniAppLoading } = useFarcasterFrame();
   const { address, isConnected, isConnecting, isReconnecting } =
     useWalletAccount();
-  const { open } = useAppKit();
+  const { open } = useWalletDialog();
   const profile = useAddressProfile(address);
   if (isMiniAppLoading || isConnecting || isReconnecting)
     return (
@@ -26,7 +25,7 @@ export function ConnectButton() {
       <button
         className="min-w-[100px]"
         data-testid="connected-address-button"
-        onClick={isInMiniApp ? undefined : () => open({ view: "Account" })}
+        onClick={isInMiniApp ? undefined : () => open("account")}
       >
         {label}
       </button>
@@ -42,7 +41,7 @@ export function ConnectButton() {
     <button
       className="min-w-[100px]"
       data-testid="connect-wallet-button"
-      onClick={() => open({ view: "Connect" })}
+      onClick={() => open("connect")}
     >
       Connect Wallet
     </button>

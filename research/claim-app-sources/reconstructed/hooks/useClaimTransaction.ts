@@ -12,7 +12,7 @@ import {
 } from "wagmi";
 import { lockerAbi } from "@sfpro/sdk/abi/sup";
 
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import { API_ENDPOINTS } from "../lib/endpoints";
 import { EXTERNAL_ENDPOINTS } from "../lib/endpoints";
 import type { Address } from "../types/program-app";
@@ -209,10 +209,9 @@ export function useClaimTransaction({
   enabled?: boolean;
 }) {
   const queryClient = useQueryClient();
-  const { airdropChain } = useExpectedChains();
   const writeLockerClaim = useWriteContract();
   const waitForTransactionClaim = useWaitForTransactionReceipt({
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     hash: writeLockerClaim.data,
     query: { enabled: enabled && Boolean(writeLockerClaim.data) },
   });
@@ -233,10 +232,7 @@ export function useClaimTransaction({
         })),
     [programApps.data],
   );
-  const subgraphUrl =
-    airdropChain.id === 84532
-      ? EXTERNAL_ENDPOINTS.baseSepoliaProtocolSubgraph
-      : EXTERNAL_ENDPOINTS.baseProtocolSubgraph;
+  const subgraphUrl = EXTERNAL_ENDPOINTS.baseProtocolSubgraph;
   const finishedProgramIds = useQuery({
     queryKey: [lockerAddress ?? null, "finished-program-pools-with-connection"],
     enabled: enabled && Boolean(lockerAddress && finishedPrograms.length),
@@ -282,14 +278,14 @@ export function useClaimTransaction({
     abi: lockerAbi,
     address: lockerAddress,
     functionName: claimTransactionData.functionName,
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     args: claimTransactionData.args as never,
     query: { enabled: canSimulate },
     stateOverride,
   } as never);
   const request = simulateLockerClaim.data?.request;
   const estimateLockerClaim = useEstimateGas({
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     to: request?.address,
     data: request
       ? encodeFunctionData({

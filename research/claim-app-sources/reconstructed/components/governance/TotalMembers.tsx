@@ -2,11 +2,9 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { useExpectedChains } from "../../contexts/ExpectedChainContext";
 import { EXTERNAL_ENDPOINTS } from "../../lib/endpoints";
 
 export function TotalMembers() {
-  const { airdropChain } = useExpectedChains();
   const apiBase = EXTERNAL_ENDPOINTS.supMetrics;
   const { data, isSuccess } = useQuery({
     queryKey: ["holderCount"],
@@ -22,6 +20,5 @@ export function TotalMembers() {
       return body.daoMembersCount as number;
     },
   });
-  void airdropChain; // Both supported chain IDs map to the same observed metrics API.
   return isSuccess ? data : <span className="invisible">N/A</span>;
 }

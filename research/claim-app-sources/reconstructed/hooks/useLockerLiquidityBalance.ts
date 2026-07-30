@@ -5,7 +5,7 @@ import { Position } from "@uniswap/v3-sdk";
 import { parseUnits } from "viem";
 import { useReadContracts } from "wagmi";
 
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import {
   NONFUNGIBLE_POSITION_MANAGER_ADDRESS,
   nonfungiblePositionManagerAbi,
@@ -37,13 +37,12 @@ function splitPoolAmounts(
 
 /** Aggregates the active Uniswap V3 positions owned by a FluidLocker. */
 export function useLockerLiquidityBalance(lockerAddress?: Address) {
-  const { airdropChain } = useExpectedChains();
   const activePositions = useActiveLiquidityPositions(lockerAddress);
   const tokenIds = activePositions.data?.tokenIds ?? [];
   const pool = useEthSupPool();
   const positionReads = useReadContracts({
     contracts: tokenIds.map((tokenId) => ({
-      address: NONFUNGIBLE_POSITION_MANAGER_ADDRESS[airdropChain.id],
+      address: NONFUNGIBLE_POSITION_MANAGER_ADDRESS[APP_CHAIN.id],
       abi: nonfungiblePositionManagerAbi,
       functionName: "positions",
       args: [tokenId],

@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import { EXTERNAL_ENDPOINTS } from "../lib/endpoints";
 import type { Address } from "../types/program-app";
 import type { Fontaine } from "../components/reserve/FontaineListItem";
@@ -21,12 +21,8 @@ const GET_LOCKER_FONTAINES = `
 `;
 
 export function useFontaines(lockerAddress?: Address) {
-  const { airdropChain } = useExpectedChains();
   const recent = useRecentTransactions("stream-withdrawn-from-reserve", 30);
-  const endpoint =
-    airdropChain.id === 8453
-      ? EXTERNAL_ENDPOINTS.supSubgraph
-      : EXTERNAL_ENDPOINTS.supTestSubgraph;
+  const endpoint = EXTERNAL_ENDPOINTS.supSubgraph;
   return useQuery({
     queryKey: ["locker-fontaines", lockerAddress ?? null],
     enabled: Boolean(lockerAddress),

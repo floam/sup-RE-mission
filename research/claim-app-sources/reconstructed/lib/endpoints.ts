@@ -28,12 +28,8 @@ export const EXTERNAL_ENDPOINTS = {
     "https://superfluid-eligibility-api.s.superfluid.dev/api/referrals",
   supSubgraph:
     "https://api.goldsky.com/api/public/project_clsnd6xsoma5j012qepvucfpp/subgraphs/sup/v2/gn",
-  supTestSubgraph:
-    "https://api.goldsky.com/api/public/project_clsnd6xsoma5j012qepvucfpp/subgraphs/sup_test/latest/gn",
   baseProtocolSubgraph:
     "https://subgraph-endpoints.superfluid.dev/base-mainnet/protocol-v1",
-  baseSepoliaProtocolSubgraph:
-    "https://subgraph-endpoints.superfluid.dev/base-sepolia/protocol-v1",
   uniswapV3BaseSubgraph:
     process.env.UNISWAP_V3_BASE_SUBGRAPH_URL ??
     "https://api.studio.thegraph.com/query/48211/uniswap-v3-base/version/latest",

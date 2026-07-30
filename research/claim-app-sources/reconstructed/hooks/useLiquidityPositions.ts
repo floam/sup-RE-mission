@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import { EXTERNAL_ENDPOINTS } from "../lib/endpoints";
 import type { Address } from "../types/program-app";
 import { useRecentTransactions } from "./useRecentTransactions";
@@ -14,13 +14,9 @@ const GET_ACTIVE_LIQUIDITY_POSITIONS = `
 `;
 
 export function useActiveLiquidityPositions(lockerAddress?: Address) {
-  const { airdropChain } = useExpectedChains();
   const created = useRecentTransactions("liquidity-position-created", 30);
   const withdrawn = useRecentTransactions("liquidity-position-withdrawn", 30);
-  const endpoint =
-    airdropChain.id === 8453
-      ? EXTERNAL_ENDPOINTS.supSubgraph
-      : EXTERNAL_ENDPOINTS.supTestSubgraph;
+  const endpoint = EXTERNAL_ENDPOINTS.supSubgraph;
   return useQuery({
     queryKey: ["active-liquidity-positions", lockerAddress ?? null],
     enabled: Boolean(lockerAddress),

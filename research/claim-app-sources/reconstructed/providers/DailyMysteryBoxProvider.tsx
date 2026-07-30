@@ -6,7 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useWaitForTransactionReceipt } from "wagmi";
 
 import { DailyMysteryBoxModal } from "../components/campaign/DailyMysteryBoxModal";
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import { useWalletAccount } from "../hooks/useWalletAccount";
 import {
   checkMysteryBox,
@@ -22,7 +22,6 @@ import type {
 
 export function useDailyMysteryBox() {
   const { address, isConnected } = useWalletAccount();
-  const { airdropChain } = useExpectedChains();
   const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const [openResult, setOpenResult] = useState<MysteryBoxResult | null>(null);
@@ -56,11 +55,11 @@ export function useDailyMysteryBox() {
   });
   const resumedClaim = Boolean(
     pendingClaim &&
-      pendingClaim.address === address &&
-      pendingClaim.txHash !== transaction.txHash,
+    pendingClaim.address === address &&
+    pendingClaim.txHash !== transaction.txHash,
   );
   const resumedReceipt = useWaitForTransactionReceipt({
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     hash: resumedClaim ? pendingClaim?.txHash : undefined,
     query: {
       enabled: Boolean(resumedClaim && pendingClaim?.status === "pending"),
@@ -157,11 +156,11 @@ export function useDailyMysteryBox() {
 
   const canClaim = Boolean(
     address &&
-      isConnected &&
-      check.data?.success &&
-      check.data.shouldShow &&
-      !showModal &&
-      !check.isLoading,
+    isConnected &&
+    check.data?.success &&
+    check.data.shouldShow &&
+    !showModal &&
+    !check.isLoading,
   );
   const claimIsFinishing =
     claim.isPending ||
@@ -195,7 +194,7 @@ export function useDailyMysteryBox() {
           isFinished: false,
         }
       : transaction.status,
-    chain: airdropChain,
+    chain: APP_CHAIN,
     hasSupStakingBonus: Boolean(
       check.data?.success && check.data.hasSupStakingBonus,
     ),

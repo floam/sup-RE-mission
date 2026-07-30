@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
 import { useLocker } from "../contexts/LockerContext";
 import { EXTERNAL_ENDPOINTS } from "../lib/endpoints";
 
@@ -15,7 +14,6 @@ export function ReferralHandler() {
   const searchParams = useSearchParams();
   const { accountAddress, isLockerAddressLoading, isLockerCreated } =
     useLocker();
-  const { airdropChain } = useExpectedChains();
   const [referralCode, setReferralCode] = useState("");
   const [isTracking, setIsTracking] = useState(false);
   useEffect(() => {
@@ -87,6 +85,5 @@ export function ReferralHandler() {
     // The mutation object is not a semantic trigger.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLockerCreated]);
-  void airdropChain; // Both configured chains use the same observed referral endpoint.
   return null;
 }

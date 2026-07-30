@@ -17,7 +17,7 @@ import {
 } from "wagmi";
 import { lockerAbi } from "@sfpro/sdk/abi/sup";
 
-import { useExpectedChains } from "../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../config/chains";
 import type { Address } from "../types/program-app";
 import { recordRecentTransaction } from "./useRecentTransactions";
 import {
@@ -60,7 +60,6 @@ function useLockerWrite<
     TFunctionName
   >,
 >(input: LockerWriteInput<TFunctionName, TArgs>) {
-  const { airdropChain } = useExpectedChains();
   const queryClient = useQueryClient();
   const stateOverride = input.accountAddress
     ? [{ address: input.accountAddress, balance: parseEther("100") }]
@@ -69,7 +68,7 @@ function useLockerWrite<
     abi: lockerAbi,
     address: input.lockerAddress,
     functionName: input.functionName,
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     args: input.args,
     ...(input.functionName === "provideLiquidity"
       ? { value: input.value }
@@ -77,20 +76,14 @@ function useLockerWrite<
     query: { enabled: input.enabled },
     stateOverride,
   } as unknown as Parameters<
-    typeof useSimulateContract<
-      typeof lockerAbi,
-      TFunctionName,
-      TArgs
-    >
+    typeof useSimulateContract<typeof lockerAbi, TFunctionName, TArgs>
   >[0];
-  const simulate = useSimulateContract<
-    typeof lockerAbi,
-    TFunctionName,
-    TArgs
-  >(simulationParameters);
+  const simulate = useSimulateContract<typeof lockerAbi, TFunctionName, TArgs>(
+    simulationParameters,
+  );
   const request = simulate.data?.request;
   const estimate = useEstimateGas({
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     to: request?.address,
     data: request
       ? encodeFunctionData({
@@ -108,7 +101,7 @@ function useLockerWrite<
   });
   const write = useWriteContract();
   const waitFor = useWaitForTransactionReceipt({
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     hash: write.data,
     query: { enabled: Boolean(write.data) },
   });
@@ -178,11 +171,11 @@ export function useProvideLiquidity(input: {
     value: input.ethAmount,
     enabled: Boolean(
       input.lockerAddress &&
-        input.accountAddress &&
-        input.supAmount &&
-        input.supAmount > 0n &&
-        input.ethAmount &&
-        input.ethAmount > 0n,
+      input.accountAddress &&
+      input.supAmount &&
+      input.supAmount > 0n &&
+      input.ethAmount &&
+      input.ethAmount > 0n,
     ),
     recentTransactionType: "liquidity-position-created",
   });
@@ -197,12 +190,11 @@ export function useWithdrawLiquidity(input: {
   amount0ToRemove?: bigint;
   amount1ToRemove?: bigint;
 }) {
-  const { airdropChain } = useExpectedChains();
   const cooldown = useReadContract({
     abi: lockerAbi,
     address: input.lockerAddress,
     functionName: "lpCooldownTimestamps",
-    chainId: airdropChain.id,
+    chainId: APP_CHAIN.id,
     args: input.tokenId ? [input.tokenId] : undefined,
     query: { enabled: Boolean(input.lockerAddress && input.tokenId) },
   });
@@ -227,13 +219,13 @@ export function useWithdrawLiquidity(input: {
     args,
     enabled: Boolean(
       input.lockerAddress &&
-        input.accountAddress &&
-        input.tokenId &&
-        input.liquidityToRemove &&
-        input.liquidityToRemove > 0n &&
-        input.amount0ToRemove &&
-        input.amount1ToRemove &&
-        cooldownExpired,
+      input.accountAddress &&
+      input.tokenId &&
+      input.liquidityToRemove &&
+      input.liquidityToRemove > 0n &&
+      input.amount0ToRemove &&
+      input.amount1ToRemove &&
+      cooldownExpired,
     ),
     recentTransactionType: "liquidity-position-withdrawn",
   });

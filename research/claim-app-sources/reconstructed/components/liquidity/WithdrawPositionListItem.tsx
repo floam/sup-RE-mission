@@ -2,7 +2,7 @@
 
 import { useLiquidityPosition } from "../../hooks/useLiquidityPosition";
 import { useTokenPrice } from "../../hooks/useTokenPrices";
-import { useExpectedChains } from "../../contexts/ExpectedChainContext";
+import { APP_CHAIN } from "../../config/chains";
 import { useLocker } from "../../contexts/LockerContext";
 import {
   SUP_TOKEN_ADDRESS_BY_CHAIN,
@@ -20,13 +20,12 @@ export function WithdrawPositionListItem({
   isSelected: boolean;
   onSelect(): void;
 }) {
-  const { airdropChain } = useExpectedChains();
   const { lockerAddress } = useLocker();
   const position = useLiquidityPosition(tokenId, lockerAddress);
-  const ethPrice = useTokenPrice(airdropChain.id, WETH_ADDRESS[8453]);
+  const ethPrice = useTokenPrice(APP_CHAIN.id, WETH_ADDRESS[8453]);
   const supPrice = useTokenPrice(
-    airdropChain.id,
-    SUP_TOKEN_ADDRESS_BY_CHAIN[airdropChain.id],
+    APP_CHAIN.id,
+    SUP_TOKEN_ADDRESS_BY_CHAIN[APP_CHAIN.id],
   );
   const data = position.data;
   const tvl = data
