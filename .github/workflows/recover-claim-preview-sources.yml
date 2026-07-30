@@ -1,4 +1,4 @@
-name: Compare claim preview deployment
+name: Compare live claim deployments
 
 on:
   push:
@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   recover:
-    name: Capture preview and diff against production snapshot
+    name: Capture production and preview claim deployments
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -33,50 +33,60 @@ jobs:
       - name: Verify pinned production snapshot
         run: npm run verify:claim-snapshot
 
-      - name: Recover preview deployment
+      - name: Recover both live deployments
         id: recover
         shell: bash
         run: |
           set +e
-          preview_root="${RUNNER_TEMP}/claim-preview-recovery"
-          mkdir -p "${preview_root}"
+          production_root="${RUNNER_TEMP}/claim-production-live-recovery"
+          preview_root="${RUNNER_TEMP}/claim-preview-live-recovery"
+          mkdir -p "${production_root}" "${preview_root}"
+
+          npm run recover:claim-sources -- \
+            --origin https://claim.superfluid.org \
+            --out "${production_root}" \
+            2>&1 | tee "${production_root}/recovery.log"
+          production_status=${PIPESTATUS[0]}
+
           npm run recover:claim-sources -- \
             --origin https://claim.preview.superfluid.finance \
             --out "${preview_root}" \
-            2>&1 | tee "${RUNNER_TEMP}/claim-preview-recovery.log"
-          status=${PIPESTATUS[0]}
-          cp "${RUNNER_TEMP}/claim-preview-recovery.log" "${preview_root}/recovery.log"
-          echo "exit_status=$status" >> "$GITHUB_OUTPUT"
+            2>&1 | tee "${preview_root}/recovery.log"
+          preview_status=${PIPESTATUS[0]}
+
+          echo "production_status=${production_status}" >> "$GITHUB_OUTPUT"
+          echo "preview_status=${preview_status}" >> "$GITHUB_OUTPUT"
           exit 0
 
-      - name: Compare preview with production snapshot
+      - name: Compare each deployment with pinned snapshot
         if: always()
         shell: bash
         run: |
-          preview_root="${RUNNER_TEMP}/claim-preview-recovery"
-          if [[ ! -f "${preview_root}/manifest.json" ]]; then
-            exit 0
-          fi
-          node tools/claim-source-recovery/verify-snapshot.mjs \
-            --live-manifest "${preview_root}/manifest.json" \
-            --report "${preview_root}/snapshot-diff.json"
-          node -e 'const d=require(process.argv[1]).liveComparison; console.log(`## Preview vs production deployment\n\n- Unchanged assets: ${d.assets.unchanged}\n- Added assets: ${d.assets.added.length}\n- Removed assets: ${d.assets.removed.length}\n- Same-path content changes: ${d.assets.changed.length}\n- Added routes: ${d.routes.added.join(", ") || "none"}\n- Removed routes: ${d.routes.removed.join(", ") || "none"}`)' "${preview_root}/snapshot-diff.json" >> "$GITHUB_STEP_SUMMARY"
+          for name in production preview; do
+            root="${RUNNER_TEMP}/claim-${name}-live-recovery"
+            if [[ -f "${root}/manifest.json" ]]; then
+              node tools/claim-source-recovery/verify-snapshot.mjs \
+                --live-manifest "${root}/manifest.json" \
+                --report "${root}/snapshot-diff.json"
+            fi
+          done
 
-      - name: Package comparison
+      - name: Package live pair
         if: always()
         run: |
           cd "${RUNNER_TEMP}"
-          zip -qr "${GITHUB_WORKSPACE}/claim-preview-source-recovery.zip" claim-preview-recovery
+          zip -qr "${GITHUB_WORKSPACE}/claim-live-pair-recovery.zip" \
+            claim-production-live-recovery claim-preview-live-recovery
 
-      - name: Upload preview comparison
+      - name: Upload live pair
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: claim-preview-source-recovery
-          path: claim-preview-source-recovery.zip
+          name: claim-live-pair-recovery
+          path: claim-live-pair-recovery.zip
           if-no-files-found: error
           retention-days: 7
 
       - name: Fail when recovery failed
-        if: steps.recover.outputs.exit_status != '0'
+        if: steps.recover.outputs.production_status != '0' || steps.recover.outputs.preview_status != '0'
         run: exit 1
