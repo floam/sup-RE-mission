@@ -1,1 +1,2 @@
 Trigger passive preview-vs-production bundle comparison from a pull request.
+Run after the preview comparison workflow was enabled on main.
