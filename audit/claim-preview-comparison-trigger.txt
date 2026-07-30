@@ -1,1 +1,7 @@
-Trigger passive preview-vs-production bundle comparison on 2026-07-30.
+# claim.preview.superfluid.finance comparison
+
+Passive same-run capture on 2026-07-30 found that `claim.preview.superfluid.finance` and `claim.superfluid.org` referenced the same Vercel deployment, `dpl_51yG7Y6oUkkPUgca5tfx3pH6L7jq`.
+
+All 59 recursively recovered static assets matched by path, byte count, and SHA-256: 58 JavaScript chunks and one stylesheet. All ten tested routes returned equal-length HTML with identical browser-visible text; raw HTML differences were request-specific Sentry trace values and equivalent React streaming order.
+
+No authentication, Server Action invocation, API mutation, wallet operation, or transaction was attempted.
