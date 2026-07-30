@@ -45,14 +45,16 @@ jobs:
           npm run recover:claim-sources -- \
             --origin https://claim.superfluid.org \
             --out "${production_root}" \
-            2>&1 | tee "${production_root}/recovery.log"
+            2>&1 | tee "${RUNNER_TEMP}/claim-production-live-recovery.log"
           production_status=${PIPESTATUS[0]}
+          cp "${RUNNER_TEMP}/claim-production-live-recovery.log" "${production_root}/recovery.log"
 
           npm run recover:claim-sources -- \
             --origin https://claim.preview.superfluid.finance \
             --out "${preview_root}" \
-            2>&1 | tee "${preview_root}/recovery.log"
+            2>&1 | tee "${RUNNER_TEMP}/claim-preview-live-recovery.log"
           preview_status=${PIPESTATUS[0]}
+          cp "${RUNNER_TEMP}/claim-preview-live-recovery.log" "${preview_root}/recovery.log"
 
           echo "production_status=${production_status}" >> "$GITHUB_OUTPUT"
           echo "preview_status=${preview_status}" >> "$GITHUB_OUTPUT"
