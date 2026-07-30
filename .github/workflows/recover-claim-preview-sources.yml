@@ -1,0 +1,81 @@
+name: Compare claim preview deployment
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/recover-claim-preview-sources.yml"
+      - "tools/claim-source-recovery/**"
+      - "recovered/claim.superfluid.org/**"
+      - "package.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recover:
+    name: Capture preview and diff against production snapshot
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Verify pinned production snapshot
+        run: npm run verify:claim-snapshot
+
+      - name: Recover preview deployment
+        id: recover
+        shell: bash
+        run: |
+          set +e
+          preview_root="${RUNNER_TEMP}/claim-preview-recovery"
+          mkdir -p "${preview_root}"
+          npm run recover:claim-sources -- \
+            --origin https://claim.preview.superfluid.finance \
+            --out "${preview_root}" \
+            2>&1 | tee "${RUNNER_TEMP}/claim-preview-recovery.log"
+          status=${PIPESTATUS[0]}
+          cp "${RUNNER_TEMP}/claim-preview-recovery.log" "${preview_root}/recovery.log"
+          echo "exit_status=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Compare preview with production snapshot
+        if: always()
+        shell: bash
+        run: |
+          preview_root="${RUNNER_TEMP}/claim-preview-recovery"
+          if [[ ! -f "${preview_root}/manifest.json" ]]; then
+            exit 0
+          fi
+          node tools/claim-source-recovery/verify-snapshot.mjs \
+            --live-manifest "${preview_root}/manifest.json" \
+            --report "${preview_root}/snapshot-diff.json"
+          node -e 'const d=require(process.argv[1]).liveComparison; console.log(`## Preview vs production deployment\n\n- Unchanged assets: ${d.assets.unchanged}\n- Added assets: ${d.assets.added.length}\n- Removed assets: ${d.assets.removed.length}\n- Same-path content changes: ${d.assets.changed.length}\n- Added routes: ${d.routes.added.join(", ") || "none"}\n- Removed routes: ${d.routes.removed.join(", ") || "none"}`)' "${preview_root}/snapshot-diff.json" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Package comparison
+        if: always()
+        run: |
+          cd "${RUNNER_TEMP}"
+          zip -qr "${GITHUB_WORKSPACE}/claim-preview-source-recovery.zip" claim-preview-recovery
+
+      - name: Upload preview comparison
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: claim-preview-source-recovery
+          path: claim-preview-source-recovery.zip
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Fail when recovery failed
+        if: steps.recover.outputs.exit_status != '0'
+        run: exit 1
