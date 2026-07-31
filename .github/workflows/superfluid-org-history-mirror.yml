@@ -1,0 +1,93 @@
+name: Build Superfluid org history mirror
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/superfluid-org-history-mirror.yml
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GIT_TERMINAL_PROMPT: "0"
+    steps:
+      - name: Mirror every public superfluid-org repository
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          ROOT="$RUNNER_TEMP/superfluid-org-history"
+          REPOS="$ROOT/repos"
+          META="$ROOT/meta"
+          UPLOAD="$RUNNER_TEMP/upload"
+
+          mkdir -p "$REPOS" "$META" "$UPLOAD"
+
+          gh api --paginate 'orgs/superfluid-org/repos?type=public&per_page=100' \
+            --jq '.[].full_name' | sort -u > "$META/repositories.txt"
+
+          printf 'repository\treachable_commits\tall_objects\tpacked_bytes\n' \
+            > "$META/repository-counts.tsv"
+
+          while IFS= read -r repo; do
+            [ -n "$repo" ] || continue
+            name="${repo#*/}"
+            dest="$REPOS/${name}.git"
+
+            echo "::group::Mirroring $repo"
+            git clone --mirror "https://github.com/${repo}.git" "$dest"
+
+            # GitHub PR refs are not part of an ordinary mirror clone.
+            git -C "$dest" fetch origin \
+              '+refs/pull/*/head:refs/pull/*/head' \
+              '+refs/pull/*/merge:refs/pull/*/merge' \
+              '+refs/notes/*:refs/notes/*' \
+              --force || true
+
+            git -C "$dest" show-ref | sort > "$META/${name}-refs.txt"
+            git -C "$dest" fsck --full --no-reflogs \
+              > "$META/${name}-fsck.txt" 2>&1 || true
+
+            commits="$(git -C "$dest" rev-list --all --count)"
+            objects="$(git -C "$dest" rev-list --all --objects | wc -l | tr -d ' ')"
+            bytes="$(du -sb "$dest" | cut -f1)"
+            printf '%s\t%s\t%s\t%s\n' "$repo" "$commits" "$objects" "$bytes" \
+              >> "$META/repository-counts.tsv"
+            echo "::endgroup::"
+          done < "$META/repositories.txt"
+
+          date -u +'%Y-%m-%dT%H:%M:%SZ' > "$META/generated-at.txt"
+          git --version > "$META/git-version.txt"
+
+          ARCHIVE="$RUNNER_TEMP/superfluid-org-history-mirrors.tar.zst"
+          tar --zstd -cf "$ARCHIVE" -C "$RUNNER_TEMP" superfluid-org-history
+          sha256sum "$ARCHIVE" > "$UPLOAD/superfluid-org-history-mirrors.tar.zst.sha256"
+
+          # Keep each uploaded file below GitHub's per-file artifact ceiling.
+          split -b 1800M -d -a 3 "$ARCHIVE" \
+            "$UPLOAD/superfluid-org-history-mirrors.tar.zst.part-"
+
+          (
+            cd "$UPLOAD"
+            sha256sum superfluid-org-history-mirrors.tar.zst.part-* \
+              > superfluid-org-history-mirrors.parts.sha256
+            ls -lh > artifact-files.txt
+          )
+
+          cp "$META/repositories.txt" "$UPLOAD/"
+          cp "$META/repository-counts.tsv" "$UPLOAD/"
+
+      - name: Upload mirror archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors
+          path: ${{ runner.temp }}/upload/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 3
