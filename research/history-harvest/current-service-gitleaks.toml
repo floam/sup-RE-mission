@@ -1,0 +1,118 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "superfluid-platform-api-key"
+description = "Superfluid Platform or CMS API key"
+regex = '''\bsfp_[A-Za-z0-9_-]{20,}\b'''
+keywords = ["sfp_"]
+
+[[rules]]
+id = "trigger-dev-key"
+description = "Trigger.dev secret or access key"
+regex = '''\btr_(?:dev|prod|pat|test)_[A-Za-z0-9_-]{16,}\b'''
+keywords = ["tr_dev_", "tr_prod_", "tr_pat_", "tr_test_"]
+
+[[rules]]
+id = "vercel-blob-token"
+description = "Vercel Blob token"
+regex = '''\bvercel_blob_(?:rw|ro)_[A-Za-z0-9_=-]{16,}\b'''
+keywords = ["vercel_blob_"]
+
+[[rules]]
+id = "alchemy-rpc-key"
+description = "Alchemy key embedded in an RPC URL"
+regex = '''https://[A-Za-z0-9.-]*g\.alchemy\.com/v2/([A-Za-z0-9_-]{12,})'''
+secretGroup = 1
+keywords = ["alchemy.com"]
+
+[[rules]]
+id = "infura-rpc-key"
+description = "Infura project ID embedded in an RPC URL"
+regex = '''https://[A-Za-z0-9.-]*infura\.io/v3/([A-Za-z0-9_-]{12,})'''
+secretGroup = 1
+keywords = ["infura.io"]
+
+[[rules]]
+id = "quicknode-rpc-key"
+description = "QuickNode credential embedded in an RPC URL"
+regex = '''https://[A-Za-z0-9.-]+\.quiknode\.pro/([A-Za-z0-9_-]{12,})'''
+secretGroup = 1
+keywords = ["quiknode.pro"]
+
+[[rules]]
+id = "credentialed-service-url"
+description = "Service URL containing an inline password or token"
+regex = '''(?i)\b(?:postgres(?:ql)?|redis(?:s)?|mongodb(?:\+srv)?|mysql|amqp(?:s)?|https?)://[^\s:/@]+:([^\s/@]{6,})@[A-Za-z0-9._~%+:-]+'''
+secretGroup = 1
+keywords = ["://"]
+
+[[rules]]
+id = "cms-auth-secret-assignment"
+description = "CMS, Payload, Auth.js, or session secret assignment"
+regex = '''(?i)(?:PAYLOAD_SECRET|AUTH_SECRET|NEXTAUTH_SECRET|SESSION_SECRET|CMS_API_KEY|CMS_ADMIN_KEY)\s*[:=]\s*["']?([^\s"'`#]{10,})'''
+secretGroup = 1
+keywords = ["PAYLOAD_SECRET", "AUTH_SECRET", "NEXTAUTH_SECRET", "SESSION_SECRET", "CMS_API_KEY", "CMS_ADMIN_KEY"]
+
+[[rules]]
+id = "trigger-secret-assignment"
+description = "Trigger.dev secret assignment"
+regex = '''(?i)TRIGGER_(?:SECRET_KEY|ACCESS_TOKEN|PROJECT_REF)\s*[:=]\s*["']?([^\s"'`#]{10,})'''
+secretGroup = 1
+keywords = ["TRIGGER_"]
+
+[[rules]]
+id = "vercel-secret-assignment"
+description = "Vercel, deployment bypass, OIDC, or Blob secret assignment"
+regex = '''(?i)(?:BLOB_READ_WRITE_TOKEN|SUPERFLUID_DATA_BLOB_READ_WRITE_TOKEN|VERCEL_TOKEN|VERCEL_ACCESS_TOKEN|VERCEL_PROTECTION_BYPASS|VERCEL_AUTOMATION_BYPASS_SECRET|VERCEL_OIDC_TOKEN)\s*[:=]\s*["']?([^\s"'`#]{10,})'''
+secretGroup = 1
+keywords = ["VERCEL_", "BLOB_READ_WRITE_TOKEN"]
+
+[[rules]]
+id = "database-secret-assignment"
+description = "Database, Neon, or Postgres credential assignment"
+regex = '''(?i)(?:DATABASE_URL|DATABASE_URI|POSTGRES_URL|POSTGRES_PRISMA_URL|POSTGRES_URL_NON_POOLING|NEON_DATABASE_URL|PGPASSWORD)\s*[:=]\s*["']?([^\s"'`#]{10,})'''
+secretGroup = 1
+keywords = ["DATABASE_", "POSTGRES_", "NEON_", "PGPASSWORD"]
+
+[[rules]]
+id = "redis-secret-assignment"
+description = "Redis or Upstash credential assignment"
+regex = '''(?i)(?:REDIS_URL|REDIS_TOKEN|REDIS_PASSWORD|UPSTASH_REDIS_REST_TOKEN|UPSTASH_REDIS_REST_URL)\s*[:=]\s*["']?([^\s"'`#]{10,})'''
+secretGroup = 1
+keywords = ["REDIS_", "UPSTASH_"]
+
+[[rules]]
+id = "email-secret-assignment"
+description = "Email SaaS credential assignment"
+regex = '''(?i)(?:SMTP_PASS|SMTP_PASSWORD|SENDGRID_API_KEY|MAILGUN_API_KEY|POSTMARK_SERVER_TOKEN|RESEND_API_KEY)\s*[:=]\s*["']?([^\s"'`#]{10,})'''
+secretGroup = 1
+keywords = ["SMTP_", "SENDGRID_", "MAILGUN_", "POSTMARK_", "RESEND_"]
+
+[[rules]]
+id = "signer-private-key-assignment"
+description = "Signer, relayer, deployer, mnemonic, seed, or keystore secret"
+regex = '''(?i)(?:SIGNER_PRIVATE_KEY|RELAYER_SIGNER_PRIVATE_KEY|DEPLOYER_PRIVATE_KEY|PRIVATE_KEY|MNEMONIC|SEED_PHRASE|OZ_RELAYER_API_KEY|DEFENDER_API_KEY|DEFENDER_API_SECRET|SAFE_API_KEY|OZ_STORAGE_ENCRYPTION_KEY|KEYSTORE_PASSWORD|KEYSTORE_PASSPHRASE)\s*[:=]\s*["']?([^\s"'`#]{10,})'''
+secretGroup = 1
+keywords = ["PRIVATE_KEY", "MNEMONIC", "SEED_PHRASE", "RELAYER_", "DEFENDER_", "KEYSTORE_"]
+
+[[rules]]
+id = "rpc-indexer-secret-assignment"
+description = "RPC, indexer, or market-data credential assignment"
+regex = '''(?i)(?:ALCHEMY_API_KEY|INFURA_API_KEY|QUICKNODE_API_KEY|GOLDSKY_API_KEY|THE_GRAPH_API_KEY|GRAPH_API_KEY|COINGECKO_API_KEY)\s*[:=]\s*["']?([^\s"'`#]{10,})'''
+secretGroup = 1
+keywords = ["ALCHEMY_", "INFURA_", "QUICKNODE_", "GOLDSKY_", "THE_GRAPH_", "GRAPH_API_KEY", "COINGECKO_"]
+
+[[rules]]
+id = "cloud-ci-secret-assignment"
+description = "Cloud, CI, registry, monitoring, or source-control credential assignment"
+regex = '''(?i)(?:AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|CLOUDFLARE_API_TOKEN|NPM_TOKEN|GITHUB_TOKEN|GH_TOKEN|SENTRY_AUTH_TOKEN|DOCKER_PASSWORD|DOCKERHUB_TOKEN)\s*[:=]\s*["']?([^\s"'`#]{10,})'''
+secretGroup = 1
+keywords = ["AWS_", "CLOUDFLARE_", "NPM_TOKEN", "GITHUB_TOKEN", "GH_TOKEN", "SENTRY_", "DOCKER_"]
+
+[[rules]]
+id = "internal-saas-secret-assignment"
+description = "Windmill, Grafana, Loki, Tempo, Prometheus, or Alertmanager credential assignment"
+regex = '''(?i)(?:WINDMILL_TOKEN|WM_TOKEN|GRAFANA_TOKEN|LOKI_TOKEN|TEMPO_TOKEN|PROMETHEUS_TOKEN|ALERTMANAGER_TOKEN)\s*[:=]\s*["']?([^\s"'`#]{10,})'''
+secretGroup = 1
+keywords = ["WINDMILL_", "WM_TOKEN", "GRAFANA_", "LOKI_", "TEMPO_", "PROMETHEUS_", "ALERTMANAGER_"]
