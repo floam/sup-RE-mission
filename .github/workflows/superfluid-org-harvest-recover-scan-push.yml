@@ -1,0 +1,88 @@
+name: Harvest recover and scan Superfluid org history
+
+on:
+  push:
+    branches:
+      - audit/superfluid-org-history-mirror-20260731
+    paths:
+      - .github/workflows/superfluid-org-harvest-recover-scan-push.yml
+      - research/history-harvest/current-service-gitleaks.toml
+      - research/history-harvest/github_history_harvester.py
+      - research/history-harvest/swh_reference_harvester.py
+      - research/history-harvest/sanitize_gitleaks_report.py
+      - research/history-harvest/aggregate_integrated_scan.py
+      - research/history-harvest/run_integrated_harvest_scan.sh
+      - research/history-harvest/RUN-INTEGRATED-*
+
+permissions:
+  actions: read
+  contents: read
+  deployments: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  integrated-history-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITLEAKS_VERSION: "8.30.1"
+      GITLEAKS_SHA256: "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb"
+      ROOT: ${{ runner.temp }}/superfluid-org-integrated-history
+      API_CACHE: ${{ runner.temp }}/superfluid-history-api-cache
+      REPORTS: ${{ runner.temp }}/superfluid-integrated-scan-reports
+      MAX_FORK_FETCHES: "1500"
+      MAX_DETACHED_REMOTE_FETCHES: "500"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore quota-aware harvester cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.API_CACHE }}
+          key: superfluid-integrated-history-v1-${{ github.run_id }}
+          restore-keys: |
+            superfluid-integrated-history-v1-
+            superfluid-reference-harvest-v4-
+            superfluid-history-harvest-v3-
+
+      - name: Install verified Gitleaks
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          curl --fail --location --retry 3 --silent --show-error \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            -o /tmp/gitleaks.tar.gz
+          echo "${GITLEAKS_SHA256}  /tmp/gitleaks.tar.gz" | sha256sum --check
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+          sudo install -m 0755 /tmp/gitleaks /usr/local/bin/gitleaks
+          test "$(gitleaks version)" = "$GITLEAKS_VERSION"
+
+      - name: Harvest references recover objects and scan all refs
+        shell: bash
+        run: |
+          chmod +x research/history-harvest/run_integrated_harvest_scan.sh
+          research/history-harvest/run_integrated_harvest_scan.sh
+
+      - name: Save harvester cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.API_CACHE }}
+          key: superfluid-integrated-history-v1-${{ github.run_id }}
+
+      - name: Upload value-free integrated audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-harvest-recover-scan
+          path: |
+            ${{ env.REPORTS }}/superfluid-org-harvest-integrated-secret-scan.json
+            ${{ env.REPORTS }}/summary.txt
+            ${{ env.REPORTS }}/repositories/*.safe.json
+            ${{ env.REPORTS }}/harvest-meta/**
+            ${{ env.REPORTS }}/missing-mirrors.txt
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 7
