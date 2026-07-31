@@ -43,7 +43,6 @@ jobs:
             echo "::group::Mirroring $repo"
             git clone --mirror "https://github.com/${repo}.git" "$dest"
 
-            # GitHub PR refs are not part of an ordinary mirror clone.
             git -C "$dest" fetch origin \
               '+refs/pull/*/head:refs/pull/*/head' \
               '+refs/pull/*/merge:refs/pull/*/merge' \
@@ -69,8 +68,8 @@ jobs:
           tar --zstd -cf "$ARCHIVE" -C "$RUNNER_TEMP" superfluid-org-history
           sha256sum "$ARCHIVE" > "$UPLOAD/superfluid-org-history-mirrors.tar.zst.sha256"
 
-          # Keep each uploaded file below GitHub's per-file artifact ceiling.
-          split -b 1800M -d -a 3 "$ARCHIVE" \
+          # Keep each Actions artifact below this connector's 512 MiB download ceiling.
+          split -b 400M -d -a 3 "$ARCHIVE" \
             "$UPLOAD/superfluid-org-history-mirrors.tar.zst.part-"
 
           (
@@ -83,11 +82,48 @@ jobs:
           cp "$META/repositories.txt" "$UPLOAD/"
           cp "$META/repository-counts.tsv" "$UPLOAD/"
 
-      - name: Upload mirror archive
+          # This run is expected to produce exactly three parts at the current org size.
+          test -f "$UPLOAD/superfluid-org-history-mirrors.tar.zst.part-000"
+          test -f "$UPLOAD/superfluid-org-history-mirrors.tar.zst.part-001"
+          test -f "$UPLOAD/superfluid-org-history-mirrors.tar.zst.part-002"
+          test ! -f "$UPLOAD/superfluid-org-history-mirrors.tar.zst.part-003"
+
+      - name: Upload mirror part 000
         uses: actions/upload-artifact@v4
         with:
-          name: superfluid-org-history-mirrors
-          path: ${{ runner.temp }}/upload/*
+          name: superfluid-org-history-mirrors-part-000
+          path: ${{ runner.temp }}/upload/superfluid-org-history-mirrors.tar.zst.part-000
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 3
+
+      - name: Upload mirror part 001
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors-part-001
+          path: ${{ runner.temp }}/upload/superfluid-org-history-mirrors.tar.zst.part-001
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 3
+
+      - name: Upload mirror part 002
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors-part-002
+          path: ${{ runner.temp }}/upload/superfluid-org-history-mirrors.tar.zst.part-002
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 3
+
+      - name: Upload mirror manifests
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors-manifests
+          path: |
+            ${{ runner.temp }}/upload/*.sha256
+            ${{ runner.temp }}/upload/artifact-files.txt
+            ${{ runner.temp }}/upload/repositories.txt
+            ${{ runner.temp }}/upload/repository-counts.tsv
           if-no-files-found: error
           compression-level: 0
           retention-days: 3
