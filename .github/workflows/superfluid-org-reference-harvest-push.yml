@@ -1,0 +1,112 @@
+name: Harvest Superfluid org external history references
+
+on:
+  push:
+    branches:
+      - audit/superfluid-org-history-mirror-20260731
+    paths:
+      - .github/workflows/superfluid-org-reference-harvest-push.yml
+      - research/history-harvest/**
+
+permissions:
+  actions: read
+  contents: read
+  deployments: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OUT: ${{ runner.temp }}/superfluid-reference-harvest
+      CACHE: ${{ runner.temp }}/superfluid-reference-api-cache
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore API cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.CACHE }}
+          key: superfluid-reference-harvest-v4-${{ github.run_id }}
+          restore-keys: |
+            superfluid-reference-harvest-v4-
+            superfluid-history-harvest-v3-
+
+      - name: Harvest GitHub references and fork networks
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          mkdir -p "$OUT/github" "$OUT/swh" "$CACHE"
+          python3 research/history-harvest/github_history_harvester.py \
+            --org superfluid-org \
+            --out "$OUT/github" \
+            --cache "$CACHE" \
+            --rate-floor 200 \
+            --max-fork-depth 6 \
+            --max-forks-per-root 5000
+
+      - name: Build Software Heritage origin list
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          {
+            cat "$OUT/github/repositories.txt"
+            awk -F '\t' 'NR > 1 && $3 != "" { print $3 }' "$OUT/github/forks.tsv"
+            awk -F '\t' 'NR > 1 && $5 != "" { print $5 }' "$OUT/github/candidates.tsv"
+          } | awk 'NF && !seen[tolower($0)]++' > "$OUT/swh-origins.txt"
+
+      - name: Harvest Software Heritage snapshots
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python3 research/history-harvest/swh_reference_harvester.py \
+            --repositories "$OUT/swh-origins.txt" \
+            --out "$OUT/swh" \
+            --max-requests 400 \
+            --delay 0.5 \
+            --snapshots-per-origin 20 \
+            --max-origins 500 || true
+
+      - name: Summarize harvest
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          python3 - <<'PY'
+          import csv, json, os
+          from pathlib import Path
+          out = Path(os.environ['OUT'])
+          def rows(path):
+              p = out / path
+              if not p.exists(): return 0
+              with p.open(newline='', encoding='utf-8') as f:
+                  return max(0, sum(1 for _ in csv.reader(f, delimiter='\t')) - 1)
+          summary = {
+              'repositories': sum(1 for x in (out/'github/repositories.txt').read_text().splitlines() if x.strip()),
+              'fork_rows': rows('github/forks.tsv'),
+              'github_candidates': rows('github/candidates.tsv'),
+              'github_resume_queue': sum(1 for x in (out/'github/resume-queue.tsv').read_text().splitlines() if x.strip()) if (out/'github/resume-queue.tsv').exists() else 0,
+              'swh_candidates': rows('swh/candidates.tsv'),
+          }
+          (out/'summary.json').write_text(json.dumps(summary, indent=2)+'\n')
+          print(json.dumps(summary, indent=2))
+          PY
+
+      - name: Save API cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.CACHE }}
+          key: superfluid-reference-harvest-v4-${{ github.run_id }}
+
+      - name: Upload reference harvest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-reference-harvest-v4
+          path: ${{ env.OUT }}/**
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 7
