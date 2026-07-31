@@ -5,9 +5,14 @@ on:
     branches: [main]
     paths:
       - .github/workflows/superfluid-org-history-mirror.yml
+      - research/history-harvest/**
 
 permissions:
+  actions: read
   contents: read
+  deployments: read
+  issues: read
+  pull-requests: read
 
 jobs:
   mirror:
@@ -16,24 +21,84 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
       GIT_TERMINAL_PROMPT: "0"
+      ROOT: ${{ runner.temp }}/superfluid-org-history
+      API_CACHE: ${{ runner.temp }}/superfluid-history-api-cache
+      UPLOAD: ${{ runner.temp }}/upload
+      MAX_FORK_FETCHES: "1500"
+      MAX_DETACHED_REMOTE_FETCHES: "500"
     steps:
-      - name: Mirror every public superfluid-org repository
+      - uses: actions/checkout@v4
+
+      - name: Restore harvester API cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.API_CACHE }}
+          key: superfluid-history-harvest-v3-${{ github.run_id }}
+          restore-keys: |
+            superfluid-history-harvest-v3-
+
+      - name: Harvest GitHub and Software Heritage references
         shell: bash
         run: |
           set -Eeuo pipefail
 
-          ROOT="$RUNNER_TEMP/superfluid-org-history"
+          mkdir -p "$ROOT/repos" "$ROOT/meta/github" "$ROOT/meta/swh" "$API_CACHE" "$UPLOAD"
+
+          python3 research/history-harvest/github_history_harvester.py \
+            --org superfluid-org \
+            --out "$ROOT/meta/github" \
+            --cache "$API_CACHE" \
+            --rate-floor 300 \
+            --max-fork-depth 4 \
+            --max-forks-per-root 2000
+
+          {
+            cat "$ROOT/meta/github/repositories.txt"
+            awk -F '\t' 'NR > 1 { print $3 }' "$ROOT/meta/github/forks.tsv"
+            awk -F '\t' 'NR > 1 && $5 != "" { print $5 }' "$ROOT/meta/github/candidates.tsv"
+          } | awk 'NF && !seen[tolower($0)]++' > "$ROOT/meta/swh-origins.txt"
+
+          python3 research/history-harvest/swh_reference_harvester.py \
+            --repositories "$ROOT/meta/swh-origins.txt" \
+            --out "$ROOT/meta/swh" \
+            --max-requests 250 \
+            --delay 0.35 \
+            --snapshots-per-origin 10 \
+            --max-origins 300 || true
+
+          {
+            head -n 1 "$ROOT/meta/github/candidates.tsv"
+            tail -n +2 "$ROOT/meta/github/candidates.tsv"
+            if [ -f "$ROOT/meta/swh/candidates.tsv" ]; then
+              tail -n +2 "$ROOT/meta/swh/candidates.tsv"
+            fi
+          } | awk 'NR == 1 || !seen[$0]++' > "$ROOT/meta/candidates.tsv"
+
+          cp "$ROOT/meta/github/repositories.txt" "$ROOT/meta/repositories.txt"
+          date -u +'%Y-%m-%dT%H:%M:%SZ' > "$ROOT/meta/generated-at.txt"
+          git --version > "$ROOT/meta/git-version.txt"
+
+      - name: Upload reference harvest early
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-reference-harvest
+          path: ${{ env.ROOT }}/meta/**
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 7
+
+      - name: Mirror org repositories and surviving fork refs
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
           REPOS="$ROOT/repos"
           META="$ROOT/meta"
-          UPLOAD="$RUNNER_TEMP/upload"
-
-          mkdir -p "$REPOS" "$META" "$UPLOAD"
-
-          gh api --paginate 'orgs/superfluid-org/repos?type=public&per_page=100' \
-            --jq '.[].full_name' | sort -u > "$META/repositories.txt"
-
           printf 'repository\treachable_commits\tall_objects\tpacked_bytes\n' \
             > "$META/repository-counts.tsv"
+          : > "$META/mirror-errors.log"
+          : > "$META/fork-fetch-results.tsv"
+          printf 'root_repository\tfork_repository\tresult\n' > "$META/fork-fetch-results.tsv"
 
           while IFS= read -r repo; do
             [ -n "$repo" ] || continue
@@ -41,13 +106,108 @@ jobs:
             dest="$REPOS/${name}.git"
 
             echo "::group::Mirroring $repo"
-            git clone --mirror "https://github.com/${repo}.git" "$dest"
+            if ! git clone --mirror "https://github.com/${repo}.git" "$dest"; then
+              printf '%s\tclone-failed\n' "$repo" >> "$META/mirror-errors.log"
+              echo "::endgroup::"
+              continue
+            fi
 
             git -C "$dest" fetch origin \
               '+refs/pull/*/head:refs/pull/*/head' \
               '+refs/pull/*/merge:refs/pull/*/merge' \
               '+refs/notes/*:refs/notes/*' \
               --force || true
+            echo "::endgroup::"
+          done < "$META/repositories.txt"
+
+          fetched=0
+          while IFS=$'\t' read -r root parent fork depth clone_url size pushed archived; do
+            [ "$root" = "root_repository" ] && continue
+            [ -n "$root" ] && [ -n "$fork" ] || continue
+            [ "$fetched" -lt "$MAX_FORK_FETCHES" ] || break
+            dest="$REPOS/${root#*/}.git"
+            [ -d "$dest" ] || continue
+            safe="$(printf '%s' "$fork" | tr -c 'A-Za-z0-9._-' '_')"
+            if timeout 180s git -C "$dest" fetch --no-tags --force "$clone_url" \
+              "+refs/heads/*:refs/recovered/forks/${safe}/*" \
+              "+refs/tags/*:refs/recovered/fork-tags/${safe}/*"; then
+              printf '%s\t%s\tok\n' "$root" "$fork" >> "$META/fork-fetch-results.tsv"
+            else
+              printf '%s\t%s\tfailed\n' "$root" "$fork" >> "$META/fork-fetch-results.tsv"
+            fi
+            fetched=$((fetched + 1))
+          done < "$META/github/forks.tsv"
+
+          awk -F '\t' 'NR > 1 && $5 != "" { print $1 "\t" $5 }' "$META/candidates.tsv" \
+            | sort -u > "$META/detached-remotes.tsv"
+          detached=0
+          while IFS=$'\t' read -r root remote; do
+            [ -n "$root" ] && [ -n "$remote" ] || continue
+            [ "$detached" -lt "$MAX_DETACHED_REMOTE_FETCHES" ] || break
+            dest="$REPOS/${root#*/}.git"
+            [ -d "$dest" ] || continue
+            safe="$(printf '%s' "$remote" | tr -c 'A-Za-z0-9._-' '_')"
+            timeout 180s git -C "$dest" fetch --no-tags --force \
+              "https://github.com/${remote}.git" \
+              "+refs/heads/*:refs/recovered/detached/${safe}/*" \
+              "+refs/tags/*:refs/recovered/detached-tags/${safe}/*" || true
+            detached=$((detached + 1))
+          done < "$META/detached-remotes.tsv"
+
+      - name: Attempt addressed recovery of harvested SHAs
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          REPOS="$ROOT/repos"
+          META="$ROOT/meta"
+          printf 'repository\tsha\tsource\tresult\tremote_hint\n' \
+            > "$META/candidate-fetch-results.tsv"
+
+          awk -F '\t' 'NR > 1 { key=$1 FS $2; if (!seen[key]++) print $1 FS $2 FS $3 FS $5 }' \
+            "$META/candidates.tsv" > "$META/candidates-unique.tsv"
+
+          while IFS=$'\t' read -r repo sha source remote_hint; do
+            [ -n "$repo" ] && [ -n "$sha" ] || continue
+            dest="$REPOS/${repo#*/}.git"
+            if [ ! -d "$dest" ]; then
+              printf '%s\t%s\t%s\tno-root-mirror\t%s\n' \
+                "$repo" "$sha" "$source" "$remote_hint" >> "$META/candidate-fetch-results.tsv"
+              continue
+            fi
+
+            if git -C "$dest" cat-file -e "${sha}^{commit}" 2>/dev/null; then
+              git -C "$dest" update-ref "refs/recovered/candidates/${sha}" "$sha" || true
+              result="already-present"
+            elif timeout 45s git -C "$dest" fetch --no-tags origin \
+              "${sha}:refs/recovered/candidates/${sha}" 2>/dev/null; then
+              result="fetched-origin-by-sha"
+            elif [ -n "$remote_hint" ] && timeout 45s git -C "$dest" fetch --no-tags \
+              "https://github.com/${remote_hint}.git" \
+              "${sha}:refs/recovered/candidates/${sha}" 2>/dev/null; then
+              result="fetched-hint-by-sha"
+            else
+              result="not-recovered"
+            fi
+
+            printf '%s\t%s\t%s\t%s\t%s\n' \
+              "$repo" "$sha" "$source" "$result" "$remote_hint" \
+              >> "$META/candidate-fetch-results.tsv"
+          done < "$META/candidates-unique.tsv"
+
+      - name: Inventory and package mirrors
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          REPOS="$ROOT/repos"
+          META="$ROOT/meta"
+
+          while IFS= read -r repo; do
+            [ -n "$repo" ] || continue
+            name="${repo#*/}"
+            dest="$REPOS/${name}.git"
+            [ -d "$dest" ] || continue
 
             git -C "$dest" show-ref | sort > "$META/${name}-refs.txt"
             git -C "$dest" fsck --full --no-reflogs \
@@ -58,17 +218,12 @@ jobs:
             bytes="$(du -sb "$dest" | cut -f1)"
             printf '%s\t%s\t%s\t%s\n' "$repo" "$commits" "$objects" "$bytes" \
               >> "$META/repository-counts.tsv"
-            echo "::endgroup::"
           done < "$META/repositories.txt"
-
-          date -u +'%Y-%m-%dT%H:%M:%SZ' > "$META/generated-at.txt"
-          git --version > "$META/git-version.txt"
 
           ARCHIVE="$RUNNER_TEMP/superfluid-org-history-mirrors.tar.zst"
           tar --zstd -cf "$ARCHIVE" -C "$RUNNER_TEMP" superfluid-org-history
           sha256sum "$ARCHIVE" > "$UPLOAD/superfluid-org-history-mirrors.tar.zst.sha256"
 
-          # Keep each Actions artifact below this connector's 512 MiB download ceiling.
           split -b 400M -d -a 3 "$ARCHIVE" \
             "$UPLOAD/superfluid-org-history-mirrors.tar.zst.part-"
 
@@ -81,19 +236,32 @@ jobs:
 
           cp "$META/repositories.txt" "$UPLOAD/"
           cp "$META/repository-counts.tsv" "$UPLOAD/"
+          cp "$META/candidate-fetch-results.tsv" "$UPLOAD/"
+          cp "$META/github/api-stats.json" "$UPLOAD/github-api-stats.json"
+          cp "$META/swh/stats.json" "$UPLOAD/swh-stats.json" 2>/dev/null || true
 
-          # This run is expected to produce exactly three parts at the current org size.
-          test -f "$UPLOAD/superfluid-org-history-mirrors.tar.zst.part-000"
-          test -f "$UPLOAD/superfluid-org-history-mirrors.tar.zst.part-001"
-          test -f "$UPLOAD/superfluid-org-history-mirrors.tar.zst.part-002"
-          test ! -f "$UPLOAD/superfluid-org-history-mirrors.tar.zst.part-003"
+      - name: Save harvester API cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.API_CACHE }}
+          key: superfluid-history-harvest-v3-${{ github.run_id }}
+
+      - name: Check mirror part count
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          count="$(find "$UPLOAD" -maxdepth 1 -name 'superfluid-org-history-mirrors.tar.zst.part-*' | wc -l | tr -d ' ')"
+          printf '%s\n' "$count" > "$UPLOAD/part-count.txt"
+          test "$count" -ge 1
+          test "$count" -le 16
 
       - name: Upload mirror part 000
         uses: actions/upload-artifact@v4
         with:
           name: superfluid-org-history-mirrors-part-000
-          path: ${{ runner.temp }}/upload/superfluid-org-history-mirrors.tar.zst.part-000
-          if-no-files-found: error
+          path: ${{ env.UPLOAD }}/superfluid-org-history-mirrors.tar.zst.part-000
+          if-no-files-found: ignore
           compression-level: 0
           retention-days: 3
 
@@ -101,8 +269,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: superfluid-org-history-mirrors-part-001
-          path: ${{ runner.temp }}/upload/superfluid-org-history-mirrors.tar.zst.part-001
-          if-no-files-found: error
+          path: ${{ env.UPLOAD }}/superfluid-org-history-mirrors.tar.zst.part-001
+          if-no-files-found: ignore
           compression-level: 0
           retention-days: 3
 
@@ -110,8 +278,125 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: superfluid-org-history-mirrors-part-002
-          path: ${{ runner.temp }}/upload/superfluid-org-history-mirrors.tar.zst.part-002
-          if-no-files-found: error
+          path: ${{ env.UPLOAD }}/superfluid-org-history-mirrors.tar.zst.part-002
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 3
+
+      - name: Upload mirror part 003
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors-part-003
+          path: ${{ env.UPLOAD }}/superfluid-org-history-mirrors.tar.zst.part-003
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 3
+
+      - name: Upload mirror part 004
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors-part-004
+          path: ${{ env.UPLOAD }}/superfluid-org-history-mirrors.tar.zst.part-004
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 3
+
+      - name: Upload mirror part 005
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors-part-005
+          path: ${{ env.UPLOAD }}/superfluid-org-history-mirrors.tar.zst.part-005
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 3
+
+      - name: Upload mirror part 006
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors-part-006
+          path: ${{ env.UPLOAD }}/superfluid-org-history-mirrors.tar.zst.part-006
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 3
+
+      - name: Upload mirror part 007
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors-part-007
+          path: ${{ env.UPLOAD }}/superfluid-org-history-mirrors.tar.zst.part-007
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 3
+
+      - name: Upload mirror part 008
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors-part-008
+          path: ${{ env.UPLOAD }}/superfluid-org-history-mirrors.tar.zst.part-008
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 3
+
+      - name: Upload mirror part 009
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors-part-009
+          path: ${{ env.UPLOAD }}/superfluid-org-history-mirrors.tar.zst.part-009
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 3
+
+      - name: Upload mirror part 010
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors-part-010
+          path: ${{ env.UPLOAD }}/superfluid-org-history-mirrors.tar.zst.part-010
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 3
+
+      - name: Upload mirror part 011
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors-part-011
+          path: ${{ env.UPLOAD }}/superfluid-org-history-mirrors.tar.zst.part-011
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 3
+
+      - name: Upload mirror part 012
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors-part-012
+          path: ${{ env.UPLOAD }}/superfluid-org-history-mirrors.tar.zst.part-012
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 3
+
+      - name: Upload mirror part 013
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors-part-013
+          path: ${{ env.UPLOAD }}/superfluid-org-history-mirrors.tar.zst.part-013
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 3
+
+      - name: Upload mirror part 014
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors-part-014
+          path: ${{ env.UPLOAD }}/superfluid-org-history-mirrors.tar.zst.part-014
+          if-no-files-found: ignore
+          compression-level: 0
+          retention-days: 3
+
+      - name: Upload mirror part 015
+        uses: actions/upload-artifact@v4
+        with:
+          name: superfluid-org-history-mirrors-part-015
+          path: ${{ env.UPLOAD }}/superfluid-org-history-mirrors.tar.zst.part-015
+          if-no-files-found: ignore
           compression-level: 0
           retention-days: 3
 
@@ -120,10 +405,13 @@ jobs:
         with:
           name: superfluid-org-history-mirrors-manifests
           path: |
-            ${{ runner.temp }}/upload/*.sha256
-            ${{ runner.temp }}/upload/artifact-files.txt
-            ${{ runner.temp }}/upload/repositories.txt
-            ${{ runner.temp }}/upload/repository-counts.tsv
+            ${{ env.UPLOAD }}/*.sha256
+            ${{ env.UPLOAD }}/artifact-files.txt
+            ${{ env.UPLOAD }}/part-count.txt
+            ${{ env.UPLOAD }}/repositories.txt
+            ${{ env.UPLOAD }}/repository-counts.tsv
+            ${{ env.UPLOAD }}/candidate-fetch-results.tsv
+            ${{ env.UPLOAD }}/*-stats.json
           if-no-files-found: error
           compression-level: 0
           retention-days: 3
