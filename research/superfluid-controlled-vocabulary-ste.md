@@ -24,7 +24,34 @@ Each vocabulary entry must specify:
 
 ## 2. General terminology rules
 
-### 2.1 One term, one concept
+### 2.1 STE writing rules
+
+Use these ASD-STE100 rules with this controlled vocabulary:
+
+1. Use an approved word only with the part of speech and meaning that the dictionary gives.
+2. Make each instruction as clear and specific as possible.
+3. Do not write a multi-word noun that has more than three words.
+4. Use an approved verb form only for these purposes:
+   - The infinitive form
+   - The imperative form
+   - The simple present tense
+   - The simple past tense
+   - The simple future tense
+   - The past participle, only as an adjective
+5. Do not use auxiliary verbs to make complex verb constructions.
+6. Use the `-ing` form of a verb only as a technical noun or as a modifier in a technical noun.
+7. Use the active voice.
+8. In descriptive text, use the passive voice only when you do not know the agent.
+9. Write no more than 20 words in each instruction sentence.
+10. Write no more than 25 words in each descriptive sentence.
+11. Do not omit a subject, verb, article, or other necessary sentence part to make text shorter.
+12. Use a vertical list for complex text.
+13. Write only one instruction in each sentence.
+14. Write only one topic in each paragraph.
+15. Write no more than six sentences in each paragraph.
+16. Start each safety instruction with a clear command or condition.
+
+### 2.2 One term, one concept
 
 Do not change terms only to add variation.
 
@@ -38,7 +65,7 @@ Do not write:
 
 In this example, **receiver**, **delete**, and **stream** are the controlled terms.
 
-### 2.2 Name the relevant layer
+### 2.3 Name the relevant layer
 
 Do not use the name of a large product bundle when you mean one component of that bundle.
 
@@ -50,13 +77,13 @@ Do not write:
 
 > The wallet sends the request to the wallet.
 
-### 2.3 Do not infer capabilities from product names
+### 2.4 Do not infer capabilities from product names
 
 A component named `wallet` does not necessarily manage keys, sign data, provide RPC access, or broadcast transactions.
 
 Describe its actual capabilities.
 
-### 2.4 Use exact identifiers only as identifiers
+### 2.5 Use exact identifiers only as identifiers
 
 Code identifiers can contain terminology that is not preferred in prose.
 
@@ -70,7 +97,7 @@ Do not write:
 
 The identifier `createFlow` does not make **create a flow** an approved prose term.
 
-### 2.5 Make ambiguous terms explicit
+### 2.6 Make ambiguous terms explicit
 
 Do not use these terms without a modifier when more than one meaning is possible:
 
@@ -116,23 +143,23 @@ The word **wallet** is permitted only when the intended layer is clear.
 
 ### 4.1 Preferred wallet terms
 
-| Preferred term          | Type                  | Approved meaning                                                                                                                 | Do not use as a synonym         |
-| ----------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Preferred term          | Type                  | Approved meaning                                                                                                                  | Do not use as a synonym         |
+| ----------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
 | **wallet product**      | Technical name        | The complete branded product that can contain custody, signing, consent, RPC, broadcast, portfolio, or connectivity capabilities. | provider, signer                |
-| **wallet application**  | Technical name        | An end-user application that manages accounts or signing authority and usually presents consent requests.                        | provider, account               |
-| **wallet service**      | Technical name        | A remote service that supplies one or more wallet capabilities.                                                                  | wallet application, RPC service |
-| **signing surface**     | Technical name        | The isolated user interface in which a person reviews and authorizes a signing request.                                          | wallet, popup                   |
-| **signer**              | Technical name        | A software or hardware component that produces cryptographic signatures.                                                         | wallet, provider, account       |
-| **signer backend**      | Technical name        | A remote service that performs or coordinates signing.                                                                           | wallet application, RPC service |
-| **signing authority**   | Technical name        | The cryptographic authority required to authorize an account action.                                                             | private key, wallet             |
-| **key custody**         | Technical name        | The capability that stores, derives, or controls signing keys.                                                                   | signing, account management     |
-| **key custodian**       | Technical name        | The system or organization responsible for key custody.                                                                          | wallet, signer                  |
-| **recovery mechanism**  | Technical name        | A method that restores access to signing authority.                                                                              | backup, login                   |
-| **consent interface**   | Technical name        | A user interface that lets a person approve or reject a requested action.                                                        | signer, provider                |
-| **sign**                | Technical verb        | Produce a cryptographic signature for specified data.                                                                            | approve, authorize, submit      |
-| **request a signature** | Technical verb phrase | Ask a signer or wallet application to sign specified data.                                                                       | send to wallet                  |
-| **authorize an action** | Technical verb phrase | Grant the authority necessary for an action.                                                                                     | sign, approve                   |
-| **approve a request**   | Technical verb phrase | Select the affirmative choice in a consent interface.                                                                            | sign, authorize                 |
+| **wallet application**  | Technical name        | An end-user application that manages accounts or signing authority and usually presents consent requests.                         | provider, account               |
+| **wallet service**      | Technical name        | A remote service that supplies one or more wallet capabilities.                                                                   | wallet application, RPC service |
+| **signing surface**     | Technical name        | The isolated user interface in which a person reviews and authorizes a signing request.                                           | wallet, popup                   |
+| **signer**              | Technical name        | A software or hardware component that produces cryptographic signatures.                                                          | wallet, provider, account       |
+| **signer backend**      | Technical name        | A remote service that performs or coordinates signing.                                                                            | wallet application, RPC service |
+| **signing authority**   | Technical name        | The cryptographic authority required to authorize an account action.                                                              | private key, wallet             |
+| **key custody**         | Technical name        | The capability that stores, derives, or controls signing keys.                                                                    | signing, account management     |
+| **key custodian**       | Technical name        | The system or organization responsible for key custody.                                                                           | wallet, signer                  |
+| **recovery mechanism**  | Technical name        | A method that restores access to signing authority.                                                                               | backup, login                   |
+| **consent interface**   | Technical name        | A user interface that lets a person approve or reject a requested action.                                                         | signer, provider                |
+| **sign**                | Technical verb        | Produce a cryptographic signature for specified data.                                                                             | approve, authorize, submit      |
+| **request a signature** | Technical verb phrase | Ask a signer or wallet application to sign specified data.                                                                        | send to wallet                  |
+| **authorize an action** | Technical verb phrase | Grant the authority necessary for an action.                                                                                      | sign, approve                   |
+| **approve a request**   | Technical verb phrase | Select the affirmative choice in a consent interface.                                                                             | sign, authorize                 |
 
 ### 4.2 Required distinctions
 
@@ -163,7 +190,7 @@ Write one of these:
 | **provider request**        | Technical name | A request sent through an EIP-1193 provider.                                                                                                                  | transaction, API call         |
 | **provider event**          | Technical name | An event emitted through the EIP-1193 provider interface.                                                                                                     | callback, blockchain event    |
 | **connector**               | Technical name | An adapter that connects application state to an EIP-1193 provider or wallet integration.                                                                     | provider, wallet              |
-| **bridge**                  | Technical name | A communication component between separate processes, frames, applications, or origins.                                                                      | connector, provider           |
+| **bridge**                  | Technical name | A communication component between separate processes, frames, applications, or origins.                                                                       | connector, provider           |
 | **popup bridge**            | Technical name | A bridge that exchanges requests and responses with a popup window.                                                                                           | popup wallet                  |
 | **RPC service**             | Technical name | A service that accepts blockchain RPC requests.                                                                                                               | provider, node, wallet        |
 | **RPC endpoint**            | Technical name | A URL or transport destination for an RPC service.                                                                                                            | provider, API                 |
