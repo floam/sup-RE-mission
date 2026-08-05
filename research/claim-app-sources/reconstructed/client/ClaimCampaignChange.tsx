@@ -11,10 +11,14 @@ const numberFormat = new Intl.NumberFormat("en-US");
 
 export function ClaimCampaignChange({
   row,
+  isSelected,
+  onSelectionChange,
   breakdown,
   onToggleBreakdown,
 }: {
   row: PointState;
+  isSelected?: boolean;
+  onSelectionChange?(selected: boolean): void;
   breakdown?: EventBreakdown;
   onToggleBreakdown(row: PointState): void;
 }) {
@@ -44,6 +48,16 @@ export function ClaimCampaignChange({
   return (
     <article className="campaign-change">
       <header className="campaign-heading">
+        {onSelectionChange && (
+          <label className="campaign-selection">
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={(event) => onSelectionChange(event.target.checked)}
+            />
+            <span>Include in update</span>
+          </label>
+        )}
         <div>
           <h4>
             {attribution.names.length
