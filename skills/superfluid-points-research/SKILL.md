@@ -82,7 +82,9 @@ Validate account identity, campaign order, and parallel array lengths for every 
    `getTotalFlowRate`.
 7. Mark a row claimable when the CMS campaign exists and capped target differs from
    onchain units.
-8. On explicit submission, request `signed-balance-batch`, validate it, and submit
+8. Let the user select changed campaigns. Select positive target deltas by default and
+   leave decreasing targets clear. On explicit submission, request
+   `signed-balance-batch` only for the selected campaigns, validate it, and submit
    signed `points`, campaign IDs, timestamp, and signature. Never submit
    `uncappedPoints`.
 9. Require receipt `status: success`; refresh after partial multi-batch success.

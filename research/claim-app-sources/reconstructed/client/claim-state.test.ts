@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { isClaimablePointState } from "./claim-state.ts";
+import {
+  isClaimablePointState,
+  isPositiveClaimDelta,
+} from "./claim-state.ts";
 
 test("allows an outdated point target that reduces units to zero", () => {
   assert.equal(
@@ -34,6 +37,27 @@ test("does not claim a zero target synthesized for a CMS-missing campaign", () =
       onchainPoints: 100n,
       isOnchainOutdated: true,
       cmsCampaignExists: false,
+    }),
+    false,
+  );
+});
+
+test("selects positive claim deltas by default", () => {
+  assert.equal(
+    isPositiveClaimDelta({
+      offchainPoints: 11n,
+      onchainPoints: 10n,
+      isOnchainOutdated: true,
+      cmsCampaignExists: true,
+    }),
+    true,
+  );
+  assert.equal(
+    isPositiveClaimDelta({
+      offchainPoints: 9n,
+      onchainPoints: 10n,
+      isOnchainOutdated: true,
+      cmsCampaignExists: true,
     }),
     false,
   );

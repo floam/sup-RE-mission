@@ -115,7 +115,9 @@ naturally changes the key.
 ## Functional scope
 
 - `/claim` connects or inspects a wallet, shows flows and capped states, explains
-  uncapped deltas, and submits claims only for the owning connected wallet.
+  uncapped deltas, and submits claims only for the owning connected wallet. Each
+  changed campaign has a checkbox. Positive target deltas are checked by default;
+  decreasing targets are clear. The CMS signed batch contains only checked campaigns.
 - `/apps`, `/governance`, `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`,
   `/staking`, and `/swap` retain their reconstructed implementations.
 
