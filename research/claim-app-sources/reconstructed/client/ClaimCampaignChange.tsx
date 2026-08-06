@@ -12,12 +12,14 @@ const numberFormat = new Intl.NumberFormat("en-US");
 export function ClaimCampaignChange({
   row,
   isSelected,
+  isSelectionDisabled = false,
   onSelectionChange,
   breakdown,
   onToggleBreakdown,
 }: {
   row: PointState;
   isSelected?: boolean;
+  isSelectionDisabled?: boolean;
   onSelectionChange?(selected: boolean): void;
   breakdown?: EventBreakdown;
   onToggleBreakdown(row: PointState): void;
@@ -53,6 +55,7 @@ export function ClaimCampaignChange({
             <input
               type="checkbox"
               checked={isSelected}
+              disabled={isSelectionDisabled}
               onChange={(event) => onSelectionChange(event.target.checked)}
             />
             <span>Include in update</span>

@@ -120,7 +120,9 @@ nonce resolution is one second. A backfilled event can carry a time outside the 
 7. On explicit submission fetch `signed-balance-batch` only for selected campaigns,
    validate it, and submit signed `points`, campaign IDs, timestamp, and signature
    through SDK `lockerAbi`.
-8. Require receipt `status: success`; refresh state after partial multi-batch success.
+8. Lock campaign selection during submission, require receipt `status: success`,
+   refresh state after partial multi-batch success, and report success, partial
+   success, or failure explicitly.
 
 ## Historical balance API
 

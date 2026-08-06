@@ -21,6 +21,15 @@
   gap: 1rem;
 }
 
+.scope :global(.claim-status-success) {
+  border-color: rgba(118, 255, 181, 0.45);
+}
+
+.scope :global(.claim-status-error) {
+  border-color: rgba(255, 114, 105, 0.45);
+  background: #3b2422;
+}
+
 .scope :global(.unavailable-pill) {
   border-radius: 999px;
   padding: 0.35rem 0.65rem;

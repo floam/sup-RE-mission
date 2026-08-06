@@ -40,8 +40,9 @@ claim target. CMS event `createdAt` remains the API name for `eventTime`, not in
 time.
 
 The runnable claim UI gives each changed campaign a transaction checkbox. It selects
-positive target deltas by default, leaves decreasing targets clear, and requests a
-signed batch only for the checked campaign IDs.
+positive target deltas by default, leaves decreasing targets clear, locks selection
+during submission, requests a signed batch only for the checked campaign IDs, and
+reports success, partial success, or failure explicitly.
 
 ## Claim voucher injector
 
