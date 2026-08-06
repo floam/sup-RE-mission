@@ -423,8 +423,8 @@ export function ClaimExperience() {
           : "Your campaign rewards changed.";
       heroDescription = (
         <>
-          We found {changedRows.length} campaign
-          {changedRows.length === 1 ? "" : "s"} that would change your stream by{" "}
+          You selected {selectedRows.length} of {changedRows.length} campaign update
+          {changedRows.length === 1 ? "" : "s"}, which would change your stream by{" "}
           <strong>{formatMonthlyFlow(totalFlowDelta, true)}</strong>
           {campaignScope}.
         </>
