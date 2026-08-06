@@ -11,20 +11,13 @@ export function NavConnectAndBalance() {
   const { address } = useWalletAccount();
   const balance = useBalance({ address, chainId: APP_CHAIN.id });
   return (
-    <div className="flex items-center gap-3">
-      <div>
-        {balance.data && (
-          <span data-testid="nav-balance" className="hidden lg:block">
-            <img
-              src="/eth.svg"
-              alt="ETH Icon"
-              className="-mt-1 mr-1 inline-block h-4 w-4"
-            />
-            {formatTokenAmount(balance.data.value, 3)} ETH
-          </span>
-        )}
-      </div>
+    <span>
+      {balance.data && (
+        <span data-testid="nav-balance">
+          {formatTokenAmount(balance.data.value, 3)} ETH{" "}
+        </span>
+      )}
       <ConnectButton />
-    </div>
+    </span>
   );
 }
