@@ -28,6 +28,7 @@ import {
   formatMonthlyFlow,
   getCampaignAttribution,
   shortAddress,
+  STATIC_PROGRAM_ATTRIBUTIONS,
 } from "./claim-display";
 import type { EventBreakdown } from "./claim-event-breakdown";
 import { explainPendingCampaigns } from "./pending-event-explanations";
@@ -42,6 +43,11 @@ import {
   isClaimablePointState,
   reconcileClaimSelection,
 } from "./claim-state";
+import {
+  getPublicProgramAttributions,
+  mergeProgramAttributions,
+  type ProgramAttributions,
+} from "./program-attribution";
 
 const numberFormat = new Intl.NumberFormat("en-US");
 
@@ -63,6 +69,8 @@ export function ClaimExperience() {
   const [selectedPrograms, setSelectedPrograms] = useState<Set<bigint>>(
     () => new Set(),
   );
+  const [campaignAttributions, setCampaignAttributions] =
+    useState<ProgramAttributions>(STATIC_PROGRAM_ATTRIBUTIONS);
   const [isLookupOpen, setIsLookupOpen] = useState(false);
   const [breakdown, setBreakdown] = useState<EventBreakdown>();
   const breakdownCache = useRef(new Map<string, EventBreakdown>());
@@ -169,6 +177,25 @@ export function ClaimExperience() {
       updateAccount("");
     }
   }
+
+  useEffect(() => {
+    let disposed = false;
+    getPublicProgramAttributions()
+      .then((live) => {
+        if (!disposed) {
+          setCampaignAttributions(
+            mergeProgramAttributions(STATIC_PROGRAM_ATTRIBUTIONS, live),
+          );
+        }
+      })
+      .catch(() => {
+        // Attribution is non-authoritative claim decoration. Keep the recovered
+        // labels when the public program feed is temporarily unavailable.
+      });
+    return () => {
+      disposed = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!isConnected || !connectedAddress) {
@@ -473,7 +500,8 @@ export function ClaimExperience() {
   const campaignNames = [
     ...new Set(
       selectedRows.flatMap(
-        (row) => getCampaignAttribution(row.programId).names,
+        (row) =>
+          getCampaignAttribution(row.programId, campaignAttributions).names,
       ),
     ),
   ];
@@ -551,6 +579,7 @@ export function ClaimExperience() {
       <ClaimCampaignChange
         key={String(row.programId)}
         row={row}
+        attributions={campaignAttributions}
         isSelected={
           isClaimablePointState(row)
             ? selectedPrograms.has(row.programId)

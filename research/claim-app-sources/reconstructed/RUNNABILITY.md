@@ -27,6 +27,7 @@ The runnable claim path uses:
 - Wagmi hooks for chain switching and `useWriteContract`;
 - `waitForTransactionReceipt` for confirmation and explicit success checking;
 - `lib/cms-client.ts` as the sole CMS transport boundary;
+- `client/program-attribution.ts` for live claim-app names, seasons, and categories;
 - `client/pending-event-explanations.ts` for client-side explanation orchestration;
 - `lib/claim-nonce-window.ts` for signed-snapshot interval derivation;
 - a narrow local GDA pool ABI because `@sfpro/sdk` 0.2.3 does not export the pool ABI.
@@ -39,7 +40,7 @@ boundary.
 | Behavior                        | Data source                                                |
 | ------------------------------- | ---------------------------------------------------------- |
 | Campaign enumeration            | SUP Goldsky subgraph                                       |
-| Campaign attribution            | Recovered app definitions / public claim metadata          |
+| Campaign attribution            | Live claim `/api/programs`; recovered labels as fallback   |
 | Raw and capped claim state      | `POST /points/balance-batch`                               |
 | Locker, units, and member flow  | SDK ABIs through Wagmi                                     |
 | Pool totals                     | Narrow GDA pool reads through Wagmi                        |
@@ -138,7 +139,7 @@ reuse, and confirm capped campaigns never request incremental events.
 
 ## Known limitations
 
-- Public subgraphs, RPC, and CMS availability remain runtime dependencies.
+- Public subgraphs, RPC, CMS, and claim-program metadata remain runtime dependencies.
 - Event ordering is by event time; insertion-time backfills are not observable.
 - Same-second event order cannot be proven from second-resolution nonces alone.
 - Multiple newest-first prefixes can share a net value; the algorithm chooses the first.

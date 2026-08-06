@@ -21,6 +21,7 @@ Repository-authored compatibility modules include:
 - `client/ClaimCampaignChange.tsx`: current/projected flow, capped-out state, and event
   reconciliation UI;
 - `client/claim-chain.ts`: active program, CMS raw/capped target, and Wagmi state assembly;
+- `client/program-attribution.ts`: live claim-app attribution parsing and recovered-label fallback merging;
 - `client/claim-batch.ts`: strict CMS batch response validation;
 - `client/claim-display.ts`, `client/claim-event-breakdown.ts`,
   `client/GroupedEventList.tsx`, and `client/event-groups.ts`: presentation and grouping;
@@ -60,6 +61,9 @@ These modules are local product/reconstruction work, not recovered private sourc
 - Keep dependency-owned code in dependencies and import SUP contract surfaces from
   `@sfpro/sdk/abi/sup`.
 - Keep CMS HTTP access behind `lib/cms-client.ts` and validate batch account/order/arrays.
+- Treat the public claim `/api/programs` response as the live source for names, seasons,
+  and categories. Keep recovered definitions only as a display fallback; use the SUP
+  subgraph for program existence and lifecycle.
 - Submit only signed/capped `points`; use `uncappedPoints` only for explanation.
 - Let the user choose changed campaigns. Select positive deltas by default, leave
   decreasing deltas clear, lock selection during submission, sign only the checked

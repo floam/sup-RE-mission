@@ -2,24 +2,24 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { PROGRAM_APP_DEFINITIONS } from "../data/program-app-definitions";
 import styles from "./Campaigns.module.css";
+import {
+  getCampaignAttribution,
+  STATIC_PROGRAM_ATTRIBUTIONS,
+} from "./claim-display";
+import {
+  getPublicProgramAttributions,
+  mergeProgramAttributions,
+  type ProgramAttributions,
+} from "./program-attribution";
 import {
   getProgramStatus,
   getPublicPrograms,
   type PublicProgram,
 } from "./programs";
 
-type ProgramAppDefinition = (typeof PROGRAM_APP_DEFINITIONS)[number];
 type ProgramStatus = ReturnType<typeof getProgramStatus>;
 type ProgramFilter = ProgramStatus | "All";
-
-const appsByProgram = new Map<string, ProgramAppDefinition[]>();
-for (const app of PROGRAM_APP_DEFINITIONS) {
-  if (!app.program) continue;
-  const programId = String(app.program.id);
-  appsByProgram.set(programId, [...(appsByProgram.get(programId) ?? []), app]);
-}
 
 const FILTERS: ProgramFilter[] = ["All", "Active", "Finished", "Stopped"];
 
@@ -33,36 +33,52 @@ function formatTokenAmount(value: string) {
   );
 }
 
-function unique(values: string[]) {
-  return [...new Set(values)];
-}
-
-function getAttribution(programId: string) {
-  const apps = appsByProgram.get(programId) ?? [];
-  return {
-    names: unique(apps.map((app) => app.name)),
-    descriptors: unique(
-      apps.map((app) => `Season ${app.season ?? "—"} · ${app.category}`),
-    ),
-  };
-}
-
 export function Campaigns() {
   const [programs, setPrograms] = useState<PublicProgram[]>([]);
+  const [attributions, setAttributions] = useState<ProgramAttributions>(
+    STATIC_PROGRAM_ATTRIBUTIONS,
+  );
   const [error, setError] = useState("");
+  const [attributionError, setAttributionError] = useState("");
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<ProgramFilter>("All");
 
   useEffect(() => {
+    let disposed = false;
     getPublicPrograms()
-      .then(setPrograms)
-      .catch((reason) => setError(String(reason)));
+      .then((result) => {
+        if (!disposed) setPrograms(result);
+      })
+      .catch((reason) => {
+        if (!disposed) setError(String(reason));
+      });
+    getPublicProgramAttributions()
+      .then((live) => {
+        if (!disposed) {
+          setAttributions(
+            mergeProgramAttributions(STATIC_PROGRAM_ATTRIBUTIONS, live),
+          );
+        }
+      })
+      .catch((reason) => {
+        if (!disposed) {
+          setAttributionError(
+            `Live campaign names are unavailable; using recovered labels. ${String(reason)}`,
+          );
+        }
+      });
+    return () => {
+      disposed = true;
+    };
   }, []);
 
   const shown = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return programs.filter((program) => {
-      const attribution = getAttribution(program.id);
+      const attribution = getCampaignAttribution(
+        BigInt(program.id),
+        attributions,
+      );
       const haystack = [
         program.id,
         program.distributionPool,
@@ -76,7 +92,7 @@ export function Campaigns() {
         (status === "All" || getProgramStatus(program) === status)
       );
     });
-  }, [programs, query, status]);
+  }, [attributions, programs, query, status]);
 
   const counts = useMemo(
     () =>
@@ -138,6 +154,7 @@ export function Campaigns() {
           : "Loading onchain programs…"}
       </p>
       {error && <p className="status error">{error}</p>}
+      {attributionError && <p className="status warning">{attributionError}</p>}
 
       <div className={styles.tableWrap}>
         <table className={styles.table}>
@@ -152,7 +169,10 @@ export function Campaigns() {
           </thead>
           <tbody>
             {shown.map((program) => {
-              const attribution = getAttribution(program.id);
+              const attribution = getCampaignAttribution(
+                BigInt(program.id),
+                attributions,
+              );
               const programStatus = getProgramStatus(program);
               return (
                 <tr key={program.id}>

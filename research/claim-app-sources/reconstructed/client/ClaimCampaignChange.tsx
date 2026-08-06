@@ -6,11 +6,13 @@ import {
   getCampaignAttribution,
 } from "./claim-display";
 import type { EventBreakdown } from "./claim-event-breakdown";
+import type { ProgramAttributions } from "./program-attribution";
 
 const numberFormat = new Intl.NumberFormat("en-US");
 
 export function ClaimCampaignChange({
   row,
+  attributions,
   isSelected,
   isSelectionDisabled = false,
   onSelectionChange,
@@ -18,13 +20,14 @@ export function ClaimCampaignChange({
   onToggleBreakdown,
 }: {
   row: PointState;
+  attributions?: ProgramAttributions;
   isSelected?: boolean;
   isSelectionDisabled?: boolean;
   onSelectionChange?(selected: boolean): void;
   breakdown?: EventBreakdown;
   onToggleBreakdown(row: PointState): void;
 }) {
-  const attribution = getCampaignAttribution(row.programId);
+  const attribution = getCampaignAttribution(row.programId, attributions);
   const unitDelta = row.offchainPoints - row.onchainPoints;
   const uncappedDelta = row.uncappedPoints - row.onchainPoints;
   const flowDelta = row.projectedFlowRate - row.currentFlowRate;

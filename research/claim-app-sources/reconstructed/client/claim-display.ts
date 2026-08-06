@@ -1,6 +1,10 @@
 import { formatUnits as formatTokenUnits } from "viem";
 
 import { PROGRAM_APP_DEFINITIONS } from "../data/program-app-definitions";
+import {
+  buildProgramAttributions,
+  type ProgramAttributions,
+} from "./program-attribution";
 
 const SECONDS_PER_MONTH = 2_628_000n;
 const flowFormat = new Intl.NumberFormat("en-US", {
@@ -10,6 +14,10 @@ const listFormat = new Intl.ListFormat("en-US", {
   style: "long",
   type: "conjunction",
 });
+
+export const STATIC_PROGRAM_ATTRIBUTIONS = buildProgramAttributions(
+  PROGRAM_APP_DEFINITIONS,
+);
 
 export function formatMonthlyFlow(flowRate: bigint, signed = false) {
   const value = Number(formatTokenUnits(flowRate * SECONDS_PER_MONTH, 18));
@@ -28,18 +36,14 @@ export function formatList(values: string[]) {
   return listFormat.format(values);
 }
 
-export function getCampaignAttribution(programId: bigint) {
-  const definitions = PROGRAM_APP_DEFINITIONS.filter(
-    (app) => app.program?.id === Number(programId),
+export function getCampaignAttribution(
+  programId: bigint,
+  attributions: ProgramAttributions = STATIC_PROGRAM_ATTRIBUTIONS,
+) {
+  return (
+    attributions.get(Number(programId)) ?? {
+      names: [],
+      descriptors: [],
+    }
   );
-  return {
-    names: [...new Set(definitions.map((app) => app.name))],
-    descriptors: [
-      ...new Set(
-        definitions.map(
-          (app) => `Season ${app.season ?? "—"} · ${app.category}`,
-        ),
-      ),
-    ],
-  };
 }

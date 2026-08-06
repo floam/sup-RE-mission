@@ -4,8 +4,8 @@ Operational inventory for `research/claim-app-sources/reconstructed/`. The longe
 public response/error catalog remains in `references/endpoints.md`.
 
 Keep synchronized with `lib/cms-client.ts`, `lib/cms-events.ts`,
-`lib/claim-nonce-window.ts`, `client/claim-chain.ts`, `client/claim-batch.ts`, and
-`client/pending-event-explanations.ts`.
+`lib/claim-nonce-window.ts`, `client/claim-chain.ts`, `client/claim-batch.ts`,
+`client/program-attribution.ts`, and `client/pending-event-explanations.ts`.
 
 ## Runnable reconstruction routes
 
@@ -32,6 +32,13 @@ Recovered and compatibility application routes remain under `app/`; no
 
 The observed legacy `getProgramApps` Next action uses deployment-specific action ID
 `0050c3f0d604f9162ceb3faa2d83005031b4be6b5f`; it may rotate.
+
+The runnable `/apps` and `/claim` pages fetch
+`https://claim.superfluid.org/api/programs`, parse the top-level SuperJSON `json`
+array, and let those live names, seasons, and categories replace recovered labels for
+matching program IDs. Recovered definitions remain a display fallback only. Program
+existence and lifecycle still come from the SUP subgraph; claim-app metadata is
+attribution, not onchain authority.
 
 ## CMS generated client boundary
 
