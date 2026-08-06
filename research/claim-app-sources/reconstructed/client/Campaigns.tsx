@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { getAddress } from "viem";
 
 import { useProgramTotalFlowRate } from "../hooks/useProgramTotalFlowRate";
 import { formatCompactTokenAmount, formatMonthlyFlowRate } from "../lib/format";
@@ -38,7 +39,8 @@ function ProgramLine({
 }) {
   const attribution = getCampaignAttribution(BigInt(program.id), attributions);
   const status = getProgramStatus(program).toLowerCase();
-  const { totalFlowRate } = useProgramTotalFlowRate(BigInt(program.id));
+  const poolAddress = getAddress(program.distributionPool);
+  const { totalFlowRate } = useProgramTotalFlowRate(poolAddress);
   const funding = formatCompactTokenAmount(BigInt(program.fundingAmount));
   const flow = totalFlowRate === undefined ? "…" : formatMonthlyFlowRate(totalFlowRate);
 
@@ -68,11 +70,11 @@ function ProgramLine({
       <p className="dim">
         pool{" "}
         <a
-          href={`https://basescan.org/address/${program.distributionPool}`}
+          href={`https://basescan.org/address/${poolAddress}`}
           target="_blank"
           rel="noreferrer"
         >
-          {shortAddress(program.distributionPool)} ↗
+          {shortAddress(poolAddress)} ↗
         </a>
       </p>
     </article>
