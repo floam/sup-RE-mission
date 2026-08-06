@@ -45,10 +45,19 @@ export function ClaimCampaignChange({
           ? "Stream can grow"
           : unitDelta > 0n
             ? "More SUP earned"
-            : "Reward changed";
+            : "SUP share decreased";
+  const campaignState = !row.cmsCampaignExists
+    ? "is-unavailable"
+    : row.isCapped
+      ? "is-capped"
+      : row.isOnchainOutdated
+        ? "is-changed"
+        : "is-current";
 
   return (
-    <article className="campaign-change">
+    <article
+      className={`campaign-change ${campaignState}${isSelected ? " is-selected" : ""}`}
+    >
       <header className="campaign-heading">
         {onSelectionChange && (
           <label className="campaign-selection">
@@ -106,13 +115,14 @@ export function ClaimCampaignChange({
 
       {row.isCapped && (
         <section className="event-drawer" aria-label="Campaign cap reached">
-          <span className="eyebrow">Maximum allocation reached</span>
+          <span className="eyebrow">cap reached</span>
           <h3>This campaign is capped out</h3>
           <p className="muted">
-            CMS reports {numberFormat.format(row.uncappedPoints)} raw points and caps
-            the claim target at {numberFormat.format(row.offchainPoints)} unit
-            {row.offchainPoints === 1n ? "" : "s"}. Additional campaign activity will
-            not increase this campaign&apos;s SUP stream.
+            CMS reports {numberFormat.format(row.uncappedPoints)} raw points and
+            caps the claim target at {numberFormat.format(row.offchainPoints)}{" "}
+            unit
+            {row.offchainPoints === 1n ? "" : "s"}. Additional campaign activity
+            will not increase this campaign&apos;s SUP stream.
           </p>
           {row.isOnchainOutdated && (
             <p className="muted">
@@ -126,15 +136,16 @@ export function ClaimCampaignChange({
         <details className="technical-details">
           <summary>How this is calculated</summary>
           <p>
-            Your Reserve changes from {numberFormat.format(row.onchainPoints)} to{" "}
-            {numberFormat.format(row.offchainPoints)} units. The projected stream
-            assumes the campaign pool&apos;s total flow is unchanged when the transaction
-            executes; live pool changes can move the final rate slightly.
+            Your Reserve changes from {numberFormat.format(row.onchainPoints)}{" "}
+            to {numberFormat.format(row.offchainPoints)} units. The projected
+            stream assumes the campaign pool&apos;s total flow is unchanged when
+            the transaction executes; live pool changes can move the final rate
+            slightly.
           </p>
           {row.isCapped && (
             <p>
-              Raw CMS points: {numberFormat.format(row.uncappedPoints)}. Capped claim
-              target: {numberFormat.format(row.offchainPoints)}.
+              Raw CMS points: {numberFormat.format(row.uncappedPoints)}. Capped
+              claim target: {numberFormat.format(row.offchainPoints)}.
             </p>
           )}
         </details>
@@ -152,12 +163,12 @@ export function ClaimCampaignChange({
 
       {breakdown && !row.isCapped && (
         <section className="event-drawer" aria-live="polite">
-          <span className="eyebrow">Pending update</span>
+          <span className="eyebrow">event evidence</span>
           <h3>Newest events explaining this point difference</h3>
           <p className="muted">
-            CMS returns events newest first. We include them one at a time until their
-            net points equal the difference between the uncapped CMS balance and your
-            current onchain units.
+            CMS returns events newest first. We include them one at a time until
+            their net points equal the difference between the uncapped CMS
+            balance and your current onchain units.
           </p>
           {breakdown.message && <p className="muted">{breakdown.message}</p>}
           {breakdown.events.length > 0 && (
