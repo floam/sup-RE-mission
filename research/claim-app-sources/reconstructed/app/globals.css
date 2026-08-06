@@ -1,7 +1,9 @@
 :root {
   color-scheme: dark;
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+  --font-display:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue",
+    Arial, sans-serif;
   --background: #071612;
   --background-deep: #04100d;
   --surface: #10251e;
@@ -40,7 +42,11 @@ body {
   min-height: 100vh;
   margin: 0;
   background:
-    radial-gradient(circle at 78% -10%, rgba(35, 110, 84, 0.52) 0, transparent 37rem),
+    radial-gradient(
+      circle at 78% -10%,
+      rgba(35, 110, 84, 0.52) 0,
+      transparent 37rem
+    ),
     linear-gradient(180deg, var(--background) 0%, var(--background-deep) 100%);
   color: var(--text);
   font-family: var(--font-sans);
@@ -551,5 +557,75 @@ button:disabled {
   .campaign-outcome {
     align-items: start;
     flex-direction: column;
+  }
+}
+
+/* Claim-only terminal frame. Kept global because the root navigation lives
+ * outside the claim route's CSS-module scope. */
+body:has(.terminal-claim) {
+  background: #000;
+  color: #d7ddd7;
+  font-family: monospace;
+}
+
+body:has(.terminal-claim) .shell {
+  width: min(1440px, calc(100% - 1.5rem));
+}
+
+body:has(.terminal-claim) nav {
+  min-height: 46px;
+  border-color: #353b35;
+  padding: 0.55rem 0;
+  font-family: monospace;
+  font-size: 0.78rem;
+}
+
+body:has(.terminal-claim) nav .brand {
+  color: #d7ddd7;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+body:has(.terminal-claim) nav .links {
+  gap: 1rem;
+  color: #899289;
+}
+
+body:has(.terminal-claim) nav a {
+  text-decoration-color: #555d56;
+}
+
+body:has(.terminal-claim) nav button {
+  min-height: 30px;
+  border: 1px solid #697269;
+  border-radius: 0;
+  padding: 0.3rem 0.6rem;
+  background: transparent;
+  color: #d7ddd7;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 600;
+}
+
+body:has(.terminal-claim) main {
+  padding: 0.75rem 0 3rem;
+}
+
+@media (max-width: 680px) {
+  body:has(.terminal-claim) .shell {
+    width: 100%;
+  }
+
+  body:has(.terminal-claim) nav {
+    min-height: 42px;
+    padding: 0.45rem 0.65rem;
+  }
+
+  body:has(.terminal-claim) nav .links > a {
+    display: none;
+  }
+
+  body:has(.terminal-claim) main {
+    padding: 0;
   }
 }
