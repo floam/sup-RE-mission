@@ -34,6 +34,18 @@ html {
   box-shadow: none !important;
 }
 
+.hidden {
+  display: none !important;
+}
+
+.invisible {
+  visibility: hidden !important;
+}
+
+.opacity-0 {
+  opacity: 0 !important;
+}
+
 body,
 button,
 input,
@@ -205,6 +217,14 @@ form + form {
 
 .route-line a {
   font-weight: 700;
+}
+
+.account-field {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1ch;
+  align-items: baseline;
+  margin: 1lh 0;
 }
 
 button,
@@ -412,9 +432,13 @@ body main :where(.status-success, .success) {
     display: none;
   }
 
-  .route-line {
+  .route-line,
+  .account-field {
     grid-template-columns: 1fr;
     gap: 0;
+  }
+
+  .route-line {
     margin-bottom: 1lh;
   }
 }
