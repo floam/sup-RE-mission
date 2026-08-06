@@ -11,8 +11,8 @@
   --term-reverse-fg: #000;
   --term-mono: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
-  --term-size: 1rem;
-  --term-leading: 1.5;
+  --term-size: clamp(0.875rem, 0.82rem + 0.18vw, 0.98rem);
+  --term-leading: 1.42;
   font-family: var(--term-mono);
   font-size: var(--term-size);
   line-height: var(--term-leading);
@@ -61,7 +61,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  overflow-x: clip;
+  overflow-x: hidden;
   overflow-wrap: anywhere;
   background: var(--term-bg);
   color: var(--term-fg);
@@ -91,19 +91,19 @@ a:focus-visible {
 }
 
 .shell {
-  width: min(76ch, 100%);
+  width: min(68ch, calc(100% - 2ch));
   margin: 0 auto;
-  padding-left: max(1ch, env(safe-area-inset-left));
-  padding-right: max(1ch, env(safe-area-inset-right));
+  padding-left: max(0px, env(safe-area-inset-left));
+  padding-right: max(0px, env(safe-area-inset-right));
 }
 
 nav {
   display: flex;
-  min-height: auto;
+  min-width: 0;
   align-items: baseline;
   justify-content: space-between;
   gap: 1ch;
-  padding: 0.75lh 0 0.5lh;
+  padding: 0.55lh 0 0.35lh;
   border: 0;
   background: transparent;
 }
@@ -112,7 +112,6 @@ nav .brand {
   flex: 0 0 auto;
   color: var(--term-fg);
   font-weight: 700;
-  letter-spacing: 0;
   text-decoration: none;
 }
 
@@ -122,6 +121,7 @@ nav .links {
   align-items: baseline;
   justify-content: flex-end;
   gap: 1ch;
+  overflow: hidden;
   color: var(--term-fg);
   white-space: nowrap;
 }
@@ -132,7 +132,8 @@ nav .links > a {
 
 main {
   width: 100%;
-  padding: 0.5lh 0 5lh;
+  min-width: 0;
+  padding: 0.4lh 0 4lh;
 }
 
 h1,
@@ -209,12 +210,12 @@ form + form {
 .route-lines {
   display: grid;
   gap: 0;
-  margin-block: 2lh;
+  margin-block: 1.5lh;
 }
 
 .route-line {
   display: grid;
-  grid-template-columns: minmax(12ch, 18ch) minmax(0, 1fr);
+  grid-template-columns: minmax(10ch, 16ch) minmax(0, 1fr);
   gap: 1ch;
   margin: 0;
 }
@@ -274,6 +275,7 @@ input:not([type="checkbox"]):not([type="radio"]),
 select,
 textarea {
   width: 100%;
+  min-width: 0;
   min-height: 1lh;
   padding: 0 0.5ch;
   border: 1px solid var(--term-dim);
@@ -295,9 +297,6 @@ summary:focus-visible {
   outline-offset: 2px;
 }
 
-/* Remove the recovered dashboard grammar everywhere. Route modules can still
- * provide layout, but they cannot restore cards, rounded surfaces, display
- * typography, gradients, shadows, or decorative chrome. */
 body main :where(
     section,
     article,
@@ -382,8 +381,6 @@ body main :where(svg, img) {
   filter: none !important;
 }
 
-/* Common recovered component classes. Flatten them without changing their
- * data or transaction behavior. */
 body main :where(
     .campaign-card,
     .campaign-item,
@@ -423,19 +420,18 @@ body main :where(.status-success, .success) {
   color: var(--term-positive);
 }
 
-@media (max-width: 680px) {
+@media (max-width: 760px) {
   :root {
-    --term-size: 0.9375rem;
-    --term-leading: 1.45;
+    --term-size: 0.875rem;
+    --term-leading: 1.4;
   }
 
-  nav {
-    align-items: baseline;
+  .shell {
+    width: calc(100% - 2ch);
   }
 
   nav .links {
-    flex-wrap: nowrap;
-    gap: 1ch;
+    gap: 0.8ch;
   }
 
   nav .links > a:not(:first-child),
@@ -444,7 +440,7 @@ body main :where(.status-success, .success) {
   }
 
   main {
-    padding-top: 0.25lh;
+    padding-top: 0.2lh;
   }
 
   .route-line,
