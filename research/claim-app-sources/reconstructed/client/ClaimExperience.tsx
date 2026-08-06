@@ -51,6 +51,9 @@ export function ClaimExperience() {
   const [account, setAccount] = useState("");
   const [state, setState] = useState<ClaimState>();
   const [message, setMessage] = useState("");
+  const [messageKind, setMessageKind] = useState<
+    "status" | "success" | "error"
+  >("status");
   const [isChecking, setIsChecking] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCurrent, setShowCurrent] = useState(false);
@@ -101,6 +104,7 @@ export function ClaimExperience() {
     setAccount("");
     setState(undefined);
     setMessage("");
+    setMessageKind("status");
     setIsLookupOpen(true);
   }
 
@@ -110,11 +114,13 @@ export function ClaimExperience() {
     setAccount(nextAccount);
     setState(undefined);
     setMessage("");
+    setMessageKind("status");
   }
 
   async function reviewAccount(candidate = account) {
     if (!isAddress(candidate)) {
       setMessage("Enter a valid wallet address.");
+      setMessageKind("error");
       return false;
     }
 
@@ -127,6 +133,7 @@ export function ClaimExperience() {
     );
     setIsChecking(true);
     setMessage("");
+    setMessageKind("status");
     try {
       const nextState = await buildClaimState(config, reviewedAccount);
       if (request !== checkRequest.current) return false;
@@ -136,6 +143,7 @@ export function ClaimExperience() {
     } catch (error) {
       if (request === checkRequest.current) {
         setMessage(error instanceof Error ? error.message : String(error));
+        setMessageKind("error");
       }
       return false;
     } finally {
@@ -200,6 +208,7 @@ export function ClaimExperience() {
     const request = ++checkRequest.current;
     let confirmedBatches = 0;
     setIsSubmitting(true);
+    setMessageKind("status");
     clearBreakdown();
 
     try {
@@ -256,10 +265,23 @@ export function ClaimExperience() {
         confirmedBatches += 1;
       }
 
-      const refreshed = await buildClaimState(config, state.account);
-      if (request !== checkRequest.current) return;
-      applyClaimState(refreshed);
-      setMessage("");
+      try {
+        const refreshed = await buildClaimState(config, state.account);
+        if (request !== checkRequest.current) return;
+        applyClaimState(refreshed);
+      } catch (error) {
+        if (request !== checkRequest.current) return;
+        const detail = error instanceof Error ? error.message : String(error);
+        setMessage(
+          `Claim succeeded. ${confirmedBatches} transaction${confirmedBatches === 1 ? "" : "s"} confirmed, but refreshing the SUP stream state failed: ${detail}`,
+        );
+        setMessageKind("success");
+        return;
+      }
+      setMessage(
+        `Claim succeeded. ${confirmedBatches} transaction${confirmedBatches === 1 ? "" : "s"} confirmed and your SUP stream state was refreshed.`,
+      );
+      setMessageKind("success");
     } catch (error) {
       if (request !== checkRequest.current) return;
       if (confirmedBatches > 0) {
@@ -271,7 +293,13 @@ export function ClaimExperience() {
         }
       }
       if (request === checkRequest.current) {
-        setMessage(error instanceof Error ? error.message : String(error));
+        const detail = error instanceof Error ? error.message : String(error);
+        setMessage(
+          confirmedBatches > 0
+            ? `Claim partially succeeded: ${confirmedBatches} transaction${confirmedBatches === 1 ? "" : "s"} confirmed before the next update failed: ${detail}`
+            : `Claim failed: ${detail}`,
+        );
+        setMessageKind("error");
       }
     } finally {
       if (request === checkRequest.current) setIsSubmitting(false);
@@ -418,14 +446,27 @@ export function ClaimExperience() {
         "Your existing Reserve allocations are unchanged. Check again when a new campaign starts.";
     } else if (resultKind === "updates-found") {
       heroTitle =
-        totalFlowDelta > 0n
-          ? "Your SUP stream can grow."
-          : "Your campaign rewards changed.";
-      heroDescription = (
+        selectedRows.length === 0
+          ? "Nothing selected to claim."
+          : totalFlowDelta > 0n
+            ? "Claim your increased SUP flow."
+            : totalFlowDelta < 0n
+              ? "Your SUP share has decreased."
+              : "Nothing to claim.";
+      heroDescription = selectedRows.length === 0 ? (
+        `We found ${changedRows.length} campaign update${changedRows.length === 1 ? "" : "s"}. Select the ones you want to claim.`
+      ) : (
         <>
-          You selected {selectedRows.length} of {changedRows.length} campaign update
-          {changedRows.length === 1 ? "" : "s"}, which would change your stream by{" "}
-          <strong>{formatMonthlyFlow(totalFlowDelta, true)}</strong>
+          Your {selectedRows.length} selected campaign update
+          {selectedRows.length === 1 ? "" : "s"}{" "}
+          {totalFlowDelta === 0n ? (
+            <>have no net effect on your stream</>
+          ) : (
+            <>
+              would {totalFlowDelta > 0n ? "increase" : "decrease"} your stream
+              by <strong>{formatMonthlyFlow(totalFlowDelta, true)}</strong>
+            </>
+          )}
           {campaignScope}.
         </>
       );
@@ -452,6 +493,7 @@ export function ClaimExperience() {
             ? selectedPrograms.has(row.programId)
             : undefined
         }
+        isSelectionDisabled={isSubmitting}
         onSelectionChange={
           isClaimablePointState(row)
             ? (selected) =>
@@ -543,7 +585,10 @@ export function ClaimExperience() {
           )}
 
           {message && (
-            <div className="status claim-status" role="status">
+            <div
+              className={`status claim-status claim-status-${messageKind}`}
+              role={messageKind === "error" ? "alert" : "status"}
+            >
               <span>{message}</span>
               {isConnected &&
                 connectedAddress &&

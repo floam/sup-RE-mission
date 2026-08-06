@@ -62,7 +62,8 @@ These modules are local product/reconstruction work, not recovered private sourc
 - Keep CMS HTTP access behind `lib/cms-client.ts` and validate batch account/order/arrays.
 - Submit only signed/capped `points`; use `uncappedPoints` only for explanation.
 - Let the user choose changed campaigns. Select positive deltas by default, leave
-  decreasing deltas clear, and sign only the checked campaign IDs.
+  decreasing deltas clear, lock selection during submission, sign only the checked
+  campaign IDs, and report success, partial success, or failure explicitly.
 - Treat `getNextValidNonce - 1` as the nonce of the last accepted signed snapshot, not
   the claim transaction's mined timestamp.
 - Treat CMS `createdAt` as event occurrence time, not insertion time.

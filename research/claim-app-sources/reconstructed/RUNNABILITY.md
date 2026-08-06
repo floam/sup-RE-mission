@@ -117,7 +117,9 @@ naturally changes the key.
 - `/claim` connects or inspects a wallet, shows flows and capped states, explains
   uncapped deltas, and submits claims only for the owning connected wallet. Each
   changed campaign has a checkbox. Positive target deltas are checked by default;
-  decreasing targets are clear. The CMS signed batch contains only checked campaigns.
+  decreasing targets are clear. The controls lock during submission, the CMS signed
+  batch contains only checked campaigns, and the UI reports the resulting success,
+  partial success, or failure.
 - `/apps`, `/governance`, `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`,
   `/staking`, and `/swap` retain their reconstructed implementations.
 

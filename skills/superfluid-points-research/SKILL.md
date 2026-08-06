@@ -87,7 +87,9 @@ Validate account identity, campaign order, and parallel array lengths for every 
    `signed-balance-batch` only for the selected campaigns, validate it, and submit
    signed `points`, campaign IDs, timestamp, and signature. Never submit
    `uncappedPoints`.
-9. Require receipt `status: success`; refresh after partial multi-batch success.
+9. Lock campaign selection during submission, require receipt `status: success`,
+   refresh after partial multi-batch success, and report success, partial success, or
+   failure explicitly.
 
 ## Show flows
 
