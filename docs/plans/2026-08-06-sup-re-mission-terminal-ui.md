@@ -89,16 +89,18 @@ Rules:
 - [x] Theme the LI.FI widget through its public theme configuration.
 - [x] Replace shared transaction spinners with terminal status text.
 - [x] Replace wallet, loading, error, and not-found surfaces.
-- [ ] Confirm the final branch-head Vercel production build.
-- [ ] Review all route responses on the final branch-head preview.
+- [x] Confirm the implementation-head Vercel production build.
+- [x] Review all public route responses on the implementation-head preview.
 - [ ] Perform a final 320 CSS pixel visual pass in a browser.
 
 ## Verification record
 
-- A Vercel production build for the core claim rewrite at commit `0249948` completed successfully.
-- The `/claim` preview returned HTTP 200 and rendered the new flat status/connect surface with no hero or card wrapper.
-- Intermediate route-wide builds through the Reserve and liquidity rewrites completed successfully.
-- Final branch-head verification remains open until the plan commit finishes deploying.
+- Implementation commit `824e731` built successfully on Vercel and reached `READY` at `sup-reclaim-8v90o09jq-aaron-gyes-projects.vercel.app`.
+- `/`, `/claim`, `/apps`, `/governance`, `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`, `/staking`, and `/swap` returned HTTP 200 from that exact deployment.
+- An unknown route returned HTTP 404 through the custom terminal not-found surface.
+- The returned route markup uses the shared terminal shell and the converted route-specific line layouts. The claim response contains the compact status/connect surface with no hero or card wrapper.
+- A true 320 CSS pixel screenshot review remains open because the execution environment blocked browser navigation with `ERR_BLOCKED_BY_ADMINISTRATOR`. HTTP/deployment verification succeeded, but it is not a substitute for that visual pass.
+- The commit updating this verification record is documentation-only; it does not change the verified runtime implementation.
 
 ## Acceptance criteria
 
