@@ -252,10 +252,7 @@
 }
 
 .scope :global(.claim-command-summary) {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 1ch;
-  margin: 0;
+  display: none;
 }
 
 .scope :global(.submit-update .primary-action) {
@@ -300,7 +297,6 @@
   }
 
   .scope :global(.campaign-metrics),
-  .scope :global(.claim-command-summary),
   .scope :global(.wallet-actions) {
     align-items: baseline;
   }
