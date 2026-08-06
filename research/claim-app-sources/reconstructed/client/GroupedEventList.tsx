@@ -21,7 +21,7 @@ export function GroupedEventList({
             className={group.totalPoints < 0 ? "negative" : "positive"}
           >
             {formatPoints(group.totalPoints)}
-          </span>{" "}
+          </span>
           <span className="event-name">
             {group.count > 1 ? `${numberFormat.format(group.count)}× ` : ""}
             {group.displayName}
