@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
@@ -11,6 +11,12 @@ import { RootProviders } from "../providers/RootProviders";
 export const metadata: Metadata = {
   title: "SUP Re:Mission",
   description: "Independent Superfluid claim review client",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({
