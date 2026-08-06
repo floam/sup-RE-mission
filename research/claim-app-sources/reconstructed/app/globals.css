@@ -25,6 +25,7 @@
 html {
   min-width: 320px;
   min-height: 100%;
+  scroll-padding-bottom: 5lh;
   background: var(--term-bg);
 }
 
@@ -60,6 +61,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  overflow-x: clip;
   overflow-wrap: anywhere;
   background: var(--term-bg);
   color: var(--term-fg);
@@ -91,7 +93,8 @@ a:focus-visible {
 .shell {
   width: min(76ch, 100%);
   margin: 0 auto;
-  padding: 0;
+  padding-left: max(1ch, env(safe-area-inset-left));
+  padding-right: max(1ch, env(safe-area-inset-right));
 }
 
 nav {
@@ -100,7 +103,7 @@ nav {
   align-items: baseline;
   justify-content: space-between;
   gap: 1ch;
-  padding: 1lh 0;
+  padding: 0.75lh 0 0.5lh;
   border: 0;
   background: transparent;
 }
@@ -120,6 +123,7 @@ nav .links {
   justify-content: flex-end;
   gap: 1ch;
   color: var(--term-fg);
+  white-space: nowrap;
 }
 
 nav .links > a {
@@ -128,7 +132,7 @@ nav .links > a {
 
 main {
   width: 100%;
-  padding: 1lh 0 5lh;
+  padding: 0.5lh 0 5lh;
 }
 
 h1,
@@ -420,16 +424,27 @@ body main :where(.status-success, .success) {
 }
 
 @media (max-width: 680px) {
+  :root {
+    --term-size: 0.9375rem;
+    --term-leading: 1.45;
+  }
+
   nav {
-    align-items: flex-start;
+    align-items: baseline;
   }
 
   nav .links {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    gap: 1ch;
   }
 
-  nav .links > a:not(:first-child) {
+  nav .links > a:not(:first-child),
+  nav [data-testid="nav-balance"] {
     display: none;
+  }
+
+  main {
+    padding-top: 0.25lh;
   }
 
   .route-line,
