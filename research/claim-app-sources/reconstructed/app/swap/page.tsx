@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { erc20Abi } from "viem";
 import { useReadContract } from "wagmi";
 
+import { APP_CHAIN } from "../../config/chains";
 import {
   SWAP_CAMPAIGN_CHAIN_ID,
   SWAP_CAMPAIGN_TOKENS,
@@ -14,7 +15,6 @@ import {
 } from "../../config/swap";
 import { useFarcasterFrame } from "../../contexts/FarcasterFrameProvider";
 import { useWalletDialog } from "../../contexts/WalletDialogContext";
-import { APP_CHAIN } from "../../config/chains";
 import { useWalletAccount } from "../../hooks/useWalletAccount";
 import { formatTokenAmount, SUP_SYMBOL } from "../../lib/format";
 
@@ -70,35 +70,17 @@ function SupportedTokensList() {
   });
   const balances = [usdcx.data, usdsx.data];
   return (
-    <div className="mb-6">
-      <h3 className="mb-3 text-subtitle2">Your Super Token Balances:</h3>
-      <div className="flex flex-col gap-3">
-        {SWAP_CAMPAIGN_TOKENS.map((token, index) => (
-          <div
-            key={token.superTokenAddress}
-            className="flex items-center gap-3"
-          >
-            <img src={token.iconUrl} alt={token.symbol} className="h-5 w-5" />
-            <span className="w-16">{token.symbol}</span>
-            {address && (
-              <strong>
-                {balances[index] ? formatTokenAmount(balances[index], 2) : "0"}
-              </strong>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ListItem({ index, children }: { index: number; children: ReactNode }) {
-  return (
-    <div className="flex items-start gap-3">
-      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-green-sf text-xs text-green-sf">
-        {index}
-      </span>
-      <p>{children}</p>
+    <div className="route-lines">
+      {SWAP_CAMPAIGN_TOKENS.map((token, index) => (
+        <p className="route-line" key={token.superTokenAddress}>
+          <strong>{token.symbol}</strong>
+          <span>
+            {address
+              ? formatTokenAmount(balances[index] ?? 0n, 2)
+              : "connect wallet to read balance"}
+          </span>
+        </p>
+      ))}
     </div>
   );
 }
@@ -116,16 +98,43 @@ export default function SwapPage() {
     );
     return {
       integrator: "superfluid-claim-app",
-      appearance: "light",
+      appearance: "dark",
       theme: {
-        container: { borderRadius: "12px" },
-        palette: { primary: { main: "#75EB00" } },
+        container: {
+          borderRadius: "0px",
+          boxShadow: "none",
+        },
+        shape: { borderRadius: 0 },
+        typography: {
+          fontFamily:
+            'ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace',
+          fontSize: 16,
+        },
+        palette: {
+          mode: "dark",
+          primary: { main: "#69ff50", contrastText: "#000000" },
+          background: { default: "#000000", paper: "#000000" },
+          text: { primary: "#f4f4f4", secondary: "#858585" },
+          divider: "#858585",
+        },
         components: {
           MuiButtonBase: { defaultProps: { disableRipple: true } },
+          MuiPaper: {
+            styleOverrides: {
+              root: { backgroundImage: "none", boxShadow: "none" },
+            },
+          },
           MuiButton: {
             styleOverrides: {
-              root: { "&:hover": { backgroundColor: "#75EB00" } },
+              root: {
+                borderRadius: 0,
+                boxShadow: "none",
+                textTransform: "none",
+              },
             },
+          },
+          MuiOutlinedInput: {
+            styleOverrides: { root: { borderRadius: 0 } },
           },
         },
       },
@@ -187,63 +196,32 @@ export default function SwapPage() {
   }, [isInMiniApp, open, referrerKey]);
 
   return (
-    <main className="relative overflow-hidden rounded-lg bg-[radial-gradient(circle_at_center,#8AE5C3_0%,#0A6643_100%)] p-5 md:p-16">
-      <div className="relative z-10 grid grid-cols-1 gap-6 md:grid-cols-[1.25fr_1fr]">
-        <section className="order-2 rounded-xl bg-[#0a1f0a] bg-[url('/dots5.svg')] bg-bottom bg-no-repeat p-5 text-gray-100 md:order-1 md:px-9">
-          <p className="uppercase text-alto">Super Token Campaign</p>
-          <h1 className="text-h1 text-green-sf">Swap Tokens</h1>
-          <p>
-            Swap your tokens into Super Token stablecoins on Base mainnet and
-            start earning points. Hold USDCx or USDSx to accumulate rewards that
-            convert into SUP.
-          </p>
-          <p>
-            To be eligible for rewards, you must hold at least{" "}
-            <strong>
-              10{" "}
-              <img
-                src={SWAP_CAMPAIGN_TOKENS[0].iconUrl}
-                alt="USDCx"
-                className="inline h-4 w-4"
-              />{" "}
-              USDCx
-            </strong>{" "}
-            or{" "}
-            <strong>
-              10{" "}
-              <img
-                src={SWAP_CAMPAIGN_TOKENS[1].iconUrl}
-                alt="USDSx"
-                className="inline h-4 w-4"
-              />{" "}
-              USDSx
-            </strong>{" "}
-            on Base mainnet. Points for this campaign are calculated and updated
-            daily based on your Super Token balances.
-          </p>
-          <SupportedTokensList />
-          <h2>How to Swap:</h2>
-          <div className="space-y-1">
-            <ListItem index={1}>Connect your wallet to get started</ListItem>
-            <ListItem index={2}>
-              Select USDCx or USDSx token on Base mainnet
-            </ListItem>
-            <ListItem index={3}>Enter the amount you want to swap</ListItem>
-            <ListItem index={4}>
-              Confirm the swap transaction and start earning{" "}
-              <span className="badge">{SUP_SYMBOL}</span>
-            </ListItem>
-          </div>
-        </section>
-        <section className="order-1 overflow-hidden rounded-xl md:order-2">
-          <ClientOnly fallback={<WidgetSkeleton config={config as never} />}>
-            <LiFiWidget
-              config={config as never}
-              integrator="superfluid-claim-app"
-            />
-          </ClientOnly>
-        </section>
-      </div>
+    <main className="terminal-page">
+      <p className="command-line">
+        <span className="prompt">&gt;</span> swap
+      </p>
+      <p>
+        swap supported Base assets into USDCx or USDSx and accumulate campaign
+        points
+      </p>
+      <p>
+        eligibility starts at 10 USDCx or 10 USDSx; campaign balances are
+        calculated daily and convert into {SUP_SYMBOL}
+      </p>
+
+      <SupportedTokensList />
+
+      <p className="dim">
+        swap execution is provided by LI.FI inside the terminal client boundary
+      </p>
+      <section aria-label="Swap interface">
+        <ClientOnly fallback={<WidgetSkeleton config={config as never} />}>
+          <LiFiWidget
+            config={config as never}
+            integrator="superfluid-claim-app"
+          />
+        </ClientOnly>
+      </section>
     </main>
   );
 }
