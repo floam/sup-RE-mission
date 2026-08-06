@@ -24,6 +24,7 @@ Use this group for questions such as:
 - Has CMS capped the campaign target?
 - What are the current and projected SUP flows?
 - Which SDK/Wagmi/OpenAPI calls implement the transaction?
+- How does the user select campaigns, and why are decreasing targets clear by default?
 
 For an uncapped campaign, the runnable UI computes `uncapped CMS points - onchain
 units`. It derives the lower event-time bound from
@@ -37,6 +38,10 @@ When CMS returns different uncapped and claimable values, the campaign is shown 
 capped out and event additions are not requested because they no longer increase the
 claim target. CMS event `createdAt` remains the API name for `eventTime`, not insertion
 time.
+
+The runnable claim UI gives each changed campaign a transaction checkbox. It selects
+positive target deltas by default, leaves decreasing targets clear, and requests a
+signed batch only for the checked campaign IDs.
 
 ## Claim voucher injector
 

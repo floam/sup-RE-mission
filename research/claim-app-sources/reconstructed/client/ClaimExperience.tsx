@@ -36,7 +36,10 @@ import {
   CMS_BATCH_SIZE,
   getClaimResultKind,
 } from "./claim-program-plan";
-import { isClaimablePointState } from "./claim-state";
+import {
+  isClaimablePointState,
+  isPositiveClaimDelta,
+} from "./claim-state";
 
 const numberFormat = new Intl.NumberFormat("en-US");
 
@@ -51,6 +54,9 @@ export function ClaimExperience() {
   const [isChecking, setIsChecking] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCurrent, setShowCurrent] = useState(false);
+  const [selectedPrograms, setSelectedPrograms] = useState<Set<bigint>>(
+    () => new Set(),
+  );
   const [isLookupOpen, setIsLookupOpen] = useState(false);
   const [breakdown, setBreakdown] = useState<EventBreakdown>();
   const breakdownCache = useRef(new Map<string, EventBreakdown>());
@@ -76,6 +82,17 @@ export function ClaimExperience() {
   function clearBreakdown() {
     eventRequest.current += 1;
     breakdownCache.current.clear(), setBreakdown(undefined);
+  }
+
+  function applyClaimState(nextState: ClaimState) {
+    setState(nextState);
+    setSelectedPrograms(
+      new Set(
+        nextState.programPointStates
+          .filter(isPositiveClaimDelta)
+          .map((row) => row.programId),
+      ),
+    );
   }
 
   function startLookup() {
@@ -113,7 +130,7 @@ export function ClaimExperience() {
     try {
       const nextState = await buildClaimState(config, reviewedAccount);
       if (request !== checkRequest.current) return false;
-      setState(nextState);
+      applyClaimState(nextState);
       setIsLookupOpen(false);
       return true;
     } catch (error) {
@@ -174,7 +191,10 @@ export function ClaimExperience() {
     }
 
     const selections = chunkItems(
-      state.programPointStates.filter(isClaimablePointState),
+      state.programPointStates.filter(
+        (row) =>
+          isClaimablePointState(row) && selectedPrograms.has(row.programId),
+      ),
       CMS_BATCH_SIZE,
     );
     const request = ++checkRequest.current;
@@ -238,14 +258,14 @@ export function ClaimExperience() {
 
       const refreshed = await buildClaimState(config, state.account);
       if (request !== checkRequest.current) return;
-      setState(refreshed);
+      applyClaimState(refreshed);
       setMessage("");
     } catch (error) {
       if (request !== checkRequest.current) return;
       if (confirmedBatches > 0) {
         try {
           const refreshed = await buildClaimState(config, state.account);
-          if (request === checkRequest.current) setState(refreshed);
+          if (request === checkRequest.current) applyClaimState(refreshed);
         } catch {
           // Preserve the transaction error when a follow-up refresh also fails.
         }
@@ -348,27 +368,30 @@ export function ClaimExperience() {
       )
     : [];
   const changedRows = populatedRows.filter(isClaimablePointState);
+  const selectedRows = changedRows.filter((row) =>
+    selectedPrograms.has(row.programId),
+  );
   const cappedRows = populatedRows.filter((row) => row.isCapped);
   const visibleRows = showCurrent
     ? populatedRows
     : populatedRows.filter((row) => row.isCapped || isClaimablePointState(row));
-  const totalUnitDelta = changedRows.reduce(
+  const totalUnitDelta = selectedRows.reduce(
     (sum, row) => sum + row.offchainPoints - row.onchainPoints,
     0n,
   );
-  const totalFlowDelta = changedRows.reduce(
+  const totalFlowDelta = selectedRows.reduce(
     (sum, row) => sum + row.projectedFlowRate - row.currentFlowRate,
     0n,
   );
   const campaignNames = [
     ...new Set(
-      changedRows.flatMap((row) => getCampaignAttribution(row.programId).names),
+      selectedRows.flatMap((row) => getCampaignAttribution(row.programId).names),
     ),
   ];
   const campaignScope = campaignNames.length
     ? ` across ${formatList(campaignNames)}`
     : "";
-  const transactionCount = Math.ceil(changedRows.length / CMS_BATCH_SIZE);
+  const transactionCount = Math.ceil(selectedRows.length / CMS_BATCH_SIZE);
   const walletBusy = isConnecting || isReconnecting;
   const resultKind = stateMatchesAccount
     ? getClaimResultKind({
@@ -424,6 +447,22 @@ export function ClaimExperience() {
       <ClaimCampaignChange
         key={String(row.programId)}
         row={row}
+        isSelected={
+          isClaimablePointState(row)
+            ? selectedPrograms.has(row.programId)
+            : undefined
+        }
+        onSelectionChange={
+          isClaimablePointState(row)
+            ? (selected) =>
+                setSelectedPrograms((current) => {
+                  const next = new Set(current);
+                  if (selected) next.add(row.programId);
+                  else next.delete(row.programId);
+                  return next;
+                })
+            : undefined
+        }
         breakdown={rowBreakdown}
         onToggleBreakdown={toggleBreakdown}
       />
@@ -566,7 +605,7 @@ export function ClaimExperience() {
                   <div className="impact-summary" aria-label="Claim summary">
                     <div>
                       <span>Campaigns to update</span>
-                      <strong>{changedRows.length}</strong>
+                      <strong>{selectedRows.length}</strong>
                     </div>
                     <div>
                       <span>Stream change</span>
@@ -609,11 +648,13 @@ export function ClaimExperience() {
                   <footer className="submit-update">
                     <div>
                       <strong>
-                        {changedRows.length} campaign update
-                        {changedRows.length === 1 ? "" : "s"} ready
+                        {selectedRows.length} campaign update
+                        {selectedRows.length === 1 ? "" : "s"} selected
                       </strong>
                       <span>
-                        {transactionCount === 1
+                        {selectedRows.length === 0
+                          ? "Select at least one campaign to update. Decreasing campaigns are clear by default."
+                          : transactionCount === 1
                           ? `One wallet transaction applies ${numberFormat.format(totalUnitDelta)} units and updates every stream shown above.`
                           : `${transactionCount} wallet transactions are needed because the points API signs at most ${CMS_BATCH_SIZE} campaigns at a time.`}
                       </span>
@@ -624,6 +665,7 @@ export function ClaimExperience() {
                       disabled={
                         isSubmitting ||
                         walletBusy ||
+                        selectedRows.length === 0 ||
                         (connectedOwnsAccount && !state.canClaim)
                       }
                       onClick={

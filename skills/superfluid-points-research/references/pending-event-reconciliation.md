@@ -116,6 +116,10 @@ The helper:
 The browser caches every returned explanation by account, campaign, onchain units, and
 uncapped balance until the explanation or reviewed claim state is cleared.
 
+Campaign transaction selection does not change this explanation set. Each changed
+campaign has a checkbox. Positive target deltas are selected by default; decreasing
+targets are clear. A submission requests a signed batch only for checked campaigns.
+
 No local API endpoint remains. The deleted route repeated public program, locker, unit,
 CMS, and nonce work and supplied no private credential, authentication, durable shared
 cache, or server-only authority.
