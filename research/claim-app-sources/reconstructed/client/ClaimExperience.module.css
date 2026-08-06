@@ -602,6 +602,10 @@
   gap: 0.75rem;
 }
 
+.scope :global(.campaign-heading:not(:has(.campaign-selection))) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
 .scope :global(.campaign-heading h4) {
   margin: 0;
   color: var(--term-fg);
