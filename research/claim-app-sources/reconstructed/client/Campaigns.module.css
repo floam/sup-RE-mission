@@ -48,7 +48,7 @@
 
 .programLines {
   display: grid;
-  gap: 2lh;
+  gap: 1lh;
   margin-top: 1lh;
 }
 
@@ -65,9 +65,24 @@
   margin: 0;
 }
 
+.metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 3ch;
+}
+
+.members strong,
+.metrics strong {
+  color: var(--term-bright);
+}
+
 @media (max-width: 680px) {
   .search {
     grid-template-columns: 1fr;
     gap: 0;
+  }
+
+  .metrics {
+    gap: 0 2ch;
   }
 }
