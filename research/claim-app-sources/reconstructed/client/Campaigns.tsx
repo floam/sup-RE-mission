@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { useProgramTotalFlowRate } from "../hooks/useProgramTotalFlowRate";
+import { formatCompactTokenAmount, formatMonthlyFlowRate } from "../lib/format";
 import styles from "./Campaigns.module.css";
 import {
   getCampaignAttribution,
@@ -27,9 +29,53 @@ function shortAddress(value: string) {
   return `${value.slice(0, 6)}…${value.slice(-4)}`;
 }
 
-function formatTokenAmount(value: string) {
-  return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(
-    Number(BigInt(value) / 10n ** 18n),
+function ProgramLine({
+  program,
+  attributions,
+}: {
+  program: PublicProgram;
+  attributions: ProgramAttributions;
+}) {
+  const attribution = getCampaignAttribution(BigInt(program.id), attributions);
+  const status = getProgramStatus(program).toLowerCase();
+  const { totalFlowRate } = useProgramTotalFlowRate(BigInt(program.id));
+  const funding = formatCompactTokenAmount(BigInt(program.fundingAmount));
+  const flow = totalFlowRate === undefined ? "…" : formatMonthlyFlowRate(totalFlowRate);
+
+  return (
+    <article className={styles.program}>
+      <p>
+        <strong>
+          {attribution.names.length
+            ? attribution.names.join(" / ")
+            : `Program ${program.id}`}
+        </strong>{" "}
+        <em className="dim">{status}</em>
+      </p>
+      <p className={styles.metrics}>
+        funded <strong>{funding} SUP</strong>
+        <span>flow <strong>{flow} SUP/mo</strong></span>
+      </p>
+      <p className={styles.members}>
+        <strong>—</strong> pool members
+      </p>
+      <p className="dim">
+        #{program.id}
+        {attribution.descriptors.length
+          ? ` · ${attribution.descriptors.join(" / ")}`
+          : " · unattributed"}
+      </p>
+      <p className="dim">
+        pool{" "}
+        <a
+          href={`https://basescan.org/address/${program.distributionPool}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {shortAddress(program.distributionPool)} ↗
+        </a>
+      </p>
+    </article>
   );
 }
 
@@ -112,6 +158,10 @@ export function Campaigns() {
         programs {programs.length || "—"} · active {counts.Active} · finished{" "}
         {counts.Finished} · stopped {counts.Stopped}
       </p>
+      <p className="dim">
+        funded is the total SUP allocated to a program; flow is its current pool
+        distribution rate
+      </p>
 
       <label className={styles.search}>
         <span>filter</span>
@@ -136,7 +186,7 @@ export function Campaigns() {
         ))}
       </p>
 
-      <p className="dim">
+      <p>
         {programs.length
           ? `${shown.length} matching program${shown.length === 1 ? "" : "s"}`
           : "loading onchain programs…"}
@@ -145,43 +195,13 @@ export function Campaigns() {
       {attributionError && <p className="status warning">{attributionError}</p>}
 
       <div className={styles.programLines}>
-        {shown.map((program) => {
-          const attribution = getCampaignAttribution(
-            BigInt(program.id),
-            attributions,
-          );
-          const programStatus = getProgramStatus(program);
-          return (
-            <article className={styles.program} key={program.id}>
-              <p>
-                <strong>
-                  {attribution.names.length
-                    ? attribution.names.join(" / ")
-                    : `Program ${program.id}`}
-                </strong>
-              </p>
-              <p>
-                status {programStatus.toLowerCase()} · funding{" "}
-                {formatTokenAmount(program.fundingAmount)} SUP · subsidy{" "}
-                {formatTokenAmount(program.subsidyAmount)} SUP
-              </p>
-              <p className="dim">
-                #{program.id}
-                {attribution.descriptors.length
-                  ? ` · ${attribution.descriptors.join(" / ")}`
-                  : " · unattributed"}
-                {" · pool "}
-                <a
-                  href={`https://basescan.org/address/${program.distributionPool}`}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {shortAddress(program.distributionPool)} ↗
-                </a>
-              </p>
-            </article>
-          );
-        })}
+        {shown.map((program) => (
+          <ProgramLine
+            key={program.id}
+            program={program}
+            attributions={attributions}
+          />
+        ))}
       </div>
     </section>
   );
