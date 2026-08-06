@@ -446,14 +446,27 @@ export function ClaimExperience() {
         "Your existing Reserve allocations are unchanged. Check again when a new campaign starts.";
     } else if (resultKind === "updates-found") {
       heroTitle =
-        totalFlowDelta > 0n
-          ? "Your SUP stream can grow."
-          : "Your campaign rewards changed.";
-      heroDescription = (
+        selectedRows.length === 0
+          ? "Nothing selected to claim."
+          : totalFlowDelta > 0n
+            ? "Claim your increased SUP flow."
+            : totalFlowDelta < 0n
+              ? "Your SUP share has decreased."
+              : "Nothing to claim.";
+      heroDescription = selectedRows.length === 0 ? (
+        `We found ${changedRows.length} campaign update${changedRows.length === 1 ? "" : "s"}. Select the ones you want to claim.`
+      ) : (
         <>
-          You selected {selectedRows.length} of {changedRows.length} changed campaign
-          {changedRows.length === 1 ? "" : "s"}, changing your stream by{" "}
-          <strong>{formatMonthlyFlow(totalFlowDelta, true)}</strong>
+          Your {selectedRows.length} selected campaign update
+          {selectedRows.length === 1 ? "" : "s"}{" "}
+          {totalFlowDelta === 0n ? (
+            <>have no net effect on your stream</>
+          ) : (
+            <>
+              would {totalFlowDelta > 0n ? "increase" : "decrease"} your stream
+              by <strong>{formatMonthlyFlow(totalFlowDelta, true)}</strong>
+            </>
+          )}
           {campaignScope}.
         </>
       );
