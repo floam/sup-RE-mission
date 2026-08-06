@@ -27,6 +27,7 @@ Replace the reconstructed application's inherited web-dashboard presentation wit
 - Keep a single compact navigation line: product name, primary routes, wallet state.
 - Apply the same terminal primitives to `/`, `/claim`, `/apps`, `/governance`, `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`, `/staking`, and `/swap`.
 - Existing route behavior stays intact; presentation is normalized globally.
+- Treat embedded third-party transaction surfaces as terminal client boundaries. Theme them dark, square, flat, and monospace where their public API permits it.
 
 ## Claim review grammar
 
@@ -73,16 +74,27 @@ Rules:
 ## Implementation checklist
 
 - [x] Add this plan.
-- [ ] Replace shared global design tokens and shell styles.
-- [ ] Remove recovered runtime CSS from the layout.
-- [ ] Replace the home route with terminal route lines.
-- [ ] Flatten the claim experience and remove its hero, cards, summaries, toggles, details, and drawers.
-- [ ] Auto-load visible pending-event evidence for changed uncapped campaigns.
-- [ ] Add projected GDA pool share to claim state and render it after event lines.
-- [ ] Flatten grouped event rendering and remove dates.
-- [ ] Normalize all remaining routes through the shared terminal stylesheet.
-- [ ] Run focused claim tests, type checking, and the production build.
-- [ ] Review the Vercel preview at phone width and at the fixed terminal maximum width.
+- [x] Replace shared global design tokens and shell styles.
+- [x] Remove recovered runtime CSS from the layout.
+- [x] Replace the home route with terminal route lines.
+- [x] Flatten the claim experience and remove its hero, cards, summaries, toggles, details, and drawers.
+- [x] Auto-load visible pending-event evidence for changed uncapped campaigns.
+- [x] Add projected GDA pool share to claim state and render it after event lines.
+- [x] Flatten grouped event rendering and remove dates.
+- [x] Replace campaign summary cards and the campaigns table with lines.
+- [x] Replace governance, reserve, Reserve Names, leaderboard, liquidity, staking, and swap route chrome.
+- [x] Remove staking confetti and illustrated liquidity assets from runtime presentation.
+- [x] Theme the LI.FI widget through its public theme configuration.
+- [x] Replace the wallet dialog and global error surface.
+- [ ] Confirm the final branch-head Vercel production build.
+- [ ] Review all route responses on the final branch-head preview.
+- [ ] Perform a final 320 CSS pixel visual pass in a browser.
+
+## Verification record
+
+- A Vercel production build for the core claim rewrite at commit `0249948` completed successfully.
+- The `/claim` preview returned HTTP 200 and rendered the new flat status/connect surface with no hero or card wrapper.
+- Final branch-head verification remains open until the last route-wide commits finish deploying.
 
 ## Acceptance criteria
 
