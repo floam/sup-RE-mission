@@ -28,15 +28,18 @@ function timestamp(value: string) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function titleCaseEventName(value: string) {
-  const words = value.trim().replace(/[-_]+/g, " ").replace(/\s+/g, " ").split(" ");
-  if (!words[0]) return "Event";
+function humanizeEventName(value: string) {
+  const words = value
+    .trim()
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .split(" ")
+    .filter(Boolean);
+  if (!words[0]) return "event";
   return words
-    .map((word, index) => {
-      const initialism = INITIALISMS.get(word.toLowerCase());
-      if (initialism) return initialism;
-      return index === 0 ? word[0].toUpperCase() + word.slice(1) : word;
-    })
+    .map((word) => INITIALISMS.get(word.toLowerCase()) ?? word.toLowerCase())
     .join(" ");
 }
 
@@ -48,7 +51,7 @@ export function getEventFamily(eventName: string) {
 
   return {
     key: familyName.toLowerCase(),
-    displayName: titleCaseEventName(familyName),
+    displayName: humanizeEventName(familyName),
   };
 }
 
