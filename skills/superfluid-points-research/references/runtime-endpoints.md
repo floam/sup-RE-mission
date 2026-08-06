@@ -16,19 +16,19 @@ Recovered and compatibility application routes remain under `app/`; no
 
 ## Public claim-app-local routes
 
-| Method | Route | Purpose |
-| --- | --- | --- |
-| `GET` | `/api/programs` | Program/app attribution and claim-app metadata. |
-| `GET` | `/api/points/states?accountAddress=<address>` | Signed/capped target units versus current units. |
-| `GET` | `/api/points/claim?accountAddress=<address>` | Optional transaction payload/debug route. |
-| `GET` | `/api/mystery-box/check?address=<address>` | Daily mystery-box status. |
-| `POST` | `/api/mystery-box/claim` | Complete a mystery-box claim. |
-| `GET` | `/api/bonus-flows/check?address=<address>` | Bonus-flow status. |
-| `POST` | `/api/bonus-flows/claim` | Claim bonus-flow points. |
-| `GET` | `/api/delegates` | Delegate list. |
-| `GET` | `/api/delegates/amount?address=<address>` | Delegated amount. |
-| `GET` | `/api/leaderboard?page=<page>&limit=<limit>` | Overall leaderboard. |
-| `GET` | `/api/leaderboard/search?address=<address>` | Overall leaderboard account lookup. |
+| Method | Route                                         | Purpose                                          |
+| ------ | --------------------------------------------- | ------------------------------------------------ |
+| `GET`  | `/api/programs`                               | Program/app attribution and claim-app metadata.  |
+| `GET`  | `/api/points/states?accountAddress=<address>` | Signed/capped target units versus current units. |
+| `GET`  | `/api/points/claim?accountAddress=<address>`  | Optional transaction payload/debug route.        |
+| `GET`  | `/api/mystery-box/check?address=<address>`    | Daily mystery-box status.                        |
+| `POST` | `/api/mystery-box/claim`                      | Complete a mystery-box claim.                    |
+| `GET`  | `/api/bonus-flows/check?address=<address>`    | Bonus-flow status.                               |
+| `POST` | `/api/bonus-flows/claim`                      | Claim bonus-flow points.                         |
+| `GET`  | `/api/delegates`                              | Delegate list.                                   |
+| `GET`  | `/api/delegates/amount?address=<address>`     | Delegated amount.                                |
+| `GET`  | `/api/leaderboard?page=<page>&limit=<limit>`  | Overall leaderboard.                             |
+| `GET`  | `/api/leaderboard/search?address=<address>`   | Overall leaderboard account lookup.              |
 
 The observed legacy `getProgramApps` Next action uses deployment-specific action ID
 `0050c3f0d604f9162ceb3faa2d83005031b4be6b5f`; it may rotate.
@@ -39,18 +39,18 @@ Base: `https://cms.superfluid.pro`
 
 Application code calls generated paths through `lib/cms-client.ts`:
 
-| Method | Path | Use |
-| --- | --- | --- |
-| `GET` | `/points/campaign` | Campaign metadata. |
-| `GET` | `/points/balance` | One unsigned raw/capped balance. |
-| `POST` | `/points/balance` | Multiple accounts for one campaign. |
-| `POST` | `/points/balance-batch` | Claim-state raw/capped balances, up to 50 campaigns. |
-| `GET` | `/points/events` | Account/campaign events, optional event name and time bounds, pages up to 100. |
-| `GET` | `/points/event-balance` | Aggregate one event type. |
-| `GET` | `/points/accounts` | Campaign account aggregates/leaderboard. |
-| `GET` | `/points/signed-balance` | Signed one-campaign target. |
-| `POST` | `/points/signed-balance-batch` | Signed targets and a shared timestamp nonce, up to 50 campaigns. |
-| `POST` | `/points/push` | Authenticated event ingestion; server-side only. |
+| Method | Path                           | Use                                                                            |
+| ------ | ------------------------------ | ------------------------------------------------------------------------------ |
+| `GET`  | `/points/campaign`             | Campaign metadata.                                                             |
+| `GET`  | `/points/balance`              | One unsigned raw/capped balance.                                               |
+| `POST` | `/points/balance`              | Multiple accounts for one campaign.                                            |
+| `POST` | `/points/balance-batch`        | Claim-state raw/capped balances, up to 50 campaigns.                           |
+| `GET`  | `/points/events`               | Account/campaign events, optional event name and time bounds, pages up to 100. |
+| `GET`  | `/points/event-balance`        | Aggregate one event type.                                                      |
+| `GET`  | `/points/accounts`             | Campaign account aggregates/leaderboard.                                       |
+| `GET`  | `/points/signed-balance`       | Signed one-campaign target.                                                    |
+| `POST` | `/points/signed-balance-batch` | Signed targets and a shared timestamp nonce, up to 50 campaigns.               |
+| `POST` | `/points/push`                 | Authenticated event ingestion; server-side only.                               |
 
 For batch responses, require matching account, exact campaign order, and equal parallel
 array lengths.
@@ -120,9 +120,11 @@ nonce resolution is one second. A backfilled event can carry a time outside the 
 7. On explicit submission fetch `signed-balance-batch` only for selected campaigns,
    validate it, and submit signed `points`, campaign IDs, timestamp, and signature
    through SDK `lockerAbi`.
-8. Lock campaign selection during submission, require receipt `status: success`,
-   refresh state after partial multi-batch success, and report success, partial
-   success, or failure explicitly.
+8. Lock campaign selection during submission and preserve explicit exclusions across
+   post-claim refreshes. Require receipt `status: success` before reporting confirmed
+   success. A receipt wait transport error after submission is indeterminate, not a
+   verified failure. Clear and lock stale selection after an uncertain confirmation or
+   failed post-claim refresh, then allow only a read-only state refresh before retrying.
 
 ## Historical balance API
 
@@ -142,12 +144,12 @@ claims or GDA unit history.
 
 ## Subgraphs and RPC
 
-| Source | Endpoint |
-| --- | --- |
-| SUP production subgraph | `https://api.goldsky.com/api/public/project_clsnd6xsoma5j012qepvucfpp/subgraphs/sup/v2/gn` |
-| SUP test subgraph | `https://api.goldsky.com/api/public/project_clsnd6xsoma5j012qepvucfpp/subgraphs/sup_test/latest/gn` |
-| Base protocol subgraph | `https://subgraph-endpoints.superfluid.dev/base-mainnet/protocol-v1` |
-| Base Sepolia protocol subgraph | `https://subgraph-endpoints.superfluid.dev/base-sepolia/protocol-v1` |
+| Source                         | Endpoint                                                                                            |
+| ------------------------------ | --------------------------------------------------------------------------------------------------- |
+| SUP production subgraph        | `https://api.goldsky.com/api/public/project_clsnd6xsoma5j012qepvucfpp/subgraphs/sup/v2/gn`          |
+| SUP test subgraph              | `https://api.goldsky.com/api/public/project_clsnd6xsoma5j012qepvucfpp/subgraphs/sup_test/latest/gn` |
+| Base protocol subgraph         | `https://subgraph-endpoints.superfluid.dev/base-mainnet/protocol-v1`                                |
+| Base Sepolia protocol subgraph | `https://subgraph-endpoints.superfluid.dev/base-sepolia/protocol-v1`                                |
 
 Use the SUP subgraph for program and indexed claim research, direct Base RPC for current
 contract truth, and the protocol subgraph for bulk GDA enrichment.
