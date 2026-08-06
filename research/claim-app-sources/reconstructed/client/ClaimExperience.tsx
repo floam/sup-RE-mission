@@ -35,10 +35,12 @@ import {
   chunkItems,
   CMS_BATCH_SIZE,
   getClaimResultKind,
+  getClaimSubmissionErrorOutcome,
 } from "./claim-program-plan";
 import {
+  getDefaultClaimSelection,
   isClaimablePointState,
-  isPositiveClaimDelta,
+  reconcileClaimSelection,
 } from "./claim-state";
 
 const numberFormat = new Intl.NumberFormat("en-US");
@@ -52,10 +54,11 @@ export function ClaimExperience() {
   const [state, setState] = useState<ClaimState>();
   const [message, setMessage] = useState("");
   const [messageKind, setMessageKind] = useState<
-    "status" | "success" | "error"
+    "status" | "success" | "warning" | "error"
   >("status");
   const [isChecking, setIsChecking] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [requiresRefresh, setRequiresRefresh] = useState(false);
   const [showCurrent, setShowCurrent] = useState(false);
   const [selectedPrograms, setSelectedPrograms] = useState<Set<bigint>>(
     () => new Set(),
@@ -84,18 +87,23 @@ export function ClaimExperience() {
 
   function clearBreakdown() {
     eventRequest.current += 1;
-    breakdownCache.current.clear(), setBreakdown(undefined);
+    (breakdownCache.current.clear(), setBreakdown(undefined));
   }
 
-  function applyClaimState(nextState: ClaimState) {
+  function applyClaimState(
+    nextState: ClaimState,
+    previousSelection?: ReadonlySet<bigint>,
+  ) {
     setState(nextState);
     setSelectedPrograms(
-      new Set(
-        nextState.programPointStates
-          .filter(isPositiveClaimDelta)
-          .map((row) => row.programId),
-      ),
+      previousSelection === undefined
+        ? getDefaultClaimSelection(nextState.programPointStates)
+        : reconcileClaimSelection(
+            nextState.programPointStates,
+            previousSelection,
+          ),
     );
+    setRequiresRefresh(false);
   }
 
   function startLookup() {
@@ -105,6 +113,7 @@ export function ClaimExperience() {
     setState(undefined);
     setMessage("");
     setMessageKind("status");
+    setRequiresRefresh(false);
     setIsLookupOpen(true);
   }
 
@@ -115,6 +124,7 @@ export function ClaimExperience() {
     setState(undefined);
     setMessage("");
     setMessageKind("status");
+    setRequiresRefresh(false);
   }
 
   async function reviewAccount(candidate = account) {
@@ -187,6 +197,7 @@ export function ClaimExperience() {
   async function claim() {
     if (
       isSubmitting ||
+      requiresRefresh ||
       !state?.canClaim ||
       !state.lockerCreated ||
       state.lockerAddress === ZERO_ADDRESS ||
@@ -206,7 +217,9 @@ export function ClaimExperience() {
       CMS_BATCH_SIZE,
     );
     const request = ++checkRequest.current;
+    const submittedSelection = new Set(selectedPrograms);
     let confirmedBatches = 0;
+    let confirmationIncomplete = false;
     setIsSubmitting(true);
     setMessageKind("status");
     clearBreakdown();
@@ -255,10 +268,16 @@ export function ClaimExperience() {
         setMessage(
           `Transaction ${index + 1} of ${selections.length} submitted. Waiting for confirmation…`,
         );
-        const receipt = await waitForTransactionReceipt(config, {
-          chainId: base.id,
-          hash,
-        });
+        let receipt: Awaited<ReturnType<typeof waitForTransactionReceipt>>;
+        try {
+          receipt = await waitForTransactionReceipt(config, {
+            chainId: base.id,
+            hash,
+          });
+        } catch (error) {
+          confirmationIncomplete = true;
+          throw error;
+        }
         if (receipt.status !== "success") {
           throw new Error(`Transaction ${index + 1} reverted.`);
         }
@@ -268,14 +287,16 @@ export function ClaimExperience() {
       try {
         const refreshed = await buildClaimState(config, state.account);
         if (request !== checkRequest.current) return;
-        applyClaimState(refreshed);
+        applyClaimState(refreshed, submittedSelection);
       } catch (error) {
         if (request !== checkRequest.current) return;
         const detail = error instanceof Error ? error.message : String(error);
+        setRequiresRefresh(true);
+        setSelectedPrograms(new Set());
         setMessage(
-          `Claim succeeded. ${confirmedBatches} transaction${confirmedBatches === 1 ? "" : "s"} confirmed, but refreshing the SUP stream state failed: ${detail}`,
+          `Claim confirmed, but the displayed stream state is stale. Refresh it before another transaction. ${detail}`,
         );
-        setMessageKind("success");
+        setMessageKind("warning");
         return;
       }
       setMessage(
@@ -284,25 +305,63 @@ export function ClaimExperience() {
       setMessageKind("success");
     } catch (error) {
       if (request !== checkRequest.current) return;
-      if (confirmedBatches > 0) {
+      let refreshRecovered = false;
+      if (confirmedBatches > 0 && !confirmationIncomplete) {
         try {
           const refreshed = await buildClaimState(config, state.account);
-          if (request === checkRequest.current) applyClaimState(refreshed);
+          if (request === checkRequest.current) {
+            applyClaimState(refreshed, submittedSelection);
+            refreshRecovered = true;
+          }
         } catch {
           // Preserve the transaction error when a follow-up refresh also fails.
         }
       }
       if (request === checkRequest.current) {
         const detail = error instanceof Error ? error.message : String(error);
-        setMessage(
-          confirmedBatches > 0
-            ? `Claim partially succeeded: ${confirmedBatches} transaction${confirmedBatches === 1 ? "" : "s"} confirmed before the next update failed: ${detail}`
-            : `Claim failed: ${detail}`,
-        );
-        setMessageKind("error");
+        const outcome = getClaimSubmissionErrorOutcome({
+          confirmedBatches,
+          confirmationIncomplete,
+          detail,
+        });
+        if (outcome.requiresRefresh && !refreshRecovered) {
+          setRequiresRefresh(true);
+          setSelectedPrograms(new Set());
+        }
+        setMessage(outcome.message);
+        setMessageKind(outcome.kind);
       }
     } finally {
       if (request === checkRequest.current) setIsSubmitting(false);
+    }
+  }
+
+  async function refreshClaimState() {
+    if (!state || isChecking || isSubmitting) return;
+
+    const request = ++checkRequest.current;
+    const previousSelection = new Set(selectedPrograms);
+    setIsChecking(true);
+    setMessage("Refreshing the onchain stream state…");
+    setMessageKind("status");
+    clearBreakdown();
+
+    try {
+      const refreshed = await buildClaimState(config, state.account);
+      if (request !== checkRequest.current) return;
+      applyClaimState(refreshed, previousSelection);
+      setMessage(
+        "Stream state refreshed. Review the remaining updates before claiming.",
+      );
+      setMessageKind("success");
+    } catch (error) {
+      if (request !== checkRequest.current) return;
+      const detail = error instanceof Error ? error.message : String(error);
+      setRequiresRefresh(true);
+      setMessage(`The stream state is still stale. ${detail}`);
+      setMessageKind("warning");
+    } finally {
+      if (request === checkRequest.current) setIsChecking(false);
     }
   }
 
@@ -413,7 +472,9 @@ export function ClaimExperience() {
   );
   const campaignNames = [
     ...new Set(
-      selectedRows.flatMap((row) => getCampaignAttribution(row.programId).names),
+      selectedRows.flatMap(
+        (row) => getCampaignAttribution(row.programId).names,
+      ),
     ),
   ];
   const campaignScope = campaignNames.length
@@ -452,24 +513,26 @@ export function ClaimExperience() {
             ? "Claim your increased SUP flow."
             : totalFlowDelta < 0n
               ? "Your SUP share has decreased."
-              : "Nothing to claim.";
-      heroDescription = selectedRows.length === 0 ? (
-        `We found ${changedRows.length} campaign update${changedRows.length === 1 ? "" : "s"}. Select the ones you want to claim.`
-      ) : (
-        <>
-          Your {selectedRows.length} selected campaign update
-          {selectedRows.length === 1 ? "" : "s"}{" "}
-          {totalFlowDelta === 0n ? (
-            <>have no net effect on your stream</>
-          ) : (
-            <>
-              would {totalFlowDelta > 0n ? "increase" : "decrease"} your stream
-              by <strong>{formatMonthlyFlow(totalFlowDelta, true)}</strong>
-            </>
-          )}
-          {campaignScope}.
-        </>
-      );
+              : "Claim your campaign updates.";
+      heroDescription =
+        selectedRows.length === 0 ? (
+          `We found ${changedRows.length} campaign update${changedRows.length === 1 ? "" : "s"}. Select the ones you want to claim.`
+        ) : (
+          <>
+            Your {selectedRows.length} selected campaign update
+            {selectedRows.length === 1 ? "" : "s"}{" "}
+            {totalFlowDelta === 0n ? (
+              <>have no net effect on your stream</>
+            ) : (
+              <>
+                would {totalFlowDelta > 0n ? "increase" : "decrease"} your
+                stream by{" "}
+                <strong>{formatMonthlyFlow(totalFlowDelta, true)}</strong>
+              </>
+            )}
+            {campaignScope}.
+          </>
+        );
     } else {
       heroTitle = "Your SUP stream is up to date.";
       heroDescription = cappedRows.length
@@ -493,7 +556,7 @@ export function ClaimExperience() {
             ? selectedPrograms.has(row.programId)
             : undefined
         }
-        isSelectionDisabled={isSubmitting}
+        isSelectionDisabled={isSubmitting || requiresRefresh}
         onSelectionChange={
           isClaimablePointState(row)
             ? (selected) =>
@@ -518,8 +581,15 @@ export function ClaimExperience() {
     (stateMatchesAccount && state !== undefined);
 
   return (
-    <>
+    <div className="terminal-claim">
+      <div className="terminal-titlebar" aria-label="Claim client status">
+        <span>sup re:mission / claim review</span>
+        <span className="terminal-client-status">
+          <strong>base</strong> · unofficial client
+        </span>
+      </div>
       <header className="hero" aria-live="polite">
+        <span className="terminal-kicker">claim review</span>
         <h1>{heroTitle}</h1>
         <p>{heroDescription}</p>
       </header>
@@ -587,7 +657,11 @@ export function ClaimExperience() {
           {message && (
             <div
               className={`status claim-status claim-status-${messageKind}`}
-              role={messageKind === "error" ? "alert" : "status"}
+              role={
+                messageKind === "error" || messageKind === "warning"
+                  ? "alert"
+                  : "status"
+              }
             >
               <span>{message}</span>
               {isConnected &&
@@ -693,15 +767,18 @@ export function ClaimExperience() {
                   <footer className="submit-update">
                     <div>
                       <strong>
-                        {selectedRows.length} campaign update
-                        {selectedRows.length === 1 ? "" : "s"} selected
+                        {requiresRefresh
+                          ? "Stream state needs refresh"
+                          : `${selectedRows.length} campaign update${selectedRows.length === 1 ? "" : "s"} selected`}
                       </strong>
                       <span>
-                        {selectedRows.length === 0
-                          ? "Select at least one campaign to update. Decreasing campaigns are clear by default."
-                          : transactionCount === 1
-                          ? `One wallet transaction applies ${numberFormat.format(totalUnitDelta)} units and updates every stream shown above.`
-                          : `${transactionCount} wallet transactions are needed because the points API signs at most ${CMS_BATCH_SIZE} campaigns at a time.`}
+                        {requiresRefresh
+                          ? "A submitted or confirmed transaction cannot be safely retried from stale data. Refresh first."
+                          : selectedRows.length === 0
+                            ? "Select at least one campaign to update. Decreasing campaigns are clear by default."
+                            : transactionCount === 1
+                              ? `One wallet transaction applies ${numberFormat.format(totalUnitDelta)} units and updates every selected stream.`
+                              : `${transactionCount} wallet transactions are needed because the points API signs at most ${CMS_BATCH_SIZE} campaigns at a time.`}
                       </span>
                     </div>
                     <button
@@ -709,21 +786,29 @@ export function ClaimExperience() {
                       type="button"
                       disabled={
                         isSubmitting ||
+                        isChecking ||
                         walletBusy ||
-                        selectedRows.length === 0 ||
-                        (connectedOwnsAccount && !state.canClaim)
+                        (!requiresRefresh &&
+                          (selectedRows.length === 0 ||
+                            (connectedOwnsAccount && !state.canClaim)))
                       }
                       onClick={
-                        connectedOwnsAccount
-                          ? () => void claim()
-                          : () => open({ view: "Connect" })
+                        requiresRefresh
+                          ? () => void refreshClaimState()
+                          : connectedOwnsAccount
+                            ? () => void claim()
+                            : () => open({ view: "Connect" })
                       }
                     >
-                      {isSubmitting
-                        ? "Updating stream…"
-                        : connectedOwnsAccount
-                          ? "Update SUP stream"
-                          : "Connect this wallet to claim"}
+                      {isChecking && requiresRefresh
+                        ? "Refreshing stream state…"
+                        : requiresRefresh
+                          ? "Refresh stream state"
+                          : isSubmitting
+                            ? "Updating stream…"
+                            : connectedOwnsAccount
+                              ? "Update SUP stream"
+                              : "Connect this wallet to claim"}
                     </button>
                   </footer>
                 </>
@@ -772,6 +857,6 @@ export function ClaimExperience() {
           )}
         </section>
       )}
-    </>
+    </div>
   );
 }
