@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
-import "./recovered.css";
 import "./globals.css";
 import "./wallet-dialog.css";
 
@@ -24,10 +23,10 @@ export default async function RootLayout({
   return (
     <html lang="en" className="dark">
       <body>
-        <Suspense fallback={<div className="shell">Loading application…</div>}>
+        <Suspense fallback={<div className="shell">loading…</div>}>
           <RootProviders cookies={cookieHeader}>
             <div className="shell">
-              <nav>
+              <nav aria-label="Primary navigation">
                 <Link className="brand" href="/">
                   sup re:mission
                 </Link>
