@@ -26,6 +26,7 @@ Replace the reconstructed application's inherited web-dashboard presentation wit
 - Remove the recovered stylesheet from the runtime layout.
 - Keep a single compact navigation line: product name, primary routes, wallet state.
 - Apply the same terminal primitives to `/`, `/claim`, `/apps`, `/governance`, `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`, `/staking`, and `/swap`.
+- Apply the same grammar to loading, route-error, global-error, not-found, wallet, governance, liquidity, Reserve deposit, Reserve withdrawal, and Reserve-name interaction states.
 - Existing route behavior stays intact; presentation is normalized globally.
 - Treat embedded third-party transaction surfaces as terminal client boundaries. Theme them dark, square, flat, and monospace where their public API permits it.
 
@@ -82,10 +83,12 @@ Rules:
 - [x] Add projected GDA pool share to claim state and render it after event lines.
 - [x] Flatten grouped event rendering and remove dates.
 - [x] Replace campaign summary cards and the campaigns table with lines.
-- [x] Replace governance, reserve, Reserve Names, leaderboard, liquidity, staking, and swap route chrome.
-- [x] Remove staking confetti and illustrated liquidity assets from runtime presentation.
+- [x] Replace governance, Reserve, Reserve Names, leaderboard, liquidity, staking, and swap route chrome.
+- [x] Replace delegate, liquidity-position, withdrawn-stream, Reserve-action, Reserve-deposit, and Reserve-withdrawal cards and modals.
+- [x] Remove runtime illustrations, icon-only controls, decorative avatars, and confetti from converted routes and dialogs.
 - [x] Theme the LI.FI widget through its public theme configuration.
-- [x] Replace the wallet dialog and global error surface.
+- [x] Replace shared transaction spinners with terminal status text.
+- [x] Replace wallet, loading, error, and not-found surfaces.
 - [ ] Confirm the final branch-head Vercel production build.
 - [ ] Review all route responses on the final branch-head preview.
 - [ ] Perform a final 320 CSS pixel visual pass in a browser.
@@ -94,11 +97,13 @@ Rules:
 
 - A Vercel production build for the core claim rewrite at commit `0249948` completed successfully.
 - The `/claim` preview returned HTTP 200 and rendered the new flat status/connect surface with no hero or card wrapper.
-- Final branch-head verification remains open until the last route-wide commits finish deploying.
+- Intermediate route-wide builds through the Reserve and liquidity rewrites completed successfully.
+- Final branch-head verification remains open until the plan commit finishes deploying.
 
 ## Acceptance criteria
 
 - No route visually resembles the old green dashboard UI.
+- No first-party interaction state restores cards, gradients, rounded modal panels, illustrations, or confetti.
 - No claim information requires expansion.
 - Campaign names scan vertically on the left.
 - Point and flow changes read as one line, in that order.
