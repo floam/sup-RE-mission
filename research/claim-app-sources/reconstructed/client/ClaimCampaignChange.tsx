@@ -137,10 +137,10 @@ export function ClaimCampaignChange({
           <summary>How this is calculated</summary>
           <p>
             Your Reserve changes from {numberFormat.format(row.onchainPoints)}{" "}
-            to {numberFormat.format(row.offchainPoints)} units. The projected
-            stream assumes the campaign pool&apos;s total flow is unchanged when
-            the transaction executes; live pool changes can move the final rate
-            slightly.
+            to {numberFormat.format(row.offchainPoints)}{" "}unit
+            {row.offchainPoints === 1n ? "" : "s"}. The projected stream assumes
+            the campaign pool&apos;s total flow is unchanged when the transaction
+            executes; live pool changes can move the final rate slightly.
           </p>
           {row.isCapped && (
             <p>
