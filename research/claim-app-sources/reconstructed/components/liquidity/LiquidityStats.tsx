@@ -60,41 +60,39 @@ export function LiquidityStats({
         ? `${lpRewardsAPR.toFixed(0)}% + ${bonusAPR.toFixed(0)}%`
         : `${lpRewardsAPR.toFixed(0)}%`;
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(auto,450px)_1fr]">
-        <div className="relative overflow-hidden rounded-lg bg-green-superdark p-6 text-center text-white">
-          <div className="mb-2 text-green-sf uppercase">
-            {hasPositions ? "Current Earnings" : "Total APR"}
-          </div>
-          <div className="text-h5">
+    <section aria-label="Liquidity statistics">
+      <div className="route-lines">
+        <p className="route-line">
+          <strong>{hasPositions ? "current earnings" : "total APR"}</strong>
+          <span>
             {hasPositions && earnings ? (
-              <FlowingBalance
-                balance={earnings.balance}
-                balanceTimestamp={earnings.timestamp}
-                flowRate={earnings.flowRate}
-              />
+              <>
+                <FlowingBalance
+                  balance={earnings.balance}
+                  balanceTimestamp={earnings.timestamp}
+                  flowRate={earnings.flowRate}
+                />{" "}
+                SUP
+              </>
             ) : (
               apr
             )}
-          </div>
-          {hasPositions && <div>SUP</div>}
-        </div>
-        <div className="grid grid-cols-3 rounded-lg border bg-gradient-to-t from-[#EEFFE7] to-gray-50 text-center">
-          <div className="p-6">
-            <div className="text-green uppercase">TVL</div>
-            <strong>{formatUsd(Number(poolMetrics?.tvlUSD ?? 0))}</strong>
-          </div>
-          <div className="p-6">
-            <div className="text-green uppercase">24H Volume</div>
-            <strong>{formatUsd(Number(poolMetrics?.volumeUSD ?? 0))}</strong>
-          </div>
-          <div className="p-6">
-            <div className="text-green uppercase">24H Fees</div>
-            <strong>{formatUsd(Number(poolMetrics?.feesUSD ?? 0))}</strong>
-          </div>
-        </div>
-        <LiquidityPoolComposition hasPositions={hasPositions} />
+          </span>
+        </p>
+        <p className="route-line">
+          <strong>TVL</strong>
+          <span>{formatUsd(Number(poolMetrics?.tvlUSD ?? 0))}</span>
+        </p>
+        <p className="route-line">
+          <strong>24h volume</strong>
+          <span>{formatUsd(Number(poolMetrics?.volumeUSD ?? 0))}</span>
+        </p>
+        <p className="route-line">
+          <strong>24h fees</strong>
+          <span>{formatUsd(Number(poolMetrics?.feesUSD ?? 0))}</span>
+        </p>
       </div>
-    </div>
+      <LiquidityPoolComposition hasPositions={hasPositions} />
+    </section>
   );
 }
