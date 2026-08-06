@@ -11,8 +11,8 @@
   --term-reverse-fg: #000;
   --term-mono: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
-  --term-size: clamp(0.875rem, 0.82rem + 0.18vw, 0.98rem);
-  --term-leading: 1.42;
+  --term-size: 0.875rem;
+  --term-leading: 1.38;
   font-family: var(--term-mono);
   font-size: var(--term-size);
   line-height: var(--term-leading);
@@ -422,8 +422,8 @@ body main :where(.status-success, .success) {
 
 @media (max-width: 760px) {
   :root {
-    --term-size: 0.875rem;
-    --term-leading: 1.4;
+    --term-size: 0.8125rem;
+    --term-leading: 1.36;
   }
 
   .shell {
