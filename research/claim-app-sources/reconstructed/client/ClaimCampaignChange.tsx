@@ -9,6 +9,10 @@ import type { EventBreakdown } from "./claim-event-breakdown";
 import type { ProgramAttributions } from "./program-attribution";
 
 const numberFormat = new Intl.NumberFormat("en-US");
+const compactNumberFormat = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  maximumFractionDigits: 2,
+});
 
 function formatSignedPoints(value: bigint) {
   if (value > 0n) return `+${numberFormat.format(value)}`;
@@ -30,6 +34,8 @@ function formatProjectedShare(row: PointState) {
   }
 
   const hundredths = (row.offchainPoints * 10_000n) / projectedTotalUnits;
+  if (hundredths === 0n) return "<0.01% projected pool share";
+
   const whole = hundredths / 100n;
   const fraction = (hundredths % 100n).toString().padStart(2, "0");
   const compactFraction = fraction.replace(/0+$/, "");
@@ -77,7 +83,7 @@ export function ClaimCampaignChange({
       ) : (
         <p className="campaign-heading">
           <span className="campaign-check" aria-hidden="true">
-            [·]
+            [-]
           </span>{" "}
           <strong className="campaign-name">{campaignName}</strong>
         </p>
@@ -89,7 +95,7 @@ export function ClaimCampaignChange({
           <strong className={signedClass(unitDelta)}>
             {formatSignedPoints(unitDelta)}
           </strong>
-        </span>{" "}
+        </span>
         <span>
           flow{" "}
           <strong className={signedClass(flowDelta)}>
@@ -100,27 +106,30 @@ export function ClaimCampaignChange({
 
       {row.isCapped ? (
         <p className="event-line">
-          <span>~</span>{" "}
+          <span>~</span>
           <span className="event-name">
-            {numberFormat.format(row.uncappedPoints)} raw points →{" "}
-            {numberFormat.format(row.offchainPoints)} claimable units
+            cap {compactNumberFormat.format(row.uncappedPoints)} raw →{" "}
+            {numberFormat.format(row.offchainPoints)} unit
+            {row.offchainPoints === 1n ? "" : "s"}
           </span>
         </p>
       ) : breakdown?.events.length ? (
         <GroupedEventList events={breakdown.events} />
       ) : breakdown?.message ? (
         <p className="event-line">
-          <span>~</span> <span className="event-name">{breakdown.message}</span>
+          <span>~</span>
+          <span className="event-name">{breakdown.message}</span>
         </p>
       ) : row.isOnchainOutdated && row.cmsCampaignExists ? (
         <p className="event-line">
-          <span>~</span> <span className="event-name">loading event evidence…</span>
+          <span>~</span>
+          <span className="event-name">loading event evidence…</span>
         </p>
       ) : null}
 
       {!row.cmsCampaignExists && (
         <p className="event-line">
-          <span>!</span>{" "}
+          <span>!</span>
           <span className="event-name">campaign unavailable from points API</span>
         </p>
       )}
