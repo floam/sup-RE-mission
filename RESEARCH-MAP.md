@@ -41,8 +41,10 @@ time.
 
 The runnable claim UI gives each changed campaign a transaction checkbox. It selects
 positive target deltas by default, leaves decreasing targets clear, locks selection
-during submission, requests a signed batch only for the checked campaign IDs, and
-reports success, partial success, or failure explicitly.
+during submission, and requests a signed batch only for the checked campaign IDs.
+Post-claim refreshes preserve explicit exclusions. A receipt transport error is
+indeterminate rather than a verified failure; stale or uncertain state blocks another
+submission until a read-only refresh succeeds.
 
 ## Claim voucher injector
 
