@@ -107,116 +107,82 @@ export function Campaigns() {
   );
 
   return (
-    <>
-      <section className={styles.summary} aria-label="Campaign summary">
-        <div>
-          <span>Programs</span>
-          <strong>{programs.length || "—"}</strong>
-        </div>
-        <div>
-          <span>Active</span>
-          <strong>{counts.Active}</strong>
-        </div>
-        <div>
-          <span>Finished</span>
-          <strong>{counts.Finished}</strong>
-        </div>
-        <div>
-          <span>Stopped</span>
-          <strong>{counts.Stopped}</strong>
-        </div>
-      </section>
+    <section className={styles.campaigns}>
+      <p className={styles.summary} aria-label="Campaign summary">
+        programs {programs.length || "—"} · active {counts.Active} · finished{" "}
+        {counts.Finished} · stopped {counts.Stopped}
+      </p>
 
-      <div className={styles.tools}>
+      <label className={styles.search}>
+        <span>filter</span>
         <input
           aria-label="Filter campaigns"
-          placeholder="Search name, ID, category, or pool"
+          placeholder="name, ID, category, or pool"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
-        <div className={styles.filters} aria-label="Campaign status">
-          {FILTERS.map((value) => (
-            <button
-              className={status === value ? styles.activeFilter : undefined}
-              key={value}
-              type="button"
-              onClick={() => setStatus(value)}
-            >
-              {value}
-            </button>
-          ))}
-        </div>
-      </div>
+      </label>
 
-      <p className="muted">
+      <p className={styles.filters} aria-label="Campaign status">
+        {FILTERS.map((value) => (
+          <button
+            className={status === value ? styles.activeFilter : undefined}
+            key={value}
+            type="button"
+            onClick={() => setStatus(value)}
+          >
+            {value.toLowerCase()}
+          </button>
+        ))}
+      </p>
+
+      <p className="dim">
         {programs.length
           ? `${shown.length} matching program${shown.length === 1 ? "" : "s"}`
-          : "Loading onchain programs…"}
+          : "loading onchain programs…"}
       </p>
       {error && <p className="status error">{error}</p>}
       {attributionError && <p className="status warning">{attributionError}</p>}
 
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Campaign</th>
-              <th>Status</th>
-              <th>Funding</th>
-              <th>Subsidy</th>
-              <th>Pool</th>
-            </tr>
-          </thead>
-          <tbody>
-            {shown.map((program) => {
-              const attribution = getCampaignAttribution(
-                BigInt(program.id),
-                attributions,
-              );
-              const programStatus = getProgramStatus(program);
-              return (
-                <tr key={program.id}>
-                  <td data-label="Campaign">
-                    <strong>
-                      {attribution.names.length
-                        ? attribution.names.join(" / ")
-                        : `Program ${program.id}`}
-                    </strong>
-                    <small>
-                      {attribution.descriptors.length
-                        ? `${attribution.descriptors.join(" / ")} · #${program.id}`
-                        : `Unattributed · #${program.id}`}
-                    </small>
-                  </td>
-                  <td data-label="Status">
-                    <span
-                      className={`${styles.statusPill} ${styles[programStatus.toLowerCase()]}`}
-                    >
-                      {programStatus}
-                    </span>
-                  </td>
-                  <td data-label="Funding">
-                    {formatTokenAmount(program.fundingAmount)} SUP
-                  </td>
-                  <td data-label="Subsidy">
-                    {formatTokenAmount(program.subsidyAmount)} SUP
-                  </td>
-                  <td data-label="Pool">
-                    <a
-                      className={styles.poolLink}
-                      href={`https://basescan.org/address/${program.distributionPool}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {shortAddress(program.distributionPool)} ↗
-                    </a>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      <div className={styles.programLines}>
+        {shown.map((program) => {
+          const attribution = getCampaignAttribution(
+            BigInt(program.id),
+            attributions,
+          );
+          const programStatus = getProgramStatus(program);
+          return (
+            <article className={styles.program} key={program.id}>
+              <p>
+                <strong>
+                  {attribution.names.length
+                    ? attribution.names.join(" / ")
+                    : `Program ${program.id}`}
+                </strong>
+              </p>
+              <p>
+                status {programStatus.toLowerCase()} · funding{" "}
+                {formatTokenAmount(program.fundingAmount)} SUP · subsidy{" "}
+                {formatTokenAmount(program.subsidyAmount)} SUP
+              </p>
+              <p className="dim">
+                #{program.id}
+                {attribution.descriptors.length
+                  ? ` · ${attribution.descriptors.join(" / ")}`
+                  : " · unattributed"}
+                {" · pool "}
+                <a
+                  href={`https://basescan.org/address/${program.distributionPool}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {shortAddress(program.distributionPool)} ↗
+                </a>
+              </p>
+            </article>
+          );
+        })}
       </div>
-    </>
+    </section>
   );
 }
