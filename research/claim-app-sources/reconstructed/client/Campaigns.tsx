@@ -11,6 +11,9 @@ import {
   STATIC_PROGRAM_ATTRIBUTIONS,
 } from "./claim-display";
 import {
+  getActivePoolMemberCounts,
+} from "./pool-members";
+import {
   getPublicProgramAttributions,
   mergeProgramAttributions,
   type ProgramAttributions,
@@ -33,16 +36,26 @@ function shortAddress(value: string) {
 function ProgramLine({
   program,
   attributions,
+  memberCount,
+  memberCountUnavailable,
 }: {
   program: PublicProgram;
   attributions: ProgramAttributions;
+  memberCount?: number;
+  memberCountUnavailable: boolean;
 }) {
   const attribution = getCampaignAttribution(BigInt(program.id), attributions);
   const status = getProgramStatus(program).toLowerCase();
   const poolAddress = getAddress(program.distributionPool);
   const { totalFlowRate } = useProgramTotalFlowRate(poolAddress);
   const funding = formatCompactTokenAmount(BigInt(program.fundingAmount));
-  const flow = totalFlowRate === undefined ? "…" : formatMonthlyFlowRate(totalFlowRate);
+  const flow =
+    totalFlowRate === undefined ? "…" : formatMonthlyFlowRate(totalFlowRate);
+  const members = memberCountUnavailable
+    ? "unavailable"
+    : memberCount === undefined
+      ? "…"
+      : new Intl.NumberFormat("en-US").format(memberCount);
 
   return (
     <article className={styles.program}>
@@ -56,10 +69,12 @@ function ProgramLine({
       </p>
       <p className={styles.metrics}>
         funded <strong>{funding} SUP</strong>
-        <span>flow <strong>{flow} SUP/mo</strong></span>
+        <span>
+          flow <strong>{flow} SUP/mo</strong>
+        </span>
       </p>
       <p className={styles.members}>
-        <strong>—</strong> pool members
+        <strong>{members}</strong> active pool members
       </p>
       <p className="dim">
         #{program.id}
@@ -86,6 +101,10 @@ export function Campaigns() {
   const [attributions, setAttributions] = useState<ProgramAttributions>(
     STATIC_PROGRAM_ATTRIBUTIONS,
   );
+  const [memberCounts, setMemberCounts] = useState<Map<string, number>>(
+    () => new Map(),
+  );
+  const [memberCountError, setMemberCountError] = useState("");
   const [error, setError] = useState("");
   const [attributionError, setAttributionError] = useState("");
   const [query, setQuery] = useState("");
@@ -119,6 +138,26 @@ export function Campaigns() {
       disposed = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (programs.length === 0) return;
+
+    let disposed = false;
+    setMemberCountError("");
+    getActivePoolMemberCounts(
+      programs.map((program) => program.distributionPool),
+    )
+      .then((counts) => {
+        if (!disposed) setMemberCounts(counts);
+      })
+      .catch((reason) => {
+        if (!disposed) setMemberCountError(String(reason));
+      });
+
+    return () => {
+      disposed = true;
+    };
+  }, [programs]);
 
   const shown = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -162,7 +201,7 @@ export function Campaigns() {
       </p>
       <p className="dim">
         funded is the total SUP allocated to a program; flow is its current pool
-        distribution rate
+        distribution rate; members are accounts with positive current pool units
       </p>
 
       <label className={styles.search}>
@@ -195,6 +234,11 @@ export function Campaigns() {
       </p>
       {error && <p className="status error">{error}</p>}
       {attributionError && <p className="status warning">{attributionError}</p>}
+      {memberCountError && (
+        <p className="status warning">
+          Active pool-member counts are unavailable. {memberCountError}
+        </p>
+      )}
 
       <div className={styles.programLines}>
         {shown.map((program) => (
@@ -202,6 +246,10 @@ export function Campaigns() {
             key={program.id}
             program={program}
             attributions={attributions}
+            memberCount={memberCounts.get(
+              program.distributionPool.toLowerCase(),
+            )}
+            memberCountUnavailable={Boolean(memberCountError)}
           />
         ))}
       </div>
