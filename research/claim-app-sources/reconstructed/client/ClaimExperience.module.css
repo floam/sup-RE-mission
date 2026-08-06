@@ -51,6 +51,10 @@
   background: transparent;
 }
 
+.scope :global(.campaign-list) {
+  padding-bottom: 1lh;
+}
+
 .scope :global(.wallet-step),
 .scope :global(.claim-status),
 .scope :global(.results > .wallet-actions),
@@ -131,7 +135,7 @@
 }
 
 .scope :global(.campaigns) {
-  gap: 2lh;
+  gap: 1lh;
 }
 
 .scope :global(.campaign-change) {
@@ -193,9 +197,9 @@
 }
 
 .scope :global(.campaign-metrics) {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 4ch;
+  display: grid;
+  grid-template-columns: max-content max-content;
+  column-gap: 3ch;
   color: var(--term-fg);
 }
 
@@ -211,10 +215,14 @@
 }
 
 .scope :global(.event-line) {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 1ch;
   color: var(--term-fg);
 }
 
 .scope :global(.event-name) {
+  min-width: 0;
   color: var(--term-dim);
 }
 
@@ -236,9 +244,10 @@
   z-index: 10;
   bottom: 0;
   display: grid;
+  justify-items: start;
   gap: 0;
-  margin-top: 2lh;
-  padding-block: 1lh;
+  margin: 1lh 0 0;
+  padding: 0.5lh 0 calc(0.5lh + env(safe-area-inset-bottom));
   background: var(--term-bg) !important;
 }
 
@@ -250,8 +259,9 @@
 }
 
 .scope :global(.submit-update .primary-action) {
-  display: block;
-  width: 100%;
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
   margin: 0;
   padding: 0 1ch;
   background: var(--term-reverse-bg) !important;
@@ -272,7 +282,7 @@
 }
 
 .scope :global(.lookup-command) {
-  margin-top: 1lh;
+  margin-top: 0;
 }
 
 .scope :global(.empty-state),
@@ -283,7 +293,12 @@
 }
 
 @media (max-width: 680px) {
-  .scope :global(.claim-status-line),
+  .scope :global(.claim-status-line) {
+    display: grid;
+    justify-content: initial;
+    gap: 0;
+  }
+
   .scope :global(.campaign-metrics),
   .scope :global(.claim-command-summary),
   .scope :global(.wallet-actions) {
