@@ -37,9 +37,17 @@ function humanizeEventName(value: string) {
     .replace(/\s+/g, " ")
     .split(" ")
     .filter(Boolean);
-  if (!words[0]) return "event";
+  if (!words[0]) return "Event";
+
   return words
-    .map((word) => INITIALISMS.get(word.toLowerCase()) ?? word.toLowerCase())
+    .map((word, index) => {
+      const initialism = INITIALISMS.get(word.toLowerCase());
+      if (initialism) return initialism;
+      const normalized = word.toLowerCase();
+      return index === 0
+        ? normalized[0].toUpperCase() + normalized.slice(1)
+        : normalized;
+    })
     .join(" ");
 }
 
