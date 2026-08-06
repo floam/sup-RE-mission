@@ -17,7 +17,6 @@ import {
 import { formatTokenAmount } from "../../lib/format";
 import type { DelegateProfile } from "../../types/governance";
 import { TransactionButton } from "../TransactionButton";
-import { DelegateAvatar } from "./DelegateAvatar";
 
 export interface DelegateStepper {
   next(): void;
@@ -28,62 +27,42 @@ function DelegateListEntry({
   onClick,
   isSelected,
   isLocked,
-  className = "",
 }: {
   delegate: DelegateProfile;
   onClick(): void;
   isSelected: boolean;
   isLocked: boolean;
-  className?: string;
 }) {
   const { delegatedAmount, isDelegatedAmountLoaded } =
     useDelegatedAmount(delegate);
   return (
-    <button
-      type="button"
-      data-testid={`${delegate.address}-delegate-list-entry`}
-      className={`flex w-full cursor-pointer gap-2 px-5 py-[18px] text-left transition-colors ${
-        isSelected || isLocked
-          ? "rounded-[20px] bg-[#8330FD] text-white"
-          : "hover:bg-platinum"
-      } ${className}`}
-      onClick={onClick}
-    >
-      <DelegateAvatar delegate={delegate} className="h-8 w-8 shadow-md" />
-      <span className="flex flex-1 flex-col justify-between gap-3">
-        <span className="flex flex-row justify-between">
-          <span className="flex flex-col">
-            <span data-testid="delegate-name" className="text-subtitle3">
-              {delegate.name}
-            </span>
-            <span data-testid="delegate-address" className="text-caption4">
-              {delegate.address.slice(0, 6)}...{delegate.address.slice(-4)}
-            </span>
+    <p>
+      <button
+        type="button"
+        data-testid={`${delegate.address}-delegate-list-entry`}
+        className={isSelected ? "positive" : undefined}
+        onClick={onClick}
+      >
+        {isSelected ? "[✓]" : isLocked ? "[·]" : "[ ]"}{" "}
+        <span data-testid="delegate-name">{delegate.name}</span>{" "}
+        <span data-testid="delegate-address" className="dim">
+          {delegate.address.slice(0, 6)}…{delegate.address.slice(-4)}
+        </span>
+        {isDelegatedAmountLoaded && (
+          <span data-testid="delegate-delegated-amount">
+            {" "}· {formatTokenAmount(delegatedAmount)} SUP
           </span>
-          {isDelegatedAmountLoaded && (
-            <span
-              data-testid="delegate-delegated-amount"
-              className="badge badge-dark"
-            >
-              {formatTokenAmount(delegatedAmount)} SUP delegated
-            </span>
-          )}
-        </span>
-        <span data-testid="delegate-description" className="text-caption2">
-          {delegate.description}
-        </span>
+        )}
+      </button>
+      <span data-testid="delegate-description" className="dim">
+        {" "}· {delegate.description}
       </span>
-    </button>
+    </p>
   );
-}
-
-function DelegateSkeleton() {
-  return <div className="m-5 h-28 animate-pulse rounded-md bg-platinum" />;
 }
 
 export function DelegateStep({
   stepper,
-  className = "",
 }: {
   stepper?: DelegateStepper | null;
   className?: string;
@@ -145,7 +124,7 @@ export function DelegateStep({
   }, [clear, hasExternalDelegate, isSelfSelection, set]);
   const complete = Boolean(
     isOnboarding &&
-    (delegateAddress || selectedStatus?.isFinished || selectedSelf),
+      (delegateAddress || selectedStatus?.isFinished || selectedSelf),
   );
 
   useEffect(() => {
@@ -156,46 +135,35 @@ export function DelegateStep({
     !selectedDelegate || (hasExternalDelegate && !isSelfSelection);
   const mustUndelegateFirst = Boolean(
     disabled &&
-    hasExternalDelegate &&
-    selectedDelegate &&
-    selectedDelegate !== currentDelegate,
+      hasExternalDelegate &&
+      selectedDelegate &&
+      selectedDelegate !== currentDelegate,
   );
 
   return (
-    <div
-      className={`flex h-full flex-col items-center justify-between gap-4 ${className}`}
-    >
-      <div className="flex h-full w-full flex-col overflow-hidden rounded-xl bg-white">
-        <div className="flex items-center justify-between border-b px-5 py-[18px]">
-          <h3 className="font-medium">List of delegates</h3>
-        </div>
-        <div className="min-h-[360px] flex-1 overflow-y-auto">
-          {visibleDelegates.map((delegate, index) => (
-            <DelegateListEntry
-              key={delegate.address}
-              delegate={delegate}
-              onClick={() => setSelectedDelegate(delegate)}
-              isSelected={selectedDelegate === delegate}
-              isLocked={currentDelegate === delegate}
-              className={index === 0 ? "" : "border-t"}
-            />
-          ))}
-          {readDelegates.isLoading &&
-            Array.from({ length: 5 }, (_, index) => (
-              <DelegateSkeleton key={index} />
-            ))}
-        </div>
+    <section aria-label="Delegates">
+      <p><strong>delegates</strong></p>
+      {visibleDelegates.map((delegate) => (
+        <DelegateListEntry
+          key={delegate.address}
+          delegate={delegate}
+          onClick={() => setSelectedDelegate(delegate)}
+          isSelected={selectedDelegate === delegate}
+          isLocked={currentDelegate === delegate}
+        />
+      ))}
+      {readDelegates.isLoading && <p className="dim">loading delegates…</p>}
+      <p>
         <Link
-          className="button button-dark rounded-t-none"
           href="https://forum.superfluid.org/t/about-the-delegate-platform-category/23"
           target="_blank"
         >
-          Become Delegate ↗
+          [ become a delegate ↗ ]
         </Link>
-      </div>
+      </p>
       {complete ? (
         <button data-testid="continue-button" onClick={() => stepper?.next()}>
-          Success! Continue
+          [ continue ]
         </button>
       ) : mustUndelegateFirst ? (
         <TransactionButton
@@ -205,7 +173,7 @@ export function DelegateStep({
           status={clear.status}
           ButtonProps={{ disabled: true }}
         >
-          Undelegate first to change
+          undelegate first to change
         </TransactionButton>
       ) : (
         <TransactionButton
@@ -215,9 +183,9 @@ export function DelegateStep({
           status={selectedStatus}
           ButtonProps={{ disabled }}
         >
-          Delegate
+          [ delegate ]
         </TransactionButton>
       )}
-    </div>
+    </section>
   );
 }
