@@ -1,976 +1,297 @@
-.scope :global(.wallet-actions) {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.scope :global(.wallet-actions) > button {
-  flex: 1;
-}
-
-.scope :global(.secondary-action) {
-  min-height: 52px;
-  border-color: #466c5e;
-  background: transparent;
-  color: #c7ddd4;
-}
-
-.scope :global(.claim-status) {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.scope :global(.claim-status-success) {
-  border-color: rgba(118, 255, 181, 0.45);
-}
-
-.scope :global(.claim-status-error) {
-  border-color: rgba(255, 114, 105, 0.45);
-  background: #3b2422;
-}
-
-.scope :global(.unavailable-pill) {
-  border-radius: 999px;
-  padding: 0.35rem 0.65rem;
-  background: #492723;
-  color: #ffb4ad;
-  font-size: 0.72rem;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.scope :global(.negative) {
-  color: #ffb36c;
-}
-
-.scope :global(.campaign-selection) {
-  display: grid;
-  flex: 0 0 auto;
-  gap: 0.25rem;
-  color: #bfd2ca;
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.scope :global(.campaign-selection) input {
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  accent-color: #64e9a0;
-}
-
-.scope :global(.flow-comparison) {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-  margin-top: 1.2rem;
-}
-
-.scope :global(.flow-comparison) > div {
-  display: grid;
-  gap: 0.3rem;
-  min-width: 0;
-  padding: 0.9rem 1rem;
-  border: 1px solid #294b3f;
-  border-radius: 0.8rem;
-  background: #0b1b16;
-}
-
-.scope :global(.flow-comparison) > :global(.target) {
-  border-color: #3f8068;
-  background: #102b21;
-}
-
-.scope :global(.flow-comparison) span {
-  color: #93afa3;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.scope :global(.flow-comparison) strong {
-  overflow: hidden;
-  font-size: clamp(1rem, 2.2vw, 1.25rem);
-  font-variant-numeric: tabular-nums;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.scope :global(.campaign-actions) {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.scope :global(.campaign-actions) details {
-  margin: 0;
-}
-
-.scope :global(.text-button) {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: #76ffb5;
-  font-size: 0.8rem;
-  white-space: nowrap;
-}
-
-.scope :global(.text-button):disabled {
-  color: #78998c;
-}
-
-.scope :global(.event-drawer) {
-  margin-top: 1rem;
-  padding: 1.5rem 1.75rem;
-  border-radius: 0.85rem;
-  background: #0b1b16;
-}
-
-.scope :global(.event-drawer) h3 {
-  margin: 0.35rem 0 0;
-}
-
-.scope :global(.event-drawer) > p {
-  max-width: 720px;
-  margin: 0.65rem 0 0;
-}
-
-.scope :global(.event-list) {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem 1.5rem;
-  margin-top: 1rem;
-}
-
-.scope :global(.event-group) {
-  min-width: 0;
-  padding: 1rem;
-  border: 1px solid #294b3f;
-  border-radius: 0.85rem;
-  background: #0d241c;
-}
-
-.scope :global(.event-group-summary) {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.scope :global(.event-group-summary) > span {
-  display: grid;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.scope :global(.event-equation) {
-  display: flex;
-  min-width: 0;
-  align-items: baseline;
-  gap: 0.45rem;
-  font-size: 1rem;
-}
-
-.scope :global(.event-equation) > span:first-child {
-  font-variant-numeric: tabular-nums;
-}
-
-.scope :global(.event-equation) > span:nth-child(2),
-.scope :global(.event-equals) {
-  color: #78998c;
-  font-weight: 500;
-}
-
-.scope :global(.event-group-summary) > strong {
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
-
-.scope :global(.event-group-summary) small {
-  color: #93afa3;
-}
-
-.scope :global(.claim-reconciliation) {
-  margin: 1rem 0 0;
-  font-size: 0.82rem;
-}
-
-.scope :global(footer.submit-update) {
-  position: sticky;
-  z-index: 10;
-  bottom: 0;
-  background: rgba(8, 26, 20, 0.96);
-  backdrop-filter: blur(12px);
-}
-
-@media (max-width: 680px) {
-  .scope :global(.wallet-actions),
-  .scope :global(.claim-status),
-  .scope :global(.campaign-actions) {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .scope :global(.flow-comparison),
-  .scope :global(.event-list) {
-    grid-template-columns: 1fr;
-  }
-
-  .scope :global(.event-drawer) {
-    padding: 1.25rem;
-  }
-
-  .scope :global(.text-button) {
-    align-self: flex-start;
-  }
-}
-
-/* Terminal claim client
- *
- * The claim route intentionally uses terminal rendition attributes as its
- * hierarchy: dim metadata, bold values, reverse-video selection/actions, and
- * standout warnings. It does not imitate a cinematic "hacker" interface.
- */
 .scope {
-  --term-bg: #020302;
-  --term-panel: #070907;
-  --term-raised: #0c0f0c;
-  --term-fg: #d7ddd7;
-  --term-dim: #7f897f;
-  --term-faint: #555d56;
-  --term-line: #353b35;
-  --term-line-bright: #697269;
-  --term-bright: #79ff54;
-  --term-bright-ink: #061005;
-  --term-warning: #ffd166;
-  --term-error: #ff7b72;
-  --term-mono: monospace;
   color: var(--term-fg);
   font-family: var(--term-mono);
+  font-size: var(--term-size);
+  line-height: var(--term-leading);
   font-variant-numeric: tabular-nums slashed-zero;
 }
 
+.scope :global(*) {
+  font-size: inherit !important;
+  line-height: inherit !important;
+}
+
 .scope :global(.terminal-claim) {
-  min-height: calc(100vh - 5rem);
-  border: 1px solid var(--term-line);
+  width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
   background: var(--term-bg);
 }
 
-.scope :global(.terminal-titlebar) {
+.scope :global(.claim-status-line) {
   display: flex;
-  min-height: 36px;
-  align-items: center;
+  flex-wrap: wrap;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.45rem 0.7rem;
-  border-bottom: 1px solid var(--term-line);
-  color: var(--term-dim);
-  font-size: 0.72rem;
-  line-height: 1.2;
-}
-
-.scope :global(.terminal-client-status) {
-  text-align: right;
-}
-
-.scope :global(.terminal-client-status strong) {
-  color: var(--term-bright);
-  font-weight: 700;
-}
-
-.scope :global(.hero) {
-  max-width: none;
-  margin: 0;
-  padding: 0.85rem 1rem 1rem;
-  border-bottom: 1px solid var(--term-line);
-}
-
-.scope :global(.terminal-kicker) {
-  display: block;
-  margin-bottom: 0.35rem;
-  color: var(--term-bright);
-  font-size: 0.72rem;
-}
-
-.scope :global(.terminal-kicker)::before {
-  content: "> ";
-}
-
-.scope :global(.hero h1) {
-  max-width: none;
-  margin: 0;
+  gap: 0 1ch;
+  margin: 0 0 1lh;
+  padding: 0;
   color: var(--term-fg);
-  font-family: var(--term-mono);
-  font-size: clamp(1.15rem, 2.2vw, 1.55rem);
-  font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.25;
-  text-wrap: pretty;
 }
 
-.scope :global(.hero > p) {
-  max-width: 96ch;
-  margin: 0.45rem 0 0;
-  color: var(--term-dim);
-  font-size: 0.78rem;
-  line-height: 1.45;
-  text-wrap: pretty;
+.scope :global(.claim-status-line .positive) {
+  color: var(--term-positive);
 }
 
-.scope :global(.hero > p strong) {
-  color: var(--term-bright);
-  font-weight: 700;
+.scope :global(.claim-status-line .negative) {
+  color: var(--term-negative);
 }
 
-.scope :global(.claim-workbench) {
-  overflow: visible;
+.scope :global(.claim-workbench),
+.scope :global(.results),
+.scope :global(.campaign-list),
+.scope :global(.campaigns) {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
   border: 0;
-  border-radius: 0;
   background: transparent;
 }
 
 .scope :global(.wallet-step),
-.scope :global(.results > *),
-.scope :global(.campaign-change) {
-  padding: 0.8rem 1rem;
-}
-
-.scope :global(.wallet-step),
-.scope :global(.claim-status) {
-  border-bottom: 1px solid var(--term-line);
+.scope :global(.claim-status),
+.scope :global(.results > .wallet-actions),
+.scope :global(.submit-update) {
+  margin: 0 0 1lh;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
 .scope :global(.wallet-actions) {
-  align-items: center;
-  gap: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 2ch;
+  margin: 0;
+  padding: 0;
 }
 
-.scope :global(button),
-.scope :global(input),
-.scope :global(select) {
-  border: 1px solid var(--term-line-bright);
-  border-radius: 0;
-  background: var(--term-panel);
-  color: var(--term-fg);
-  font-family: var(--term-mono);
-  font-size: 0.78rem;
-}
-
-.scope :global(button) {
-  min-height: 36px;
-  padding: 0.5rem 0.7rem;
-  font-weight: 700;
-  transition: none;
-}
-
-.scope :global(button:hover:not(:disabled)) {
-  border-color: var(--term-bright);
-  filter: none;
-  transform: none;
-}
-
-.scope :global(button:active:not(:disabled)) {
-  background: var(--term-fg);
-  color: var(--term-bg);
-}
-
-.scope :global(button:focus-visible),
-.scope :global(input:focus-visible),
-.scope :global(summary:focus-visible) {
-  outline: 1px solid var(--term-bright);
-  outline-offset: 2px;
-}
-
-.scope :global(button:disabled),
-.scope :global(input:disabled) {
-  opacity: 0.42;
-}
-
-.scope :global(.primary-action) {
-  min-height: 38px;
-  border-color: var(--term-bright);
-  background: var(--term-bright);
-  color: var(--term-bright-ink);
-  font-weight: 750;
-}
-
-.scope :global(.primary-action)::before {
-  content: "[ ";
-}
-
-.scope :global(.primary-action)::after {
-  content: " ]";
-}
-
-.scope :global(.secondary-action) {
-  min-height: 36px;
-  border-color: var(--term-line-bright);
-  background: transparent;
-  color: var(--term-dim);
+.scope :global(.wallet-actions > button) {
+  flex: 0 0 auto;
 }
 
 .scope :global(.account-field) {
-  margin: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1ch;
+  align-items: baseline;
+  margin: 0 0 1lh;
 }
 
 .scope :global(.account-field > span) {
-  color: var(--term-dim);
-  font-size: 0.7rem;
+  color: var(--term-fg);
 }
 
 .scope :global(.account-field input) {
-  min-height: 38px;
+  min-width: 0;
 }
 
 .scope :global(.claim-status) {
-  border: 0;
-  border-bottom: 1px solid var(--term-line);
-  border-radius: 0;
-  padding: 0.65rem 1rem;
-  background: var(--term-raised);
-  color: var(--term-dim);
-  font-size: 0.74rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1ch;
+  color: var(--term-fg);
 }
 
 .scope :global(.claim-status)::before {
-  flex: 0 0 auto;
-  color: var(--term-faint);
   content: "status:";
-}
-
-.scope :global(.claim-status > span) {
-  flex: 1;
+  color: var(--term-fg);
 }
 
 .scope :global(.claim-status-success) {
-  border-color: var(--term-bright);
-  background: var(--term-panel);
-  color: var(--term-fg);
+  color: var(--term-positive);
 }
 
 .scope :global(.claim-status-warning) {
-  border-top: 2px solid var(--term-warning);
-  border-bottom: 2px solid var(--term-warning);
-  background: var(--term-warning);
-  color: #171205;
+  display: block;
+  padding-inline: 1ch;
+  background: var(--term-warning) !important;
+  color: #000 !important;
   font-weight: 700;
 }
 
-.scope :global(.claim-status-warning)::before,
-.scope :global(.claim-status-error)::before {
-  color: currentColor;
-  content: "standout:";
+.scope :global(.claim-status-warning)::before {
+  color: inherit;
 }
 
 .scope :global(.claim-status-error) {
-  border-top: 2px solid var(--term-error);
-  border-bottom: 2px solid var(--term-error);
-  background: var(--term-error);
-  color: #180604;
+  display: block;
+  padding-inline: 1ch;
+  background: var(--term-negative) !important;
+  color: #000 !important;
   font-weight: 700;
 }
 
-.scope :global(.results) {
-  border: 0;
-}
-
-.scope :global(.results > * + *) {
-  border-color: var(--term-line);
-}
-
-.scope :global(.results > .wallet-actions) {
-  justify-content: flex-end;
-  border-bottom: 1px solid var(--term-line);
-}
-
-.scope :global(.results > .wallet-actions > button) {
-  flex: 0 0 auto;
-}
-
-.scope :global(.impact-summary) {
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0;
-  border-bottom: 1px solid var(--term-line);
-  background: transparent;
-}
-
-.scope :global(.impact-summary > div) {
-  min-height: 68px;
-  border-right: 1px solid var(--term-line);
-  padding: 0.7rem 1rem;
-  background: var(--term-panel);
-}
-
-.scope :global(.impact-summary > div:last-child) {
-  border-right: 0;
-}
-
-.scope :global(.impact-summary span) {
-  color: var(--term-dim);
-  font-size: 0.68rem;
-  font-weight: 400;
-}
-
-.scope :global(.impact-summary strong) {
-  margin-top: 0.12rem;
-  color: var(--term-fg);
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.scope :global(.positive) {
-  color: var(--term-bright);
-}
-
-.scope :global(.negative) {
-  color: var(--term-warning);
-}
-
-.scope :global(.section-heading) {
-  align-items: center;
-  margin: 0 0 0.7rem;
-}
-
-.scope :global(.section-heading h3) {
-  margin: 0.15rem 0 0;
-  color: var(--term-fg);
-  font-family: var(--term-mono);
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0;
-}
-
-.scope :global(.eyebrow) {
-  color: var(--term-dim);
-  font-size: 0.66rem;
-  font-weight: 400;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.scope :global(.toggle-current),
-.scope :global(.campaign-selection) {
-  color: var(--term-dim);
-  font-size: 0.68rem;
-  font-weight: 400;
-}
-
-.scope :global(.toggle-current input),
-.scope :global(.campaign-selection input) {
-  width: 16px;
-  height: 16px;
-  border-radius: 0;
-  padding: 0;
-  accent-color: var(--term-bright);
+.scope :global(.claim-status-error)::before {
+  color: inherit;
 }
 
 .scope :global(.campaigns) {
-  gap: 0.65rem;
+  gap: 2lh;
 }
 
 .scope :global(.campaign-change) {
-  border: 1px solid var(--term-line);
-  border-radius: 0;
-  background: var(--term-bg);
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
-.scope :global(.campaign-change.is-selected) {
-  border-color: var(--term-line-bright);
-}
-
-.scope :global(.campaign-change.is-selected .campaign-selection) {
-  margin: -0.35rem 0 0;
-  padding: 0.3rem 0.45rem;
-  background: var(--term-fg);
-  color: var(--term-bg);
-  font-weight: 700;
-}
-
-.scope :global(.campaign-change.is-capped) {
-  border-left: 3px double var(--term-warning);
+.scope :global(.campaign-heading),
+.scope :global(.campaign-metrics),
+.scope :global(.event-line),
+.scope :global(.campaign-standing) {
+  margin: 0;
+  padding: 0;
 }
 
 .scope :global(.campaign-heading) {
-  display: grid;
-  grid-template-columns: minmax(9rem, auto) minmax(0, 1fr) auto;
-  align-items: start;
-  gap: 0.75rem;
-}
-
-.scope :global(.campaign-heading:not(:has(.campaign-selection))) {
-  grid-template-columns: minmax(0, 1fr) auto;
-}
-
-.scope :global(.campaign-heading h4) {
-  margin: 0;
+  display: block;
+  width: fit-content;
+  max-width: 100%;
   color: var(--term-fg);
-  font-family: var(--term-mono);
-  font-size: 0.86rem;
-  font-weight: 700;
-  letter-spacing: 0;
-}
-
-.scope :global(.campaign-meta) {
-  margin: 0.18rem 0 0;
-  color: var(--term-dim);
-  font-size: 0.67rem;
-}
-
-.scope :global(.update-pill),
-.scope :global(.current-pill),
-.scope :global(.unavailable-pill) {
-  border: 1px solid var(--term-line-bright);
-  border-radius: 0;
-  padding: 0.2rem 0.35rem;
-  background: transparent;
-  color: var(--term-dim);
-  font-size: 0.64rem;
-  font-weight: 400;
-}
-
-.scope :global(.update-pill) {
-  border-color: var(--term-bright);
-  color: var(--term-bright);
-}
-
-.scope :global(.unavailable-pill) {
-  border-color: var(--term-error);
-  background: transparent;
-  color: var(--term-error);
-}
-
-.scope :global(.flow-comparison) {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0;
-  margin-top: 0.65rem;
-  border-top: 1px solid var(--term-line);
-  border-bottom: 1px solid var(--term-line);
-}
-
-.scope :global(.flow-comparison > div) {
-  min-width: 0;
-  border: 0;
-  border-right: 1px solid var(--term-line);
-  border-radius: 0;
-  padding: 0.5rem 0.65rem;
-  background: var(--term-panel);
-}
-
-.scope :global(.flow-comparison > div:last-child) {
-  border-right: 0;
-}
-
-.scope :global(.flow-comparison > .target) {
-  border-color: var(--term-line);
-  background: var(--term-raised);
-}
-
-.scope :global(.flow-comparison span) {
-  color: var(--term-dim);
-  font-size: 0.64rem;
-  font-weight: 400;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.scope :global(.flow-comparison strong) {
-  overflow: visible;
-  color: var(--term-fg);
-  font-size: clamp(0.76rem, 1.4vw, 0.92rem);
-  font-weight: 700;
-  text-overflow: clip;
-  white-space: normal;
-}
-
-.scope :global(.campaign-outcome) {
-  min-height: 38px;
-  border-radius: 0;
-  padding: 0.45rem 0.65rem;
-  background: transparent;
-  color: var(--term-dim);
-  font-size: 0.7rem;
-}
-
-.scope :global(.campaign-outcome strong) {
-  font-size: 0.86rem;
-  font-weight: 700;
-}
-
-.scope :global(.campaign-actions) {
-  align-items: center;
-  margin-top: 0.35rem;
-}
-
-.scope :global(.technical-details),
-.scope :global(.account-details) {
-  color: var(--term-dim);
-  font-size: 0.68rem;
-}
-
-.scope :global(.technical-details) {
-  margin-top: 0;
-}
-
-.scope :global(summary) {
   cursor: pointer;
-  color: var(--term-dim);
+}
+
+.scope :global(.campaign-checkbox) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.scope :global(.campaign-check) {
+  color: var(--term-fg);
   font-weight: 400;
-  text-decoration: underline;
-  text-decoration-color: var(--term-faint);
-  text-underline-offset: 0.2em;
 }
 
-.scope :global(summary:hover) {
-  color: var(--term-fg);
+.scope :global(.campaign-checkbox:checked + .campaign-check) {
+  color: var(--term-positive);
 }
 
-.scope :global(.technical-details p) {
-  max-width: 94ch;
-  margin: 0.45rem 0 0;
-  color: var(--term-dim);
-  line-height: 1.45;
+.scope :global(.campaign-checkbox:focus-visible + .campaign-check) {
+  outline: 1px solid var(--term-fg);
+  outline-offset: 2px;
 }
 
-.scope :global(.text-button) {
-  min-height: auto;
-  border: 0;
-  padding: 0.25rem 0;
-  background: transparent;
-  color: var(--term-bright);
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
-
-.scope :global(.event-drawer) {
-  margin: 0.6rem 0 0;
-  border-top: 1px solid var(--term-line-bright);
-  border-radius: 0;
-  padding: 0.75rem;
-  background: var(--term-panel);
-}
-
-.scope :global(.event-drawer h3) {
-  margin: 0.2rem 0 0;
-  color: var(--term-fg);
-  font-family: var(--term-mono);
-  font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0;
-}
-
-.scope :global(.event-drawer > p),
-.scope :global(.muted) {
-  color: var(--term-dim);
-  font-size: 0.68rem;
-}
-
-.scope :global(.event-list) {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0;
-  margin-top: 0.65rem;
-  border: 1px solid var(--term-line);
-}
-
-.scope :global(.event-group) {
-  border: 0;
-  border-right: 1px solid var(--term-line);
-  border-bottom: 1px solid var(--term-line);
-  border-radius: 0;
-  padding: 0.55rem;
-  background: var(--term-bg);
-}
-
-.scope :global(.event-group-summary small),
-.scope :global(.event-equation > span:nth-child(2)),
-.scope :global(.event-equals) {
-  color: var(--term-dim);
-}
-
-.scope :global(.event-equation),
-.scope :global(.event-group-summary) {
-  font-size: 0.72rem;
-}
-
-.scope :global(.claim-reconciliation) {
-  font-size: 0.67rem;
-}
-
-.scope :global(footer.submit-update) {
-  z-index: 12;
-  border-top: 1px solid var(--term-line-bright);
-  padding: 0.8rem 1rem;
-  background: rgba(2, 3, 2, 0.97);
-  backdrop-filter: none;
-}
-
-.scope :global(.submit-update) {
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0.7rem;
-}
-
-.scope :global(.submit-update strong) {
-  color: var(--term-fg);
-  font-size: 0.76rem;
-}
-
-.scope :global(.submit-update span) {
-  color: var(--term-dim);
-  font-size: 0.66rem;
-  line-height: 1.4;
-}
-
-.scope :global(.account-details) {
-  padding: 0.75rem 1rem;
-  border-top: 1px solid var(--term-line);
-}
-
-.scope :global(.account-details dl) {
-  gap: 1rem;
-}
-
-.scope :global(.account-details dt) {
+.scope :global(.campaign-checkbox:disabled + .campaign-check) {
   color: var(--term-faint);
 }
 
-.scope :global(.account-details dd) {
+.scope :global(.campaign-name) {
   color: var(--term-fg);
   font-weight: 700;
 }
 
-@media (min-width: 960px) {
-  .scope :global(.results) {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
-    align-items: start;
-  }
+.scope :global(.campaign-metrics) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 4ch;
+  color: var(--term-fg);
+}
 
-  .scope :global(.results > .wallet-actions),
-  .scope :global(.results > .impact-summary) {
-    grid-column: 1 / -1;
-  }
+.scope :global(.campaign-metrics strong) {
+  font-weight: 400;
+}
 
-  .scope :global(.campaign-list) {
-    grid-column: 1;
-    grid-row: 3 / span 3;
-    border-right: 1px solid var(--term-line);
-  }
+.scope :global(.event-lines) {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+}
 
-  .scope :global(footer.submit-update) {
-    position: sticky;
-    top: 0.75rem;
-    bottom: auto;
-    grid-column: 2;
-    grid-row: 3;
-    align-self: start;
-    border-top: 0;
-    border-bottom: 1px solid var(--term-line);
-  }
+.scope :global(.event-line) {
+  color: var(--term-fg);
+}
 
-  .scope :global(.account-details) {
-    grid-column: 2;
-    grid-row: 4;
-  }
+.scope :global(.event-name) {
+  color: var(--term-dim);
+}
+
+.scope :global(.campaign-standing) {
+  color: var(--term-dim);
+  font-style: italic;
+}
+
+.scope :global(.positive) {
+  color: var(--term-positive) !important;
+}
+
+.scope :global(.negative) {
+  color: var(--term-negative) !important;
+}
+
+.scope :global(.submit-update) {
+  position: sticky;
+  z-index: 10;
+  bottom: 0;
+  display: grid;
+  gap: 0;
+  margin-top: 2lh;
+  padding-block: 1lh;
+  background: var(--term-bg) !important;
+}
+
+.scope :global(.claim-command-summary) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1ch;
+  margin: 0;
+}
+
+.scope :global(.submit-update .primary-action) {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0 1ch;
+  background: var(--term-reverse-bg) !important;
+  color: var(--term-reverse-fg) !important;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: none;
+}
+
+.scope :global(.submit-update .primary-action:disabled) {
+  background: var(--term-faint) !important;
+  color: var(--term-bg) !important;
+}
+
+.scope :global(.secondary-action),
+.scope :global(.text-button) {
+  color: var(--term-fg);
+}
+
+.scope :global(.lookup-command) {
+  margin-top: 1lh;
+}
+
+.scope :global(.empty-state),
+.scope :global(.reserve-required) {
+  display: grid;
+  gap: 0;
+  margin: 0 0 1lh;
 }
 
 @media (max-width: 680px) {
-  .scope :global(.terminal-claim) {
-    min-height: calc(100vh - 42px);
-    border-right: 0;
-    border-left: 0;
+  .scope :global(.claim-status-line),
+  .scope :global(.campaign-metrics),
+  .scope :global(.claim-command-summary),
+  .scope :global(.wallet-actions) {
+    align-items: baseline;
   }
 
-  .scope :global(.terminal-titlebar) {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0.15rem;
-    padding: 0.45rem 0.65rem;
-  }
-
-  .scope :global(.terminal-client-status) {
-    text-align: left;
-  }
-
-  .scope :global(.hero),
-  .scope :global(.wallet-step),
-  .scope :global(.results > *),
-  .scope :global(.campaign-change) {
-    padding: 0.65rem;
-  }
-
-  .scope :global(.impact-summary) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .scope :global(.impact-summary > div) {
-    min-height: 58px;
-    padding: 0.5rem 0.55rem;
-  }
-
-  .scope :global(.impact-summary strong) {
-    font-size: 0.82rem;
-  }
-
-  .scope :global(.campaign-heading) {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .scope :global(.campaign-selection) {
-    grid-column: 1 / -1;
-    grid-row: 1;
-    justify-self: start;
-  }
-
-  .scope :global(.campaign-heading > div) {
-    grid-column: 1;
-  }
-
-  .scope :global(.campaign-heading > span) {
-    grid-column: 2;
-  }
-
-  .scope :global(.flow-comparison) {
+  .scope :global(.account-field) {
     grid-template-columns: 1fr;
-  }
-
-  .scope :global(.flow-comparison > div) {
-    border-right: 0;
-    border-bottom: 1px solid var(--term-line);
-  }
-
-  .scope :global(.flow-comparison > div:last-child) {
-    border-bottom: 0;
-  }
-
-  .scope :global(.campaign-actions) {
-    align-items: flex-start;
-  }
-
-  .scope :global(.event-list) {
-    grid-template-columns: 1fr;
-  }
-
-  .scope :global(footer.submit-update) {
-    position: sticky;
-    bottom: 0;
-    padding-bottom: max(0.8rem, env(safe-area-inset-bottom));
-  }
-}
-
-@media (dynamic-range: high) {
-  .scope {
-    --term-bright: color(display-p3 0.36 1 0.12);
-  }
-
-  .scope :global(.positive),
-  .scope :global(.terminal-client-status strong),
-  .scope :global(.terminal-kicker) {
-    text-shadow: 0 0 0.45rem color(display-p3 0.3 1 0.08 / 0.28);
+    gap: 0;
   }
 }
