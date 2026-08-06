@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  getDefaultClaimSelection,
   isClaimablePointState,
   isPositiveClaimDelta,
+  reconcileClaimSelection,
 } from "./claim-state.ts";
 
 test("allows an outdated point target that reduces units to zero", () => {
@@ -61,4 +63,66 @@ test("selects positive claim deltas by default", () => {
     }),
     false,
   );
+});
+
+test("builds the initial selection from positive claimable campaigns", () => {
+  const selected = getDefaultClaimSelection([
+    {
+      programId: 1n,
+      offchainPoints: 11n,
+      onchainPoints: 10n,
+      isOnchainOutdated: true,
+      cmsCampaignExists: true,
+    },
+    {
+      programId: 2n,
+      offchainPoints: 9n,
+      onchainPoints: 10n,
+      isOnchainOutdated: true,
+      cmsCampaignExists: true,
+    },
+  ]);
+
+  assert.deepEqual([...selected], [1n]);
+});
+
+test("preserves explicit exclusions after a claim-state refresh", () => {
+  const selected = reconcileClaimSelection(
+    [
+      {
+        programId: 1n,
+        offchainPoints: 11n,
+        onchainPoints: 10n,
+        isOnchainOutdated: true,
+        cmsCampaignExists: true,
+      },
+      {
+        programId: 2n,
+        offchainPoints: 22n,
+        onchainPoints: 20n,
+        isOnchainOutdated: true,
+        cmsCampaignExists: true,
+      },
+    ],
+    new Set([2n]),
+  );
+
+  assert.deepEqual([...selected], [2n]);
+});
+
+test("drops selected campaigns that are no longer claimable", () => {
+  const selected = reconcileClaimSelection(
+    [
+      {
+        programId: 1n,
+        offchainPoints: 11n,
+        onchainPoints: 11n,
+        isOnchainOutdated: false,
+        cmsCampaignExists: true,
+      },
+    ],
+    new Set([1n]),
+  );
+
+  assert.deepEqual([...selected], []);
 });
