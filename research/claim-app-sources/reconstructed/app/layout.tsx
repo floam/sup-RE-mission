@@ -10,11 +10,15 @@ import { NavConnectAndBalance } from "../components/layout/NavConnectAndBalance"
 import { RootProviders } from "../providers/RootProviders";
 
 export const metadata: Metadata = {
-  title: "SUP Re:Claim",
-  description: "Recovered Superfluid claim app",
+  title: "SUP Re:Mission",
+  description: "Independent Superfluid claim review client",
 };
 
-export default async function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const cookieHeader = (await headers()).get("cookie");
 
   return (
@@ -25,11 +29,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             <div className="shell">
               <nav>
                 <Link className="brand" href="/">
-                  SUP Re:Claim
+                  sup re:mission
                 </Link>
                 <div className="links">
-                  <Link href="/claim">Claim</Link>
-                  <Link href="/apps">Campaigns</Link>
+                  <Link href="/claim">claim</Link>
+                  <Link href="/apps">campaigns</Link>
                   <NavConnectAndBalance />
                 </div>
               </nav>
