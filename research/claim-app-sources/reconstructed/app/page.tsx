@@ -8,7 +8,6 @@ const routes = [
   ["governance", "/governance", "inspect governance state"],
   ["liquidity", "/liquidity", "review liquidity positions"],
   ["staking", "/staking", "review SUP staking"],
-  ["swap", "/swap", "review swap routes"],
   ["reserve names", "/reserve-names", "inspect Reserve naming"],
 ] as const;
 
