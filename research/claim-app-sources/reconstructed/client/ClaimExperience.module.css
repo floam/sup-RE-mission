@@ -21,14 +21,21 @@
 }
 
 .scope :global(.claim-status-line) {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 0 1ch;
+  gap: 0 2ch;
   margin: 0 0 1lh;
   padding: 0;
   color: var(--term-fg);
+}
+
+.scope :global(.claim-status-line > span:first-child) {
+  min-width: 0;
+}
+
+.scope :global(.claim-status-line > span:last-child) {
+  white-space: nowrap;
 }
 
 .scope :global(.claim-status-line .positive) {
@@ -291,9 +298,12 @@
 
 @media (max-width: 680px) {
   .scope :global(.claim-status-line) {
-    display: grid;
-    justify-content: initial;
+    grid-template-columns: 1fr;
     gap: 0;
+  }
+
+  .scope :global(.claim-status-line > span:last-child) {
+    white-space: normal;
   }
 
   .scope :global(.campaign-metrics),
