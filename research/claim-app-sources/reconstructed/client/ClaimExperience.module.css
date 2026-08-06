@@ -259,25 +259,56 @@
 }
 
 .scope :global(.claim-command-summary) {
-  display: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1ch;
+  margin: 0;
+  color: var(--term-dim);
 }
 
 .scope :global(.submit-update .primary-action) {
-  display: inline-block;
-  width: fit-content;
+  display: inline-flex;
+  width: auto;
   max-width: 100%;
+  align-items: baseline;
   margin: 0;
-  padding: 0 1ch;
+  padding: 0;
+  border: 0;
+  background: transparent !important;
+  color: var(--term-fg) !important;
+  font-weight: 400;
+  text-align: left;
+  text-decoration: none;
+  white-space: normal;
+}
+
+.scope :global(.submit-update .primary-action)::before {
+  content: "> ";
+  flex: 0 0 auto;
+  color: var(--term-positive);
+  font-weight: 400;
+}
+
+.scope :global(.submit-update .primary-action:hover:not(:disabled)),
+.scope :global(.submit-update .primary-action:focus-visible:not(:disabled)) {
+  color: var(--term-positive) !important;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.scope :global(.submit-update .primary-action:active:not(:disabled)) {
   background: var(--term-reverse-bg) !important;
   color: var(--term-reverse-fg) !important;
-  font-weight: 700;
-  text-align: left;
   text-decoration: none;
 }
 
 .scope :global(.submit-update .primary-action:disabled) {
-  background: var(--term-faint) !important;
-  color: var(--term-bg) !important;
+  background: transparent !important;
+  color: var(--term-dim) !important;
+}
+
+.scope :global(.submit-update .primary-action:disabled)::before {
+  color: var(--term-faint);
 }
 
 .scope :global(.secondary-action),
