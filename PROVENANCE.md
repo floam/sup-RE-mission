@@ -111,9 +111,9 @@ committed so normal builds do not depend on live schema availability. Regenerate
 `npm run generate:cms-openapi`; the refresh workflow runs TypeScript, deterministic
 tests, and live CMS/SUP coverage before committing a changed declaration.
 
-`tools/point-events/point-event-names.html` is generated from public CMS, claim-app,
-SUP subgraph, direct RPC, and protocol-subgraph responses. It is a dated report, not a
-canonical registry.
+Point-event inspection is now on demand through
+`tools/point-events/view-campaign-events.mjs`; the repository does not commit a generated
+point-event catalog or treat a dated event-name snapshot as a registry.
 
 ### claim.superfluid.org deployment snapshot
 
