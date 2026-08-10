@@ -124,8 +124,11 @@ with digest
 `sha256:ae42b5d1174c89c0d209afdf25e940134dede54366cda80a17531b37fc8e0b2f`.
 `snapshot-manifest.json` records source URL, byte count, and SHA-256 for every response.
 
-Raw files are authoritative; `beautified/` files are Prettier 3.6.2 derivatives. Run
-`npm run verify:claim-snapshot` for hash, coverage, and equivalence checks.
+Raw files are authoritative. Complete `beautified/` copies are not tracked;
+`snapshot-manifest.json` retains the Prettier 3.6.2 settings and expected derivative
+byte counts and SHA-256 values. `npm run verify:claim-snapshot` regenerates those
+formatting-only derivatives in a temporary directory, verifies them against the
+manifest, and discards them after the check.
 
 ## Adding external material
 

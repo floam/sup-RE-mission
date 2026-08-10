@@ -21,10 +21,15 @@ to set the recursive asset safety cap.
 The output contains:
 
 - `raw/`: exact fetched pages, chunks, styles, and any published source maps.
-- `beautified/`: formatting-only copies of complete JavaScript chunks.
 - `original/`: verbatim `sourcesContent` entries when the deployment publishes source maps.
 - `synthesized/`: webpack modules split from deployed chunks and formatted individually.
 - `manifest.json`: route and asset URLs, SHA-256 hashes, module records, source-map attempts, and provenance.
+
+Complete beautified chunk copies are intentionally not persisted. `raw/` is the
+authoritative recovered source. When the pinned snapshot is verified, its JavaScript
+chunks are formatted with the recorded Prettier settings into a temporary directory,
+checked against the derivative byte counts and SHA-256 values retained in
+`snapshot-manifest.json`, and then discarded.
 
 The tool's default live route set is `/`, `/reserve`, `/reserve-names`, `/claim`,
 `/apps`, `/leaderboard`, `/governance`, `/staking`, `/liquidity`, and `/swap`.
@@ -44,9 +49,9 @@ Synthesized files preserve deployed function bodies and literals, but inferred f
 npm run verify:claim-snapshot
 ```
 
-The verifier checks exact raw asset coverage, byte counts, SHA-256 hashes, and the
-Prettier 3.6.2 raw-to-beautified equivalence. It can compare a live recovery without
-mutating the snapshot:
+The verifier checks exact raw asset coverage, byte counts, SHA-256 hashes, absence of
+a persisted `beautified/` tree, and the Prettier 3.6.2 derivative hashes regenerated in
+a temporary directory. It can compare a live recovery without mutating the snapshot:
 
 ```sh
 node tools/claim-source-recovery/verify-snapshot.mjs \

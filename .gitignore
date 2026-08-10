@@ -5,3 +5,4 @@ scan-sup-nonces.bundle.js
 .DS_Store
 
 dist/
+recovered/claim.superfluid.org/beautified/

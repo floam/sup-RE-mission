@@ -11,18 +11,20 @@ hash are recorded in `snapshot-manifest.json`.
 - `raw/` contains the exact HTTP response bodies: eight route documents, one
   generated stylesheet, and 51 JavaScript chunks. These bytes are the canonical
   source record.
-- `beautified/` contains Prettier renderings of the 51 raw JavaScript chunks.
-  They are convenient review aids, not canonical sources.
 - `research/claim-app-sources/reconstructed/` contains the semantic
   TypeScript/TSX reconstruction. It is the human-readable deliverable, not a
   claim of byte-for-byte original source.
 
-Beautification is normally semantics-preserving for valid JavaScript, and the
-committed files exactly equal Prettier 3.6.2's output for this snapshot.
-Nevertheless, only keeping beautified output would be a provenance error.
-Parse/print bugs, automatic-semicolon-insertion edge cases, literal escaping,
-comments, formatter upgrades, and accidental edits can change either semantics
-or the source representation.
+Complete `beautified/` copies are not tracked. `snapshot-manifest.json` retains the
+recorded Prettier 3.6.2 settings plus byte counts and SHA-256 values for those
+formatting-only derivatives. The verifier recreates them in a temporary directory,
+checks them, and discards them.
+
+Beautification is normally semantics-preserving for valid JavaScript, but only
+keeping beautified output would be a provenance error. Parse/print bugs,
+automatic-semicolon-insertion edge cases, literal escaping, comments, formatter
+upgrades, and accidental edits can change either semantics or the source
+representation. `raw/` therefore remains the only authoritative recovered source.
 
 Run:
 
@@ -31,8 +33,9 @@ npm run verify:claim-snapshot
 ```
 
 The verifier checks all raw byte counts and SHA-256 values, enforces exact
-manifest coverage, regenerates every beautified chunk from its raw counterpart,
-and compares the result byte-for-byte. The recovery workflow also captures the
+manifest coverage, requires the persisted `beautified/` tree to be absent,
+regenerates every formatting-only derivative in a temporary directory, and checks
+its recorded byte count and SHA-256. The recovery workflow also captures the
 current deployment separately and emits an added/removed/changed asset report.
 It never silently refreshes this pinned snapshot.
 
