@@ -1,51 +1,42 @@
-# Point-event export
+# Campaign point-event view
 
-`export-point-event-names.ts` is a command-line export utility. It builds
-an HTML catalog of observed CMS point-event names while keeping onchain
-program existence, claim-app attribution, and CMS campaign existence separate.
+`view-campaign-events.mjs` is an on-demand local viewer for CMS point events. It does
+not build or persist an event-name catalog.
 
 ## Run
 
 From the repository root:
 
 ```sh
-npm run export:point-events
+npm run view:point-events
 ```
 
-By default, the utility writes `tools/point-events/point-event-names.html` and
-uses `.cache/point-event-names.json` for successful live responses. Both paths can
-be changed with `--out=<path>` and `--cache=<path>`.
+Open the printed local URL, enter a campaign ID, and choose **Load newest events**.
+The viewer proxies requests to `https://cms.superfluid.pro/points/events` so the
+browser does not need direct CMS CORS access.
+
+Environment overrides:
 
 ```sh
-npm run export:point-events -- \
-  --out=/tmp/point-event-names.html \
-  --cache=/tmp/point-event-names.json \
-  --campaign-ids=607,611 \
-  --max-campaign-id=9999 \
-  --concurrency=24
+HOST=127.0.0.1 PORT=4173 CMS_BASE_URL=https://cms.superfluid.pro \
+  npm run view:point-events
 ```
 
-## What the report checks
+## Bounded loading
 
-| Data category                | Source                      | Purpose                                                    |
-| :--------------------------- | :-------------------------- | :--------------------------------------------------------- |
-| Onchain program lifecycle    | SUP Goldsky subgraph        | Enumerates `Program` entities and lifecycle fields.        |
-| Live pool state              | Base RPC                    | Verifies `getProgramPool` and reads `getTotalFlowRate`.    |
-| Indexed pool enrichment      | Base protocol subgraph      | Adds member, unit, and indexed-flow context.               |
-| App attribution              | Claim `/api/programs`       | Adds claim-app names, seasons, app IDs, and pool metadata. |
-| Offchain campaign and events | CMS `/points/*`             | Resolves campaigns and fetches event pages.                |
-| CMS-only ID discovery        | CMS `/points/balance-batch` | Scans candidate IDs in batches of 50.                      |
+The CMS endpoint accepts at most 100 events per page. One user action fetches at most
+three consecutive pages, so no click can load more than 300 events. Pages are requested
+in ascending page order starting at the requested page; because CMS returns point events
+newest first by `eventTime` (exposed as `createdAt`), the combined rows remain
+newest-first.
 
-The generated report labels failures per source rather than treating any single
-source as conclusive. It coalesces trailing hash-like event-name suffixes only for
-presentation; the original observed names remain in the report.
+If more pages exist, the view exposes **Load 300 more** and continues from the next CMS
+page. A new campaign load clears the prior rows and starts again from page 1.
 
-## Event-page coverage
+This utility is intentionally a bounded inspection surface rather than a historical
+registry. Use claim state, the SUP subgraph, direct Base RPC, and claim-app attribution
+for their respective authoritative domains; use CMS events only for offchain point-event
+history.
 
-All pages are fetched for Season 6+ campaigns and for configured active
-pre-Season-6 campaign IDs. Finished pre-Season-6 campaigns are sampled from the
-first and final pages. Therefore the report is an observed-event catalog, not a
-complete historical registry unless its per-campaign mode is `full`.
-
-See `skills/superfluid-points-research/references/endpoints.md` for endpoint
-semantics and `PROVENANCE.md` for the generated-artifact policy.
+See `skills/superfluid-points-research/references/endpoints.md` for the CMS response
+shape and `PROVENANCE.md` for generated-material policy.
