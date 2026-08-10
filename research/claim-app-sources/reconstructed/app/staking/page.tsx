@@ -122,17 +122,16 @@ export default function StakingPage() {
       return;
     setStakeInput("");
     setStakeSucceeded(true);
+  }, [stake.status?.isError, stake.status?.isFinished, stakeSucceeded]);
+
+  useEffect(() => {
+    if (!stakeSucceeded) return;
     const timer = window.setTimeout(() => {
       stake.reset();
       setStakeSucceeded(false);
     }, 3_000);
     return () => window.clearTimeout(timer);
-  }, [
-    stake.reset,
-    stake.status?.isError,
-    stake.status?.isFinished,
-    stakeSucceeded,
-  ]);
+  }, [stake.reset, stakeSucceeded]);
 
   useEffect(() => {
     if (
@@ -143,17 +142,20 @@ export default function StakingPage() {
       return;
     setUnstakeInput("");
     setUnstakeSucceeded(true);
+  }, [
+    unstake.status?.isError,
+    unstake.status?.isFinished,
+    unstakeSucceeded,
+  ]);
+
+  useEffect(() => {
+    if (!unstakeSucceeded) return;
     const timer = window.setTimeout(() => {
       unstake.reset();
       setUnstakeSucceeded(false);
     }, 3_000);
     return () => window.clearTimeout(timer);
-  }, [
-    unstake.reset,
-    unstake.status?.isError,
-    unstake.status?.isFinished,
-    unstakeSucceeded,
-  ]);
+  }, [unstake.reset, unstakeSucceeded]);
 
   const canStake = Boolean(
     stakeAmount && stakeAmount > 0n && stakeAmount <= availableBalance,
