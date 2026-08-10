@@ -122,6 +122,10 @@ balances are batched, independent nonce/event work runs concurrently, and each r
 cached by account, campaign, onchain units, and uncapped balance. A claim-state refresh
 naturally changes the key.
 
+Campaign history stays mounted after its first render. Hiding and reopening the
+history keeps its loaded event batches and next-page position, so the same broad CMS
+scan does not restart at page one.
+
 ## Functional scope
 
 - `/claim` connects or inspects a wallet, shows flows and capped states, explains
