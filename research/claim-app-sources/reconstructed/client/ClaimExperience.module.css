@@ -228,6 +228,12 @@
   color: var(--term-fg);
 }
 
+.scope :global(.canceled-event) {
+  text-decoration: line-through;
+  text-decoration-color: var(--term-dim);
+  opacity: 0.65;
+}
+
 .scope :global(.event-name) {
   min-width: 0;
   color: var(--term-dim);

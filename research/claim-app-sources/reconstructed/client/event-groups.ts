@@ -7,9 +7,12 @@ export interface CmsEventLike {
 
 export interface CmsEventGroup {
   key: string;
+  familyKey: string;
   displayName: string;
   count: number;
+  pointsPerEvent: number;
   totalPoints: number;
+  canceled: boolean;
   firstCreatedAt: string;
   latestCreatedAt: string;
 }
@@ -70,12 +73,17 @@ export function groupCmsEvents(
 
   for (const event of events) {
     const family = getEventFamily(event.eventName);
-    const group = groups.get(family.key);
+    const groupKey = JSON.stringify([family.key, event.points]);
+    const group = groups.get(groupKey);
     if (!group) {
-      groups.set(family.key, {
-        ...family,
+      groups.set(groupKey, {
+        key: groupKey,
+        familyKey: family.key,
+        displayName: family.displayName,
         count: 1,
+        pointsPerEvent: event.points,
         totalPoints: event.points,
+        canceled: false,
         firstCreatedAt: event.createdAt,
         latestCreatedAt: event.createdAt,
       });
@@ -92,9 +100,60 @@ export function groupCmsEvents(
     }
   }
 
-  return [...groups.values()].sort(
-    (left, right) =>
-      timestamp(right.latestCreatedAt) - timestamp(left.latestCreatedAt) ||
-      left.displayName.localeCompare(right.displayName),
+  const canceledCounts = new Map<string, number>();
+  for (const group of groups.values()) {
+    if (group.pointsPerEvent <= 0) continue;
+    const opposite = groups.get(
+      JSON.stringify([group.familyKey, -group.pointsPerEvent]),
+    );
+    if (opposite) {
+      canceledCounts.set(group.key, Math.min(group.count, opposite.count));
+    }
+  }
+
+  const displayGroups = [...groups.values()].flatMap((group) => {
+    const pairKey = JSON.stringify([
+      group.familyKey,
+      Math.abs(group.pointsPerEvent),
+    ]);
+    const canceledCount = canceledCounts.get(pairKey) ?? 0;
+    if (canceledCount === 0) return group;
+
+    const remainderCount = group.count - canceledCount;
+    const canceledGroup = {
+      ...group,
+      key: `${group.key}:canceled`,
+      count: canceledCount,
+      totalPoints: group.pointsPerEvent * canceledCount,
+      canceled: true,
+    };
+    if (remainderCount === 0) return canceledGroup;
+    return [
+      {
+        ...group,
+        key: `${group.key}:active`,
+        count: remainderCount,
+        totalPoints: group.pointsPerEvent * remainderCount,
+      },
+      canceledGroup,
+    ];
+  });
+
+  return displayGroups.sort(
+    (left, right) => {
+      if (
+        left.familyKey === right.familyKey &&
+        Math.abs(left.pointsPerEvent) === Math.abs(right.pointsPerEvent)
+      ) {
+        return (
+          Number(left.canceled) - Number(right.canceled) ||
+          right.pointsPerEvent - left.pointsPerEvent
+        );
+      }
+      return (
+        timestamp(right.latestCreatedAt) - timestamp(left.latestCreatedAt) ||
+        left.displayName.localeCompare(right.displayName)
+      );
+    },
   );
 }
