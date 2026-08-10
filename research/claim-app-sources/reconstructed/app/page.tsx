@@ -1,4 +1,9 @@
+"use client";
+
 import Link from "next/link";
+
+import { ConnectButton } from "../components/layout/ConnectButton";
+import { useWalletAccount } from "../hooks/useWalletAccount";
 
 const routes = [
   ["claim", "/claim", "review campaign deltas and update the SUP stream"],
@@ -12,6 +17,8 @@ const routes = [
 ] as const;
 
 export default function Home() {
+  const { isConnected } = useWalletAccount();
+
   return (
     <main className="terminal-page">
       <p className="command-line">
@@ -21,19 +28,28 @@ export default function Home() {
         public campaign data, direct chain reads, and wallet-controlled claims
       </p>
 
-      <div className="route-lines" aria-label="Application routes">
-        {routes.map(([label, href, description]) => (
-          <p className="route-line" key={href}>
-            <Link href={href}>{label}</Link>
-            <span className="dim">{description}</span>
-          </p>
-        ))}
-      </div>
+      {isConnected ? (
+        <>
+          <div className="route-lines" aria-label="Application routes">
+            {routes.map(([label, href, description]) => (
+              <p className="route-line" key={href}>
+                <Link href={href}>{label}</Link>
+                <span className="dim">{description}</span>
+              </p>
+            ))}
+          </div>
 
-      <p className="dim">
-        read operations run in the browser; claim vouchers are requested only
-        when a selected update is submitted
-      </p>
+          <p className="dim">
+            read operations run in the browser; claim vouchers are requested only
+            when a selected update is submitted
+          </p>
+        </>
+      ) : (
+        <section className="home-connect" aria-label="Connect a wallet">
+          <p>Connect a wallet to open the SUP workbench.</p>
+          <p><ConnectButton /></p>
+        </section>
+      )}
     </main>
   );
 }

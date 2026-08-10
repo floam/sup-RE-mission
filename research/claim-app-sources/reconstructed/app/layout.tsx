@@ -6,6 +6,7 @@ import "./globals.css";
 import "./wallet-dialog.css";
 
 import { NavConnectAndBalance } from "../components/layout/NavConnectAndBalance";
+import { NavFeatureLinks } from "../components/layout/NavFeatureLinks";
 import { ReserveBalanceBar } from "../components/layout/ReserveBalanceBar";
 import { RootProviders } from "../providers/RootProviders";
 
@@ -39,8 +40,7 @@ export default async function RootLayout({
                   sup re:mission
                 </Link>
                 <div className="links">
-                  <Link href="/claim">claim</Link>
-                  <Link href="/apps">campaigns</Link>
+                  <NavFeatureLinks />
                   <NavConnectAndBalance />
                 </div>
               </nav>

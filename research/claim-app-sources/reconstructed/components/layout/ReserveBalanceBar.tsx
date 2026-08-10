@@ -22,7 +22,11 @@ export function ReserveBalanceBar() {
 
   return (
     <div className="reserve-balance-bar" aria-live="polite">
-      <Link href="/reserve">reserve balance</Link>
+      {accountAddress ? (
+        <Link href="/reserve">reserve balance</Link>
+      ) : (
+        <span>reserve balance</span>
+      )}
       <span data-testid="reserve-balance">
         {lockerAddress && data?.isFullyLoaded ? (
           <>

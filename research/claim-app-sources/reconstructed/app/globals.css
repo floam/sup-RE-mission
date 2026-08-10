@@ -230,6 +230,10 @@ form + form {
   margin-block: 1.5lh;
 }
 
+.home-connect {
+  margin-top: 1.5lh;
+}
+
 .route-line {
   display: grid;
   grid-template-columns: minmax(10ch, 16ch) minmax(0, 1fr);
