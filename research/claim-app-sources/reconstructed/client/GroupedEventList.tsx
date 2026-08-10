@@ -16,7 +16,10 @@ export function GroupedEventList({
   return (
     <div className="event-lines" aria-label="Events comprising this update">
       {groups.map((group) => (
-        <p className="event-line" key={group.key}>
+        <p
+          className={`event-line${group.canceled ? " canceled-event" : ""}`}
+          key={group.key}
+        >
           <span
             className={group.totalPoints < 0 ? "negative" : "positive"}
           >

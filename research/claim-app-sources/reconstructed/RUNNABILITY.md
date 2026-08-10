@@ -85,7 +85,8 @@ The helper:
 7. returns the selected events or an explicit partial-explanation message.
 
 The event list shows a count multiplier only for events with the same semantic family
-and point amount. It keeps different point amounts on separate lines.
+and point amount. It keeps different point amounts on separate lines. It strikes
+through equal opposite pairs and splits counts to keep an uncanceled remainder visible.
 
 The claim UI excludes synchronized and capped campaigns before calling the helper. A
 nonce is the timestamp of a signed balance snapshot, not the transaction's block

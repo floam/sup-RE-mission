@@ -110,7 +110,8 @@ and verify the actual transaction.
 8. Consume newest-first signed event points until the first prefix equals the delta.
 9. Return the selected events or an explicit partial-explanation message.
 10. Group event names by semantic family and equal point amount in the UI. Cache each
-    result against the reviewed row values.
+    result against the reviewed row values. Strike through equal opposite pairs, and
+    split grouped counts when a pair cancels only part of a group.
 
 CMS sorts by `eventTime`, exposed as `createdAt`. Boundary-second events remain because
 nonce resolution is one second. A backfilled event can carry a time outside the window.

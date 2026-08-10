@@ -116,3 +116,36 @@ test("normalizes case without merging different families or point amounts", () =
     ],
   );
 });
+
+test("splits and marks equal opposite point pairs as canceled", () => {
+  const events = [
+    ...[1, 2, 3].map((id) => ({
+      id,
+      eventName: `nft-mint-${firstAddress}`,
+      points: 10,
+      createdAt: `2026-07-2${id}T01:00:00.000Z`,
+    })),
+    ...[4, 5].map((id) => ({
+      id,
+      eventName: `nft-mint-${secondAddress}`,
+      points: -10,
+      createdAt: `2026-07-2${id}T01:00:00.000Z`,
+    })),
+  ];
+
+  assert.deepEqual(
+    groupCmsEvents(events).map(
+      ({ count, pointsPerEvent, totalPoints, canceled }) => ({
+        count,
+        pointsPerEvent,
+        totalPoints,
+        canceled,
+      }),
+    ),
+    [
+      { count: 1, pointsPerEvent: 10, totalPoints: 10, canceled: false },
+      { count: 2, pointsPerEvent: 10, totalPoints: 20, canceled: true },
+      { count: 2, pointsPerEvent: -10, totalPoints: -20, canceled: true },
+    ],
+  );
+});

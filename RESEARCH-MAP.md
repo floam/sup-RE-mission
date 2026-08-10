@@ -64,7 +64,7 @@ submission until a read-only refresh succeeds.
 - `tools/point-events/export-point-event-names.ts`: discovery, caching, coalescing, and HTML generation.
 - `tools/point-events/README.md`: invocation, source layering, coverage, and output rules.
 - `tools/point-events/point-event-names.html`: generated observed-event catalog.
-- `research/claim-app-sources/reconstructed/client/event-groups.ts`: compact semantic-family and equal-point grouping used by claim explanations.
+- `research/claim-app-sources/reconstructed/client/event-groups.ts`: equal-point family grouping and canceled-pair display used by claim explanations.
 
 ## Nonce and historical claim research
 

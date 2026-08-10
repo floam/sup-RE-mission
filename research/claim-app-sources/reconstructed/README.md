@@ -25,7 +25,7 @@ Repository-authored compatibility modules include:
 - `client/claim-batch.ts`: strict CMS batch response validation;
 - `client/claim-display.ts`, `client/claim-event-breakdown.ts`,
   `client/GroupedEventList.tsx`, and `client/event-groups.ts`: presentation and
-  semantic-family grouping of events with equal point amounts;
+  equal-point family grouping with struck-through opposite pairs;
 - `client/flow-projection.ts`: deterministic member-flow projection;
 - `client/pending-event-explanations.ts`: client-side batching, signed-balance drift
   checks, nonce reads, and CMS event reconciliation using reviewed point state;

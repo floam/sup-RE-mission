@@ -124,6 +124,7 @@ Procedure:
    `uncappedPoints - onchainUnits`.
 10. Return the selected events or an explicit partial-explanation message; group
     events in the UI only when their semantic family and point amount both match.
+    Strike through equal opposite pairs and split grouped counts to show any remainder.
 
 The lower nonce is the signed balance snapshot last accepted onchain, not the claim
 transaction's block time. To identify the actual claim transaction, inspect calldata and

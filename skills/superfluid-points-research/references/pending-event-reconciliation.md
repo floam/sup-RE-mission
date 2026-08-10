@@ -82,7 +82,9 @@ balance:
 
 The UI can show an event count multiplier only when the semantic family and signed
 point amount are equal. Events in one family with different point amounts stay on
-separate lines.
+separate lines. Equal positive and negative amounts in one family form canceled pairs.
+The UI strikes through both sides of each pair and splits a group when only part of its
+count cancels.
 
 The nonce interval prevents the arithmetic from wandering into events older than the
 last balance snapshot applied onchain.
