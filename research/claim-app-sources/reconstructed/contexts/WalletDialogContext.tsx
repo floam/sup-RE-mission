@@ -9,6 +9,8 @@ import {
 } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 
+import { useFarcasterFrame } from "./FarcasterFrameProvider";
+
 type WalletView = "connect" | "account";
 
 const WalletDialogContext = createContext<{
@@ -28,6 +30,10 @@ export function WalletDialogProvider({ children }: PropsWithChildren) {
   const { address } = useAccount();
   const { connectors, connect, error, isPending } = useConnect();
   const { disconnect } = useDisconnect();
+  const { isInMiniApp } = useFarcasterFrame();
+  const visibleConnectors = connectors.filter(
+    (connector) => connector.type !== "farcasterMiniApp" || isInMiniApp,
+  );
 
   useEffect(() => {
     if (!view) return;
@@ -91,7 +97,7 @@ export function WalletDialogProvider({ children }: PropsWithChildren) {
                   className="wallet-connector-list"
                   aria-label="Wallet connectors"
                 >
-                  {connectors.map((connector, index) => (
+                  {visibleConnectors.map((connector, index) => (
                     <button
                       className="wallet-connector"
                       key={connector.uid}
