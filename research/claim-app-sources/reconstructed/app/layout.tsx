@@ -34,7 +34,6 @@ export default async function RootLayout({
         <Suspense fallback={<div className="shell">loading…</div>}>
           <RootProviders cookies={cookieHeader}>
             <div className="shell">
-              <ReserveBalanceBar />
               <nav aria-label="Primary navigation">
                 <Link className="brand" href="/">
                   sup re:claim
@@ -44,6 +43,7 @@ export default async function RootLayout({
                   <NavConnectAndBalance />
                 </div>
               </nav>
+              <ReserveBalanceBar />
               {children}
             </div>
           </RootProviders>

@@ -6,9 +6,6 @@ export default function Apps() {
       <p className="command-line">
         <span className="prompt">&gt;</span> campaigns
       </p>
-      <p className="dim">
-        onchain SUP emission programs loaded directly in this browser
-      </p>
       <Campaigns />
     </main>
   );

@@ -7,7 +7,7 @@ description: Research and implement Superfluid points / SPR campaign discovery, 
 
 ## Start here
 
-1. Open `RESEARCH-MAP.md` and load the smallest relevant evidence set.
+1. Open `RESEARCH-MAP.md` and load the smallest relevant reference set.
 2. Open `references/endpoints.md` for public response shapes and errors.
 3. Open `references/runtime-endpoints.md` for runnable routes and SDK/Wagmi procedures.
 4. Open `references/pending-event-reconciliation.md` for the authoritative claim
@@ -25,7 +25,7 @@ Use each source only for what it can prove:
 4. `claim.superfluid.org/api/programs`: human-readable attribution.
 5. `cms.superfluid.pro/points/*`: raw/capped/signed balances and point events.
 6. `balances.superfluid.dev`: optional token-ledger diagnostics only.
-7. Committed evidence, recovered bundles, then explicitly labeled inference.
+7. Committed records, recovered bundles, then explicitly labeled inference.
 
 CMS event `createdAt` is `eventTime`, not insertion time. An empty ledger response does
 not prove no claim occurred. A nonce snapshot does not identify a transaction hash or
@@ -147,7 +147,7 @@ The CMS raw/claimable pair is authoritative. When they differ:
 ## Historical claim research
 
 For transaction hash, caller, calldata, block time, or receipt status, use
-`tools/sup-nonces/investigate-sup-nonces.js`, SUP indexed claims, and direct Base receipt
+`tools/sup-nonces/scan-sup-nonces.js`, SUP indexed claims, and direct Base receipt
 or SDK-defined log verification. Do not substitute snapshot nonce time for block time.
 
 ## Leaderboards
@@ -162,7 +162,7 @@ Prefer server-provided order/rank unless tie, cap, and exclusion rules are prove
 - Independently verify onchain units for high-confidence conclusions.
 - Reuse a voucher only when account, campaign IDs, targets, and nonce remain exact.
 
-## Performance and evidence defaults
+## Performance defaults
 
 - Cache successful broad-scan responses.
 - Chunk CMS balance/signature operations at 50.

@@ -823,7 +823,7 @@ GET https://superfluid-airdrop.goodworker.workers.dev/?address=0x000000000000000
 
 ### Other claim-app external bases
 
-The audit found these external bases/endpoints in claim-app bundles. Their exact operations or response bodies were not captured in the committed evidence.
+The audit found these external bases/endpoints in claim-app bundles. Their exact operations or response bodies were not captured in the committed records.
 
 | Method | URL/base | Classification | Known purpose | Unknown / needs capture |
 | --- | --- | --- | --- | --- |

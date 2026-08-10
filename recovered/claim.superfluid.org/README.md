@@ -1,6 +1,6 @@
 # claim.superfluid.org bundle snapshot
 
-This directory pins the deployed evidence used for the claim-app reconstruction.
+This directory pins the deployed files used for the claim-app reconstruction.
 The snapshot was captured without authentication from deployment
 `dpl_CSoxxmednYKCCZSxAMCUZxSP89CC` at
 `2026-07-20T09:11:15.056Z`. Its GitHub Actions provenance and every response
@@ -10,9 +10,9 @@ hash are recorded in `snapshot-manifest.json`.
 
 - `raw/` contains the exact HTTP response bodies: eight route documents, one
   generated stylesheet, and 51 JavaScript chunks. These bytes are the canonical
-  evidence.
+  source record.
 - `beautified/` contains Prettier renderings of the 51 raw JavaScript chunks.
-  They are convenient review aids, not canonical evidence.
+  They are convenient review aids, not canonical sources.
 - `research/claim-app-sources/reconstructed/` contains the semantic
   TypeScript/TSX reconstruction. It is the human-readable deliverable, not a
   claim of byte-for-byte original source.
@@ -22,7 +22,7 @@ committed files exactly equal Prettier 3.6.2's output for this snapshot.
 Nevertheless, only keeping beautified output would be a provenance error.
 Parse/print bugs, automatic-semicolon-insertion edge cases, literal escaping,
 comments, formatter upgrades, and accidental edits can change either semantics
-or the evidence representation.
+or the source representation.
 
 Run:
 
@@ -38,7 +38,7 @@ It never silently refreshes this pinned snapshot.
 
 The current live-recovery utility has a broader default route set than this
 historical snapshot. Run it into a separate owned directory, then compare its
-manifest without modifying these evidence files:
+manifest without modifying these source files:
 
 ```sh
 npm run recover:claim-sources -- --out /tmp/claim-live-recovery

@@ -240,7 +240,7 @@ export function ClaimExperience() {
           {
             selection: { account: state.account, programId: row.programId },
             events: [],
-            message: "loading event evidence…",
+            message: "loading event details…",
           },
         ]),
       ),
@@ -262,7 +262,7 @@ export function ClaimExperience() {
             next.set(row.programId, {
               selection: { account: state.account, programId: row.programId },
               events: [],
-              message: "event evidence was not returned for this campaign",
+              message: "event details were not returned for this campaign",
             });
           }
         }

@@ -11,7 +11,10 @@ function LiveReserveBalance({ lockerAddress }: { lockerAddress: Address }) {
   const balance = useLockerBalance({ lockerAddress });
   const data = balance.data;
 
-  if (!data?.isFullyLoaded) return <>loading…</>;
+  // The net-flow read is useful for animation, but it must not block the balance.
+  // Show the balance from the faster reserve reads and use a static value until
+  // the independent flow read is available.
+  if (!data?.hasTotalBalanceLoaded) return <>loading…</>;
 
   return (
     <>
@@ -19,7 +22,7 @@ function LiveReserveBalance({ lockerAddress }: { lockerAddress: Address }) {
         balance={data.totalBalance}
         balanceTimestamp={Math.floor(balance.dataUpdatedAt / 1_000)}
         flowRate={data.flowRate}
-        decimalPlaces={3}
+        decimalPlaces={6}
       />{" "}
       SUP
     </>

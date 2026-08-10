@@ -59,7 +59,7 @@ submission until a read-only refresh succeeds.
 - `research/2026-06-30-spr-campaigns-claim-endpoints.md`: dated public-app endpoint audit.
 - `tools/point-events/export-point-event-names.ts`: live campaign and program discovery.
 
-## Point-event evidence
+## Point-event catalog
 
 - `tools/point-events/export-point-event-names.ts`: discovery, caching, coalescing, and HTML generation.
 - `tools/point-events/README.md`: invocation, source layering, coverage, and output rules.
@@ -68,9 +68,9 @@ submission until a read-only refresh succeeds.
 
 ## Nonce and historical claim research
 
-- `research/fluid-ep-nonce-staleness-assessment.md`: threat model, conclusions, and evidence limits.
-- `tools/sup-nonces/investigate-sup-nonces.js`: transaction and log scanner with calldata decoding.
-- `tools/sup-nonces/investigate-sup-nonces.live.test.ts`: live smoke test.
+- `research/fluid-ep-nonce-staleness-assessment.md`: threat model, conclusions, and source limits.
+- `tools/sup-nonces/scan-sup-nonces.js`: transaction and log scanner with calldata decoding.
+- `tools/sup-nonces/scan-sup-nonces.live.test.ts`: live smoke test.
 - `tools/sup-nonces/README.md`: invocation, live-test constraints, and decoding limits.
 - `.github/workflows/build-sup-nonce-bundle.yml`: portable JavaScriptCore and a-Shell bundle.
 
@@ -78,13 +78,13 @@ submission until a read-only refresh succeeds.
 program/user. It does not identify its transaction hash or mined timestamp. For those,
 locate and decode the claim transaction and verify its successful receipt or logs.
 
-## Claim-app deployment evidence and reconstruction
+## Claim-app deployment sources and reconstruction
 
 - `recovered/claim.superfluid.org/README.md`: pinned-snapshot layout and verification.
 - `tools/claim-source-recovery/README.md`: live recovery command, safety boundary, and output layout.
-- `research/claim-app-sources/reconstructed/README.md`: recovered-versus-compatibility scope and evidence policy.
+- `research/claim-app-sources/reconstructed/README.md`: recovered-versus-compatibility scope and source policy.
 - `research/claim-app-sources/reconstructed/RUNNABILITY.md`: standalone app operation and current compatibility architecture.
-- `research/claim-app-sources/reconstructed/MODULE_MAP.md`: recovered symbol/evidence ledger.
+- `research/claim-app-sources/reconstructed/MODULE_MAP.md`: recovered symbol/source ledger.
 
 ## Documentation synchronization
 

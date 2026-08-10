@@ -48,7 +48,7 @@ Rules:
 
 - The selection mark and campaign name share the first line.
 - Point change is left of flow change.
-- Event lines immediately follow the campaign metrics and are always visible when evidence is available.
+- Event lines immediately follow the campaign metrics and are always visible when data is available.
 - Event point values keep their sign color; event names are dim gray.
 - The final dim italic line is the campaign's projected GDA pool share. It occupies the position previously considered for a reconciliation/checksum line.
 - Do not display unsupported rank or percentile claims. Add those only after an authoritative leaderboard/rank source is integrated.
@@ -80,7 +80,7 @@ Rules:
 - [x] Remove recovered runtime CSS from the layout.
 - [x] Replace the home route with terminal route lines.
 - [x] Flatten the claim experience and remove its hero, cards, summaries, toggles, details, and drawers.
-- [x] Auto-load visible pending-event evidence for changed uncapped campaigns.
+- [x] Auto-load visible pending-event details for changed uncapped campaigns.
 - [x] Add projected GDA pool share to claim state and render it after event lines.
 - [x] Flatten grouped event rendering and remove dates.
 - [x] Replace campaign summary cards and the campaigns table with lines.
