@@ -68,6 +68,9 @@ export function ClaimExperience() {
   );
   const checkRequest = useRef(0);
   const eventRequest = useRef(0);
+  const explanationBatch = useRef<
+    Promise<Map<bigint, EventBreakdown>> | undefined
+  >(undefined);
   const autoReview = useRef<{
     completed?: Address;
     inFlight?: Address;
@@ -87,6 +90,7 @@ export function ClaimExperience() {
 
   function clearBreakdowns() {
     eventRequest.current += 1;
+    explanationBatch.current = undefined;
     setBreakdowns(new Map());
   }
 
@@ -225,12 +229,32 @@ export function ClaimExperience() {
       }),
     );
     try {
-      const [explanation] = await explainPendingCampaigns(
-        config,
-        state.account,
-        [row],
-      );
+      let batch = explanationBatch.current;
+      if (!batch) {
+        const eligibleRows = state.programPointStates.filter(
+          (candidate) =>
+            candidate.cmsCampaignExists &&
+            candidate.isOnchainOutdated &&
+            !candidate.isCapped,
+        );
+        batch = explainPendingCampaigns(
+          config,
+          state.account,
+          eligibleRows,
+        ).then(
+          (explanations) =>
+            new Map(
+              explanations.map((explanation) => [
+                explanation.selection.programId,
+                explanation,
+              ]),
+            ),
+        );
+        explanationBatch.current = batch;
+      }
+      const explanations = await batch;
       if (request !== eventRequest.current) return;
+      const explanation = explanations.get(row.programId);
       setBreakdowns((current) =>
         new Map(current).set(
           row.programId,
