@@ -152,7 +152,7 @@ const claimEventAbi = [
 ]
 
 function usage() {
-	return `Usage: npm run investigate:nonces -- --user <address> --program-ids <ids> [options]
+	return `Usage: npm run scan:nonces -- --user <address> --program-ids <ids> [options]
 
 Find successful SUP FluidLocker claim transactions and report the largest transaction-age deltas first.
 
@@ -411,7 +411,7 @@ async function main() {
 		return
 	}
 
-	console.log(`SUP nonce investigation on Base for ${user}`)
+	console.log(`SUP nonce scan on Base for ${user}`)
 	console.log(`Locker: ${lockerAddress} (${isCreated ? "created" : "not created"})`)
 	console.log(
 		`Scanned blocks ${fromBlock}..${toBlock}; ${logs.length} claim logs; ${matches.length} decoded target claims; showing ${largestTimeDeltas.length} largest time deltas.`,

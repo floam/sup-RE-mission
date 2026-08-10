@@ -131,7 +131,7 @@ export function ClaimCampaignChange({
       ) : row.isOnchainOutdated && row.cmsCampaignExists ? (
         <p className="event-line">
           <span>~</span>
-          <span className="event-name">loading event evidence…</span>
+          <span className="event-name">loading event details…</span>
         </p>
       ) : null}
 

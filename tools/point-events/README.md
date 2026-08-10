@@ -1,7 +1,7 @@
 # Point-event export
 
-`export-point-event-names.ts` is an executable investigation utility. It builds
-an HTML evidence report of observed CMS point-event names while keeping onchain
+`export-point-event-names.ts` is a command-line export utility. It builds
+an HTML catalog of observed CMS point-event names while keeping onchain
 program existence, claim-app attribution, and CMS campaign existence separate.
 
 ## Run
@@ -27,7 +27,7 @@ npm run export:point-events -- \
 
 ## What the report checks
 
-| Evidence category            | Source                      | Purpose                                                    |
+| Data category                | Source                      | Purpose                                                    |
 | :--------------------------- | :-------------------------- | :--------------------------------------------------------- |
 | Onchain program lifecycle    | SUP Goldsky subgraph        | Enumerates `Program` entities and lifecycle fields.        |
 | Live pool state              | Base RPC                    | Verifies `getProgramPool` and reads `getTotalFlowRate`.    |

@@ -147,7 +147,7 @@ GET /v1/accounts/{account}/tokens/{token}/entries
   &offset=0
 ```
 
-Use only for optional token-ledger investigation. Empty results do not disprove locker
+Use only for optional token-ledger analysis. Empty results do not disprove locker
 claims or GDA unit history.
 
 ## Subgraphs and RPC

@@ -1,7 +1,7 @@
 # Claim app source recovery
 
 This tool captures the live `claim.superfluid.org` Next.js deployment and produces a
-provenance-aware source tree. It is an investigation utility, not application code.
+provenance-aware source tree. It is a command-line utility, not application code.
 
 Run:
 
@@ -11,7 +11,7 @@ npm run recover:claim-sources -- --out /tmp/claim-live-recovery
 ```
 
 The default output path is `recovered/claim.superfluid.org`, but that location is
-the repository's pinned evidence snapshot. Use a separate `--out` directory for
+the repository's pinned source snapshot. Use a separate `--out` directory for
 live checks. Recovery will clean an existing output directory only when it contains
 the exact `.claim-source-recovery-output-v1` ownership marker created by this tool.
 Use `--capture <directory>` to replay a previously collected `pages/` and `assets/`
@@ -34,7 +34,7 @@ immutable capture rather than using it as a statement about the current deployme
 
 The pinned capture contains eight route documents, one stylesheet, and 51 JavaScript
 chunks (52 assets total). Its deployment-specific source-map behavior and module
-counts are historical evidence, not a guarantee for a later live recovery.
+counts are historical records, not a guarantee for a later live recovery.
 
 Synthesized files preserve deployed function bodies and literals, but inferred filenames, labels, imports, comments, and original file boundaries must not be presented as author source.
 

@@ -18,7 +18,7 @@ The claim app routes below do not appear to be implemented in this repository. T
 
 ## campaigns.superfluid.org endpoints
 
-| Endpoint | Method | Evidence from bundle | Purpose inferred from client code | Repo mapping |
+| Endpoint | Method | Bundle source | Purpose inferred from client code | Repo mapping |
 | --- | --- | --- | --- | --- |
 | `/api/points/balance?account={address}` | GET | `fetch("/api/points/balance?account=".concat(e), { cache: "no-store" })` | Reads an account's campaign points and prefers `cappedPoints` over `points` for UI/account state. | Implemented as CMS `GET /points/balance`; campaigns appears to expose/proxy it under `/api/points/balance`. |
 | `/api/markee/leaderboards` | GET | `fetch("/api/markee/leaderboards")` | Reads Markee leaderboard data; not SPR-specific, but present in the campaigns app. | No matching route found in this repository. |
@@ -27,7 +27,7 @@ The claim app routes below do not appear to be implemented in this repository. T
 
 ## claim.superfluid.org endpoints
 
-| Endpoint | Method | Evidence from bundle | Purpose inferred from client code | Repo mapping |
+| Endpoint | Method | Bundle source | Purpose inferred from client code | Repo mapping |
 | --- | --- | --- | --- | --- |
 | `/api/points/states?accountAddress={address}` | GET | `fetch(`/api/points/states?accountAddress=${i}`)` | Checks whether the connected account can claim program points before fetching the claim payload. | No matching route found in this repository. |
 | `/api/points/claim?accountAddress={address}` | GET | `fetch(`/api/points/claim?accountAddress=${i}`)` | Returns point-claim transaction data, including single/batch transaction type, program IDs, units, nonce, and Stack signature used for `claim`, `claimAndStake`, `disconnectAndClaim`, or batch variants. | No matching route found in this repository. |

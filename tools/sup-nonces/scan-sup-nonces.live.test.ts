@@ -26,14 +26,14 @@ async function fetchGardensLeaderboardLeader() {
 	return body.accounts[0]
 }
 
-describe("investigate:sup-nonces live smoke test", () => {
+describe("scan:sup-nonces live smoke test", () => {
 	test("runs against the #1 S6 Gardens leaderboard account", { timeout: 120_000 }, async () => {
 		const leader = await fetchGardensLeaderboardLeader()
 
 		const { stdout } = await execFileAsync(
 			"node",
 			[
-				fileURLToPath(new URL("./investigate-sup-nonces.js", import.meta.url)),
+				fileURLToPath(new URL("./scan-sup-nonces.js", import.meta.url)),
 				"--rpc-url",
 				process.env.BASE_RPC_URL ?? process.env.RPC_URL ?? defaultBaseRpcUrl,
 				"--user",

@@ -10,7 +10,7 @@ The home route asks the user to connect a wallet before it shows workbench links
 
 It is **not** a byte-for-byte recovery. The deployment did not publish usable source
 maps, so names and boundaries that cannot be proven are labeled as inference rather
-than original private source. `MODULE_MAP.md` is the symbol/evidence ledger.
+than original private source. `MODULE_MAP.md` is the symbol/source ledger.
 
 See `RUNNABILITY.md` for local/Vercel commands, SDK/Wagmi architecture, the CMS OpenAPI
 boundary, nonce-bounded pending-event reconciliation, cap behavior, verification, and
@@ -48,7 +48,7 @@ maintaining duplicate AppKit and Wagmi account state.
 
 These modules are local product/reconstruction work, not recovered private source.
 
-## Evidence used
+## Sources used
 
 - Hash-pinned public responses under `recovered/claim.superfluid.org/raw/`.
 - Sentry source-catalog names and Next.js route/chunk relationships.
@@ -80,14 +80,14 @@ These modules are local product/reconstruction work, not recovered private sourc
 - Treat CMS `createdAt` as event occurrence time, not insertion time.
 - Show capped campaigns explicitly and skip event additions that cannot increase their
   claim target.
-- Update consumers, docs, tests, and provenance together when evidence changes.
+- Update consumers, docs, tests, and provenance together when source material changes.
 
 ## Server-action reconstruction
 
 Browser-visible server actions are semantic reconstructions, not claimed original
-bodies. The current evidence supports their inputs, outputs, query structure, and math.
+bodies. The current sources support their inputs, outputs, query structure, and math.
 The public Uniswap V3 Base fallback remains an inferred compatible deployment because
-the original server-to-server URL is absent from captured browser evidence.
+the original server-to-server URL is absent from the captured browser files.
 
 ## Validation
 
