@@ -5,14 +5,13 @@ import { getAddress } from "viem";
 
 import { useProgramTotalFlowRate } from "../hooks/useProgramTotalFlowRate";
 import { formatCompactTokenAmount, formatMonthlyFlowRate } from "../lib/format";
+import { CampaignEventHistory } from "./CampaignEventHistory";
 import styles from "./Campaigns.module.css";
 import {
   getCampaignAttribution,
   STATIC_PROGRAM_ATTRIBUTIONS,
 } from "./claim-display";
-import {
-  getActivePoolMemberCounts,
-} from "./pool-members";
+import { getActivePoolMemberCounts } from "./pool-members";
 import {
   getPublicProgramAttributions,
   mergeProgramAttributions,
@@ -92,6 +91,7 @@ function ProgramLine({
           {shortAddress(poolAddress)} ↗
         </a>
       </p>
+      <CampaignEventHistory campaignId={Number(program.id)} />
     </article>
   );
 }
