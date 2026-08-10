@@ -7,6 +7,11 @@ compatibility layer for recovered features. The claim path itself uses Reown/Wag
 the browser for eligibility review, projected SUP flows, nonce-bounded event
 explanations, capped-campaign UX, and Base claim submission.
 
+The root layout includes a live Reserve balance bar on every route. It projects the
+connected Reserve total from the latest balance timestamp and net SUP flow rate, and
+shows explicit disconnected, loading, and not-created states.
+The home route shows a wallet connection call to action before it shows feature links.
+
 ## Local use
 
 ```sh
