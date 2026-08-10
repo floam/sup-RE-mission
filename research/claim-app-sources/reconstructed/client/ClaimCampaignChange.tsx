@@ -114,7 +114,15 @@ export function ClaimCampaignChange({
           </span>
         </p>
       ) : breakdown?.events.length ? (
-        <GroupedEventList events={breakdown.events} />
+        <>
+          <GroupedEventList events={breakdown.events} />
+          {breakdown.message && (
+            <p className="event-line">
+              <span>~</span>
+              <span className="event-name">{breakdown.message}</span>
+            </p>
+          )}
+        </>
       ) : breakdown?.message ? (
         <p className="event-line">
           <span>~</span>
