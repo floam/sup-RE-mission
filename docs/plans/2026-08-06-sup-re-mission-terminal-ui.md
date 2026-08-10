@@ -26,7 +26,7 @@ Replace the reconstructed application's inherited web-dashboard presentation wit
 - Remove the recovered stylesheet from the runtime layout.
 - Keep a single compact navigation line: product name, primary routes, wallet state.
 - Apply the same terminal primitives to `/`, `/claim`, `/apps`, `/governance`, `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`, and `/staking`.
-- Remove `/swap` and its LI.FI integration rather than carrying that recovered product
+- Remove the recovered swap and LI.FI integration rather than carrying that product
   surface into the independent terminal client.
 - Apply the same grammar to loading, route-error, global-error, not-found, wallet, governance, liquidity, Reserve deposit, Reserve withdrawal, and Reserve-name interaction states.
 - Existing retained-route behavior stays intact; presentation is normalized globally.
@@ -96,12 +96,10 @@ Rules:
 
 ## Verification record
 
-- Implementation commit `824e731` built successfully on Vercel and reached `READY` at `sup-reclaim-8v90o09jq-aaron-gyes-projects.vercel.app`.
-- At implementation commit `824e731`, `/`, `/claim`, `/apps`, `/governance`,
-  `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`, `/staking`, and the
-  subsequently removed `/swap` returned HTTP 200. That historical deployment check
-  does not describe the final route inventory.
-- An unknown route returned HTTP 404 through the custom terminal not-found surface.
+- Implementation commit `824e731` built and deployed successfully on Vercel.
+- Historical deployment verification covered the public route set that existed at the
+  time. The intentionally removed swap surface is not part of the final route inventory.
+- Unknown-route verification reached the custom terminal not-found surface.
 - The returned route markup uses the shared terminal shell and the converted route-specific line layouts. The claim response contains the compact status/connect surface with no hero or card wrapper.
 - A true 320 CSS pixel screenshot review remains open because the execution environment blocked browser navigation with `ERR_BLOCKED_BY_ADMINISTRATOR`. HTTP/deployment verification succeeded, but it is not a substitute for that visual pass.
 - The commit updating this verification record is documentation-only; it does not change the verified runtime implementation.
