@@ -9,7 +9,7 @@ import { NavConnectAndBalance } from "../components/layout/NavConnectAndBalance"
 import { RootProviders } from "../providers/RootProviders";
 
 export const metadata: Metadata = {
-  title: "SUP Re:Mission",
+  title: "sup re:claim",
   description: "Independent Superfluid claim review client",
 };
 
@@ -34,7 +34,7 @@ export default async function RootLayout({
             <div className="shell">
               <nav aria-label="Primary navigation">
                 <Link className="brand" href="/">
-                  sup re:mission
+                  sup re:claim
                 </Link>
                 <div className="links">
                   <Link href="/claim">claim</Link>
