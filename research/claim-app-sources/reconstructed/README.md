@@ -20,8 +20,8 @@ limitations.
 
 Repository-authored compatibility modules include:
 
-- `client/ClaimExperience.tsx`: staged account review, batched explanation loading,
-  client explanation cache, and claim orchestration;
+- `client/ClaimExperience.tsx`: staged account review, user-requested explanation
+  caching, and claim orchestration;
 - `client/ClaimCampaignChange.tsx`: current/projected flow, capped-out state, and event
   reconciliation UI;
 - `client/claim-chain.ts`: active program, CMS raw/capped target, and Wagmi state assembly;
@@ -35,6 +35,8 @@ Repository-authored compatibility modules include:
   checks, nonce reads, and CMS event reconciliation using reviewed point state;
 - `lib/cms-client.ts`: typed `openapi-fetch` CMS transport boundary;
 - `lib/cms-events.ts`: bounded newest-first event pagination and lazy summation;
+- `lib/campaign-event-history.ts`: user-requested newest-first history batches of no
+  more than 300 events;
 - `lib/claim-nonce-window.ts`: signed-snapshot nonce interval derivation.
 
 There is no local pending-event API route or separate server-side Wagmi configuration.

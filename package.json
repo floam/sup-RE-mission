@@ -7,7 +7,6 @@
   "scripts": {
     "build": "npm run build:skill",
     "typecheck": "tsc --noEmit",
-    "export:point-events": "tsx tools/point-events/export-point-event-names.ts",
     "scan:nonces": "node tools/sup-nonces/scan-sup-nonces.js",
     "test:nonces": "vitest run tools/sup-nonces/scan-sup-nonces.live.test.ts",
     "bundle:nonces": "esbuild tools/sup-nonces/scan-sup-nonces.js --bundle --platform=browser --target=es2020 --outfile=scan-sup-nonces.bundle.js",
@@ -24,7 +23,6 @@
     "acorn": "^8.15.0",
     "esbuild": "^0.28.0",
     "prettier": "^3.6.2",
-    "tsx": "^4.22.4",
     "typescript": "^5.9.0",
     "undici": "^7.24.4",
     "vitest": "^4.1.8"

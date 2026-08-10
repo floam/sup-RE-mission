@@ -59,6 +59,7 @@ Local product/reconstruction modules include:
 
 - `client/ClaimExperience.tsx`
 - `client/ClaimCampaignChange.tsx`
+- `client/CampaignEventHistory.tsx`
 - `client/claim-batch.ts`
 - `client/claim-chain.ts`
 - `client/claim-display.ts`
@@ -69,6 +70,7 @@ Local product/reconstruction modules include:
 - `client/pending-event-explanations.ts`
 - `lib/cms-client.ts`
 - `lib/cms-events.ts`
+- `lib/campaign-event-history.ts`
 - `lib/claim-nonce-window.ts`
 
 `lib/cms-client.ts` is a small repository-authored `openapi-fetch` integration. Its
@@ -110,10 +112,6 @@ runnable claim decision or reconciliation path.
 committed so normal builds do not depend on live schema availability. Regenerate with
 `npm run generate:cms-openapi`; the refresh workflow runs TypeScript, deterministic
 tests, and live CMS/SUP coverage before committing a changed declaration.
-
-`tools/point-events/point-event-names.html` is generated from public CMS, claim-app,
-SUP subgraph, direct RPC, and protocol-subgraph responses. It is a dated report, not a
-canonical registry.
 
 ### claim.superfluid.org deployment snapshot
 
