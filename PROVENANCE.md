@@ -112,7 +112,7 @@ committed so normal builds do not depend on live schema availability. Regenerate
 tests, and live CMS/SUP coverage before committing a changed declaration.
 
 `tools/point-events/point-event-names.html` is generated from public CMS, claim-app,
-SUP subgraph, direct RPC, and protocol-subgraph responses. It is dated evidence, not a
+SUP subgraph, direct RPC, and protocol-subgraph responses. It is a dated report, not a
 canonical registry.
 
 ### claim.superfluid.org deployment snapshot

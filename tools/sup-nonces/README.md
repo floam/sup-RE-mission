@@ -1,6 +1,6 @@
-# SUP nonce investigator
+# SUP nonce scanner
 
-`investigate-sup-nonces.js` is an executable Base investigation utility. It finds
+`investigate-sup-nonces.js` is an executable Base transaction scanner. It finds
 successful FluidLocker claim transactions for one account and a requested set of
 program IDs, decodes their calldata, and reports the largest transaction-age
 deltas first. It is not production application code.

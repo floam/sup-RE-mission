@@ -6,7 +6,7 @@ export is `default`; `app/page.tsx` deliberately re-exports the canonical
 `ClaimPage` identity rather than defining a second component. File-private rendering
 helpers belong only to their listed owner and are not global aliases.
 
-Evidence labels:
+Source labels:
 
 - **Catalog** — a Sentry source filename names the module.
 - **Behavior** — the identity or behavior is present in the recovered webpack
@@ -21,7 +21,7 @@ Evidence labels:
 
 ## Routes
 
-| Canonical module             | Canonical identities     | Evidence                            |
+| Canonical module             | Canonical identities     | Source                            |
 | ---------------------------- | ------------------------ | ----------------------------------- |
 | `app/page.tsx`               | re-export of `ClaimPage` | RSC; canonical alias only           |
 | `app/apps/page.tsx`          | `CampaignsPage`          | RSC + route factories               |
@@ -37,7 +37,7 @@ Evidence labels:
 
 ## Shared and campaign components
 
-| Canonical module                                     | Canonical identities                                                                                                                           | Evidence                    |
+| Canonical module                                     | Canonical identities                                                                                                                           | Source                    |
 | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
 | `components/ComponentResetWhenAccountChanges.tsx`    | `ComponentResetWhenAccountChanges`                                                                                                             | Behavior 67455              |
 | `components/ErrorBoundary.tsx`                       | `ErrorBoundary`                                                                                                                                | Behavior                    |
@@ -64,7 +64,7 @@ Evidence labels:
 
 ## Governance, layout, leaderboard, reserve, liquidity, and staking components
 
-| Canonical module                                    | Canonical identities                           | Evidence                                           |
+| Canonical module                                    | Canonical identities                           | Source                                           |
 | --------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------- |
 | `components/governance/ConnectedHideGuard.tsx`      | `ConnectedHideGuard`                           | Catalog + behavior 73873                           |
 | `components/governance/DelegateAvatar.tsx`          | `DelegateAvatar`                               | Catalog + behavior 85997                           |
@@ -100,7 +100,7 @@ Evidence labels:
 
 ## Configuration, contexts, and contracts
 
-| Canonical module                      | Canonical identities                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Evidence                                                                |
+| Canonical module                      | Canonical identities                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Source                                                                |
 | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
 | `config/wallet.ts`                    | Base-only Wagmi configuration and injected, Coinbase, WalletConnect, and Safe connectors                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Locally simplified from behaviors 47648, 87389                          |
 | `config/chains.ts`                    | `APP_CHAIN`, `BASE_CHAIN_ID`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Base-only simplification of behavior 27765                              |
@@ -112,7 +112,7 @@ Evidence labels:
 
 ## Static data and server actions
 
-| Canonical module                  | Canonical identities                                                                              | Evidence                                        |
+| Canonical module                  | Canonical identities                                                                              | Source                                        |
 | --------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
 | `data/program-app-definitions.ts` | `PROGRAM_APP_DEFINITIONS`                                                                         | HAR `getProgramApps`; boundary inferred         |
 | `server-actions/programs.ts`      | `getProgramApps`, `getProgramPoolInfos`                                                           | HAR + Action + contract/subgraph reconciliation |
@@ -120,7 +120,7 @@ Evidence labels:
 
 ## Hooks
 
-| Canonical module                          | Canonical identities                                                                                                                                                                    | Evidence                              |
+| Canonical module                          | Canonical identities                                                                                                                                                                    | Source                              |
 | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
 | `hooks/useAccumulatedLiquidityRewards.ts` | `useAccumulatedLiquidityRewards`                                                                                                                                                        | Behavior + inferred boundary          |
 | `hooks/useAccumulatedStakingRewards.ts`   | `useAccumulatedStakingRewards`                                                                                                                                                          | Behavior + inferred boundary          |
@@ -154,7 +154,7 @@ Evidence labels:
 
 ## Libraries, providers, and types
 
-| Canonical module                        | Canonical identities                                                                                                                                                                                        | Evidence                                        |
+| Canonical module                        | Canonical identities                                                                                                                                                                                        | Source                                        |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
 | `lib/endpoints.ts`                      | `API_ENDPOINTS`, `EXTERNAL_ENDPOINTS`                                                                                                                                                                       | Behavior; centralized inferred boundary         |
 | `lib/graphql.ts`                        | `GraphQLRequestOptions`, `queryGraphQL`                                                                                                                                                                     | Server action query behavior; boundary inferred |
