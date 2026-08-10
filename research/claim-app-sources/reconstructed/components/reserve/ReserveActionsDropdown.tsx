@@ -17,7 +17,6 @@ export function ReserveActionsDropdown({
   hasExistingSubdomain?: boolean;
 }) {
   const { lockerAddress } = useLocker();
-  const [open, setOpen] = useState(false);
   const [depositOpen, setDepositOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -32,44 +31,27 @@ export function ReserveActionsDropdown({
 
   return (
     <>
-      <button type="button" onClick={() => setOpen((current) => !current)}>
-        [ reserve actions ]
-      </button>
-      {open && (
-        <span aria-label="Reserve actions">
-          {" "}
-          <button
-            type="button"
-            onClick={() => {
-              setOpen(false);
-              setDepositOpen(true);
-            }}
-          >
-            [ deposit SUP ]
-          </button>{" "}
-          <button
-            type="button"
-            onClick={() => {
-              setOpen(false);
-              setWithdrawOpen(true);
-            }}
-          >
-            [ withdraw ]
-          </button>{" "}
-          <Link
-            href={`https://app.superfluid.org/?view=${lockerAddress}`}
-            target="_blank"
-          >
-            [ dashboard ↗ ]
-          </Link>{" "}
-          <Link href="/reserve-names">
-            [ {hasExistingSubdomain && name ? name : "reserve name"} ]
-          </Link>{" "}
-          <button type="button" onClick={copy}>
-            [ {copied ? "copied" : `copy ${lockerAddress ? truncateAddress(lockerAddress) : "address"}`} ]
-          </button>
-        </span>
-      )}
+      <span aria-label="Reserve actions">
+        <strong>[ reserve actions ]</strong>{" "}
+        <button type="button" onClick={() => setDepositOpen(true)}>
+          [ deposit SUP ]
+        </button>{" "}
+        <button type="button" onClick={() => setWithdrawOpen(true)}>
+          [ withdraw ]
+        </button>{" "}
+        <Link
+          href={`https://app.superfluid.org/?view=${lockerAddress}`}
+          target="_blank"
+        >
+          [ dashboard ↗ ]
+        </Link>{" "}
+        <Link href="/reserve-names">
+          [ {hasExistingSubdomain && name ? name : "reserve name"} ]
+        </Link>{" "}
+        <button type="button" onClick={copy}>
+          [ {copied ? "copied" : `copy ${lockerAddress ? truncateAddress(lockerAddress) : "address"}`} ]
+        </button>
+      </span>
       <DepositToReserveDialog
         isOpen={depositOpen}
         onClose={() => setDepositOpen(false)}
