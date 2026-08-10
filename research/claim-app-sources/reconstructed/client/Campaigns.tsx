@@ -199,11 +199,6 @@ export function Campaigns() {
         programs {programs.length || "—"} · active {counts.Active} · finished{" "}
         {counts.Finished} · stopped {counts.Stopped}
       </p>
-      <p className="dim">
-        funded is the total SUP allocated to a program; flow is its current pool
-        distribution rate; members are accounts with positive current pool units
-      </p>
-
       <label className={styles.search}>
         <span>filter</span>
         <input

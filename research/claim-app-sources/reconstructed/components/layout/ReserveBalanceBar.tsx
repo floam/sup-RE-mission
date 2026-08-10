@@ -22,7 +22,7 @@ function LiveReserveBalance({ lockerAddress }: { lockerAddress: Address }) {
         balance={data.totalBalance}
         balanceTimestamp={Math.floor(balance.dataUpdatedAt / 1_000)}
         flowRate={data.flowRate}
-        decimalPlaces={3}
+        decimalPlaces={6}
       />{" "}
       SUP
     </>
