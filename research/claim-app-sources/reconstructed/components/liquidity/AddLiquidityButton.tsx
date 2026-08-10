@@ -15,12 +15,11 @@ export function AddLiquidityButton({
   return (
     <>
       <button
-        className="rounded-full bg-green-sf px-16 text-lg"
         data-testid="add-liquidity-button"
         disabled={!accountAddress || !lockerAddress}
         onClick={() => setIsOpen(true)}
       >
-        {hasPositions ? "Manage Liquidity" : "Add Liquidity"}
+        [ {hasPositions ? "manage liquidity" : "add liquidity"} ]
       </button>
       <AddLiquidityDialog isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </>

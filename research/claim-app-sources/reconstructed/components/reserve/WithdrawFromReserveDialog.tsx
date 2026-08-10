@@ -1,17 +1,15 @@
 "use client";
 
-import confetti from "canvas-confetti";
-import { ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { formatEther } from "viem";
 
 import { APP_CHAIN } from "../../config/chains";
-import { useLocker } from "../../contexts/LockerContext";
 import {
   MIN_UNLOCK_AMOUNT,
   SUP_TOKEN_ADDRESS_BY_CHAIN,
 } from "../../contracts/app-contracts";
+import { useLocker } from "../../contexts/LockerContext";
 import { useDebouncedValue } from "../../hooks/useDebouncedValue";
 import { useFontaines } from "../../hooks/useFontaines";
 import { useLockerBalance } from "../../hooks/useLockerBalance";
@@ -39,7 +37,6 @@ export function WithdrawFromReserveDialog({
   const [showStreams, setShowStreams] = useState(false);
   const [selectedFontaine, setSelectedFontaine] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const didCelebrate = useRef(false);
   const { accountAddress, lockerAddress } = useLocker();
   const debounced = useDebouncedValue(input, 500);
   const amount = debounced ? parseTokenAmount(debounced) : undefined;
@@ -51,7 +48,6 @@ export function WithdrawFromReserveDialog({
     "stream-withdrawn-from-reserve",
     10,
   );
-  const recentTimestamp = recentStreams[0]?.timestamp;
   const isWaitingForIndex = recentStreams.length > 0;
   const hasStreams =
     Boolean(fontainesQuery.data?.hasFontaines) || isWaitingForIndex;
@@ -75,26 +71,20 @@ export function WithdrawFromReserveDialog({
     if (
       !activeTransaction.isFinished ||
       activeTransaction.status?.isError ||
-      success ||
-      didCelebrate.current
+      success
     )
       return;
     setSuccess(true);
-    didCelebrate.current = true;
-    void confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ["#22c55e", "#10b981", "#34d399"],
-    });
   }, [
     activeTransaction.isFinished,
     activeTransaction.status?.isError,
     success,
   ]);
+
   useEffect(() => {
     mode === "drain" ? streamReset() : drainReset();
   }, [drainReset, mode, streamReset]);
+
   useEffect(() => {
     if (isOpen) return;
     setMode("drain");
@@ -102,10 +92,10 @@ export function WithdrawFromReserveDialog({
     setSuccess(false);
     setShowStreams(false);
     setSelectedFontaine(null);
-    didCelebrate.current = false;
     drainReset();
     streamReset();
   }, [drainReset, isOpen, streamReset]);
+
   if (!isOpen) return null;
 
   const available = availableBalance ?? 0n;
@@ -119,11 +109,7 @@ export function WithdrawFromReserveDialog({
   const communityCharge = amount ? (80n * amount) / 100n : 0n;
   const finishDate = new Date(Date.now() + 31_536_000_000).toLocaleDateString(
     "en-US",
-    {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    },
+    { month: "short", day: "numeric", year: "numeric" },
   );
   const done = () => {
     setInput("");
@@ -140,51 +126,43 @@ export function WithdrawFromReserveDialog({
     : activeTransaction.status;
 
   return (
-    <div
-      role="dialog"
-      aria-label="Withdraw from Reserve"
-      className="modal max-w-xl bg-gradient-to-t from-green-pale via-platinum-light to-platinum p-4 sm:p-6"
-    >
-      <button aria-label="Close" onClick={onClose}>
-        ×
-      </button>
-      <div className="grid w-full grid-cols-2 rounded-lg bg-white p-1">
-        <button
-          className={mode === "drain" ? "bg-green-sf" : ""}
-          onClick={() => setMode("drain")}
-        >
-          DRAIN
-        </button>
-        <button
-          className={mode === "stream" ? "bg-green-sf" : ""}
-          onClick={() => setMode("stream")}
-        >
-          STREAM WITHDRAW
-        </button>
-      </div>
+    <div className="wallet-dialog-overlay">
+      <section
+        role="dialog"
+        aria-label="Withdraw from Reserve"
+        className="wallet-dialog"
+      >
+        <p className="command-line">
+          <span className="prompt">&gt;</span> withdraw from Reserve{" "}
+          <button type="button" aria-label="Close" onClick={onClose}>
+            [ close ]
+          </button>
+        </p>
+        <p>
+          <button
+            type="button"
+            className={mode === "drain" ? "positive" : undefined}
+            onClick={() => setMode("drain")}
+          >
+            [ drain ]
+          </button>{" "}
+          <button
+            type="button"
+            className={mode === "stream" ? "positive" : undefined}
+            onClick={() => setMode("stream")}
+          >
+            [ stream withdraw ]
+          </button>
+        </p>
 
-      {mode === "stream" && showStreams ? (
-        <div className="flex flex-col gap-6">
-          <div className="text-center">
-            <h2 className="mb-2 text-title3">Withdrawn Streams</h2>
-            <p className="text-alto text-base">
-              Below are your active withdrawn streams. These are streaming SUP
-              to you over 12 months.
-            </p>
-          </div>
-          <div className="max-h-[300px] space-y-2 overflow-y-auto rounded-lg bg-white p-6">
+        {mode === "stream" && showStreams ? (
+          <section aria-label="Withdrawn streams">
+            <p><strong>active withdrawn streams</strong></p>
             {fontainesQuery.isLoading ||
             (isWaitingForIndex && fontaines.length === 0) ? (
-              <div className="flex h-24 items-center justify-center text-gray-500">
-                Loading streams...
-              </div>
+              <p className="dim">loading streams…</p>
             ) : fontaines.length === 0 ? (
-              <div
-                key={recentTimestamp}
-                className="flex h-24 items-center justify-center text-gray-500"
-              >
-                No withdrawn streams found
-              </div>
+              <p className="dim">no withdrawn streams</p>
             ) : (
               fontaines.map((fontaine) => (
                 <FontaineListItem
@@ -199,130 +177,117 @@ export function WithdrawFromReserveDialog({
                 />
               ))
             )}
-          </div>
-          {selectedFontaine &&
-            (() => {
-              const fontaine = fontaines.find(
-                (candidate) => candidate.id === selectedFontaine,
-              );
-              if (!fontaine) return null;
-              const url = `https://app.superfluid.org/stream/base/${fontaine.id}-${fontaine.recipient}-${SUP_TOKEN_ADDRESS_BY_CHAIN[APP_CHAIN.id]}`;
-              return (
-                <Link
-                  className="button button-outline gap-2"
-                  href={url}
-                  target="_blank"
-                >
-                  View Stream on Superfluid Dashboard <ExternalLink size={16} />
-                </Link>
-              );
-            })()}
-          <button onClick={() => setShowStreams(false)}>Go Back</button>
-        </div>
-      ) : (
-        <div className="space-y-6 rounded-lg bg-white p-6">
-          <div className="flex items-start justify-between rounded-lg border border-platinum bg-[#F7F8FA] p-4">
-            <div>
-              <div className="flex gap-2">
-                <input
-                  inputMode="decimal"
-                  placeholder="0"
-                  value={input}
-                  onChange={(event) =>
-                    setInput(sanitizeTokenInput(event.target.value))
-                  }
-                />
-                <button
-                  onClick={() =>
-                    available > 0n && setInput(formatEther(available))
-                  }
-                  disabled={!available}
-                >
-                  MAX
-                </button>
+            {selectedFontaine &&
+              (() => {
+                const fontaine = fontaines.find(
+                  (candidate) => candidate.id === selectedFontaine,
+                );
+                if (!fontaine) return null;
+                const url = `https://app.superfluid.org/stream/base/${fontaine.id}-${fontaine.recipient}-${SUP_TOKEN_ADDRESS_BY_CHAIN[APP_CHAIN.id]}`;
+                return (
+                  <p>
+                    <Link href={url} target="_blank">
+                      [ view stream on Superfluid ↗ ]
+                    </Link>
+                  </p>
+                );
+              })()}
+            <p>
+              <button type="button" onClick={() => setShowStreams(false)}>
+                [ back ]
+              </button>
+            </p>
+          </section>
+        ) : (
+          <section aria-label={`${mode} withdrawal`}>
+            <label className="account-field">
+              <span>amount</span>
+              <input
+                inputMode="decimal"
+                placeholder="0"
+                value={input}
+                onChange={(event) =>
+                  setInput(sanitizeTokenInput(event.target.value))
+                }
+              />
+            </label>
+            <p className="dim">
+              available {formatTokenAmount(available, 2)} SUP ·{" "}
+              <button
+                type="button"
+                onClick={() =>
+                  available > 0n && setInput(formatEther(available))
+                }
+                disabled={!available}
+              >
+                max
+              </button>
+            </p>
+
+            {mode === "drain" ? (
+              <div className="route-lines">
+                <p className="route-line">
+                  <strong>receive now</strong>
+                  <span>{formatTokenAmount(immediateAmount, 4)} SUP</span>
+                </p>
+                <p className="route-line">
+                  <strong>community charge</strong>
+                  <span>{formatTokenAmount(communityCharge, 4)} SUP</span>
+                </p>
+                <p className="dim">
+                  drain returns 20% immediately and charges the remaining 80%
+                </p>
               </div>
-            </div>
-            <div className="text-right">
-              <strong>SUP</strong>
-              <div>
-                {availableBalance !== undefined
-                  ? `${formatTokenAmount(availableBalance, 2)} SUP`
-                  : "-"}
-              </div>
-            </div>
-          </div>
-          {mode === "drain" ? (
-            <>
-              <div className="space-y-3">
-                <div className="text-green text-sm uppercase">
-                  If you drain your Reserve
-                </div>
-                <div className="flex justify-between">
-                  <span>SUP you will receive</span>
-                  <span>{formatTokenAmount(immediateAmount, 4)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Community charges</span>
-                  <span>{formatTokenAmount(communityCharge, 4)}</span>
-                </div>
-              </div>
-              <p className="text-center text-green text-xs uppercase">
-                If you drain your Reserve you will instantly receive 20% of your
-                Reserve SUP, with the remaining 80% charged as community charges
-              </p>
-            </>
-          ) : (
-            <>
-              <div className="space-y-3">
-                <div className="text-green text-sm uppercase">
-                  If you stream withdraw your Reserve
-                </div>
-                <div className="flex justify-between">
-                  <span>SUP you will receive</span>
+            ) : (
+              <div className="route-lines">
+                <p className="route-line">
+                  <strong>stream total</strong>
                   <span>{amount ? formatTokenAmount(amount, 4) : "0"} SUP</span>
-                </div>
-                {amount && amount > 0n && (
-                  <div className="flex justify-between">
-                    <span>You will receive the full amount on</span>
-                    <span>{finishDate}</span>
-                  </div>
+                </p>
+                <p className="route-line">
+                  <strong>completion</strong>
+                  <span>{amount && amount > 0n ? finishDate : "—"}</span>
+                </p>
+                <p className="dim">
+                  stream withdraw sends the full amount over 12 months
+                </p>
+                {hasStreams && (
+                  <p>
+                    <button type="button" onClick={() => setShowStreams(true)}>
+                      [ view withdrawn streams ]
+                    </button>
+                  </p>
                 )}
               </div>
-              <p className="text-center text-green text-xs uppercase">
-                If you stream withdraw your Reserve you will receive all the
-                available SUP in your Reserve in a stream over 12 months
-              </p>
-              {hasStreams && (
-                <button
-                  className="text-purple text-sm underline"
-                  onClick={() => setShowStreams(true)}
-                >
-                  See withdrawn streams
+            )}
+
+            {success ? (
+              <p>
+                <span className="positive">withdrawal confirmed</span>{" "}
+                <button data-testid="done-button" type="button" onClick={done}>
+                  [ done ]
                 </button>
-              )}
-            </>
-          )}
-          {success ? (
-            <button data-testid="done-button" className="w-full" onClick={done}>
-              Done
-            </button>
-          ) : (
-            <TransactionButton
-              dataTestId={
-                mode === "drain"
-                  ? "drain-reserve-button"
-                  : "stream-withdraw-button"
-              }
-              chain={APP_CHAIN}
-              onClick={activeTransaction.unlock}
-              status={status}
-              ButtonProps={{ disabled: !isValid || success }}
-            >
-              {mode === "drain" ? "Drain Reserve" : "Stream Withdraw"}
-            </TransactionButton>
-          )}
-        </div>
-      )}
+              </p>
+            ) : (
+              <TransactionButton
+                dataTestId={
+                  mode === "drain"
+                    ? "drain-reserve-button"
+                    : "stream-withdraw-button"
+                }
+                chain={APP_CHAIN}
+                onClick={activeTransaction.unlock}
+                status={status}
+                ButtonProps={{ disabled: !isValid || success }}
+              >
+                {mode === "drain"
+                  ? "[ drain Reserve ]"
+                  : "[ stream withdraw ]"}
+              </TransactionButton>
+            )}
+          </section>
+        )}
+      </section>
     </div>
   );
 }

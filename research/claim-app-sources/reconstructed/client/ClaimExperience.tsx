@@ -4,7 +4,7 @@ import { lockerAbi } from "@sfpro/sdk/abi/sup";
 import { waitForTransactionReceipt } from "@wagmi/core";
 import { useAppKit } from "@reown/appkit/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getAddress, isAddress, type Address } from "viem";
 import { base } from "viem/chains";
 import { useConfig, useSwitchChain, useWriteContract } from "wagmi";
@@ -24,10 +24,9 @@ import {
   type PointState,
 } from "./claim-chain";
 import {
-  formatList,
-  formatMonthlyFlow,
-  getCampaignAttribution,
+  formatCompactMonthlyFlow,
   shortAddress,
+  STATIC_PROGRAM_ATTRIBUTIONS,
 } from "./claim-display";
 import type { EventBreakdown } from "./claim-event-breakdown";
 import { explainPendingCampaigns } from "./pending-event-explanations";
@@ -35,34 +34,38 @@ import {
   chunkItems,
   CMS_BATCH_SIZE,
   getClaimResultKind,
+  getClaimSubmissionErrorOutcome,
 } from "./claim-program-plan";
 import {
+  getDefaultClaimSelection,
   isClaimablePointState,
-  isPositiveClaimDelta,
+  reconcileClaimSelection,
 } from "./claim-state";
-
-const numberFormat = new Intl.NumberFormat("en-US");
-
-function breakdownKey(account: Address, row: PointState) {
-  return `${account}:${row.programId}:${row.onchainPoints}:${row.uncappedPoints}`;
-}
+import {
+  getPublicProgramAttributions,
+  mergeProgramAttributions,
+  type ProgramAttributions,
+} from "./program-attribution";
 
 export function ClaimExperience() {
   const [account, setAccount] = useState("");
   const [state, setState] = useState<ClaimState>();
   const [message, setMessage] = useState("");
   const [messageKind, setMessageKind] = useState<
-    "status" | "success" | "error"
+    "status" | "success" | "warning" | "error"
   >("status");
   const [isChecking, setIsChecking] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showCurrent, setShowCurrent] = useState(false);
+  const [requiresRefresh, setRequiresRefresh] = useState(false);
   const [selectedPrograms, setSelectedPrograms] = useState<Set<bigint>>(
     () => new Set(),
   );
+  const [campaignAttributions, setCampaignAttributions] =
+    useState<ProgramAttributions>(STATIC_PROGRAM_ATTRIBUTIONS);
   const [isLookupOpen, setIsLookupOpen] = useState(false);
-  const [breakdown, setBreakdown] = useState<EventBreakdown>();
-  const breakdownCache = useRef(new Map<string, EventBreakdown>());
+  const [breakdowns, setBreakdowns] = useState<Map<bigint, EventBreakdown>>(
+    () => new Map(),
+  );
   const checkRequest = useRef(0);
   const eventRequest = useRef(0);
   const autoReview = useRef<{
@@ -82,39 +85,46 @@ export function ClaimExperience() {
   const { switchChainAsync } = useSwitchChain();
   const { writeContractAsync } = useWriteContract();
 
-  function clearBreakdown() {
+  function clearBreakdowns() {
     eventRequest.current += 1;
-    breakdownCache.current.clear(), setBreakdown(undefined);
+    setBreakdowns(new Map());
   }
 
-  function applyClaimState(nextState: ClaimState) {
+  function applyClaimState(
+    nextState: ClaimState,
+    previousSelection?: ReadonlySet<bigint>,
+  ) {
     setState(nextState);
     setSelectedPrograms(
-      new Set(
-        nextState.programPointStates
-          .filter(isPositiveClaimDelta)
-          .map((row) => row.programId),
-      ),
+      previousSelection === undefined
+        ? getDefaultClaimSelection(nextState.programPointStates)
+        : reconcileClaimSelection(
+            nextState.programPointStates,
+            previousSelection,
+          ),
     );
+    setRequiresRefresh(false);
   }
 
   function startLookup() {
     checkRequest.current += 1;
-    clearBreakdown();
+    clearBreakdowns();
     setAccount("");
     setState(undefined);
     setMessage("");
     setMessageKind("status");
+    setRequiresRefresh(false);
     setIsLookupOpen(true);
   }
 
   function updateAccount(nextAccount: string) {
     checkRequest.current += 1;
-    clearBreakdown();
+    clearBreakdowns();
     setAccount(nextAccount);
     setState(undefined);
     setMessage("");
     setMessageKind("status");
+    setRequiresRefresh(false);
   }
 
   async function reviewAccount(candidate = account) {
@@ -126,7 +136,7 @@ export function ClaimExperience() {
 
     const reviewedAccount = getAddress(candidate);
     const request = ++checkRequest.current;
-    clearBreakdown();
+    clearBreakdowns();
     setAccount(reviewedAccount);
     setState((current) =>
       current?.account === reviewedAccount ? current : undefined,
@@ -161,6 +171,25 @@ export function ClaimExperience() {
   }
 
   useEffect(() => {
+    let disposed = false;
+    getPublicProgramAttributions()
+      .then((live) => {
+        if (!disposed) {
+          setCampaignAttributions(
+            mergeProgramAttributions(STATIC_PROGRAM_ATTRIBUTIONS, live),
+          );
+        }
+      })
+      .catch(() => {
+        // Attribution is non-authoritative display data. Keep the recovered
+        // labels when the public program feed is temporarily unavailable.
+      });
+    return () => {
+      disposed = true;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!isConnected || !connectedAddress) {
       autoReview.current = {};
       return;
@@ -184,9 +213,86 @@ export function ClaimExperience() {
     });
   }, [connectedAddress, isConnected]);
 
+  useEffect(() => {
+    if (
+      !state ||
+      !isAddress(account) ||
+      getAddress(account) !== state.account
+    ) {
+      setBreakdowns(new Map());
+      return;
+    }
+
+    const explanatoryRows = state.programPointStates.filter(
+      (row) =>
+        row.cmsCampaignExists && row.isOnchainOutdated && !row.isCapped,
+    );
+    if (explanatoryRows.length === 0) {
+      setBreakdowns(new Map());
+      return;
+    }
+
+    const request = ++eventRequest.current;
+    setBreakdowns(
+      new Map(
+        explanatoryRows.map((row) => [
+          row.programId,
+          {
+            selection: { account: state.account, programId: row.programId },
+            events: [],
+            message: "loading event evidence…",
+          },
+        ]),
+      ),
+    );
+
+    void explainPendingCampaigns(
+      config,
+      state.account,
+      explanatoryRows,
+    )
+      .then((explanations) => {
+        if (request !== eventRequest.current) return;
+        const next = new Map<bigint, EventBreakdown>();
+        for (const explanation of explanations) {
+          next.set(explanation.selection.programId, explanation);
+        }
+        for (const row of explanatoryRows) {
+          if (!next.has(row.programId)) {
+            next.set(row.programId, {
+              selection: { account: state.account, programId: row.programId },
+              events: [],
+              message: "event evidence was not returned for this campaign",
+            });
+          }
+        }
+        setBreakdowns(next);
+      })
+      .catch((error) => {
+        if (request !== eventRequest.current) return;
+        const detail = error instanceof Error ? error.message : String(error);
+        setBreakdowns(
+          new Map(
+            explanatoryRows.map((row) => [
+              row.programId,
+              {
+                selection: {
+                  account: state.account,
+                  programId: row.programId,
+                },
+                events: [],
+                message: detail,
+              },
+            ]),
+          ),
+        );
+      });
+  }, [account, config, state]);
+
   async function claim() {
     if (
       isSubmitting ||
+      requiresRefresh ||
       !state?.canClaim ||
       !state.lockerCreated ||
       state.lockerAddress === ZERO_ADDRESS ||
@@ -206,10 +312,12 @@ export function ClaimExperience() {
       CMS_BATCH_SIZE,
     );
     const request = ++checkRequest.current;
+    const submittedSelection = new Set(selectedPrograms);
     let confirmedBatches = 0;
+    let confirmationIncomplete = false;
     setIsSubmitting(true);
     setMessageKind("status");
-    clearBreakdown();
+    clearBreakdowns();
 
     try {
       if (chainId !== base.id) await switchChainAsync({ chainId: base.id });
@@ -255,10 +363,16 @@ export function ClaimExperience() {
         setMessage(
           `Transaction ${index + 1} of ${selections.length} submitted. Waiting for confirmation…`,
         );
-        const receipt = await waitForTransactionReceipt(config, {
-          chainId: base.id,
-          hash,
-        });
+        let receipt: Awaited<ReturnType<typeof waitForTransactionReceipt>>;
+        try {
+          receipt = await waitForTransactionReceipt(config, {
+            chainId: base.id,
+            hash,
+          });
+        } catch (error) {
+          confirmationIncomplete = true;
+          throw error;
+        }
         if (receipt.status !== "success") {
           throw new Error(`Transaction ${index + 1} reverted.`);
         }
@@ -268,114 +382,81 @@ export function ClaimExperience() {
       try {
         const refreshed = await buildClaimState(config, state.account);
         if (request !== checkRequest.current) return;
-        applyClaimState(refreshed);
+        applyClaimState(refreshed, submittedSelection);
       } catch (error) {
         if (request !== checkRequest.current) return;
         const detail = error instanceof Error ? error.message : String(error);
+        setRequiresRefresh(true);
+        setSelectedPrograms(new Set());
         setMessage(
-          `Claim succeeded. ${confirmedBatches} transaction${confirmedBatches === 1 ? "" : "s"} confirmed, but refreshing the SUP stream state failed: ${detail}`,
+          `Claim confirmed, but the displayed stream state is stale. Refresh it before another transaction. ${detail}`,
         );
-        setMessageKind("success");
+        setMessageKind("warning");
         return;
       }
       setMessage(
-        `Claim succeeded. ${confirmedBatches} transaction${confirmedBatches === 1 ? "" : "s"} confirmed and your SUP stream state was refreshed.`,
+        `Claim succeeded. ${confirmedBatches} transaction${confirmedBatches === 1 ? "" : "s"} confirmed and the SUP stream state was refreshed.`,
       );
       setMessageKind("success");
     } catch (error) {
       if (request !== checkRequest.current) return;
-      if (confirmedBatches > 0) {
+      let refreshRecovered = false;
+      if (confirmedBatches > 0 && !confirmationIncomplete) {
         try {
           const refreshed = await buildClaimState(config, state.account);
-          if (request === checkRequest.current) applyClaimState(refreshed);
+          if (request === checkRequest.current) {
+            applyClaimState(refreshed, submittedSelection);
+            refreshRecovered = true;
+          }
         } catch {
           // Preserve the transaction error when a follow-up refresh also fails.
         }
       }
       if (request === checkRequest.current) {
         const detail = error instanceof Error ? error.message : String(error);
-        setMessage(
-          confirmedBatches > 0
-            ? `Claim partially succeeded: ${confirmedBatches} transaction${confirmedBatches === 1 ? "" : "s"} confirmed before the next update failed: ${detail}`
-            : `Claim failed: ${detail}`,
-        );
-        setMessageKind("error");
+        const outcome = getClaimSubmissionErrorOutcome({
+          confirmedBatches,
+          confirmationIncomplete,
+          detail,
+        });
+        if (outcome.requiresRefresh && !refreshRecovered) {
+          setRequiresRefresh(true);
+          setSelectedPrograms(new Set());
+        }
+        setMessage(outcome.message);
+        setMessageKind(outcome.kind);
       }
     } finally {
       if (request === checkRequest.current) setIsSubmitting(false);
     }
   }
 
-  async function toggleBreakdown(row: PointState) {
-    if (
-      !state ||
-      !row.cmsCampaignExists ||
-      !row.isOnchainOutdated ||
-      row.isCapped
-    ) {
-      return;
-    }
-    const selection = { account: state.account, programId: row.programId };
-    if (
-      breakdown?.selection.account === selection.account &&
-      breakdown.selection.programId === selection.programId
-    ) {
-      clearBreakdown();
-      return;
-    }
+  async function refreshClaimState() {
+    if (!state || isChecking || isSubmitting) return;
 
-    const selectedKey = breakdownKey(state.account, row);
-    const cached = breakdownCache.current.get(selectedKey);
-    if (cached) {
-      setBreakdown(cached);
-      return;
-    }
-
-    const request = ++eventRequest.current;
-    setBreakdown({
-      selection,
-      events: [],
-      message: "Finding the newest events that explain this point difference…",
-    });
+    const request = ++checkRequest.current;
+    const previousSelection = new Set(selectedPrograms);
+    setIsChecking(true);
+    setMessage("Refreshing the onchain stream state…");
+    setMessageKind("status");
+    clearBreakdowns();
 
     try {
-      const explanatoryRows = state.programPointStates.filter(
-        (candidate) =>
-          candidate.cmsCampaignExists &&
-          candidate.isOnchainOutdated &&
-          !candidate.isCapped,
+      const refreshed = await buildClaimState(config, state.account);
+      if (request !== checkRequest.current) return;
+      applyClaimState(refreshed, previousSelection);
+      setMessage(
+        "Stream state refreshed. Review the remaining updates before claiming.",
       );
-      const explanations = await explainPendingCampaigns(
-        config,
-        state.account,
-        explanatoryRows,
-      );
-      if (request !== eventRequest.current) return;
-
-      const rowsByProgram = new Map(
-        explanatoryRows.map((candidate) => [candidate.programId, candidate]),
-      );
-      for (const explanation of explanations) {
-        const candidate = rowsByProgram.get(explanation.selection.programId);
-        if (!candidate) continue;
-        breakdownCache.current.set(
-          breakdownKey(state.account, candidate),
-          explanation,
-        );
-      }
-
-      const selected = breakdownCache.current.get(selectedKey);
-      if (!selected) {
-        throw new Error("The event explanation omitted this campaign.");
-      }
-      setBreakdown(selected);
+      setMessageKind("success");
     } catch (error) {
-      if (request !== eventRequest.current) return;
-      setBreakdown({
-        selection,
-        events: [],
-        message: error instanceof Error ? error.message : String(error),
-      });
+      if (request !== checkRequest.current) return;
+      const detail = error instanceof Error ? error.message : String(error);
+      setRequiresRefresh(true);
+      setMessage(`The stream state is still stale. ${detail}`);
+      setMessageKind("warning");
+    } finally {
+      if (request === checkRequest.current) setIsChecking(false);
     }
   }
 
@@ -400,25 +481,13 @@ export function ClaimExperience() {
     selectedPrograms.has(row.programId),
   );
   const cappedRows = populatedRows.filter((row) => row.isCapped);
-  const visibleRows = showCurrent
-    ? populatedRows
-    : populatedRows.filter((row) => row.isCapped || isClaimablePointState(row));
-  const totalUnitDelta = selectedRows.reduce(
-    (sum, row) => sum + row.offchainPoints - row.onchainPoints,
-    0n,
+  const updateRows = populatedRows.filter(
+    (row) => row.isCapped || isClaimablePointState(row),
   );
   const totalFlowDelta = selectedRows.reduce(
     (sum, row) => sum + row.projectedFlowRate - row.currentFlowRate,
     0n,
   );
-  const campaignNames = [
-    ...new Set(
-      selectedRows.flatMap((row) => getCampaignAttribution(row.programId).names),
-    ),
-  ];
-  const campaignScope = campaignNames.length
-    ? ` across ${formatList(campaignNames)}`
-    : "";
   const transactionCount = Math.ceil(selectedRows.length / CMS_BATCH_SIZE);
   const walletBusy = isConnecting || isReconnecting;
   const resultKind = stateMatchesAccount
@@ -430,70 +499,18 @@ export function ClaimExperience() {
       })
     : undefined;
 
-  let heroTitle = "Claim your share of Superfluid.";
-  let heroDescription: ReactNode =
-    "Check what you've earned across active campaigns, then update your SUP stream with a single wallet transaction.";
-  if (isChecking) {
-    heroTitle = "Checking your SUP rewards…";
-  } else if (stateMatchesAccount && state) {
-    if (resultKind === "locker-required") {
-      heroTitle = "Create your Reserve to claim SUP.";
-      heroDescription =
-        "SUP rewards stream into a Superfluid Reserve. Create yours, then return here to claim.";
-    } else if (resultKind === "no-active-programs") {
-      heroTitle = "No active SUP campaigns.";
-      heroDescription =
-        "Your existing Reserve allocations are unchanged. Check again when a new campaign starts.";
-    } else if (resultKind === "updates-found") {
-      heroTitle =
-        selectedRows.length === 0
-          ? "Nothing selected to claim."
-          : totalFlowDelta > 0n
-            ? "Claim your increased SUP flow."
-            : totalFlowDelta < 0n
-              ? "Your SUP share has decreased."
-              : "Nothing to claim.";
-      heroDescription = selectedRows.length === 0 ? (
-        `We found ${changedRows.length} campaign update${changedRows.length === 1 ? "" : "s"}. Select the ones you want to claim.`
-      ) : (
-        <>
-          Your {selectedRows.length} selected campaign update
-          {selectedRows.length === 1 ? "" : "s"}{" "}
-          {totalFlowDelta === 0n ? (
-            <>have no net effect on your stream</>
-          ) : (
-            <>
-              would {totalFlowDelta > 0n ? "increase" : "decrease"} your stream
-              by <strong>{formatMonthlyFlow(totalFlowDelta, true)}</strong>
-            </>
-          )}
-          {campaignScope}.
-        </>
-      );
-    } else {
-      heroTitle = "Your SUP stream is up to date.";
-      heroDescription = cappedRows.length
-        ? `No transaction is needed. ${cappedRows.length} campaign${cappedRows.length === 1 ? " has" : "s have"} reached the maximum allocation.`
-        : `We checked ${state.programPointStates.length} active campaign${state.programPointStates.length === 1 ? "" : "s"}. No transaction is needed.`;
-    }
-  }
-
   function renderCampaign(row: PointState) {
-    const rowBreakdown =
-      breakdown?.selection.account === state?.account &&
-      breakdown.selection.programId === row.programId
-        ? breakdown
-        : undefined;
     return (
       <ClaimCampaignChange
         key={String(row.programId)}
         row={row}
+        attributions={campaignAttributions}
         isSelected={
           isClaimablePointState(row)
             ? selectedPrograms.has(row.programId)
             : undefined
         }
-        isSelectionDisabled={isSubmitting}
+        isSelectionDisabled={isSubmitting || requiresRefresh}
         onSelectionChange={
           isClaimablePointState(row)
             ? (selected) =>
@@ -505,273 +522,214 @@ export function ClaimExperience() {
                 })
             : undefined
         }
-        breakdown={rowBreakdown}
-        onToggleBreakdown={toggleBreakdown}
+        breakdown={breakdowns.get(row.programId)}
       />
     );
   }
 
   const showLookup = !stateMatchesAccount && (!isConnected || isLookupOpen);
-  const showWorkbench =
-    showLookup ||
-    Boolean(message) ||
-    (stateMatchesAccount && state !== undefined);
+  const reviewedAccount = stateMatchesAccount
+    ? shortAddress(state.account)
+    : connectedAddress
+      ? shortAddress(connectedAddress)
+      : "not connected";
+  const summary =
+    resultKind === "updates-found"
+      ? `${selectedRows.length}/${changedRows.length} · ${formatCompactMonthlyFlow(totalFlowDelta, true)} · ${transactionCount} tx`
+      : stateMatchesAccount
+        ? "state current"
+        : "unofficial client";
 
   return (
-    <>
-      <header className="hero" aria-live="polite">
-        <h1>{heroTitle}</h1>
-        <p>{heroDescription}</p>
-      </header>
+    <div className="terminal-claim">
+      <p className="claim-status-line" aria-label="Claim client status">
+        <span>claim · {reviewedAccount} · base</span>
+        <span>{summary}</span>
+      </p>
 
-      {showWorkbench && (
-        <section className="claim-workbench">
-          {showLookup && (
-            <div className="wallet-step">
-              {!isLookupOpen ? (
-                <div className="wallet-actions">
-                  <button
-                    className="primary-action"
-                    type="button"
-                    disabled={walletBusy}
-                    onClick={() => open({ view: "Connect" })}
-                  >
-                    {walletBusy ? "Connecting…" : "Connect wallet"}
-                  </button>
-                  <button
-                    className="secondary-action"
-                    type="button"
-                    onClick={startLookup}
-                  >
-                    Look up another wallet
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <label className="account-field">
-                    <span>Wallet address</span>
-                    <input
-                      autoFocus
-                      value={account}
-                      disabled={isSubmitting}
-                      onChange={(event) => updateAccount(event.target.value)}
-                      placeholder="0x…"
-                      inputMode="text"
-                    />
-                  </label>
-                  <div className="wallet-actions">
-                    <button
-                      className="primary-action"
-                      type="button"
-                      disabled={
-                        isChecking || isSubmitting || !isAddress(account)
-                      }
-                      onClick={() => void reviewAccount()}
-                    >
-                      {isChecking ? "Checking…" : "Check eligibility"}
-                    </button>
-                    <button
-                      className="secondary-action"
-                      type="button"
-                      disabled={isChecking || isSubmitting}
-                      onClick={cancelLookup}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </>
-              )}
+      {showLookup && (
+        <section className="wallet-step">
+          {!isLookupOpen ? (
+            <div className="wallet-actions">
+              <button
+                className="primary-action"
+                type="button"
+                disabled={walletBusy}
+                onClick={() => open({ view: "Connect" })}
+              >
+                {walletBusy ? "[ connecting… ]" : "[ connect wallet ]"}
+              </button>
+              <button
+                className="secondary-action"
+                type="button"
+                onClick={startLookup}
+              >
+                look up address
+              </button>
             </div>
-          )}
-
-          {message && (
-            <div
-              className={`status claim-status claim-status-${messageKind}`}
-              role={messageKind === "error" ? "alert" : "status"}
-            >
-              <span>{message}</span>
-              {isConnected &&
-                connectedAddress &&
-                !stateMatchesAccount &&
-                !isLookupOpen && (
-                  <button
-                    className="text-button"
-                    type="button"
-                    disabled={isChecking}
-                    onClick={() => void reviewAccount(connectedAddress)}
-                  >
-                    Retry
-                  </button>
-                )}
-            </div>
-          )}
-
-          {stateMatchesAccount && state && (
-            <div className="results" aria-live="polite">
+          ) : (
+            <>
+              <label className="account-field">
+                <span>wallet</span>
+                <input
+                  autoFocus
+                  value={account}
+                  disabled={isSubmitting}
+                  onChange={(event) => updateAccount(event.target.value)}
+                  placeholder="0x…"
+                  inputMode="text"
+                />
+              </label>
               <div className="wallet-actions">
+                <button
+                  className="primary-action"
+                  type="button"
+                  disabled={isChecking || isSubmitting || !isAddress(account)}
+                  onClick={() => void reviewAccount()}
+                >
+                  {isChecking ? "[ checking… ]" : "[ review address ]"}
+                </button>
                 <button
                   className="secondary-action"
                   type="button"
-                  disabled={isSubmitting}
-                  onClick={startLookup}
+                  disabled={isChecking || isSubmitting}
+                  onClick={cancelLookup}
                 >
-                  Check another wallet
+                  cancel
                 </button>
               </div>
-
-              {resultKind === "locker-required" ? (
-                <div className="submit-update">
-                  <div>
-                    <strong>
-                      A Reserve is required before rewards can stream.
-                    </strong>
-                    <span>Create it once, then return to this claim.</span>
-                  </div>
-                  {connectedOwnsAccount ? (
-                    <button
-                      className="primary-action"
-                      type="button"
-                      onClick={() => router.push("/reserve")}
-                    >
-                      Create Reserve
-                    </button>
-                  ) : (
-                    <button
-                      className="primary-action"
-                      type="button"
-                      onClick={() => open({ view: "Connect" })}
-                    >
-                      Connect this wallet
-                    </button>
-                  )}
-                </div>
-              ) : resultKind === "updates-found" ? (
-                <>
-                  <div className="impact-summary" aria-label="Claim summary">
-                    <div>
-                      <span>Campaigns to update</span>
-                      <strong>{selectedRows.length}</strong>
-                    </div>
-                    <div>
-                      <span>Stream change</span>
-                      <strong
-                        className={
-                          totalFlowDelta < 0n ? "negative" : "positive"
-                        }
-                      >
-                        {formatMonthlyFlow(totalFlowDelta, true)}
-                      </strong>
-                    </div>
-                    <div>
-                      <span>Transactions</span>
-                      <strong>{transactionCount}</strong>
-                    </div>
-                  </div>
-
-                  <section className="campaign-list">
-                    <div className="section-heading">
-                      <div>
-                        <span className="eyebrow">Campaign rewards</span>
-                        <h3>What changed</h3>
-                      </div>
-                      <label className="toggle-current">
-                        <input
-                          type="checkbox"
-                          checked={showCurrent}
-                          onChange={(event) =>
-                            setShowCurrent(event.target.checked)
-                          }
-                        />
-                        <span>Show all campaign details</span>
-                      </label>
-                    </div>
-                    <div className="campaigns">
-                      {visibleRows.map(renderCampaign)}
-                    </div>
-                  </section>
-
-                  <footer className="submit-update">
-                    <div>
-                      <strong>
-                        {selectedRows.length} campaign update
-                        {selectedRows.length === 1 ? "" : "s"} selected
-                      </strong>
-                      <span>
-                        {selectedRows.length === 0
-                          ? "Select at least one campaign to update. Decreasing campaigns are clear by default."
-                          : transactionCount === 1
-                          ? `One wallet transaction applies ${numberFormat.format(totalUnitDelta)} units and updates every stream shown above.`
-                          : `${transactionCount} wallet transactions are needed because the points API signs at most ${CMS_BATCH_SIZE} campaigns at a time.`}
-                      </span>
-                    </div>
-                    <button
-                      className="primary-action"
-                      type="button"
-                      disabled={
-                        isSubmitting ||
-                        walletBusy ||
-                        selectedRows.length === 0 ||
-                        (connectedOwnsAccount && !state.canClaim)
-                      }
-                      onClick={
-                        connectedOwnsAccount
-                          ? () => void claim()
-                          : () => open({ view: "Connect" })
-                      }
-                    >
-                      {isSubmitting
-                        ? "Updating stream…"
-                        : connectedOwnsAccount
-                          ? "Update SUP stream"
-                          : "Connect this wallet to claim"}
-                    </button>
-                  </footer>
-                </>
-              ) : populatedRows.length > 0 ? (
-                <section className="campaign-list">
-                  <div className="section-heading">
-                    <div>
-                      <span className="eyebrow">Campaign rewards</span>
-                      <h3>Current streams</h3>
-                    </div>
-                    <label className="toggle-current">
-                      <input
-                        type="checkbox"
-                        checked={showCurrent}
-                        onChange={(event) =>
-                          setShowCurrent(event.target.checked)
-                        }
-                      />
-                      <span>Show all campaign details</span>
-                    </label>
-                  </div>
-                  {(showCurrent || cappedRows.length > 0) && (
-                    <div className="campaigns">
-                      {(showCurrent ? populatedRows : cappedRows).map(
-                        renderCampaign,
-                      )}
-                    </div>
-                  )}
-                </section>
-              ) : null}
-
-              <details className="account-details">
-                <summary>Wallet and protocol details</summary>
-                <dl>
-                  <div>
-                    <dt>Wallet</dt>
-                    <dd>{shortAddress(state.account)}</dd>
-                  </div>
-                  <div>
-                    <dt>Reserve</dt>
-                    <dd>{shortAddress(state.lockerAddress)}</dd>
-                  </div>
-                </dl>
-              </details>
-            </div>
+            </>
           )}
         </section>
       )}
-    </>
+
+      {message && (
+        <p
+          className={`claim-status claim-status-${messageKind}`}
+          role={
+            messageKind === "error" || messageKind === "warning"
+              ? "alert"
+              : "status"
+          }
+        >
+          <span>{message}</span>{" "}
+          {isConnected &&
+            connectedAddress &&
+            !stateMatchesAccount &&
+            !isLookupOpen && (
+              <button
+                className="text-button"
+                type="button"
+                disabled={isChecking}
+                onClick={() => void reviewAccount(connectedAddress)}
+              >
+                retry
+              </button>
+            )}
+        </p>
+      )}
+
+      {stateMatchesAccount && state && (
+        <div className="results" aria-live="polite">
+          <div className="wallet-actions lookup-command">
+            <button
+              className="secondary-action"
+              type="button"
+              disabled={isSubmitting}
+              onClick={startLookup}
+            >
+              check another wallet
+            </button>
+          </div>
+
+          {resultKind === "locker-required" ? (
+            <div className="reserve-required">
+              <p>A Reserve is required before rewards can stream.</p>
+              <button
+                className="primary-action"
+                type="button"
+                onClick={
+                  connectedOwnsAccount
+                    ? () => router.push("/reserve")
+                    : () => open({ view: "Connect" })
+                }
+              >
+                {connectedOwnsAccount
+                  ? "[ create Reserve ]"
+                  : "[ connect this wallet ]"}
+              </button>
+            </div>
+          ) : resultKind === "updates-found" ? (
+            <>
+              <section className="campaign-list" aria-label="Campaign updates">
+                <div className="campaigns">{updateRows.map(renderCampaign)}</div>
+              </section>
+
+              <footer className="submit-update">
+                <p className="claim-command-summary">
+                  <span>
+                    claim {selectedRows.length} campaign
+                    {selectedRows.length === 1 ? "" : "s"}
+                  </span>
+                  <span>·</span>
+                  <span className={totalFlowDelta < 0n ? "negative" : "positive"}>
+                    {formatCompactMonthlyFlow(totalFlowDelta, true)}
+                  </span>
+                  <span>·</span>
+                  <span>
+                    {transactionCount} transaction
+                    {transactionCount === 1 ? "" : "s"}
+                  </span>
+                </p>
+                <button
+                  className="primary-action"
+                  type="button"
+                  disabled={
+                    isSubmitting ||
+                    isChecking ||
+                    walletBusy ||
+                    (!requiresRefresh &&
+                      (selectedRows.length === 0 ||
+                        (connectedOwnsAccount && !state.canClaim)))
+                  }
+                  onClick={
+                    requiresRefresh
+                      ? () => void refreshClaimState()
+                      : connectedOwnsAccount
+                        ? () => void claim()
+                        : () => open({ view: "Connect" })
+                  }
+                >
+                  {isChecking && requiresRefresh
+                    ? "[ refreshing stream state… ]"
+                    : requiresRefresh
+                      ? "[ refresh stream state ]"
+                      : isSubmitting
+                        ? "[ updating SUP stream… ]"
+                        : connectedOwnsAccount
+                          ? "[ update SUP stream ]"
+                          : "[ connect this wallet to claim ]"}
+                </button>
+              </footer>
+            </>
+          ) : populatedRows.length > 0 ? (
+            <section className="campaign-list" aria-label="Current campaigns">
+              <div className="campaigns">{populatedRows.map(renderCampaign)}</div>
+              <p className="empty-state">
+                {cappedRows.length > 0
+                  ? "No transaction is needed. Capped targets remain visible above."
+                  : "No transaction is needed."}
+              </p>
+            </section>
+          ) : (
+            <p className="empty-state">
+              {resultKind === "no-active-programs"
+                ? "No active SUP campaigns."
+                : "No campaign allocation was found for this wallet."}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

@@ -1,8 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { formatTokenAmount, inferDecimalPlaces } from "../lib/format";
+import {
+  LIVE_BALANCE_UPDATES_PER_SECOND,
+  maskFastBalanceDigits,
+} from "../lib/flowing-balance";
 
 export interface FlowingBalanceProps {
   balance: bigint;
@@ -23,21 +27,17 @@ export function FlowingBalance({
   className,
   dataTestId,
 }: FlowingBalanceProps) {
-  const frame = useRef<number>(0);
   const [now, setNow] = useState(Date.now());
 
   useEffect(() => {
-    let lastUpdate = 0;
-    const interval = flowRate === 0n ? 400 : 60;
-    const tick = (time: number) => {
-      if (time - lastUpdate >= interval) {
-        lastUpdate = time;
-        setNow(Date.now());
-      }
-      frame.current = requestAnimationFrame(tick);
-    };
-    frame.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame.current);
+    setNow(Date.now());
+    if (flowRate === 0n) return;
+
+    const interval = window.setInterval(
+      () => setNow(Date.now()),
+      1_000 / LIVE_BALANCE_UPDATES_PER_SECOND,
+    );
+    return () => window.clearInterval(interval);
   }, [flowRate]);
 
   const timestampMs = BigInt(balanceTimestamp) * 1_000n;
@@ -45,10 +45,11 @@ export function FlowingBalance({
   const flowing = balance + (flowRate * elapsedMs) / 1_000n;
   const displayed =
     maxBalance !== undefined && flowing > maxBalance ? maxBalance : flowing;
+  const formattedBalance = formatTokenAmount(displayed, decimalPlaces);
 
   return (
     <span className={className} data-testid={dataTestId}>
-      {formatTokenAmount(displayed, decimalPlaces)}
+      {maskFastBalanceDigits(formattedBalance, flowRate)}
     </span>
   );
 }

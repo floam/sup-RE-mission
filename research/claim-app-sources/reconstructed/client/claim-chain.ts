@@ -22,6 +22,7 @@ export interface PointState {
   onchainPoints: bigint;
   currentFlowRate: bigint;
   projectedFlowRate: bigint;
+  poolTotalUnits: bigint;
   isOnchainOutdated: boolean;
   isCapped: boolean;
   cmsCampaignExists: boolean;
@@ -175,6 +176,7 @@ export async function buildClaimState(
       onchainPoints,
       currentFlowRate,
       projectedFlowRate,
+      poolTotalUnits: chainState?.totalUnits ?? 0n,
       isOnchainOutdated: offchainPoints !== onchainPoints,
       isCapped: uncappedPoints !== offchainPoints,
       cmsCampaignExists: !cmsMissingPrograms.has(programId),

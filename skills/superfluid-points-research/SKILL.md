@@ -77,19 +77,22 @@ Validate account identity, campaign order, and parallel array lengths for every 
 2. Use Wagmi reads/hooks and `waitForTransactionReceipt`.
 3. Resolve `getUserLocker(account)`.
 4. Retain active SUP programs.
-5. Fetch unsigned raw/capped values through `balance-batch` in chunks of 50.
-6. Read `getUnitsPerProgram`, `getFlowRatePerProgram`, pool `getTotalUnits`, and
+5. Join names, seasons, and categories from the live claim `/api/programs` response.
+   Recovered definitions are an outage fallback, not a campaign-discovery boundary.
+6. Fetch unsigned raw/capped values through `balance-batch` in chunks of 50.
+7. Read `getUnitsPerProgram`, `getFlowRatePerProgram`, pool `getTotalUnits`, and
    `getTotalFlowRate`.
-7. Mark a row claimable when the CMS campaign exists and capped target differs from
+8. Mark a row claimable when the CMS campaign exists and capped target differs from
    onchain units.
-8. Let the user select changed campaigns. Select positive target deltas by default and
+9. Let the user select changed campaigns. Select positive target deltas by default and
    leave decreasing targets clear. On explicit submission, request
    `signed-balance-batch` only for the selected campaigns, validate it, and submit
    signed `points`, campaign IDs, timestamp, and signature. Never submit
    `uncappedPoints`.
-9. Lock campaign selection during submission, require receipt `status: success`,
-   refresh after partial multi-batch success, and report success, partial success, or
-   failure explicitly.
+10. Lock campaign selection during submission and preserve explicit exclusions across
+    post-claim refreshes. Require receipt `status: success` before reporting confirmed
+    success. Treat post-submission receipt transport errors as indeterminate, and block
+    resubmission from stale state until a read-only refresh succeeds.
 
 ## Show flows
 

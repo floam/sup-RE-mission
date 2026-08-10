@@ -8,6 +8,7 @@ Load the smallest relevant group for the question at hand.
 - `research/claim-app-sources/reconstructed/client/ClaimExperience.tsx`: staged account review, ownership-aware submission, batched explanation loading, and client explanation cache.
 - `research/claim-app-sources/reconstructed/client/ClaimCampaignChange.tsx`: per-campaign current/projected flows, capped-out state, and event reconciliation UI.
 - `research/claim-app-sources/reconstructed/client/claim-chain.ts`: active CMS uncapped/capped targets plus SDK/Wagmi onchain state assembly.
+- `research/claim-app-sources/reconstructed/client/program-attribution.ts`: live claim-app names, seasons, and categories with recovered labels as an outage fallback.
 - `research/claim-app-sources/reconstructed/client/claim-batch.ts`: CMS account/order/parallel-array validation.
 - `research/claim-app-sources/reconstructed/client/pending-event-explanations.ts`: reuses reviewed point state, batches fresh signed balances, reads next-valid nonces, and reconciles bounded CMS events without a local API proxy.
 - `research/claim-app-sources/reconstructed/lib/cms-client.ts`: sole typed CMS transport boundary for the runnable claim path.
@@ -41,8 +42,10 @@ time.
 
 The runnable claim UI gives each changed campaign a transaction checkbox. It selects
 positive target deltas by default, leaves decreasing targets clear, locks selection
-during submission, requests a signed batch only for the checked campaign IDs, and
-reports success, partial success, or failure explicitly.
+during submission, and requests a signed batch only for the checked campaign IDs.
+Post-claim refreshes preserve explicit exclusions. A receipt transport error is
+indeterminate rather than a verified failure; stale or uncertain state blocks another
+submission until a read-only refresh succeeds.
 
 ## Claim voucher injector
 

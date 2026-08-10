@@ -2,31 +2,98 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-  display: grid;
-  place-items: center;
-  padding: 1rem;
-  background: rgba(1, 10, 7, 0.78);
+  overflow-y: auto;
+  padding:
+    max(1lh, env(safe-area-inset-top))
+    max(1ch, env(safe-area-inset-right))
+    max(1lh, env(safe-area-inset-bottom))
+    max(1ch, env(safe-area-inset-left));
+  background: rgba(0, 0, 0, 0.94);
 }
 
 .wallet-dialog {
-  position: relative;
-  width: min(100%, 28rem);
-  max-height: calc(100vh - 2rem);
-  overflow-y: auto;
-  padding: 2rem;
-  border: 1px solid #466c5e;
-  border-radius: 18px;
-  background: #10251e;
-  box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.45);
+  width: min(52ch, 100%);
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  background: #000;
+  color: var(--term-fg);
+  font-family: var(--term-mono);
+  font-size: var(--term-size);
+  line-height: var(--term-leading);
+}
+
+.wallet-dialog-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1ch;
+  margin: 0 0 1lh;
+}
+
+.wallet-dialog-heading strong {
+  min-width: 0;
 }
 
 .wallet-dialog-close {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  padding: 0.35rem 0.65rem;
+  flex: 0 0 auto;
+  padding: 0;
+}
+
+.wallet-dialog-body {
+  display: grid;
+  gap: 1lh;
+}
+
+.wallet-dialog-body > p {
+  margin: 0;
 }
 
 .wallet-dialog-address {
   overflow-wrap: anywhere;
+  color: var(--term-dim);
+}
+
+.wallet-connector-list {
+  display: grid;
+  gap: 0;
+}
+
+.wallet-connector {
+  display: grid;
+  grid-template-columns: 3ch minmax(0, 1fr);
+  gap: 1ch;
+  width: 100%;
+  min-height: 2lh;
+  align-items: center;
+  padding: 0;
+  color: var(--term-fg);
+  text-align: left;
+  text-decoration: none;
+}
+
+.wallet-connector:hover:not(:disabled),
+.wallet-connector:focus-visible:not(:disabled) {
+  background: var(--term-reverse-bg);
+  color: var(--term-reverse-fg);
+}
+
+.wallet-connector-index {
+  color: var(--term-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.wallet-connector:hover:not(:disabled) .wallet-connector-index,
+.wallet-connector:focus-visible:not(:disabled) .wallet-connector-index {
+  color: inherit;
+}
+
+.wallet-dialog-error {
+  color: var(--term-negative);
+}
+
+@media (max-width: 680px) {
+  .wallet-dialog {
+    width: 100%;
+  }
 }
