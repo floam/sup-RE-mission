@@ -1,6 +1,3 @@
-import { useState } from "react";
-
-import { CampaignEventHistory } from "./CampaignEventHistory";
 import { GroupedEventList } from "./GroupedEventList";
 import type { PointState } from "./claim-chain";
 import {
@@ -52,8 +49,6 @@ export function ClaimCampaignChange({
   isSelectionDisabled = false,
   onSelectionChange,
   breakdown,
-  account,
-  onExplain,
 }: {
   row: PointState;
   attributions?: ProgramAttributions;
@@ -61,10 +56,7 @@ export function ClaimCampaignChange({
   isSelectionDisabled?: boolean;
   onSelectionChange?(selected: boolean): void;
   breakdown?: EventBreakdown;
-  account: string;
-  onExplain?(): void;
 }) {
-  const [detailsOpen, setDetailsOpen] = useState(false);
   const attribution = getCampaignAttribution(row.programId, attributions);
   const unitDelta = row.offchainPoints - row.onchainPoints;
   const flowDelta = row.projectedFlowRate - row.currentFlowRate;
@@ -136,10 +128,11 @@ export function ClaimCampaignChange({
           <span>~</span>
           <span className="event-name">{breakdown.message}</span>
         </p>
-      ) : row.isOnchainOutdated && row.cmsCampaignExists && onExplain ? (
-        <button className="text-button" type="button" onClick={onExplain}>
-          explain pending change
-        </button>
+      ) : row.isOnchainOutdated && row.cmsCampaignExists ? (
+        <p className="event-line">
+          <span>~</span>
+          <span className="event-name">loading nonce-bounded points…</span>
+        </p>
       ) : null}
 
       {!row.cmsCampaignExists && (
@@ -152,23 +145,6 @@ export function ClaimCampaignChange({
       )}
 
       <p className="campaign-standing">{formatProjectedShare(row)}</p>
-      {row.cmsCampaignExists && (
-        <>
-          <button
-            className="text-button"
-            type="button"
-            onClick={() => setDetailsOpen((open) => !open)}
-          >
-            {detailsOpen ? "hide campaign history" : "view campaign history"}
-          </button>
-          <div hidden={!detailsOpen}>
-            <CampaignEventHistory
-              account={account}
-              campaignId={row.programId}
-            />
-          </div>
-        </>
-      )}
     </article>
   );
 }

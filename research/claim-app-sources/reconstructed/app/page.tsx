@@ -7,7 +7,7 @@ import { useWalletAccount } from "../hooks/useWalletAccount";
 
 const routes = [
   ["claim", "/claim", "review campaign deltas and update the SUP stream"],
-  ["campaigns", "/apps", "inspect public SUP campaign programs"],
+  ["campaigns", "/campaign", "inspect programs and full event history"],
   ["reserve", "/reserve", "create and inspect a Superfluid Reserve"],
   ["leaderboard", "/leaderboard", "review campaign standings"],
   ["governance", "/governance", "inspect governance state"],

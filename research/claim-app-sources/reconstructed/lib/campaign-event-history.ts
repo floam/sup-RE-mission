@@ -17,7 +17,7 @@ export interface CampaignEventHistoryPage {
 
 /** Load one user-visible history batch. The CMS limits each request to 100 rows. */
 export async function loadCampaignEventHistory(
-  input: { account: string; campaignId: number; page?: number },
+  input: { account?: string; campaignId: number; page?: number },
   client: CmsClient = cmsClient,
 ): Promise<CampaignEventHistoryPage> {
   const firstPage = input.page ?? 1;
@@ -33,7 +33,7 @@ export async function loadCampaignEventHistory(
     const result = await client.GET("/points/events", {
       params: {
         query: {
-          account: input.account,
+          ...(input.account ? { account: input.account } : {}),
           campaignId: input.campaignId,
           limit: CMS_EVENT_PAGE_SIZE,
           page,

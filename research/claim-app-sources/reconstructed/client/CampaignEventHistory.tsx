@@ -10,9 +10,11 @@ import { GroupedEventList } from "./GroupedEventList";
 export function CampaignEventHistory({
   account,
   campaignId,
+  detailed = false,
 }: {
-  account: string;
+  account?: string;
   campaignId: bigint;
+  detailed?: boolean;
 }) {
   const [events, setEvents] = useState<CmsPointEvent[]>([]);
   const [nextPage, setNextPage] = useState(1);
@@ -46,7 +48,25 @@ export function CampaignEventHistory({
 
   return (
     <div className="campaign-history">
-      {events.length > 0 && <GroupedEventList events={events} />}
+      {events.length > 0 &&
+        (detailed ? (
+          <div className="event-lines" aria-label="Campaign event records">
+            {events.map((event) => (
+              <p className="event-line" key={event.id}>
+                <span className={event.points < 0 ? "negative" : "positive"}>
+                  {event.points >= 0 ? "+" : "−"}
+                  {Math.abs(event.points).toLocaleString("en-US")}
+                </span>
+                <span className="event-name">
+                  {event.eventName} · {event.createdAt} · {event.account} · id {event.id}
+                  {event.uniqueId ? ` · ref ${event.uniqueId}` : ""}
+                </span>
+              </p>
+            ))}
+          </div>
+        ) : (
+          <GroupedEventList events={events} />
+        ))}
       {error && (
         <p className="event-line">
           <span>!</span>
