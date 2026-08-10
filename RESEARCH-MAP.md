@@ -57,14 +57,16 @@ submission until a read-only refresh succeeds.
 - `skills/superfluid-points-research/references/endpoints.md`: detailed public endpoint response/error catalog.
 - `skills/superfluid-points-research/references/runtime-endpoints.md`: runtime route inventory, CMS OpenAPI mapping, program-manager nonce boundary, optional balances API, and SDK/Wagmi procedures.
 - `research/2026-06-30-spr-campaigns-claim-endpoints.md`: dated public-app endpoint audit.
-- `tools/point-events/export-point-event-names.ts`: live campaign and program discovery.
 
-## Point-event catalog
+## Point-event inspection
 
-- `tools/point-events/export-point-event-names.ts`: discovery, caching, coalescing, and HTML generation.
-- `tools/point-events/README.md`: invocation, source layering, coverage, and output rules.
-- `tools/point-events/point-event-names.html`: generated observed-event catalog.
+- `tools/point-events/view-campaign-events.mjs`: bounded local CMS campaign event view; one action fetches at most three 100-event pages and preserves explicit pagination.
+- `tools/point-events/README.md`: invocation, bounded-loading behavior, and source limits.
 - `research/claim-app-sources/reconstructed/client/event-groups.ts`: equal-point family grouping and canceled-pair display used by claim explanations.
+
+There is no generated event-name catalog. Use the on-demand view for inspection and the
+CMS endpoint itself for current event history rather than treating a dated generated
+snapshot as a registry.
 
 ## Nonce and historical claim research
 
