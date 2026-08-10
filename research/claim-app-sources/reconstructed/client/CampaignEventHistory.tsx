@@ -10,9 +10,11 @@ import { GroupedEventList } from "./GroupedEventList";
 export function CampaignEventHistory({
   account,
   campaignId,
+  isVisible,
 }: {
   account: string;
   campaignId: bigint;
+  isVisible: boolean;
 }) {
   const [events, setEvents] = useState<CmsPointEvent[]>([]);
   const [nextPage, setNextPage] = useState(1);
@@ -45,7 +47,7 @@ export function CampaignEventHistory({
   }
 
   return (
-    <div className="campaign-history">
+    <div className="campaign-history" hidden={!isVisible}>
       {events.length > 0 && <GroupedEventList events={events} />}
       {error && (
         <p className="event-line">

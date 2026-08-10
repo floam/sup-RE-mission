@@ -161,12 +161,12 @@ export function ClaimCampaignChange({
           >
             {detailsOpen ? "hide campaign history" : "view campaign history"}
           </button>
-          {detailsOpen && (
-            <CampaignEventHistory
-              account={account}
-              campaignId={row.programId}
-            />
-          )}
+          <CampaignEventHistory
+            key={`${account}:${row.programId}`}
+            account={account}
+            campaignId={row.programId}
+            isVisible={detailsOpen}
+          />
         </>
       )}
     </article>
