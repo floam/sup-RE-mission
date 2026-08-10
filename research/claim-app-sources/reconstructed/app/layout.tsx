@@ -6,6 +6,7 @@ import "./globals.css";
 import "./wallet-dialog.css";
 
 import { NavConnectAndBalance } from "../components/layout/NavConnectAndBalance";
+import { ReserveBalanceBar } from "../components/layout/ReserveBalanceBar";
 import { RootProviders } from "../providers/RootProviders";
 
 export const metadata: Metadata = {
@@ -32,6 +33,7 @@ export default async function RootLayout({
         <Suspense fallback={<div className="shell">loading…</div>}>
           <RootProviders cookies={cookieHeader}>
             <div className="shell">
+              <ReserveBalanceBar />
               <nav aria-label="Primary navigation">
                 <Link className="brand" href="/">
                   sup re:mission
