@@ -230,6 +230,7 @@
 
 .scope :global(.canceled-event) {
   text-decoration: line-through;
+  text-decoration-color: var(--term-dim);
   opacity: 0.65;
 }
 
