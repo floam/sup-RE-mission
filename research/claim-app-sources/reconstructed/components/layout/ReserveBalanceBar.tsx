@@ -1,0 +1,57 @@
+"use client";
+
+import Link from "next/link";
+
+import { useLocker } from "../../contexts/LockerContext";
+import { useLockerBalance } from "../../hooks/useLockerBalance";
+import type { Address } from "../../types/program-app";
+import { FlowingBalance } from "../FlowingBalance";
+
+function LiveReserveBalance({ lockerAddress }: { lockerAddress: Address }) {
+  const balance = useLockerBalance({ lockerAddress });
+  const data = balance.data;
+
+  if (!data?.isFullyLoaded) return <>loading…</>;
+
+  return (
+    <>
+      <FlowingBalance
+        balance={data.totalBalance}
+        balanceTimestamp={Math.floor(balance.dataUpdatedAt / 1_000)}
+        flowRate={data.flowRate}
+        decimalPlaces={3}
+      />{" "}
+      SUP
+    </>
+  );
+}
+
+export function ReserveBalanceBar() {
+  const { accountAddress, lockerAddress, isLockerAddressLoading } = useLocker();
+
+  let value = "connect to view";
+  if (accountAddress) {
+    value = isLockerAddressLoading
+      ? "loading…"
+      : lockerAddress
+        ? "loading…"
+        : "not created";
+  }
+
+  return (
+    <div className="reserve-balance-bar">
+      {accountAddress ? (
+        <Link href="/reserve">reserve balance</Link>
+      ) : (
+        <span>reserve balance</span>
+      )}
+      <span data-testid="reserve-balance">
+        {lockerAddress ? (
+          <LiveReserveBalance lockerAddress={lockerAddress} />
+        ) : (
+          value
+        )}
+      </span>
+    </div>
+  );
+}

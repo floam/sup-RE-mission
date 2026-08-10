@@ -4,6 +4,10 @@ This directory is a semantic reconstruction of the first-party application sourc
 shipped by `claim.superfluid.org`, plus a deliberately small runnable compatibility
 application used to validate and extend the recovered behavior.
 
+The shared page shell shows the connected account's live Reserve balance above every
+route and links the label to Reserve management.
+The home route asks the user to connect a wallet before it shows workbench links.
+
 It is **not** a byte-for-byte recovery. The deployment did not publish usable source
 maps, so names and boundaries that cannot be proven are labeled as inference rather
 than original private source. `MODULE_MAP.md` is the symbol/evidence ledger.
