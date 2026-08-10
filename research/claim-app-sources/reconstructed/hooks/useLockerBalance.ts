@@ -71,6 +71,10 @@ export function useLockerBalance({
       liquidity?.lastUpdatedAt,
     ],
     queryFn: () => {
+      // The contract balances are the baseline for the live client projection.
+      // Start that projection when this combined snapshot is assembled. The
+      // liquidity timestamp describes only the position valuation and can be old.
+      const timestamp = BigInt(Math.floor(Date.now() / 1_000));
       const available = availableBalance ?? 0n;
       const staked = stakedBalance ?? 0n;
       const inLiquidity = liquidity?.totalSUPBalance ?? 0n;
@@ -80,9 +84,7 @@ export function useLockerBalance({
         stakedBalance: staked,
         liquidityBalance: inLiquidity,
         flowRate: flowRate ?? 0n,
-        timestamp: liquidity?.lastUpdatedAt
-          ? BigInt(liquidity.lastUpdatedAt)
-          : 0n,
+        timestamp,
         hasTotalBalanceLoaded:
           availableBalance !== undefined &&
           stakedBalance !== undefined &&
@@ -91,13 +93,12 @@ export function useLockerBalance({
         hasStakedBalanceLoaded: stakedBalance !== undefined,
         hasLiquidityBalanceLoaded: liquidity?.totalSUPBalance !== undefined,
         hasFlowRateLoaded: flowRate !== undefined,
-        hasTimestampLoaded: liquidity?.lastUpdatedAt !== undefined,
+        hasTimestampLoaded: true,
         isFullyLoaded:
           availableBalance !== undefined &&
           stakedBalance !== undefined &&
           liquidity?.totalSUPBalance !== undefined &&
-          flowRate !== undefined &&
-          liquidity?.lastUpdatedAt !== undefined,
+          flowRate !== undefined,
       };
     },
     refetchInterval: depositedRecently ? 5_000 : false,
