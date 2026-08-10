@@ -431,10 +431,6 @@ async function processJavaScript(options, outputRoot, url, js) {
   const chunkName =
     new URL(url).pathname.split("/").pop() ||
     `chunk-${sha256(url).slice(0, 10)}.js`;
-  const prettyRelative = path.join("beautified", assetFileName(url));
-  const prettyFilename = path.join(outputRoot, prettyRelative);
-  await mkdir(path.dirname(prettyFilename), { recursive: true });
-  await writeFile(prettyFilename, await formatCode(js, chunkName));
 
   let map = null;
   const mapErrors = [];
@@ -456,7 +452,6 @@ async function processJavaScript(options, outputRoot, url, js) {
 
   return {
     chunkName,
-    beautifiedFile: prettyRelative,
     map,
     mapErrors,
     synthesized: synthesized.records,
@@ -469,7 +464,9 @@ async function main() {
   const outputRoot = path.resolve(options.outDir);
   await prepareOwnedOutputDirectory(outputRoot);
   // Preserve externally-written diagnostics such as recovery.log, while ensuring a
-  // rerun cannot mix recovered source files from different deployments.
+  // rerun cannot mix recovered source files from different deployments. Remove the
+  // legacy beautified/ tree as well so owned output directories converge on the
+  // raw-authoritative layout.
   await Promise.all(
     [
       "raw",
@@ -611,7 +608,7 @@ async function main() {
       synthesized:
         "Files under synthesized/ preserve deployed webpack module functions but infer filenames and concerns. They are not literal author source files.",
       beautified:
-        "Files under beautified/ are complete deployed chunks with formatting only.",
+        "Complete beautified chunk copies are intentionally not persisted. Format raw/ chunks on demand when a review-friendly rendering is needed.",
       raw: "Files under raw/ are the exact fetched pages, chunks, styles, and source maps.",
     },
   };
@@ -622,7 +619,7 @@ async function main() {
   );
   await writeFile(
     path.join(outputRoot, "README.md"),
-    `# claim.superfluid.org source recovery\n\nGenerated: ${manifest.generatedAt}\n\n- Routes captured: ${manifest.summary.successfulRoutes}/${manifest.summary.attemptedRoutes}\n- Failed routes: ${manifest.summary.failedRoutes}\n- Assets recovered: ${manifest.summary.successfulAssets}/${manifest.summary.assets}\n- Source-map originals: ${manifest.summary.sourceMappedOriginals}\n- Synthesized webpack modules: ${manifest.summary.synthesizedModules}\n\nSee \`manifest.json\` for per-file provenance and hashes.\n`,
+    `# claim.superfluid.org source recovery\n\nGenerated: ${manifest.generatedAt}\n\n- Routes captured: ${manifest.summary.successfulRoutes}/${manifest.summary.attemptedRoutes}\n- Failed routes: ${manifest.summary.failedRoutes}\n- Assets recovered: ${manifest.summary.successfulAssets}/${manifest.summary.assets}\n- Source-map originals: ${manifest.summary.sourceMappedOriginals}\n- Synthesized webpack modules: ${manifest.summary.synthesizedModules}\n\nRaw responses under \`raw/\` are authoritative. Complete beautified chunk copies are not persisted.\n\nSee \`manifest.json\` for per-file provenance and hashes.\n`,
   );
 
   console.log(JSON.stringify(manifest.summary));
