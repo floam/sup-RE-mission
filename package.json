@@ -7,7 +7,6 @@
   "scripts": {
     "build": "npm run build:skill",
     "typecheck": "tsc --noEmit",
-    "view:point-events": "node tools/point-events/view-campaign-events.mjs",
     "scan:nonces": "node tools/sup-nonces/scan-sup-nonces.js",
     "test:nonces": "vitest run tools/sup-nonces/scan-sup-nonces.live.test.ts",
     "bundle:nonces": "esbuild tools/sup-nonces/scan-sup-nonces.js --bundle --platform=browser --target=es2020 --outfile=scan-sup-nonces.bundle.js",
