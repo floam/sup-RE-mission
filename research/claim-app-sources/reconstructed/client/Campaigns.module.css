@@ -76,6 +76,71 @@
   color: var(--term-bright);
 }
 
+.eventDetails {
+  margin-top: 0;
+}
+
+.eventDetails summary {
+  width: max-content;
+  cursor: pointer;
+  color: var(--term-fg);
+}
+
+.eventDetails summary::marker {
+  color: var(--term-dim);
+}
+
+.eventHistory {
+  display: grid;
+  gap: 0;
+  margin: 0.5lh 0 0 2ch;
+}
+
+.eventHistory > p {
+  margin: 0;
+}
+
+.eventHistory > button {
+  width: max-content;
+  margin-top: 0.5lh;
+}
+
+.eventTableWrap {
+  max-width: 100%;
+  overflow-x: auto;
+  margin-top: 0.5lh;
+}
+
+.eventTable {
+  width: 100%;
+  min-width: 76ch;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.eventTable th,
+.eventTable td {
+  padding: 0 2ch 0 0;
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.eventTable th {
+  color: var(--term-dim);
+  font-weight: 400;
+}
+
+.eventPoints {
+  text-align: right !important;
+}
+
+.eventUnique {
+  max-width: 40ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 @media (max-width: 680px) {
   .search {
     grid-template-columns: 1fr;
@@ -84,5 +149,9 @@
 
   .metrics {
     gap: 0 2ch;
+  }
+
+  .eventHistory {
+    margin-left: 0;
   }
 }
