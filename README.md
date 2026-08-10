@@ -23,7 +23,7 @@ runnable semantic reconstruction of the claim experience.
 ```sh
 npm install
 npm run export:point-events
-npm run investigate:nonces -- --user 0x... --program-ids 607
+npm run scan:nonces -- --user 0x... --program-ids 607
 npm run test:nonces
 npm run bundle:nonces
 npm run build:skill

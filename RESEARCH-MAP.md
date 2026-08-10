@@ -69,8 +69,8 @@ submission until a read-only refresh succeeds.
 ## Nonce and historical claim research
 
 - `research/fluid-ep-nonce-staleness-assessment.md`: threat model, conclusions, and source limits.
-- `tools/sup-nonces/investigate-sup-nonces.js`: transaction and log scanner with calldata decoding.
-- `tools/sup-nonces/investigate-sup-nonces.live.test.ts`: live smoke test.
+- `tools/sup-nonces/scan-sup-nonces.js`: transaction and log scanner with calldata decoding.
+- `tools/sup-nonces/scan-sup-nonces.live.test.ts`: live smoke test.
 - `tools/sup-nonces/README.md`: invocation, live-test constraints, and decoding limits.
 - `.github/workflows/build-sup-nonce-bundle.yml`: portable JavaScriptCore and a-Shell bundle.
 

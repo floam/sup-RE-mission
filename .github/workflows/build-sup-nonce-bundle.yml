@@ -1,10 +1,10 @@
-name: Build SUP nonce investigation bundle
+name: Build SUP nonce scan bundle
 
 on:
   workflow_dispatch:
   push:
     tags:
-      - "investigate-sup-nonces-*"
+      - "scan-sup-nonces-*"
 
 permissions:
   contents: write
@@ -26,18 +26,18 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Bundle nonce investigator
+      - name: Bundle nonce scanner
         run: npm run bundle:nonces
 
       - name: Upload bundle artifact
         uses: actions/upload-artifact@v6
         with:
-          name: investigate-sup-nonces-javascriptcore
-          path: investigate-sup-nonces.bundle.js
+          name: scan-sup-nonces-javascriptcore
+          path: scan-sup-nonces.bundle.js
           if-no-files-found: error
 
       - name: Attach bundle to tag release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: investigate-sup-nonces.bundle.js
+          files: scan-sup-nonces.bundle.js

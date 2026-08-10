@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Inspect the deployed claim application without persisting minified JavaScript.
- * The output is metadata for refreshing research/claim-app-sources/ evidence.
+ * The output is metadata for refreshing research/claim-app-sources/ records.
  */
 
 import { execFileSync } from "node:child_process";
@@ -17,7 +17,7 @@ const SEARCH_TERMS = [
 
 function get(url) {
   // Node's fetch is not consistently able to reach this deployment in the
-  // investigation environment. curl with HTTP/2 is also the research skill's
+  // analysis environment. curl with HTTP/2 is also the research skill's
   // recommended transport for these endpoints.
   try {
     return execFileSync("curl", [

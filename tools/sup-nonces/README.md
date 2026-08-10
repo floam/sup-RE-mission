@@ -1,6 +1,6 @@
 # SUP nonce scanner
 
-`investigate-sup-nonces.js` is an executable Base transaction scanner. It finds
+`scan-sup-nonces.js` is an executable Base transaction scanner. It finds
 successful FluidLocker claim transactions for one account and a requested set of
 program IDs, decodes their calldata, and reports the largest transaction-age
 deltas first. It is not production application code.
@@ -8,12 +8,12 @@ deltas first. It is not production application code.
 ## Run
 
 ```sh
-npm run investigate:nonces -- \
+npm run scan:nonces -- \
   --user 0x0000000000000000000000000000000000000000 \
   --program-ids 607,611
 ```
 
-Use `npm run investigate:nonces -- --help` for every option. Important options
+Use `npm run scan:nonces -- --help` for every option. Important options
 include `--rpc-url`, `--from-block`, `--to-block`, `--lookback-days`,
 `--chunk-size`, `--limit`, `--min-age-hours`, and `--json`.
 
@@ -32,7 +32,7 @@ npm run bundle:nonces
 `test:nonces` is a live CMS and Base RPC smoke test using the current leading S6
 Gardens account, so it requires outbound network access and can change as live data
 changes. `bundle:nonces` writes the ignored
-`investigate-sup-nonces.bundle.js` artifact used by the release workflow.
+`scan-sup-nonces.bundle.js` artifact used by the release workflow.
 
 Claim logs do not contain a nonce. The utility first finds claim logs, then decodes
 the successful transaction input; batch claim functions use one nonce across all

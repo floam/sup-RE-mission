@@ -147,7 +147,7 @@ The CMS raw/claimable pair is authoritative. When they differ:
 ## Historical claim research
 
 For transaction hash, caller, calldata, block time, or receipt status, use
-`tools/sup-nonces/investigate-sup-nonces.js`, SUP indexed claims, and direct Base receipt
+`tools/sup-nonces/scan-sup-nonces.js`, SUP indexed claims, and direct Base receipt
 or SDK-defined log verification. Do not substitute snapshot nonce time for block time.
 
 ## Leaderboards

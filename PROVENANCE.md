@@ -15,7 +15,7 @@ The Wagmi 3 migration types in
 ABI-derived typing approach from `superfluid-org/superfluid-dashboard` commit
 `ee1af4ff25fba76d5ecfebe7cf0a1e3244f40bbd`. No Dashboard file is vendored.
 
-`tools/sup-nonces/investigate-sup-nonces.js` contains minimal ABI fragments for
+`tools/sup-nonces/scan-sup-nonces.js` contains minimal ABI fragments for
 `FluidLockerFactory.getUserLocker`, `FluidEPProgramManager.getNextValidNonce`, and
 locker claim variants/events. They are intentionally narrow decoding/read surfaces.
 
