@@ -7,6 +7,8 @@ import { useReadCfaForwarder } from "@sfpro/sdk/hook";
 
 import { APP_CHAIN } from "../config/chains";
 import { SUP_TOKEN_ADDRESS_BY_CHAIN } from "../contracts/app-contracts";
+import { sumReserveFlowRates } from "../lib/reserve-flow";
+import { getPublicPrograms } from "../client/programs";
 import { useRecentTransactions } from "./useRecentTransactions";
 import { useLockerLiquidityBalance } from "./useLockerLiquidityBalance";
 import type { Address } from "../types/program-app";
@@ -19,12 +21,31 @@ export function useLockerBalance({
   const depositedRecently =
     useRecentTransactions("deposited-in-reserve", 30).length > 0;
   const liquidity = useLockerLiquidityBalance(lockerAddress).data;
-  const { data: flowRate } = useReadCfaForwarder({
+  const { data: cfaFlowRate } = useReadCfaForwarder({
     functionName: "getNetFlow",
     chainId: APP_CHAIN.id,
     args: [SUP_TOKEN_ADDRESS_BY_CHAIN[APP_CHAIN.id], lockerAddress],
     query: { enabled: Boolean(lockerAddress) },
   } as never);
+  const programs = useQuery({
+    queryKey: ["public-programs"],
+    queryFn: getPublicPrograms,
+  });
+  const programIds = (programs.data ?? []).map((program) => BigInt(program.id));
+  const programFlowRates = useReadContract({
+    abi: lockerAbi,
+    address: lockerAddress,
+    functionName: "getFlowRatePerProgram",
+    args: [programIds],
+    chainId: APP_CHAIN.id,
+    query: {
+      enabled: Boolean(lockerAddress && programs.data),
+    },
+  });
+  const flowRate =
+    cfaFlowRate === undefined || programFlowRates.data === undefined
+      ? undefined
+      : sumReserveFlowRates(cfaFlowRate, programFlowRates.data);
   const { data: availableBalance } = useReadContract({
     abi: lockerAbi,
     address: lockerAddress,
