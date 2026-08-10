@@ -22,7 +22,7 @@ test("recognizes trailing identifiers as one semantic event family", () => {
   });
 });
 
-test("collapses exact event names into one family total", () => {
+test("keeps equal event names separate when their point amounts differ", () => {
   const groups = groupCmsEvents([
     {
       id: 1,
@@ -38,16 +38,18 @@ test("collapses exact event names into one family total", () => {
     },
   ]);
 
-  assert.deepEqual(groups, [
-    {
-      key: "mystery-box",
-      displayName: "Mystery box",
-      count: 2,
-      totalPoints: 42,
-      firstCreatedAt: "2026-07-20T01:00:00.000Z",
-      latestCreatedAt: "2026-07-21T01:00:00.000Z",
-    },
-  ]);
+  assert.equal(groups.length, 2);
+  assert.deepEqual(
+    groups.map(({ displayName, count, totalPoints }) => ({
+      displayName,
+      count,
+      totalPoints,
+    })),
+    [
+      { displayName: "Mystery box", count: 1, totalPoints: 30 },
+      { displayName: "Mystery box", count: 1, totalPoints: 12 },
+    ],
+  );
 });
 
 test("groups different identifiers into one count and point total", () => {
@@ -73,13 +75,12 @@ test("groups different identifiers into one count and point total", () => {
   ]);
 
   assert.equal(groups.length, 1);
-  assert.equal(groups[0].key, "nft-mint");
   assert.equal(groups[0].displayName, "NFT mint");
   assert.equal(groups[0].count, 3);
   assert.equal(groups[0].totalPoints, 30);
 });
 
-test("normalizes case without merging unrelated event families", () => {
+test("normalizes case without merging different families or point amounts", () => {
   const groups = groupCmsEvents([
     {
       id: 1,
@@ -101,13 +102,17 @@ test("normalizes case without merging unrelated event families", () => {
     },
   ]);
 
-  assert.equal(groups.length, 2);
-  const mysteryBox = groups.find((group) => group.key === "mystery-box");
-  const referral = groups.find((group) => group.key === "referral");
-  assert(mysteryBox);
-  assert(referral);
-  assert.equal(mysteryBox.count, 2);
-  assert.equal(mysteryBox.totalPoints, 3);
-  assert.equal(referral.count, 1);
-  assert.equal(referral.totalPoints, 3);
+  assert.equal(groups.length, 3);
+  assert.deepEqual(
+    groups.map(({ displayName, count, totalPoints }) => ({
+      displayName,
+      count,
+      totalPoints,
+    })),
+    [
+      { displayName: "Referral", count: 1, totalPoints: 3 },
+      { displayName: "Mystery box", count: 1, totalPoints: 2 },
+      { displayName: "Mystery box", count: 1, totalPoints: 1 },
+    ],
+  );
 });

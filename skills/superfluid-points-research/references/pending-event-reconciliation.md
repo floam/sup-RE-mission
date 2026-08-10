@@ -80,6 +80,10 @@ balance:
 9. If bounded pages are exhausted without equality, return the consumed events with an
    explicit partial-explanation message.
 
+The UI can show an event count multiplier only when the semantic family and signed
+point amount are equal. Events in one family with different point amounts stay on
+separate lines.
+
 The nonce interval prevents the arithmetic from wandering into events older than the
 last balance snapshot applied onchain.
 

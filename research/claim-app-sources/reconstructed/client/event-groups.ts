@@ -70,10 +70,12 @@ export function groupCmsEvents(
 
   for (const event of events) {
     const family = getEventFamily(event.eventName);
-    const group = groups.get(family.key);
+    const groupKey = JSON.stringify([family.key, event.points]);
+    const group = groups.get(groupKey);
     if (!group) {
-      groups.set(family.key, {
-        ...family,
+      groups.set(groupKey, {
+        key: groupKey,
+        displayName: family.displayName,
         count: 1,
         totalPoints: event.points,
         firstCreatedAt: event.createdAt,
