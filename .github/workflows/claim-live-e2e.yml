@@ -8,6 +8,7 @@ on:
       - "research/claim-app-sources/reconstructed/client/programs.ts"
       - "research/claim-app-sources/reconstructed/e2e/**"
       - "research/claim-app-sources/reconstructed/package.json"
+      - "research/claim-app-sources/reconstructed/package-lock.json"
   schedule:
     - cron: "17 10 * * *"
   workflow_dispatch:
@@ -36,9 +37,11 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: research/claim-app-sources/reconstructed/package-lock.json
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Run live end-to-end test
         env:
