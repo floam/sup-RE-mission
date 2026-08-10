@@ -161,12 +161,12 @@ export function ClaimCampaignChange({
           >
             {detailsOpen ? "hide campaign history" : "view campaign history"}
           </button>
-          {detailsOpen && (
+          <div hidden={!detailsOpen}>
             <CampaignEventHistory
               account={account}
               campaignId={row.programId}
             />
-          )}
+          </div>
         </>
       )}
     </article>
