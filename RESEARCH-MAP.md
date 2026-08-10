@@ -5,8 +5,8 @@ Load the smallest relevant group for the question at hand.
 ## Claim UX, claim state, flows, caps, and pending-event explanations
 
 - `research/claim-app-sources/reconstructed/RUNNABILITY.md`: current SDK/Wagmi/OpenAPI architecture, flow projection, client-helper boundary, verification, and limitations.
-- `research/claim-app-sources/reconstructed/client/ClaimExperience.tsx`: staged account review, ownership-aware submission, batched explanation loading, and client explanation cache.
-- `research/claim-app-sources/reconstructed/client/ClaimCampaignChange.tsx`: per-campaign current/projected flows, capped-out state, and event reconciliation UI.
+- `research/claim-app-sources/reconstructed/client/ClaimExperience.tsx`: staged account review, ownership-aware submission, and user-requested explanation cache.
+- `research/claim-app-sources/reconstructed/client/ClaimCampaignChange.tsx`: per-campaign flows, capped-out state, and drill-down event history.
 - `research/claim-app-sources/reconstructed/client/claim-chain.ts`: active CMS uncapped/capped targets plus SDK/Wagmi onchain state assembly.
 - `research/claim-app-sources/reconstructed/client/program-attribution.ts`: live claim-app names, seasons, and categories with recovered labels as an outage fallback.
 - `research/claim-app-sources/reconstructed/client/claim-batch.ts`: CMS account/order/parallel-array validation.
@@ -57,13 +57,7 @@ submission until a read-only refresh succeeds.
 - `skills/superfluid-points-research/references/endpoints.md`: detailed public endpoint response/error catalog.
 - `skills/superfluid-points-research/references/runtime-endpoints.md`: runtime route inventory, CMS OpenAPI mapping, program-manager nonce boundary, optional balances API, and SDK/Wagmi procedures.
 - `research/2026-06-30-spr-campaigns-claim-endpoints.md`: dated public-app endpoint audit.
-- `tools/point-events/export-point-event-names.ts`: live campaign and program discovery.
-
-## Point-event catalog
-
-- `tools/point-events/export-point-event-names.ts`: discovery, caching, coalescing, and HTML generation.
-- `tools/point-events/README.md`: invocation, source layering, coverage, and output rules.
-- `tools/point-events/point-event-names.html`: generated observed-event catalog.
+- `research/claim-app-sources/reconstructed/lib/campaign-event-history.ts`: explicit newest-first campaign event batches of at most 300 rows.
 - `research/claim-app-sources/reconstructed/client/event-groups.ts`: equal-point family grouping and canceled-pair display used by claim explanations.
 
 ## Nonce and historical claim research

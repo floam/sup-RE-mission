@@ -167,6 +167,7 @@ Prefer server-provided order/rank unless tie, cap, and exclusion rules are prove
 - Cache successful broad-scan responses.
 - Chunk CMS balance/signature operations at 50.
 - Use event pages of 100 and explicit page caps.
+- Show broad campaign history only after user action and load at most 300 events per action.
 - Batch changed-campaign explanations once per wallet state.
 - Fail explicitly rather than silently truncating.
 - Preserve disagreements between live sources.

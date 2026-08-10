@@ -68,6 +68,9 @@ export function ClaimExperience() {
   );
   const checkRequest = useRef(0);
   const eventRequest = useRef(0);
+  const explanationBatch = useRef<
+    Promise<Map<bigint, EventBreakdown>> | undefined
+  >(undefined);
   const autoReview = useRef<{
     completed?: Address;
     inFlight?: Address;
@@ -87,6 +90,7 @@ export function ClaimExperience() {
 
   function clearBreakdowns() {
     eventRequest.current += 1;
+    explanationBatch.current = undefined;
     setBreakdowns(new Map());
   }
 
@@ -213,81 +217,65 @@ export function ClaimExperience() {
     });
   }, [connectedAddress, isConnected]);
 
-  useEffect(() => {
-    if (
-      !state ||
-      !isAddress(account) ||
-      getAddress(account) !== state.account
-    ) {
-      setBreakdowns(new Map());
-      return;
-    }
-
-    const explanatoryRows = state.programPointStates.filter(
-      (row) =>
-        row.cmsCampaignExists && row.isOnchainOutdated && !row.isCapped,
+  async function explainCampaign(row: PointState) {
+    if (!state || breakdowns.has(row.programId)) return;
+    const request = eventRequest.current;
+    const selection = { account: state.account, programId: row.programId };
+    setBreakdowns((current) =>
+      new Map(current).set(row.programId, {
+        selection,
+        events: [],
+        message: "loading event details…",
+      }),
     );
-    if (explanatoryRows.length === 0) {
-      setBreakdowns(new Map());
-      return;
-    }
-
-    const request = ++eventRequest.current;
-    setBreakdowns(
-      new Map(
-        explanatoryRows.map((row) => [
-          row.programId,
-          {
-            selection: { account: state.account, programId: row.programId },
-            events: [],
-            message: "loading event details…",
-          },
-        ]),
-      ),
-    );
-
-    void explainPendingCampaigns(
-      config,
-      state.account,
-      explanatoryRows,
-    )
-      .then((explanations) => {
-        if (request !== eventRequest.current) return;
-        const next = new Map<bigint, EventBreakdown>();
-        for (const explanation of explanations) {
-          next.set(explanation.selection.programId, explanation);
-        }
-        for (const row of explanatoryRows) {
-          if (!next.has(row.programId)) {
-            next.set(row.programId, {
-              selection: { account: state.account, programId: row.programId },
-              events: [],
-              message: "event details were not returned for this campaign",
-            });
-          }
-        }
-        setBreakdowns(next);
-      })
-      .catch((error) => {
-        if (request !== eventRequest.current) return;
-        const detail = error instanceof Error ? error.message : String(error);
-        setBreakdowns(
-          new Map(
-            explanatoryRows.map((row) => [
-              row.programId,
-              {
-                selection: {
-                  account: state.account,
-                  programId: row.programId,
-                },
-                events: [],
-                message: detail,
-              },
-            ]),
-          ),
+    try {
+      let batch = explanationBatch.current;
+      if (!batch) {
+        const eligibleRows = state.programPointStates.filter(
+          (candidate) =>
+            candidate.cmsCampaignExists &&
+            candidate.isOnchainOutdated &&
+            !candidate.isCapped,
         );
-      });
-  }, [account, config, state]);
+        batch = explainPendingCampaigns(
+          config,
+          state.account,
+          eligibleRows,
+        ).then(
+          (explanations) =>
+            new Map(
+              explanations.map((explanation) => [
+                explanation.selection.programId,
+                explanation,
+              ]),
+            ),
+        );
+        explanationBatch.current = batch;
+      }
+      const explanations = await batch;
+      if (request !== eventRequest.current) return;
+      const explanation = explanations.get(row.programId);
+      setBreakdowns((current) =>
+        new Map(current).set(
+          row.programId,
+          explanation ?? {
+            selection,
+            events: [],
+            message: "event details were not returned for this campaign",
+          },
+        ),
+      );
+    } catch (error) {
+      if (request !== eventRequest.current) return;
+      setBreakdowns((current) =>
+        new Map(current).set(row.programId, {
+          selection,
+          events: [],
+          message: error instanceof Error ? error.message : String(error),
+        }),
+      );
+    }
+  }
 
   async function claim() {
     if (
@@ -523,6 +511,12 @@ export function ClaimExperience() {
             : undefined
         }
         breakdown={breakdowns.get(row.programId)}
+        account={state!.account}
+        onExplain={
+          row.cmsCampaignExists && row.isOnchainOutdated && !row.isCapped
+            ? () => void explainCampaign(row)
+            : undefined
+        }
       />
     );
   }
@@ -662,7 +656,9 @@ export function ClaimExperience() {
           ) : resultKind === "updates-found" ? (
             <>
               <section className="campaign-list" aria-label="Campaign updates">
-                <div className="campaigns">{updateRows.map(renderCampaign)}</div>
+                <div className="campaigns">
+                  {updateRows.map(renderCampaign)}
+                </div>
               </section>
 
               <footer className="submit-update">
@@ -672,7 +668,9 @@ export function ClaimExperience() {
                     {selectedRows.length === 1 ? "" : "s"}
                   </span>
                   <span>·</span>
-                  <span className={totalFlowDelta < 0n ? "negative" : "positive"}>
+                  <span
+                    className={totalFlowDelta < 0n ? "negative" : "positive"}
+                  >
                     {formatCompactMonthlyFlow(totalFlowDelta, true)}
                   </span>
                   <span>·</span>
@@ -714,7 +712,9 @@ export function ClaimExperience() {
             </>
           ) : populatedRows.length > 0 ? (
             <section className="campaign-list" aria-label="Current campaigns">
-              <div className="campaigns">{populatedRows.map(renderCampaign)}</div>
+              <div className="campaigns">
+                {populatedRows.map(renderCampaign)}
+              </div>
               <p className="empty-state">
                 {cappedRows.length > 0
                   ? "No transaction is needed. Capped targets remain visible above."
