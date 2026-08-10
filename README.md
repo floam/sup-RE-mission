@@ -10,7 +10,7 @@ runnable semantic reconstruction of the claim experience.
   SDK/Wagmi claim state, a typed CMS OpenAPI client, current/projected SUP flows,
   nonce-bounded pending-event explanations, capped-campaign UX, and Base submission.
 - `tools/claim-voucher/`: Safari Shortcuts-compatible claim-voucher injector.
-- `tools/point-events/`: live campaign discovery and point-event catalog export.
+- `tools/point-events/`: bounded on-demand CMS campaign event viewer.
 - `tools/sup-nonces/`: Base claim-history and nonce analysis utility.
 - `tools/claim-source-recovery/`: provenance-aware public deployment capture tools.
 - `research/`: dated endpoint audits, security analysis, and reconstruction notes.
@@ -21,8 +21,8 @@ runnable semantic reconstruction of the claim experience.
 ## Commands
 
 ```sh
-npm install
-npm run export:point-events
+npm ci
+npm run view:point-events
 npm run scan:nonces -- --user 0x... --program-ids 607
 npm run test:nonces
 npm run bundle:nonces
