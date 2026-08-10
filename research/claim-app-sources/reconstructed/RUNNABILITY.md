@@ -123,7 +123,9 @@ naturally changes the key.
   exclusions. A receipt transport error after submission remains indeterminate. Stale
   or uncertain state disables another submission and exposes a read-only refresh.
 - `/apps`, `/governance`, `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`,
-  `/staking`, and `/swap` retain their reconstructed implementations.
+  and `/staking` retain their reconstructed implementations.
+- `/swap` is intentionally absent from the runnable application. The independent
+  client does not ship the recovered LI.FI swap/referrer flow.
 
 ## Verification
 

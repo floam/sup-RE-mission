@@ -25,10 +25,11 @@ Replace the reconstructed application's inherited web-dashboard presentation wit
 
 - Remove the recovered stylesheet from the runtime layout.
 - Keep a single compact navigation line: product name, primary routes, wallet state.
-- Apply the same terminal primitives to `/`, `/claim`, `/apps`, `/governance`, `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`, `/staking`, and `/swap`.
+- Apply the same terminal primitives to `/`, `/claim`, `/apps`, `/governance`, `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`, and `/staking`.
+- Remove `/swap` and its LI.FI integration rather than carrying that recovered product
+  surface into the independent terminal client.
 - Apply the same grammar to loading, route-error, global-error, not-found, wallet, governance, liquidity, Reserve deposit, Reserve withdrawal, and Reserve-name interaction states.
-- Existing route behavior stays intact; presentation is normalized globally.
-- Treat embedded third-party transaction surfaces as terminal client boundaries. Theme them dark, square, flat, and monospace where their public API permits it.
+- Existing retained-route behavior stays intact; presentation is normalized globally.
 
 ## Claim review grammar
 
@@ -83,10 +84,10 @@ Rules:
 - [x] Add projected GDA pool share to claim state and render it after event lines.
 - [x] Flatten grouped event rendering and remove dates.
 - [x] Replace campaign summary cards and the campaigns table with lines.
-- [x] Replace governance, Reserve, Reserve Names, leaderboard, liquidity, staking, and swap route chrome.
+- [x] Replace governance, Reserve, Reserve Names, leaderboard, liquidity, and staking route chrome.
+- [x] Remove the swap route, its home-route entry, LI.FI configuration, and LI.FI dependency.
 - [x] Replace delegate, liquidity-position, withdrawn-stream, Reserve-action, Reserve-deposit, and Reserve-withdrawal cards and modals.
 - [x] Remove runtime illustrations, icon-only controls, decorative avatars, and confetti from converted routes and dialogs.
-- [x] Theme the LI.FI widget through its public theme configuration.
 - [x] Replace shared transaction spinners with terminal status text.
 - [x] Replace wallet, loading, error, and not-found surfaces.
 - [x] Confirm the implementation-head Vercel production build.
@@ -96,7 +97,10 @@ Rules:
 ## Verification record
 
 - Implementation commit `824e731` built successfully on Vercel and reached `READY` at `sup-reclaim-8v90o09jq-aaron-gyes-projects.vercel.app`.
-- `/`, `/claim`, `/apps`, `/governance`, `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`, `/staking`, and `/swap` returned HTTP 200 from that exact deployment.
+- At implementation commit `824e731`, `/`, `/claim`, `/apps`, `/governance`,
+  `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`, `/staking`, and the
+  subsequently removed `/swap` returned HTTP 200. That historical deployment check
+  does not describe the final route inventory.
 - An unknown route returned HTTP 404 through the custom terminal not-found surface.
 - The returned route markup uses the shared terminal shell and the converted route-specific line layouts. The claim response contains the compact status/connect surface with no hero or card wrapper.
 - A true 320 CSS pixel screenshot review remains open because the execution environment blocked browser navigation with `ERR_BLOCKED_BY_ADMINISTRATOR`. HTTP/deployment verification succeeded, but it is not a substitute for that visual pass.
