@@ -114,7 +114,7 @@ async function verifySnapshot(root, manifest) {
       if (!asset.beautifiedFile) continue;
 
       assert(
-        asset.beautifiedFile.startsWith(`beautified${path.sep}`),
+        asset.beautifiedFile.startsWith("beautified/"),
         `${asset.beautifiedFile}: expected a beautified/ derivative path`,
       );
       const regenerated = await prettier.format(raw.toString("utf8"), {
@@ -132,7 +132,7 @@ async function verifySnapshot(root, manifest) {
         `${asset.beautifiedFile}: regenerated SHA-256 differs from snapshot manifest`,
       );
 
-      const relative = path.relative("beautified", asset.beautifiedFile);
+      const relative = asset.beautifiedFile.slice("beautified/".length);
       const generatedFile = path.join(generatedRoot, relative);
       await mkdir(path.dirname(generatedFile), { recursive: true });
       await writeFile(generatedFile, regeneratedBytes);
