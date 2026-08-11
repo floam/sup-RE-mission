@@ -2,6 +2,21 @@ const TOKEN_DECIMALS = 18;
 
 export const LIVE_BALANCE_UPDATES_PER_SECOND = 4;
 
+export function calculateFlowingBalance(
+  balance: bigint,
+  balanceTimestampMs: bigint,
+  flowRate: bigint,
+  nowMs: bigint,
+  maxBalance?: bigint,
+): bigint {
+  const elapsedMs = nowMs > balanceTimestampMs ? nowMs - balanceTimestampMs : 0n;
+  const flowing = balance + (flowRate * elapsedMs) / 1_000n;
+
+  return maxBalance !== undefined && flowing > maxBalance
+    ? maxBalance
+    : flowing;
+}
+
 export function maskFastBalanceDigits(
   formattedBalance: string,
   flowRate: bigint,

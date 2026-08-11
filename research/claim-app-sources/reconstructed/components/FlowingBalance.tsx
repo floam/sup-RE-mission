@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { formatTokenAmount, inferDecimalPlaces } from "../lib/format";
 import {
+  calculateFlowingBalance,
   LIVE_BALANCE_UPDATES_PER_SECOND,
   maskFastBalanceDigits,
 } from "../lib/flowing-balance";
@@ -41,10 +42,13 @@ export function FlowingBalance({
   }, [flowRate]);
 
   const timestampMs = BigInt(balanceTimestamp) * 1_000n;
-  const elapsedMs = BigInt(Math.max(0, now - Number(timestampMs)));
-  const flowing = balance + (flowRate * elapsedMs) / 1_000n;
-  const displayed =
-    maxBalance !== undefined && flowing > maxBalance ? maxBalance : flowing;
+  const displayed = calculateFlowingBalance(
+    balance,
+    timestampMs,
+    flowRate,
+    BigInt(now),
+    maxBalance,
+  );
   const formattedBalance = formatTokenAmount(displayed, decimalPlaces);
 
   return (
