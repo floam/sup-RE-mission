@@ -7,6 +7,13 @@ units already applied onchain. It reuses reviewed claim state, uses claim nonces
 bound the relevant CMS event window, then applies newest-first lazy summation inside
 that window.
 
+## Identifier domain
+
+The helper's SUP `programId` and CMS `campaignId` are the same numeric identifier, so
+pass the value unchanged between onchain reads and CMS requests. Run reconciliation
+only when that ID has both a SUP program and a CMS campaign. If either record is
+absent, record source absence rather than searching for a translated ID.
+
 ## Value domains
 
 The CMS signed balance endpoints expose:

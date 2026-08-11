@@ -40,6 +40,14 @@ matching program IDs. Recovered definitions remain a display fallback only. Prog
 existence and lifecycle still come from the SUP subgraph; claim-app metadata is
 attribution, not onchain authority.
 
+## Shared identifier model
+
+SUP `Program.id`, claim-app `program.id`, and CMS `campaignId` are the same numeric
+identifier. Pass the value between these boundaries unchanged and do not build a
+program-to-campaign mapping. Record SUP, claim-app attribution, and CMS presence
+independently. A CMS warning or `Campaign not found` response means
+`existsInCms = false` for that ID, not that the CMS uses a different identifier.
+
 ## CMS generated client boundary
 
 Base: `https://cms.superfluid.pro`
@@ -119,7 +127,8 @@ nonce resolution is one second. A backfilled event can carry a time outside the 
 ## Claim-state and transaction procedure
 
 1. Enumerate active SUP programs.
-2. Fetch unsigned raw/capped values through `balance-batch`.
+2. Pass each `Program.id` unchanged as CMS `campaignId`, record CMS existence, and
+   fetch unsigned raw/capped values through `balance-batch`.
 3. Resolve locker through SDK factory ABI.
 4. Read program units/member flow and pool total units/flow.
 5. Project current and target `SUP/month`.

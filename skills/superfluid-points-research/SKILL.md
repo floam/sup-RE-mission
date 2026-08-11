@@ -31,15 +31,26 @@ CMS event `createdAt` is `eventTime`, not insertion time. An empty ledger respon
 not prove no claim occurred. A nonce snapshot does not identify a transaction hash or
 mined timestamp.
 
+## Identifier model
+
+Treat SUP `Program.id`, claim-app `program.id`, and CMS `campaignId` as the same
+numeric identifier. Do not build a mapping or translation layer between them. Track
+source presence independently with fields such as `existsInSup`,
+`hasClaimAppAttribution`, and `existsInCms`; an ID can exist in one source without a
+record in another.
+
 ## Campaign workflow
 
-1. Enumerate SUP `Program` entities.
-2. Verify pools with direct RPC when high confidence is required.
-3. Read current pool flow and enrich through the protocol subgraph when useful.
-4. Join claim-app attribution.
-5. Resolve CMS existence/raw/capped account targets in chunks of 50.
-6. Fetch campaign metadata or events only for known CMS campaigns.
-7. Report SUP, claim-app, CMS, missing, CMS-only, and attribution-only sets separately.
+1. Enumerate SUP `Program` entities and any additional candidate IDs from claim-app or
+   CMS discovery required by the task.
+2. Join all sources directly on the shared numeric ID and record source presence.
+3. Verify pools with direct RPC when high confidence is required.
+4. Read current pool flow and enrich through the protocol subgraph when useful.
+5. Join claim-app attribution by the same ID.
+6. Resolve CMS existence/raw/capped account targets in chunks of 50.
+7. Fetch campaign metadata or events only for IDs with a CMS record.
+8. Report per-ID presence combinations such as SUP-only, CMS-only, both,
+   attribution-only, or absent from every probed source.
 
 Prefer batched operations and bounded concurrency.
 

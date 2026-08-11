@@ -23,7 +23,12 @@ Use this order when building authoritative campaign history:
 | Season/name/app metadata                | Claim `/api/programs`                          |
 | Offchain points/campaign event metadata | CMS `/points/*`                                |
 
-Claim-app program metadata is attribution, not the primary existence source. CMS campaign IDs can identify offchain-only campaigns and event metadata, but CMS absence does not disprove an onchain emission program observed in the SUP subgraph.
+SUP `Program.id`, claim-app `program.id`, and CMS `campaignId` are the same numeric
+identifier. Join them by direct equality; do not maintain a crosswalk or translation
+layer. Existence remains source-specific: track `existsInSup`,
+`hasClaimAppAttribution`, and `existsInCms` independently. A CMS-only record is an
+offchain-only campaign, while a CMS miss does not disprove an onchain emission program
+with that ID.
 
 ## CMS-backed points API
 
@@ -65,7 +70,7 @@ Claim-app program metadata is attribution, not the primary existence source. CMS
 
 - **Notes**:
   - Use this to resolve offchain CMS campaign metadata only after candidate IDs have been discovered.
-  - Claim-app program IDs and CMS campaign IDs overlap but are not identical; a valid onchain claim program may return `Campaign not found` here.
+  - Pass a SUP or claim-app program ID here unchanged as `campaignId`. `Campaign not found` means that shared ID has no CMS record; it does not indicate a different ID namespace.
 
 ### Get point events
 
@@ -599,7 +604,7 @@ Capture the GraphQL operation and response for the campaigns app subgraph reques
 - **Missing/error response example**: Unknown / needs capture for stale or invalid `next-action` IDs.
 - **Notes**:
   - Response is React Flight text. Parse the line prefixed with `1:` as JSON and extract IDs from `app.program?.id`.
-  - Program IDs are onchain claim programs; report them separately from CMS campaign IDs.
+  - Use each extracted program ID unchanged for SUP and CMS lookups. Report whether the shared ID exists in each source, not separate program-ID and campaign-ID identities.
   - If the action ID stops working, fetch `https://claim.superfluid.org`, download `/_next/static/...js` chunks, and search for `getProgramApps`, `createServerReference`, `programApps`, `/api/points/states`, or `/api/points/claim`.
 
 #### Unknown / needs capture
