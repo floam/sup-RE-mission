@@ -30,7 +30,7 @@ Use these ASD-STE100 rules with this controlled vocabulary:
 
 1. Use an approved word only with the part of speech and meaning that the dictionary gives.
 2. Make each instruction as clear and specific as possible.
-3. Do not write a multi-word noun that has more than three words.
+3. Do not write a noun cluster that contains more than three nouns.
 4. Use an approved verb form only for these purposes:
    - The infinitive form
    - The imperative form
