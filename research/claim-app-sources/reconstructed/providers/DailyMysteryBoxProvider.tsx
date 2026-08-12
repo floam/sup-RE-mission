@@ -75,24 +75,24 @@ export function useDailyMysteryBox() {
     }: {
       address: NonNullable<typeof address>;
       transactionHash: `0x${string}`;
-    }) => claimMysteryBoxPoints(claimAddress, transactionHash),
+    }) =>
+      claimMysteryBoxPoints(claimAddress, transactionHash).then((result) => {
+        if (!result.success)
+          throw new Error(result.error ?? "Failed to claim mystery box points");
+        return result;
+      }),
+    retry: 2,
     onSuccess: (result) => {
       savePendingClaim(null);
       transaction.reset();
       setOpenResult(result);
-      if (result.success) {
-        setClaimCompleted(true);
-        void check.refetch();
-        void lastClaim.refetch();
-        void queryClient.invalidateQueries({
-          queryKey: ["getAccountProgramPointStates", address],
-          refetchType: "all",
-        });
-      } else
-        console.error(
-          "Failed to claim mystery box points",
-          result.error ?? "Unknown error",
-        );
+      setClaimCompleted(true);
+      void check.refetch();
+      void lastClaim.refetch();
+      void queryClient.invalidateQueries({
+        queryKey: ["getAccountProgramPointStates", address],
+        refetchType: "all",
+      });
     },
     onError: (error) => {
       console.error("Mystery box claim error:", error);
@@ -103,6 +103,12 @@ export function useDailyMysteryBox() {
   });
 
   useEffect(() => {
+    if (
+      transaction.receiptStatus === "reverted" &&
+      pendingClaim?.txHash === transaction.txHash
+    ) {
+      savePendingClaim(null);
+    }
     if (
       transaction.txHash &&
       address &&
@@ -128,11 +134,20 @@ export function useDailyMysteryBox() {
       savePendingClaim({ ...pendingClaim, status: "succeeded" });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, pendingClaim, transaction.isFinished, transaction.txHash]);
+  }, [
+    address,
+    pendingClaim,
+    transaction.isFinished,
+    transaction.receiptStatus,
+    transaction.txHash,
+  ]);
   useEffect(() => {
     if (!resumedClaim) return;
-    if (resumedReceipt.isSuccess && pendingClaim?.status === "pending")
-      savePendingClaim({ ...pendingClaim, status: "succeeded" });
+    if (resumedReceipt.isSuccess && pendingClaim?.status === "pending") {
+      if (resumedReceipt.data?.status === "success")
+        savePendingClaim({ ...pendingClaim, status: "succeeded" });
+      else savePendingClaim(null);
+    }
     if (resumedReceipt.isError) savePendingClaim(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -140,6 +155,7 @@ export function useDailyMysteryBox() {
     resumedClaim,
     resumedReceipt.isError,
     resumedReceipt.isSuccess,
+    resumedReceipt.data?.status,
   ]);
   useEffect(() => {
     if (
@@ -197,14 +213,22 @@ export function useDailyMysteryBox() {
       if (address) transaction.open();
     },
     openResult,
-    status: claimIsFinishing
-      ? {
-          displayText: "Opening mystery box...",
-          isLoading: true,
-          isError: false,
-          isFinished: false,
-        }
-      : transaction.status,
+    status:
+      transaction.receiptStatus === "reverted"
+        ? {
+            displayText: "Mystery box transaction reverted",
+            isLoading: false,
+            isError: true,
+            isFinished: false,
+          }
+        : claimIsFinishing
+          ? {
+              displayText: "Opening mystery box...",
+              isLoading: true,
+              isError: false,
+              isFinished: false,
+            }
+          : transaction.status,
     chain: APP_CHAIN,
     hasSupStakingBonus: Boolean(
       check.data?.success && check.data.hasSupStakingBonus,
