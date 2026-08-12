@@ -220,6 +220,7 @@ export function DailyMysteryBoxModal({
         chain={chain}
         onClick={onOpenBox}
         status={status}
+        ButtonProps={{ disabled: status?.isLoading }}
       >
         Open Mystery Box
       </TransactionButton>

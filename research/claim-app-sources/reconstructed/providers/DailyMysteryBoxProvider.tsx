@@ -51,7 +51,14 @@ export function useDailyMysteryBox() {
   };
   const check = useQuery({
     queryKey: ["dailyMysteryBox", address],
-    queryFn: () => checkMysteryBox(address!),
+    queryFn: async () => {
+      const result = await checkMysteryBox(address!);
+      if (!result.success)
+        throw new Error(
+          result.error ?? "Failed to check mystery box eligibility",
+        );
+      return result;
+    },
     enabled: Boolean(address && isConnected && !claimCompleted),
     refetchOnWindowFocus: false,
   });
@@ -69,30 +76,33 @@ export function useDailyMysteryBox() {
   });
   const claim = useMutation({
     mutationKey: ["claimMysteryBoxPoints", address],
-    mutationFn: ({
+    mutationFn: async ({
       address: claimAddress,
       transactionHash,
     }: {
       address: NonNullable<typeof address>;
       transactionHash: `0x${string}`;
-    }) => claimMysteryBoxPoints(claimAddress, transactionHash),
+    }) => {
+      const result = await claimMysteryBoxPoints(
+        claimAddress,
+        transactionHash,
+      );
+      if (!result.success)
+        throw new Error(result.error ?? "Failed to claim mystery box points");
+      return result;
+    },
+    retry: 3,
     onSuccess: (result) => {
       savePendingClaim(null);
       transaction.reset();
       setOpenResult(result);
-      if (result.success) {
-        setClaimCompleted(true);
-        void check.refetch();
-        void lastClaim.refetch();
-        void queryClient.invalidateQueries({
-          queryKey: ["getAccountProgramPointStates", address],
-          refetchType: "all",
-        });
-      } else
-        console.error(
-          "Failed to claim mystery box points",
-          result.error ?? "Unknown error",
-        );
+      setClaimCompleted(true);
+      void check.refetch();
+      void lastClaim.refetch();
+      void queryClient.invalidateQueries({
+        queryKey: ["getAccountProgramPointStates", address],
+        refetchType: "all",
+      });
     },
     onError: (error) => {
       console.error("Mystery box claim error:", error);
@@ -103,6 +113,13 @@ export function useDailyMysteryBox() {
   });
 
   useEffect(() => {
+    if (
+      transaction.receiptStatus === "reverted" &&
+      pendingClaim?.txHash === transaction.txHash
+    ) {
+      savePendingClaim(null);
+      return;
+    }
     if (
       transaction.txHash &&
       address &&
@@ -116,7 +133,13 @@ export function useDailyMysteryBox() {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, claimCompleted, transaction.txHash]);
+  }, [
+    address,
+    claimCompleted,
+    pendingClaim,
+    transaction.receiptStatus,
+    transaction.txHash,
+  ]);
   useEffect(() => {
     if (
       transaction.isFinished &&
@@ -128,11 +151,20 @@ export function useDailyMysteryBox() {
       savePendingClaim({ ...pendingClaim, status: "succeeded" });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, pendingClaim, transaction.isFinished, transaction.txHash]);
+  }, [
+    address,
+    pendingClaim,
+    transaction.isFinished,
+    transaction.receiptStatus,
+    transaction.txHash,
+  ]);
   useEffect(() => {
     if (!resumedClaim) return;
-    if (resumedReceipt.isSuccess && pendingClaim?.status === "pending")
-      savePendingClaim({ ...pendingClaim, status: "succeeded" });
+    if (resumedReceipt.isSuccess && pendingClaim?.status === "pending") {
+      if (resumedReceipt.data?.status === "success")
+        savePendingClaim({ ...pendingClaim, status: "succeeded" });
+      else savePendingClaim(null);
+    }
     if (resumedReceipt.isError) savePendingClaim(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -140,6 +172,7 @@ export function useDailyMysteryBox() {
     resumedClaim,
     resumedReceipt.isError,
     resumedReceipt.isSuccess,
+    resumedReceipt.data?.status,
   ]);
   useEffect(() => {
     if (
@@ -214,6 +247,7 @@ export function useDailyMysteryBox() {
       setClaimCompleted(false);
       void check.refetch();
       void lastClaim.refetch();
+      void transaction.simulateMysteryBoxOpen.refetch();
     },
   };
 }
