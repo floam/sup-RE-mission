@@ -40,7 +40,8 @@ capped out and event additions are not requested because they no longer increase
 claim target. CMS event `createdAt` remains the API name for `eventTime`, not insertion
 time.
 
-The runnable claim UI gives each changed campaign a transaction checkbox. It selects
+The runnable claim UI lists only changed campaigns, shows their season/category
+attribution, and gives each one a transaction checkbox. It selects
 positive target deltas by default, leaves decreasing targets clear, locks selection
 during submission, and requests a signed batch only for the checked campaign IDs.
 Post-claim refreshes preserve explicit exclusions. A receipt transport error is

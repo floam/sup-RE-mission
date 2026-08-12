@@ -39,7 +39,12 @@ export function TransactionButton({
   const canSwitch = requiresChainSwitch && Boolean(switchChain);
   const { disabled, loading, variant, ...buttonProps } = ButtonProps;
   const isDisabled =
-    !canSwitch && (!isConnected || status?.isFinished || disabled);
+    !canSwitch &&
+    (!isConnected ||
+      status?.isLoading ||
+      status?.isFinished ||
+      loading ||
+      disabled);
 
   const label =
     status?.isLoading || loading

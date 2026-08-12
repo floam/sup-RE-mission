@@ -132,7 +132,9 @@ scan does not restart at page one.
 
 - `/claim` connects or inspects a wallet, shows flows and capped states, explains
   uncapped deltas, and submits claims only for the owning connected wallet. Each
-  changed campaign has a checkbox. Positive target deltas are checked by default;
+  changed campaign has a checkbox and shows its live season/category attribution.
+  Only campaigns with a changed CMS target appear in the update list. Positive target
+  deltas are checked by default;
   decreasing targets are clear. The controls lock during submission, the CMS signed
   batch contains only checked campaigns, and post-claim refreshes preserve explicit
   exclusions. A receipt transport error after submission remains indeterminate. Stale
@@ -141,7 +143,8 @@ scan does not restart at page one.
   and `/staking` retain their reconstructed implementations.
 - The daily mystery box is active by default. Its launcher stays visible after an
   open and counts down 24 hours from the contract `lastClaimTime` value. Eligibility
-  is checked again when the countdown ends. The recovered bonus modal still requires
+  is checked again when the countdown ends; transient refresh failures retain the
+  cached cooldown state and are retried. The recovered bonus modal still requires
   `NEXT_PUBLIC_ENABLE_RECOVERED_REWARDS=true`. Local same-origin routes validate and
   forward mystery-box eligibility and reward requests to the live claim service.
 - `/swap` is intentionally absent from the runnable application. The independent

@@ -54,13 +54,12 @@ export function useDailyMysteryBox() {
     queryFn: async () => {
       const result = await checkMysteryBox(address!);
       if (!result.success)
-        throw new Error(
-          result.error ?? "Failed to check mystery box eligibility",
-        );
+        throw new Error(result.error ?? "Failed to check mystery-box eligibility");
       return result;
     },
     enabled: Boolean(address && isConnected && !claimCompleted),
     refetchOnWindowFocus: false,
+    retry: 3,
   });
   const resumedClaim = Boolean(
     pendingClaim &&
@@ -82,27 +81,34 @@ export function useDailyMysteryBox() {
     }: {
       address: NonNullable<typeof address>;
       transactionHash: `0x${string}`;
-    }) => {
-      const result = await claimMysteryBoxPoints(
-        claimAddress,
-        transactionHash,
-      );
-      if (!result.success)
-        throw new Error(result.error ?? "Failed to claim mystery box points");
-      return result;
-    },
+    }) =>
+      claimMysteryBoxPoints(claimAddress, transactionHash).then((result) => {
+        if (!result.success)
+          throw new Error(result.error ?? "Failed to claim mystery-box points");
+        return result;
+      }),
     retry: 3,
     onSuccess: (result) => {
-      savePendingClaim(null);
       transaction.reset();
       setOpenResult(result);
-      setClaimCompleted(true);
-      void check.refetch();
-      void lastClaim.refetch();
-      void queryClient.invalidateQueries({
-        queryKey: ["getAccountProgramPointStates", address],
-        refetchType: "all",
-      });
+      if (result.success) {
+        savePendingClaim(null);
+        setClaimCompleted(true);
+        void check.refetch();
+        void lastClaim.refetch();
+        void queryClient.invalidateQueries({
+          queryKey: ["getAccountProgramPointStates", address],
+          refetchType: "all",
+        });
+      } else {
+        attemptedClaimHash.current = pendingClaim?.txHash ?? null;
+        if (pendingClaim)
+          savePendingClaim({ ...pendingClaim, status: "succeeded" });
+        console.error(
+          "Failed to claim mystery box points",
+          result.error ?? "Unknown error",
+        );
+      }
     },
     onError: (error) => {
       console.error("Mystery box claim error:", error);
@@ -142,6 +148,15 @@ export function useDailyMysteryBox() {
   ]);
   useEffect(() => {
     if (
+      transaction.isReverted &&
+      transaction.txHash &&
+      pendingClaim?.txHash === transaction.txHash
+    )
+      savePendingClaim(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingClaim, transaction.isReverted, transaction.txHash]);
+  useEffect(() => {
+    if (
       transaction.isFinished &&
       transaction.txHash &&
       address &&
@@ -160,11 +175,17 @@ export function useDailyMysteryBox() {
   ]);
   useEffect(() => {
     if (!resumedClaim) return;
-    if (resumedReceipt.isSuccess && pendingClaim?.status === "pending") {
-      if (resumedReceipt.data?.status === "success")
-        savePendingClaim({ ...pendingClaim, status: "succeeded" });
-      else savePendingClaim(null);
-    }
+    if (
+      resumedReceipt.isSuccess &&
+      resumedReceipt.data?.status === "success" &&
+      pendingClaim?.status === "pending"
+    )
+      savePendingClaim({ ...pendingClaim, status: "succeeded" });
+    if (
+      resumedReceipt.isSuccess &&
+      resumedReceipt.data?.status === "reverted"
+    )
+      savePendingClaim(null);
     if (resumedReceipt.isError) savePendingClaim(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -227,7 +248,19 @@ export function useDailyMysteryBox() {
     mysteryBoxData: check.data?.success ? check.data : null,
     isLoading: check.isLoading,
     handleOpenBox() {
-      if (address) transaction.open();
+      if (address && !transaction.status?.isLoading) transaction.open();
+    },
+    retryRewardClaim() {
+      if (
+        !address ||
+        claim.isPending ||
+        pendingClaim?.address !== address ||
+        pendingClaim.status !== "succeeded"
+      )
+        return;
+      attemptedClaimHash.current = pendingClaim.txHash;
+      savePendingClaim({ ...pendingClaim, status: "claiming" });
+      claim.mutate({ address, transactionHash: pendingClaim.txHash });
     },
     openResult,
     status: claimIsFinishing
@@ -243,11 +276,10 @@ export function useDailyMysteryBox() {
       check.data?.success && check.data.hasSupStakingBonus,
     ),
     lastClaimTime: Number(lastClaim.data ?? 0n),
-    refetchEligibility() {
+    async refetchEligibility() {
       setClaimCompleted(false);
-      void check.refetch();
-      void lastClaim.refetch();
-      void transaction.simulateMysteryBoxOpen.refetch();
+      await transaction.simulateMysteryBoxOpen.refetch();
+      await Promise.all([check.refetch(), lastClaim.refetch()]);
     },
   };
 }
@@ -290,6 +322,7 @@ export function DailyMysteryBoxProvider() {
           activePrograms={mysteryBox.mysteryBoxData.activePrograms}
           hasSupStakingBonus={mysteryBox.hasSupStakingBonus}
           onOpenBox={mysteryBox.handleOpenBox}
+          onRetryReward={mysteryBox.retryRewardClaim}
           openResult={mysteryBox.openResult}
           status={mysteryBox.status}
           chain={mysteryBox.chain}

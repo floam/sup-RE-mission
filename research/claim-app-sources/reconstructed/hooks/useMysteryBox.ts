@@ -20,20 +20,13 @@ export const MYSTERY_BOX_PENDING_CLAIM_KEY = "mystery-box-pending-claim";
 export async function checkMysteryBox(
   address: Address,
 ): Promise<MysteryBoxCheck> {
-  try {
-    const response = await fetch(API_ENDPOINTS.mysteryBoxCheck(address));
-    const body = (await response.json()) as Omit<MysteryBoxCheck, "success"> & {
-      error?: string;
-    };
-    return { ...body, success: body.error === undefined };
-  } catch (error) {
-    console.error(error);
-    return {
-      success: false,
-      activePrograms: 0,
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
-  }
+  const response = await fetch(API_ENDPOINTS.mysteryBoxCheck(address));
+  const body = (await response.json()) as Omit<MysteryBoxCheck, "success"> & {
+    error?: string;
+  };
+  if (!response.ok)
+    throw new Error(body.error ?? `Mystery box check failed (${response.status})`);
+  return { ...body, success: body.error === undefined };
 }
 
 export async function claimMysteryBoxPoints(
@@ -129,6 +122,8 @@ export function useMysteryBoxOpen(accountAddress?: Address) {
       write.isSuccess &&
       waitFor.isSuccess &&
       waitFor.data?.status === "success",
+    isReverted:
+      waitFor.isSuccess && waitFor.data?.status === "reverted",
     open,
     status: transaction.status,
     reset: write.reset,

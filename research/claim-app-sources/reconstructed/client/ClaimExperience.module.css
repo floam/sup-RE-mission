@@ -155,6 +155,7 @@
 }
 
 .scope :global(.campaign-heading),
+.scope :global(.campaign-attribution),
 .scope :global(.campaign-metrics),
 .scope :global(.event-line),
 .scope :global(.campaign-standing) {
@@ -201,6 +202,10 @@
 .scope :global(.campaign-name) {
   color: var(--term-fg);
   font-weight: 700;
+}
+
+.scope :global(.campaign-attribution) {
+  color: var(--term-faint);
 }
 
 .scope :global(.campaign-metrics) {
