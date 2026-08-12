@@ -1,17 +1,18 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useWaitForTransactionReceipt } from "wagmi";
 
 import { DailyMysteryBoxModal } from "../components/campaign/DailyMysteryBoxModal";
+import { Countdown } from "../components/claim/Countdown";
 import { APP_CHAIN } from "../config/chains";
 import { useWalletAccount } from "../hooks/useWalletAccount";
 import {
   checkMysteryBox,
   claimMysteryBoxPoints,
   readPendingMysteryBoxClaim,
+  useMysteryBoxLastClaim,
   useMysteryBoxOpen,
   writePendingMysteryBoxClaim,
 } from "../hooks/useMysteryBox";
@@ -30,6 +31,7 @@ export function useDailyMysteryBox() {
   const [claimCompleted, setClaimCompleted] = useState(false);
   const attemptedClaimHash = useRef<string | null>(null);
   const transaction = useMysteryBoxOpen(address);
+  const lastClaim = useMysteryBoxLastClaim(address);
 
   useEffect(() => {
     attemptedClaimHash.current = null;
@@ -80,6 +82,7 @@ export function useDailyMysteryBox() {
       setOpenResult(result);
       if (result.success) {
         setClaimCompleted(true);
+        void lastClaim.refetch();
         void queryClient.invalidateQueries({
           queryKey: ["getAccountProgramPointStates", address],
           refetchType: "all",
@@ -159,6 +162,7 @@ export function useDailyMysteryBox() {
     isConnected &&
     check.data?.success &&
     check.data.shouldShow &&
+    !claimCompleted &&
     !showModal &&
     !check.isLoading,
   );
@@ -198,6 +202,12 @@ export function useDailyMysteryBox() {
     hasSupStakingBonus: Boolean(
       check.data?.success && check.data.hasSupStakingBonus,
     ),
+    lastClaimTime: Number(lastClaim.data ?? 0n),
+    refetchEligibility() {
+      setClaimCompleted(false);
+      void check.refetch();
+      void lastClaim.refetch();
+    },
   };
 }
 
@@ -205,17 +215,29 @@ export function DailyMysteryBoxProvider() {
   const mysteryBox = useDailyMysteryBox();
   return (
     <>
-      {mysteryBox.canClaim && (
+      {mysteryBox.mysteryBoxData && (
         <button
-          className="fixed right-4 bottom-4 z-50 cursor-pointer md:right-8 md:bottom-8"
+          className="mystery-box-launcher"
           onClick={mysteryBox.openModal}
+          disabled={!mysteryBox.canClaim}
+          aria-label={
+            mysteryBox.canClaim
+              ? "Open daily mystery box"
+              : "Mystery box is on cooldown"
+          }
         >
-          <Image
-            src="/mystery-box-gift.png"
-            alt="Mystery Box"
-            width={64}
-            height={64}
-          />
+          <span aria-hidden="true">[ mystery box ]</span>
+          {!mysteryBox.canClaim && mysteryBox.lastClaimTime > 0 && (
+            <small>
+              next box in{" "}
+              <Countdown
+                targetDate={
+                  new Date((mysteryBox.lastClaimTime + 86_400) * 1_000)
+                }
+                onComplete={mysteryBox.refetchEligibility}
+              />
+            </small>
+          )}
         </button>
       )}
       {mysteryBox.mysteryBoxData && (

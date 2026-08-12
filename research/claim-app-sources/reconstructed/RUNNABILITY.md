@@ -139,6 +139,11 @@ scan does not restart at page one.
   or uncertain state disables another submission and exposes a read-only refresh.
 - `/apps`, `/governance`, `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`,
   and `/staking` retain their reconstructed implementations.
+- The daily mystery box is active by default. Its launcher stays visible after an
+  open and counts down 24 hours from the contract `lastClaimTime` value. Eligibility
+  is checked again when the countdown ends. The recovered bonus modal still requires
+  `NEXT_PUBLIC_ENABLE_RECOVERED_REWARDS=true`. Local same-origin routes validate and
+  forward mystery-box eligibility and reward requests to the live claim service.
 - `/swap` is intentionally absent from the runnable application. The independent
   client does not ship the recovered LI.FI swap/referrer flow.
 

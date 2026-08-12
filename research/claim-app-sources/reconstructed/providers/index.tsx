@@ -74,12 +74,8 @@ export function ContextProvider({
                 <AnalyticsProvider />
                 <GoodDollarProvider />
                 <ReferralHandler />
-                {recoveredRewardsEnabled && (
-                  <>
-                    <DailyMysteryBoxProvider />
-                    <BonusModalProvider />
-                  </>
-                )}
+                <DailyMysteryBoxProvider />
+                {recoveredRewardsEnabled && <BonusModalProvider />}
               </LockerProvider>
             </ConditionalWalletComponents>
           </WalletDialogProvider>
