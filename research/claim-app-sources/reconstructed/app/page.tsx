@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-import { ConnectButton } from "../components/layout/ConnectButton";
 import { useWalletAccount } from "../hooks/useWalletAccount";
 
 const routes = [
@@ -24,11 +23,7 @@ export default function Home() {
       <p className="command-line">
         <span className="prompt">&gt;</span> independent Superfluid client
       </p>
-      <p className="dim">
-        public campaign data, direct chain reads, and wallet-controlled claims
-      </p>
-
-      {isConnected ? (
+      {isConnected && (
         <>
           <div className="route-lines" aria-label="Application routes">
             {routes.map(([label, href, description]) => (
@@ -44,11 +39,6 @@ export default function Home() {
             when a selected update is submitted
           </p>
         </>
-      ) : (
-        <section className="home-connect" aria-label="Connect a wallet">
-          <p>Connect a wallet to open the SUP workbench.</p>
-          <p><ConnectButton /></p>
-        </section>
       )}
     </main>
   );
