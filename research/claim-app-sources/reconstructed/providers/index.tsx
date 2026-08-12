@@ -17,7 +17,6 @@ import { WalletDialogProvider } from "../contexts/WalletDialogContext";
 import { AnalyticsProvider } from "./AnalyticsProvider";
 import { AutoConnectFarcaster } from "./AutoConnectFarcaster";
 import { BonusModalProvider } from "./BonusModalProvider";
-import { DailyMysteryBoxProvider } from "./DailyMysteryBoxProvider";
 import { GoodDollarProvider } from "./GoodDollarProvider";
 import { ReferralHandler } from "./ReferralHandler";
 
@@ -74,7 +73,6 @@ export function ContextProvider({
                 <AnalyticsProvider />
                 <GoodDollarProvider />
                 <ReferralHandler />
-                <DailyMysteryBoxProvider />
                 {recoveredRewardsEnabled && <BonusModalProvider />}
               </LockerProvider>
             </ConditionalWalletComponents>

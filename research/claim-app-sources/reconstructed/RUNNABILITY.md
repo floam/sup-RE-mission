@@ -141,10 +141,11 @@ scan does not restart at page one.
   or uncertain state disables another submission and exposes a read-only refresh.
 - `/apps`, `/governance`, `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`,
   and `/staking` retain their reconstructed implementations.
-- The daily mystery box is active by default. Its launcher stays visible after an
-  open and counts down 24 hours from the contract `lastClaimTime` value. Eligibility
-  is checked again when the countdown ends; transient refresh failures retain the
-  cached cooldown state and are retried. The recovered bonus modal still requires
+- The daily mystery box is active by default on `/claim`. It is an inline claim row,
+  not a floating launcher or modal. Its yellow claim action uses the claim page style,
+  and the result, recovery action, and 24-hour cooldown stay in the row. Eligibility is
+  checked again when the countdown ends; transient refresh failures retain the cached
+  cooldown state and are retried. The recovered bonus modal still requires
   `NEXT_PUBLIC_ENABLE_RECOVERED_REWARDS=true`. Local same-origin routes validate and
   forward mystery-box eligibility and reward requests to the live claim service.
 - `/swap` is intentionally absent from the runnable application. The independent
