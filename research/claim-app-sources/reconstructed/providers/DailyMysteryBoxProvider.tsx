@@ -226,10 +226,10 @@ export function useDailyMysteryBox() {
       check.data?.success && check.data.hasSupStakingBonus,
     ),
     lastClaimTime: Number(lastClaim.data ?? 0n),
-    refetchEligibility() {
+    async refetchEligibility() {
       setClaimCompleted(false);
-      void check.refetch();
-      void lastClaim.refetch();
+      await transaction.simulateMysteryBoxOpen.refetch();
+      await Promise.all([check.refetch(), lastClaim.refetch()]);
     },
   };
 }
