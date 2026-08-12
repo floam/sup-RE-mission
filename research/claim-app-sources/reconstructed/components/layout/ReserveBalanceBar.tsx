@@ -32,14 +32,11 @@ function LiveReserveBalance({ lockerAddress }: { lockerAddress: Address }) {
 export function ReserveBalanceBar() {
   const { accountAddress, lockerAddress, isLockerAddressLoading } = useLocker();
 
-  let value = "connect to view";
-  if (accountAddress) {
-    value = isLockerAddressLoading
+  const value = isLockerAddressLoading
+    ? "loading…"
+    : lockerAddress
       ? "loading…"
-      : lockerAddress
-        ? "loading…"
-        : "not created";
-  }
+      : "not created";
 
   return (
     <div className="reserve-balance-bar">
@@ -48,13 +45,15 @@ export function ReserveBalanceBar() {
       ) : (
         <span>reserve balance</span>
       )}
-      <span data-testid="reserve-balance">
-        {lockerAddress ? (
-          <LiveReserveBalance lockerAddress={lockerAddress} />
-        ) : (
-          value
-        )}
-      </span>
+      {accountAddress && (
+        <span data-testid="reserve-balance">
+          {lockerAddress ? (
+            <LiveReserveBalance lockerAddress={lockerAddress} />
+          ) : (
+            value
+          )}
+        </span>
+      )}
     </div>
   );
 }
