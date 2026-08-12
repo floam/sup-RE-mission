@@ -58,6 +58,53 @@
   background: transparent;
 }
 
+.scope :global(.mystery-box-claim) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0 2ch;
+  margin: 0 0 1lh;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.scope :global(.mystery-box-copy) {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 0 1ch;
+}
+
+.scope :global(.mystery-box-copy strong)::after {
+  content: ":";
+}
+
+.scope :global(.mystery-box-claim-button) {
+  padding: 0 1ch;
+  border: 0;
+  background: var(--term-warning) !important;
+  color: #000 !important;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.scope :global(.mystery-box-claim-button:hover:not(:disabled)),
+.scope :global(.mystery-box-claim-button:focus-visible:not(:disabled)) {
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.scope :global(.mystery-box-claim-button:disabled) {
+  background: transparent !important;
+  color: var(--term-dim) !important;
+}
+
+.scope :global(.mystery-box-claim > small) {
+  grid-column: 1 / -1;
+  color: var(--term-dim);
+}
+
 .scope :global(.campaign-list) {
   padding-bottom: 1lh;
 }
@@ -339,6 +386,15 @@
 }
 
 @media (max-width: 680px) {
+  .scope :global(.mystery-box-claim) {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .scope :global(.mystery-box-claim-button) {
+    width: fit-content;
+  }
+
   .scope :global(.claim-status-line) {
     grid-template-columns: 1fr;
     gap: 0;

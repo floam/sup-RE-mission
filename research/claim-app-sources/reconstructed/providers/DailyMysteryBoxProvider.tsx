@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useWaitForTransactionReceipt } from "wagmi";
 
-import { DailyMysteryBoxModal } from "../components/campaign/DailyMysteryBoxModal";
 import { Countdown } from "../components/claim/Countdown";
 import { APP_CHAIN } from "../config/chains";
 import { useWalletAccount } from "../hooks/useWalletAccount";
@@ -24,7 +23,6 @@ import type {
 export function useDailyMysteryBox() {
   const { address, isConnected } = useWalletAccount();
   const queryClient = useQueryClient();
-  const [showModal, setShowModal] = useState(false);
   const [openResult, setOpenResult] = useState<MysteryBoxResult | null>(null);
   const [pendingClaim, setPendingClaim] =
     useState<PendingMysteryBoxClaim | null>(null);
@@ -199,7 +197,6 @@ export function useDailyMysteryBox() {
     check.data?.success &&
     check.data.shouldShow &&
     !claimCompleted &&
-    !showModal &&
     !check.isLoading,
   );
   const isOnCooldown = Boolean(
@@ -212,18 +209,6 @@ export function useDailyMysteryBox() {
     (resumedClaim &&
       (resumedReceipt.isFetching || pendingClaim?.status === "succeeded"));
   return {
-    showModal,
-    setShowModal,
-    closeModal(open: boolean) {
-      if (!open) {
-        setShowModal(false);
-        setOpenResult(null);
-        transaction.reset();
-      }
-    },
-    openModal() {
-      setShowModal(true);
-    },
     canClaim,
     isOnCooldown,
     mysteryBoxData: check.data?.success ? check.data : null,
@@ -265,50 +250,67 @@ export function useDailyMysteryBox() {
   };
 }
 
-export function DailyMysteryBoxProvider() {
+export function DailyMysteryBoxClaim() {
   const mysteryBox = useDailyMysteryBox();
+  if (!mysteryBox.mysteryBoxData) return null;
+
+  const amount = mysteryBox.openResult?.supPerMonth ?? 0;
   return (
-    <>
-      {mysteryBox.mysteryBoxData && (
+    <section className="mystery-box-claim" aria-label="Daily SUP Mystery Box">
+      <div className="mystery-box-copy">
+        <strong>daily mystery box</strong>
+        {mysteryBox.openResult?.success ? (
+          <span className="positive">
+            won ~{amount.toLocaleString()} SUP/mo
+            {mysteryBox.openResult.isRareRoll ? " · rare jackpot" : ""}
+          </span>
+        ) : mysteryBox.openResult?.success === false ? (
+          <span role="alert">
+            The box opened, but the reward claim did not finish.
+          </span>
+        ) : mysteryBox.isOnCooldown ? (
+          <span>
+            next claim in{" "}
+            <Countdown
+              targetDate={
+                new Date((mysteryBox.lastClaimTime + 86_400) * 1_000)
+              }
+              onComplete={mysteryBox.refetchEligibility}
+            />
+          </span>
+        ) : (
+          <span>
+            {mysteryBox.mysteryBoxData.activePrograms} active program
+            {mysteryBox.mysteryBoxData.activePrograms === 1 ? "" : "s"} ·
+            0.0001 ETH
+          </span>
+        )}
+      </div>
+
+      {mysteryBox.openResult?.success === false ? (
         <button
-          className="mystery-box-launcher"
-          onClick={mysteryBox.openModal}
-          disabled={!mysteryBox.canClaim}
-          aria-label={
-            mysteryBox.canClaim
-              ? "Open daily mystery box"
-              : mysteryBox.isOnCooldown
-                ? "Mystery box is on cooldown"
-                : "Mystery box is unavailable"
-          }
+          className="mystery-box-claim-button"
+          type="button"
+          disabled={Boolean(mysteryBox.status?.isLoading)}
+          onClick={mysteryBox.retryRewardClaim}
         >
-          <span aria-hidden="true">[ mystery box ]</span>
-          {mysteryBox.isOnCooldown && (
-            <small>
-              next box in{" "}
-              <Countdown
-                targetDate={
-                  new Date((mysteryBox.lastClaimTime + 86_400) * 1_000)
-                }
-                onComplete={mysteryBox.refetchEligibility}
-              />
-            </small>
-          )}
+          {mysteryBox.status?.isLoading ? "[ retrying… ]" : "[ retry claim ]"}
         </button>
+      ) : !mysteryBox.openResult?.success ? (
+        <button
+          className="mystery-box-claim-button"
+          type="button"
+          onClick={mysteryBox.handleOpenBox}
+          disabled={!mysteryBox.canClaim || Boolean(mysteryBox.status?.isLoading)}
+        >
+          {mysteryBox.status?.isLoading
+            ? "[ claiming mystery box… ]"
+            : "[ claim mystery box ]"}
+        </button>
+      ) : null}
+      {mysteryBox.hasSupStakingBonus && !mysteryBox.openResult && (
+        <small>SUP staking bonus: 2× rewards</small>
       )}
-      {mysteryBox.mysteryBoxData && (
-        <DailyMysteryBoxModal
-          open={mysteryBox.showModal}
-          onOpenChange={mysteryBox.closeModal}
-          activePrograms={mysteryBox.mysteryBoxData.activePrograms}
-          hasSupStakingBonus={mysteryBox.hasSupStakingBonus}
-          onOpenBox={mysteryBox.handleOpenBox}
-          onRetryReward={mysteryBox.retryRewardClaim}
-          openResult={mysteryBox.openResult}
-          status={mysteryBox.status}
-          chain={mysteryBox.chain}
-        />
-      )}
-    </>
+    </section>
   );
 }

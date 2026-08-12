@@ -11,6 +11,7 @@ import { useConfig, useSwitchChain, useWriteContract } from "wagmi";
 
 import { ZERO_ADDRESS } from "../contracts/app-contracts";
 import { useWalletAccount } from "../hooks/useWalletAccount";
+import { DailyMysteryBoxClaim } from "../providers/DailyMysteryBoxProvider";
 import {
   cmsClient,
   requireCmsData,
@@ -542,6 +543,8 @@ export function ClaimExperience() {
         <span>claim · {reviewedAccount} · base</span>
         <span>{summary}</span>
       </p>
+
+      <DailyMysteryBoxClaim />
 
       {showLookup && (
         <section className="wallet-step">
