@@ -84,7 +84,8 @@ Validate account identity, campaign order, and parallel array lengths for every 
    `getTotalFlowRate`.
 8. Mark a row claimable when the CMS campaign exists and capped target differs from
    onchain units.
-9. Let the user select changed campaigns. Select positive target deltas by default and
+9. List only campaigns with changed CMS targets, show their claim-app attribution, and
+   let the user select them. Select positive target deltas by default and
    leave decreasing targets clear. On explicit submission, request
    `signed-balance-batch` only for the selected campaigns, validate it, and submit
    signed `points`, campaign IDs, timestamp, and signature. Never submit

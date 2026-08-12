@@ -37,6 +37,7 @@ import {
   getClaimSubmissionErrorOutcome,
 } from "./claim-program-plan";
 import {
+  getAffectedClaimPointStates,
   getDefaultClaimSelection,
   isClaimablePointState,
   reconcileClaimSelection,
@@ -474,14 +475,11 @@ export function ClaimExperience() {
           row.onchainPoints > 0n,
       )
     : [];
-  const changedRows = populatedRows.filter(isClaimablePointState);
+  const changedRows = getAffectedClaimPointStates(populatedRows);
   const selectedRows = changedRows.filter((row) =>
     selectedPrograms.has(row.programId),
   );
   const cappedRows = populatedRows.filter((row) => row.isCapped);
-  const updateRows = populatedRows.filter(
-    (row) => row.isCapped || isClaimablePointState(row),
-  );
   const totalFlowDelta = selectedRows.reduce(
     (sum, row) => sum + row.projectedFlowRate - row.currentFlowRate,
     0n,
@@ -661,7 +659,7 @@ export function ClaimExperience() {
             <>
               <section className="campaign-list" aria-label="Campaign updates">
                 <div className="campaigns">
-                  {updateRows.map(renderCampaign)}
+                  {changedRows.map(renderCampaign)}
                 </div>
               </section>
 
