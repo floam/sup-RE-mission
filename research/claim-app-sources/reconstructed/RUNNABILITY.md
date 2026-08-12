@@ -132,7 +132,9 @@ scan does not restart at page one.
 
 - `/claim` connects or inspects a wallet, shows flows and capped states, explains
   uncapped deltas, and submits claims only for the owning connected wallet. Each
-  changed campaign has a checkbox. Positive target deltas are checked by default;
+  changed campaign has a checkbox and shows its live season/category attribution.
+  Only campaigns with a changed CMS target appear in the update list. Positive target
+  deltas are checked by default;
   decreasing targets are clear. The controls lock during submission, the CMS signed
   batch contains only checked campaigns, and post-claim refreshes preserve explicit
   exclusions. A receipt transport error after submission remains indeterminate. Stale

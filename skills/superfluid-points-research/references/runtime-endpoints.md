@@ -123,7 +123,8 @@ nonce resolution is one second. A backfilled event can carry a time outside the 
 3. Resolve locker through SDK factory ABI.
 4. Read program units/member flow and pool total units/flow.
 5. Project current and target `SUP/month`.
-6. Show a selection control for each changed campaign. Select positive target deltas
+6. List only campaigns with changed CMS targets, show their claim-app attribution, and
+   show a selection control for each one. Select positive target deltas
    by default and leave decreasing targets clear.
 7. On explicit submission fetch `signed-balance-batch` only for selected campaigns,
    validate it, and submit signed `points`, campaign IDs, timestamp, and signature
