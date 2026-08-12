@@ -53,6 +53,10 @@ No complete pool ABI is vendored.
 Base addresses, RPC/subgraph URLs, CMS routes, historical-balance APIs, and metrics URLs
 are external deployment metadata.
 
+The reconstructed mystery-box compatibility routes forward validated eligibility and
+reward requests to `claim.superfluid.org/api/mystery-box/*`. The live claim service
+remains the reward authority; the local routes do not reproduce its private logic.
+
 ## Repository-authored compatibility code
 
 Local product/reconstruction modules include:
@@ -72,6 +76,11 @@ Local product/reconstruction modules include:
 - `lib/cms-events.ts`
 - `lib/campaign-event-history.ts`
 - `lib/claim-nonce-window.ts`
+- `hooks/useMysteryBox.ts` (`useMysteryBoxLastClaim` only)
+
+`useMysteryBoxLastClaim` is a repository-authored compatibility boundary that reads
+the app contract's `lastClaimTime`; the other mystery-box hook behavior in that module
+is reconstructed from webpack factory 327.
 
 `lib/cms-client.ts` is a small repository-authored `openapi-fetch` integration. Its
 path/request/response types come from committed `lib/cms-openapi.d.ts`, generated from

@@ -1,7 +1,7 @@
 "use client";
 
 import { encodeFunctionData, parseEther } from "viem";
-import { useEstimateGas, useSimulateContract } from "wagmi";
+import { useEstimateGas, useReadContract, useSimulateContract } from "wagmi";
 
 import { APP_CHAIN } from "../config/chains";
 import { MYSTERY_BOX_ADDRESS, mysteryBoxAbi } from "../contracts/app-contracts";
@@ -130,4 +130,16 @@ export function useMysteryBoxOpen(accountAddress?: Address) {
     reset: write.reset,
     txHash: write.data,
   };
+}
+
+export function useMysteryBoxLastClaim(accountAddress?: Address) {
+  const address = MYSTERY_BOX_ADDRESS[APP_CHAIN.id];
+  return useReadContract({
+    abi: mysteryBoxAbi,
+    address,
+    functionName: "lastClaimTime",
+    args: accountAddress ? [accountAddress] : undefined,
+    chainId: APP_CHAIN.id,
+    query: { enabled: Boolean(accountAddress && address) },
+  });
 }

@@ -18,6 +18,8 @@ export interface MysteryBoxCheck {
   shouldShow?: boolean;
   activePrograms: number;
   hasSupStakingBonus?: boolean;
+  /** Unix timestamp read from the mystery-box contract. */
+  lastClaimTime?: number;
 }
 
 export interface MysteryBoxResult {
