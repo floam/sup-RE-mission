@@ -80,6 +80,12 @@ balance:
 9. If bounded pages are exhausted without equality, return the consumed events with an
    explicit partial-explanation message.
 
+The UI can show an event count multiplier only when the semantic family and signed
+point amount are equal. Events in one family with different point amounts stay on
+separate lines. Equal positive and negative amounts in one family form canceled pairs.
+The UI strikes through both sides of each pair and splits a group when only part of its
+count cancels.
+
 The nonce interval prevents the arithmetic from wandering into events older than the
 last balance snapshot applied onchain.
 
@@ -115,6 +121,13 @@ The helper:
 
 The browser caches every returned explanation by account, campaign, onchain units, and
 uncapped balance until the explanation or reviewed claim state is cleared.
+
+Campaign transaction selection does not change this explanation set. Each changed
+campaign has a checkbox. Positive target deltas are selected by default; decreasing
+targets are clear. A submission locks that displayed selection, requests a signed batch
+only for checked campaigns, and preserves explicit exclusions across refreshed state.
+An indeterminate receipt wait or failed post-claim refresh clears and locks the stale
+selection until a read-only refresh succeeds.
 
 No local API endpoint remains. The deleted route repeated public program, locker, unit,
 CMS, and nonce work and supplied no private credential, authentication, durable shared

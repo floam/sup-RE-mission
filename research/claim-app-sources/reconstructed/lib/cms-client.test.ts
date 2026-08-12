@@ -7,6 +7,7 @@ import {
   requireCmsSignature,
 } from "./cms-client.ts";
 import { getCmsEventsForDelta } from "./cms-events.ts";
+import { loadCampaignEventHistory } from "./campaign-event-history.ts";
 
 const ACCOUNT = "0xdBb811EC62338db94858Ec21ef1d56B658111922";
 
@@ -28,6 +29,63 @@ function captureFetch(
   };
   return { fetch, requests };
 }
+
+test("loads no more than 300 campaign events per user batch", async () => {
+  const { fetch, requests } = captureFetch((_request, call) =>
+    json({
+      events: Array.from({ length: 100 }, (_, index) => ({
+        id: (call - 1) * 100 + index,
+        eventName: "activity",
+        account: ACCOUNT,
+        points: 1,
+        uniqueId: null,
+        createdAt: "2026-01-07T12:00:00.000Z",
+      })),
+      pagination: {
+        page: call,
+        limit: 100,
+        totalDocs: 400,
+        totalPages: 4,
+        hasNextPage: true,
+        hasPrevPage: call > 1,
+      },
+    }),
+  );
+  const cms = createCmsClient({ origin: "https://cms.example", fetch });
+
+  const result = await loadCampaignEventHistory(
+    { account: ACCOUNT, campaignId: 608 },
+    cms,
+  );
+
+  assert.equal(result.events.length, 300);
+  assert.equal(result.nextPage, 4);
+  assert.equal(result.hasMore, true);
+  assert.equal(requests.length, 3);
+});
+
+test("loads campaign-wide history without an account filter", async () => {
+  const { fetch, requests } = captureFetch(() =>
+    json({
+      events: [],
+      pagination: {
+        page: 1,
+        limit: 100,
+        totalDocs: 0,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPrevPage: false,
+      },
+    }),
+  );
+  const cms = createCmsClient({ origin: "https://cms.example", fetch });
+
+  await loadCampaignEventHistory({ campaignId: 608 }, cms);
+
+  const url = new URL(requests[0].url);
+  assert.equal(url.searchParams.get("campaignId"), "608");
+  assert.equal(url.searchParams.has("account"), false);
+});
 
 test("uses the generated POST contract for campaign balances", async () => {
   const { fetch, requests } = captureFetch(() =>
@@ -59,7 +117,9 @@ test("uses the generated POST contract for campaign balances", async () => {
 });
 
 test("surfaces typed CMS API errors", async () => {
-  const { fetch } = captureFetch(() => json({ message: "Campaign not found" }, 404));
+  const { fetch } = captureFetch(() =>
+    json({ message: "Campaign not found" }, 404),
+  );
   const cms = createCmsClient({ origin: "https://cms.example", fetch });
 
   await assert.rejects(
@@ -94,7 +154,10 @@ test("rejects a malformed signed-balance signature", async () => {
       body: { account: ACCOUNT, campaignIds: [608] },
     }),
   );
-  assert.throws(() => requireCmsSignature(signed.signature), /malformed signature/);
+  assert.throws(
+    () => requireCmsSignature(signed.signature),
+    /malformed signature/,
+  );
 });
 
 test("stops at the newest-first prefix whose net points match the delta", async () => {

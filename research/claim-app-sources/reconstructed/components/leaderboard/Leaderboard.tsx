@@ -1,12 +1,5 @@
 "use client";
 
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  Search,
-} from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -65,20 +58,21 @@ export function Leaderboard() {
   );
 
   return (
-    <div className="flex flex-col gap-4 rounded-lg bg-platinum p-5">
-      <div className="flex items-center gap-2">
+    <section aria-label="Leaderboard entries">
+      <label className="account-field">
+        <span>address</span>
         <input
           data-testid="search-input"
-          placeholder="Search for users..."
-          className="h-10 flex-1 border-[#E4EAF5] bg-white shadow-sm"
+          placeholder="0x…"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <button className="h-auto p-2">
-          <Search size={24} />
-        </button>
-      </div>
-      <div className="flex flex-col gap-3 md:gap-4">
+      </label>
+
+      <p className="dim">
+        rank · account · monthly SUP flow
+      </p>
+      <div className="leaderboard-lines">
         {yourEntry && (
           <LeaderboardEntryCard
             dataTestId="leaderboard-entry"
@@ -94,43 +88,42 @@ export function Leaderboard() {
             isYou={false}
           />
         ))}
-        {isLoading &&
-          Array.from({ length: yourEntry ? 4 : 5 }, (_, index) => (
-            <div
-              key={index}
-              className="h-20 w-full animate-pulse rounded-md bg-gray-200"
-            />
-          ))}
+        {isLoading && <p className="dim">loading entries…</p>}
+        {!isLoading && !yourEntry && visibleEntries.length === 0 && (
+          <p className="dim">no entries found</p>
+        )}
       </div>
+
       {!searched?.entry && pageCount > 0 && (
-        <nav aria-label="pagination" className="flex justify-end gap-1">
+        <p aria-label="pagination">
           {currentPage !== 1 && (
             <>
               <Link data-testid="pagination-start" href="/leaderboard?p=1">
-                <ChevronsLeft />
-              </Link>
+                [ first ]
+              </Link>{" "}
               <Link
                 data-testid="pagination-previous"
                 href={`/leaderboard?p=${Math.max(1, currentPage - 1)}`}
               >
-                <ChevronLeft />
-              </Link>
+                [ previous ]
+              </Link>{" "}
             </>
           )}
           {pages.map((page) => (
-            <Link
-              key={page}
-              data-testid={
-                page === currentPage
-                  ? "pagination-link-active"
-                  : "pagination-link"
-              }
-              aria-current={page === currentPage ? "page" : undefined}
-              className={page === currentPage ? "bg-green text-white" : ""}
-              href={`/leaderboard?p=${page}`}
-            >
-              {page}
-            </Link>
+            <span key={page}>
+              <Link
+                data-testid={
+                  page === currentPage
+                    ? "pagination-link-active"
+                    : "pagination-link"
+                }
+                aria-current={page === currentPage ? "page" : undefined}
+                className={page === currentPage ? "positive" : undefined}
+                href={`/leaderboard?p=${page}`}
+              >
+                [{page}]
+              </Link>{" "}
+            </span>
           ))}
           {currentPage !== pageCount && (
             <>
@@ -138,18 +131,18 @@ export function Leaderboard() {
                 data-testid="pagination-next"
                 href={`/leaderboard?p=${Math.min(pageCount, currentPage + 1)}`}
               >
-                <ChevronRight />
-              </Link>
+                [ next ]
+              </Link>{" "}
               <Link
                 data-testid="pagination-end"
                 href={`/leaderboard?p=${pageCount}`}
               >
-                <ChevronsRight />
+                [ last ]
               </Link>
             </>
           )}
-        </nav>
+        </p>
       )}
-    </div>
+    </section>
   );
 }

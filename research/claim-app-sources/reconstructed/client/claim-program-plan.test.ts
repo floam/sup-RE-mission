@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   buildClaimProgramPlan,
   getClaimResultKind,
+  getClaimSubmissionErrorOutcome,
 } from "./claim-program-plan.ts";
 import type { PublicProgram } from "./programs.ts";
 
@@ -54,7 +55,10 @@ test("queries only active programs", () => {
 });
 
 test("deduplicates active campaign IDs before constructing CMS batches", () => {
-  const plan = buildClaimProgramPlan([program(1), program(1), program(2)], 1500);
+  const plan = buildClaimProgramPlan(
+    [program(1), program(1), program(2)],
+    1500,
+  );
 
   assert.deepEqual(plan.cmsCampaignIds, [1, 2]);
   assert.deepEqual(plan.cmsBatches, [[1, 2]]);
@@ -66,7 +70,10 @@ test("chunks active campaigns at the CMS request limit", () => {
     1500,
   );
 
-  assert.deepEqual(plan.cmsBatches.map((batch) => batch.length), [50, 25]);
+  assert.deepEqual(
+    plan.cmsBatches.map((batch) => batch.length),
+    [50, 25],
+  );
 });
 
 test("does not label an empty comparison set as synchronized", () => {
@@ -99,5 +106,36 @@ test("prioritizes a missing locker over campaign result labels", () => {
       changedProgramCount: 2,
     }),
     "locker-required",
+  );
+});
+
+test("keeps a submitted receipt error indeterminate", () => {
+  assert.deepEqual(
+    getClaimSubmissionErrorOutcome({
+      confirmedBatches: 0,
+      confirmationIncomplete: true,
+      detail: "RPC timed out.",
+    }),
+    {
+      kind: "warning",
+      message:
+        "Confirmation incomplete: the transaction was submitted, but its onchain result could not be verified. Refresh the stream state before retrying. RPC timed out.",
+      requiresRefresh: true,
+    },
+  );
+});
+
+test("keeps pre-submission failures verified as failures", () => {
+  assert.deepEqual(
+    getClaimSubmissionErrorOutcome({
+      confirmedBatches: 0,
+      confirmationIncomplete: false,
+      detail: "Wallet rejected the request.",
+    }),
+    {
+      kind: "error",
+      message: "Claim failed: Wallet rejected the request.",
+      requiresRefresh: false,
+    },
   );
 });

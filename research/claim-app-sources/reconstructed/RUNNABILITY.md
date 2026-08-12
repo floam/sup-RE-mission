@@ -7,6 +7,13 @@ compatibility layer for recovered features. The claim path itself uses Reown/Wag
 the browser for eligibility review, projected SUP flows, nonce-bounded event
 explanations, capped-campaign UX, and Base claim submission.
 
+The root layout includes a live Reserve balance bar on every route. It projects the
+connected Reserve total from the time that the combined contract-balance snapshot is
+assembled and the net SUP flow rate. It refreshes the displayed value four times per
+second, shows two decimal places, and shows explicit disconnected, loading, and
+not-created states.
+The home route shows a wallet connection call to action before it shows feature links.
+
 ## Local use
 
 ```sh
@@ -27,6 +34,7 @@ The runnable claim path uses:
 - Wagmi hooks for chain switching and `useWriteContract`;
 - `waitForTransactionReceipt` for confirmation and explicit success checking;
 - `lib/cms-client.ts` as the sole CMS transport boundary;
+- `client/program-attribution.ts` for live claim-app names, seasons, and categories;
 - `client/pending-event-explanations.ts` for client-side explanation orchestration;
 - `lib/claim-nonce-window.ts` for signed-snapshot interval derivation;
 - a narrow local GDA pool ABI because `@sfpro/sdk` 0.2.3 does not export the pool ABI.
@@ -36,18 +44,18 @@ boundary.
 
 ## Data paths
 
-| Behavior | Data source |
-| --- | --- |
-| Campaign enumeration | SUP Goldsky subgraph |
-| Campaign attribution | Recovered app definitions / public claim metadata |
-| Raw and capped claim state | `POST /points/balance-batch` |
-| Locker, units, and member flow | SDK ABIs through Wagmi |
-| Pool totals | Narrow GDA pool reads through Wagmi |
-| Last applied signed snapshot | `programManager.getNextValidNonce(programId, account) - 1` |
-| Fresh upper snapshot | `POST /points/signed-balance-batch` `signatureTimestamp` |
-| Pending event explanation | Client helper plus bounded `GET /points/events` calls |
-| Voucher creation for submission | `POST /points/signed-balance-batch` |
-| Transaction | SDK `lockerAbi`, Wagmi, Base, user's locker |
+| Behavior                        | Data source                                                |
+| ------------------------------- | ---------------------------------------------------------- |
+| Campaign enumeration            | SUP Goldsky subgraph                                       |
+| Campaign attribution            | Live claim `/api/programs`; recovered labels as fallback   |
+| Raw and capped claim state      | `POST /points/balance-batch`                               |
+| Locker, units, and member flow  | SDK ABIs through Wagmi                                     |
+| Pool totals                     | Narrow GDA pool reads through Wagmi                        |
+| Last applied signed snapshot    | `programManager.getNextValidNonce(programId, account) - 1` |
+| Fresh upper snapshot            | `POST /points/signed-balance-batch` `signatureTimestamp`   |
+| Pending event explanation       | Client helper plus bounded `GET /points/events` calls      |
+| Voucher creation for submission | `POST /points/signed-balance-batch`                        |
+| Transaction                     | SDK `lockerAbi`, Wagmi, Base, user's locker                |
 
 Claim-state and signed-balance batches require matching account, exact campaign order,
 and equal parallel array lengths. The contract receives only signed/capped `points`;
@@ -83,6 +91,10 @@ The helper:
    `uncappedPoints - onchainUnits`;
 7. returns the selected events or an explicit partial-explanation message.
 
+The event list shows a count multiplier only for events with the same semantic family
+and point amount. It keeps different point amounts on separate lines. It strikes
+through equal opposite pairs and splits counts to keep an uncanceled remainder visible.
+
 The claim UI excludes synchronized and capped campaigns before calling the helper. A
 nonce is the timestamp of a signed balance snapshot, not the transaction's block
 timestamp. A task needing the actual claim transaction must locate/decode the
@@ -107,17 +119,28 @@ A pending capped target is still submitted normally.
 
 ## Client batching and cache
 
-The first explanation action processes all changed uncapped campaigns together. Signed
+The claim review automatically processes all changed uncapped campaigns together. Signed
 balances are batched, independent nonce/event work runs concurrently, and each result is
 cached by account, campaign, onchain units, and uncapped balance. A claim-state refresh
 naturally changes the key.
 
+Campaign history stays mounted after its first render. Hiding and reopening the
+history keeps its loaded event batches and next-page position, so the same broad CMS
+scan does not restart at page one.
+
 ## Functional scope
 
 - `/claim` connects or inspects a wallet, shows flows and capped states, explains
-  uncapped deltas, and submits claims only for the owning connected wallet.
+  uncapped deltas, and submits claims only for the owning connected wallet. Each
+  changed campaign has a checkbox. Positive target deltas are checked by default;
+  decreasing targets are clear. The controls lock during submission, the CMS signed
+  batch contains only checked campaigns, and post-claim refreshes preserve explicit
+  exclusions. A receipt transport error after submission remains indeterminate. Stale
+  or uncertain state disables another submission and exposes a read-only refresh.
 - `/apps`, `/governance`, `/leaderboard`, `/liquidity`, `/reserve`, `/reserve-names`,
-  `/staking`, and `/swap` retain their reconstructed implementations.
+  and `/staking` retain their reconstructed implementations.
+- `/swap` is intentionally absent from the runnable application. The independent
+  client does not ship the recovered LI.FI swap/referrer flow.
 
 ## Verification
 
@@ -128,12 +151,12 @@ npm run test:e2e
 npm run build
 ```
 
-Also exercise `/claim`, open more than one changed campaign explanation to confirm cache
+Also exercise `/claim`, confirm that changed campaign explanations appear without an expansion action, and confirm cache
 reuse, and confirm capped campaigns never request incremental events.
 
 ## Known limitations
 
-- Public subgraphs, RPC, and CMS availability remain runtime dependencies.
+- Public subgraphs, RPC, CMS, and claim-program metadata remain runtime dependencies.
 - Event ordering is by event time; insertion-time backfills are not observable.
 - Same-second event order cannot be proven from second-resolution nonces alone.
 - Multiple newest-first prefixes can share a net value; the algorithm chooses the first.

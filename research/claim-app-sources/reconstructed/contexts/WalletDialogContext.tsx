@@ -3,10 +3,13 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useState,
   type PropsWithChildren,
 } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
+
+import { useFarcasterFrame } from "./FarcasterFrameProvider";
 
 type WalletView = "connect" | "account";
 
@@ -14,11 +17,32 @@ const WalletDialogContext = createContext<{
   open(view?: WalletView): void;
 }>({ open: () => undefined });
 
+function connectorLabel(name: string) {
+  const labels: Record<string, string> = {
+    FarcasterInjected: "Farcaster",
+    Injected: "Browser wallet",
+  };
+  return labels[name] ?? name.replace(/([a-z])([A-Z])/g, "$1 $2");
+}
+
 export function WalletDialogProvider({ children }: PropsWithChildren) {
   const [view, setView] = useState<WalletView | null>(null);
   const { address } = useAccount();
   const { connectors, connect, error, isPending } = useConnect();
   const { disconnect } = useDisconnect();
+  const { isInMiniApp } = useFarcasterFrame();
+  const visibleConnectors = connectors.filter(
+    (connector) => connector.type !== "farcasterMiniApp" || isInMiniApp,
+  );
+
+  useEffect(() => {
+    if (!view) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setView(null);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [view]);
 
   return (
     <WalletDialogContext.Provider
@@ -26,39 +50,56 @@ export function WalletDialogProvider({ children }: PropsWithChildren) {
     >
       {children}
       {view && (
-        <div className="wallet-dialog-overlay">
-          <div
+        <div
+          className="wallet-dialog-overlay"
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target) setView(null);
+          }}
+        >
+          <section
             role="dialog"
             aria-modal="true"
             aria-labelledby="wallet-dialog-title"
             className="wallet-dialog"
           >
-            <button
-              className="wallet-dialog-close"
-              aria-label="Close wallet dialog"
-              onClick={() => setView(null)}
-            >
-              ×
-            </button>
+            <p className="wallet-dialog-heading">
+              <strong id="wallet-dialog-title">
+                <span className="prompt">&gt;</span>{" "}
+                {view === "account" && address ? "wallet" : "connect wallet"}
+              </strong>
+              <button
+                className="wallet-dialog-close"
+                aria-label="Close wallet dialog"
+                onClick={() => setView(null)}
+              >
+                [ close ]
+              </button>
+            </p>
+
             {view === "account" && address ? (
-              <>
-                <h2 id="wallet-dialog-title">Wallet</h2>
+              <div className="wallet-dialog-body">
                 <p className="wallet-dialog-address">{address}</p>
-                <button
-                  onClick={() => {
-                    disconnect();
-                    setView(null);
-                  }}
-                >
-                  Disconnect
-                </button>
-              </>
+                <p>
+                  <button
+                    onClick={() => {
+                      disconnect();
+                      setView(null);
+                    }}
+                  >
+                    [ disconnect ]
+                  </button>
+                </p>
+              </div>
             ) : (
-              <>
-                <h2 id="wallet-dialog-title">Connect wallet</h2>
-                <div className="flex flex-col gap-2">
-                  {connectors.map((connector) => (
+              <div className="wallet-dialog-body">
+                <p className="dim">select a connector</p>
+                <div
+                  className="wallet-connector-list"
+                  aria-label="Wallet connectors"
+                >
+                  {visibleConnectors.map((connector, index) => (
                     <button
+                      className="wallet-connector"
                       key={connector.uid}
                       disabled={isPending}
                       onClick={() =>
@@ -68,14 +109,21 @@ export function WalletDialogProvider({ children }: PropsWithChildren) {
                         )
                       }
                     >
-                      {connector.name}
+                      <span className="wallet-connector-index" aria-hidden="true">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <span>{connectorLabel(connector.name)}</span>
                     </button>
                   ))}
                 </div>
-                {error && <p className="text-sm">{error.message}</p>}
-              </>
+                {error && (
+                  <p className="wallet-dialog-error" role="alert">
+                    {error.message}
+                  </p>
+                )}
+              </div>
             )}
-          </div>
+          </section>
         </div>
       )}
     </WalletDialogContext.Provider>

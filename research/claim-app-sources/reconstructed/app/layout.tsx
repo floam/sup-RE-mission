@@ -1,38 +1,49 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { Suspense, type ReactNode } from "react";
-import "./recovered.css";
 import "./globals.css";
 import "./wallet-dialog.css";
 
 import { NavConnectAndBalance } from "../components/layout/NavConnectAndBalance";
+import { NavFeatureLinks } from "../components/layout/NavFeatureLinks";
+import { ReserveBalanceBar } from "../components/layout/ReserveBalanceBar";
 import { RootProviders } from "../providers/RootProviders";
 
 export const metadata: Metadata = {
-  title: "SUP Re:Claim",
-  description: "Recovered Superfluid claim app",
+  title: "sup re:claim",
+  description: "Independent Superfluid claim review client",
 };
 
-export default async function RootLayout({ children }: { children: ReactNode }) {
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const cookieHeader = (await headers()).get("cookie");
 
   return (
     <html lang="en" className="dark">
       <body>
-        <Suspense fallback={<div className="shell">Loading application…</div>}>
+        <Suspense fallback={<div className="shell">loading…</div>}>
           <RootProviders cookies={cookieHeader}>
             <div className="shell">
-              <nav>
+              <nav aria-label="Primary navigation">
                 <Link className="brand" href="/">
-                  SUP Re:Claim
+                  sup re:claim
                 </Link>
                 <div className="links">
-                  <Link href="/claim">Claim</Link>
-                  <Link href="/apps">Campaigns</Link>
+                  <NavFeatureLinks />
                   <NavConnectAndBalance />
                 </div>
               </nav>
+              <ReserveBalanceBar />
               {children}
             </div>
           </RootProviders>

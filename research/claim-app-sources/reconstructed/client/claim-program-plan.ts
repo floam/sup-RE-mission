@@ -20,6 +20,18 @@ export type ClaimResultKind =
   | "updates-found"
   | "synchronized";
 
+export interface ClaimSubmissionErrorInput {
+  confirmedBatches: number;
+  detail: string;
+  confirmationIncomplete: boolean;
+}
+
+export interface ClaimSubmissionErrorOutcome {
+  kind: "error" | "warning";
+  message: string;
+  requiresRefresh: boolean;
+}
+
 export function chunkItems<T>(items: readonly T[], size: number): T[][] {
   if (!Number.isSafeInteger(size) || size <= 0) {
     throw new Error("Chunk size must be a positive safe integer.");
@@ -61,4 +73,30 @@ export function getClaimResultKind({
   if (comparableProgramCount === 0) return "no-active-programs";
   if (changedProgramCount > 0) return "updates-found";
   return "synchronized";
+}
+
+export function getClaimSubmissionErrorOutcome({
+  confirmedBatches,
+  detail,
+  confirmationIncomplete,
+}: ClaimSubmissionErrorInput): ClaimSubmissionErrorOutcome {
+  if (confirmationIncomplete) {
+    return {
+      kind: "warning",
+      message:
+        confirmedBatches > 0
+          ? `Confirmation incomplete: ${confirmedBatches} transaction${confirmedBatches === 1 ? "" : "s"} confirmed, and the next submitted transaction could not be verified. Refresh the stream state before retrying. ${detail}`
+          : `Confirmation incomplete: the transaction was submitted, but its onchain result could not be verified. Refresh the stream state before retrying. ${detail}`,
+      requiresRefresh: true,
+    };
+  }
+
+  return {
+    kind: "error",
+    message:
+      confirmedBatches > 0
+        ? `Claim partially succeeded: ${confirmedBatches} transaction${confirmedBatches === 1 ? "" : "s"} confirmed before the next update failed: ${detail}`
+        : `Claim failed: ${detail}`,
+    requiresRefresh: confirmedBatches > 0,
+  };
 }

@@ -4,9 +4,13 @@ This directory is a semantic reconstruction of the first-party application sourc
 shipped by `claim.superfluid.org`, plus a deliberately small runnable compatibility
 application used to validate and extend the recovered behavior.
 
+The shared page shell shows the connected account's live Reserve balance above every
+route and links the label to Reserve management.
+The home route asks the user to connect a wallet before it shows workbench links.
+
 It is **not** a byte-for-byte recovery. The deployment did not publish usable source
 maps, so names and boundaries that cannot be proven are labeled as inference rather
-than original private source. `MODULE_MAP.md` is the symbol/evidence ledger.
+than original private source. `MODULE_MAP.md` is the symbol/source ledger.
 
 See `RUNNABILITY.md` for local/Vercel commands, SDK/Wagmi architecture, the CMS OpenAPI
 boundary, nonce-bounded pending-event reconciliation, cap behavior, verification, and
@@ -16,19 +20,23 @@ limitations.
 
 Repository-authored compatibility modules include:
 
-- `client/ClaimExperience.tsx`: staged account review, batched explanation loading,
-  client explanation cache, and claim orchestration;
+- `client/ClaimExperience.tsx`: staged account review, automatic nonce-bounded explanation
+  caching, and claim orchestration;
 - `client/ClaimCampaignChange.tsx`: current/projected flow, capped-out state, and event
   reconciliation UI;
 - `client/claim-chain.ts`: active program, CMS raw/capped target, and Wagmi state assembly;
+- `client/program-attribution.ts`: live claim-app attribution parsing and recovered-label fallback merging;
 - `client/claim-batch.ts`: strict CMS batch response validation;
 - `client/claim-display.ts`, `client/claim-event-breakdown.ts`,
-  `client/GroupedEventList.tsx`, and `client/event-groups.ts`: presentation and grouping;
+  `client/GroupedEventList.tsx`, and `client/event-groups.ts`: presentation and
+  equal-point family grouping with struck-through opposite pairs;
 - `client/flow-projection.ts`: deterministic member-flow projection;
 - `client/pending-event-explanations.ts`: client-side batching, signed-balance drift
   checks, nonce reads, and CMS event reconciliation using reviewed point state;
 - `lib/cms-client.ts`: typed `openapi-fetch` CMS transport boundary;
 - `lib/cms-events.ts`: bounded newest-first event pagination and lazy summation;
+- `lib/campaign-event-history.ts`: newest-first, account-optional campaign history
+  batches of no more than 300 events;
 - `lib/claim-nonce-window.ts`: signed-snapshot nonce interval derivation.
 
 There is no local pending-event API route or separate server-side Wagmi configuration.
@@ -42,7 +50,7 @@ maintaining duplicate AppKit and Wagmi account state.
 
 These modules are local product/reconstruction work, not recovered private source.
 
-## Evidence used
+## Sources used
 
 - Hash-pinned public responses under `recovered/claim.superfluid.org/raw/`.
 - Sentry source-catalog names and Next.js route/chunk relationships.
@@ -60,20 +68,28 @@ These modules are local product/reconstruction work, not recovered private sourc
 - Keep dependency-owned code in dependencies and import SUP contract surfaces from
   `@sfpro/sdk/abi/sup`.
 - Keep CMS HTTP access behind `lib/cms-client.ts` and validate batch account/order/arrays.
+- Treat the public claim `/api/programs` response as the live source for names, seasons,
+  and categories. Keep recovered definitions only as a display fallback; use the SUP
+  subgraph for program existence and lifecycle.
 - Submit only signed/capped `points`; use `uncappedPoints` only for explanation.
+- Let the user choose changed campaigns. Select positive deltas by default, leave
+  decreasing deltas clear, lock selection during submission, sign only the checked
+  campaign IDs, and preserve explicit exclusions across post-claim refreshes. Treat
+  receipt transport errors after submission as indeterminate and require a read-only
+  refresh before retrying from stale or uncertain state.
 - Treat `getNextValidNonce - 1` as the nonce of the last accepted signed snapshot, not
   the claim transaction's mined timestamp.
 - Treat CMS `createdAt` as event occurrence time, not insertion time.
 - Show capped campaigns explicitly and skip event additions that cannot increase their
   claim target.
-- Update consumers, docs, tests, and provenance together when evidence changes.
+- Update consumers, docs, tests, and provenance together when source material changes.
 
 ## Server-action reconstruction
 
 Browser-visible server actions are semantic reconstructions, not claimed original
-bodies. The current evidence supports their inputs, outputs, query structure, and math.
+bodies. The current sources support their inputs, outputs, query structure, and math.
 The public Uniswap V3 Base fallback remains an inferred compatible deployment because
-the original server-to-server URL is absent from captured browser evidence.
+the original server-to-server URL is absent from the captured browser files.
 
 ## Validation
 

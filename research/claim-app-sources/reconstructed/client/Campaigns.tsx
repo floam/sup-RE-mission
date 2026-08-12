@@ -1,25 +1,32 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { getAddress } from "viem";
 
-import { PROGRAM_APP_DEFINITIONS } from "../data/program-app-definitions";
+import { useProgramTotalFlowRate } from "../hooks/useProgramTotalFlowRate";
+import { formatCompactTokenAmount, formatMonthlyFlowRate } from "../lib/format";
 import styles from "./Campaigns.module.css";
+import { CampaignEventHistory } from "./CampaignEventHistory";
+import {
+  getCampaignAttribution,
+  STATIC_PROGRAM_ATTRIBUTIONS,
+} from "./claim-display";
+import {
+  getActivePoolMemberCounts,
+} from "./pool-members";
+import {
+  getPublicProgramAttributions,
+  mergeProgramAttributions,
+  type ProgramAttributions,
+} from "./program-attribution";
 import {
   getProgramStatus,
   getPublicPrograms,
   type PublicProgram,
 } from "./programs";
 
-type ProgramAppDefinition = (typeof PROGRAM_APP_DEFINITIONS)[number];
 type ProgramStatus = ReturnType<typeof getProgramStatus>;
 type ProgramFilter = ProgramStatus | "All";
-
-const appsByProgram = new Map<string, ProgramAppDefinition[]>();
-for (const app of PROGRAM_APP_DEFINITIONS) {
-  if (!app.program) continue;
-  const programId = String(app.program.id);
-  appsByProgram.set(programId, [...(appsByProgram.get(programId) ?? []), app]);
-}
 
 const FILTERS: ProgramFilter[] = ["All", "Active", "Finished", "Stopped"];
 
@@ -27,42 +34,150 @@ function shortAddress(value: string) {
   return `${value.slice(0, 6)}…${value.slice(-4)}`;
 }
 
-function formatTokenAmount(value: string) {
-  return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(
-    Number(BigInt(value) / 10n ** 18n),
+function ProgramLine({
+  program,
+  attributions,
+  memberCount,
+  memberCountUnavailable,
+}: {
+  program: PublicProgram;
+  attributions: ProgramAttributions;
+  memberCount?: number;
+  memberCountUnavailable: boolean;
+}) {
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const attribution = getCampaignAttribution(BigInt(program.id), attributions);
+  const status = getProgramStatus(program).toLowerCase();
+  const poolAddress = getAddress(program.distributionPool);
+  const { totalFlowRate } = useProgramTotalFlowRate(poolAddress);
+  const funding = formatCompactTokenAmount(BigInt(program.fundingAmount));
+  const flow =
+    totalFlowRate === undefined ? "…" : formatMonthlyFlowRate(totalFlowRate);
+  const members = memberCountUnavailable
+    ? "unavailable"
+    : memberCount === undefined
+      ? "…"
+      : new Intl.NumberFormat("en-US").format(memberCount);
+
+  return (
+    <article className={styles.program}>
+      <p>
+        <strong>
+          {attribution.names.length
+            ? attribution.names.join(" / ")
+            : `Program ${program.id}`}
+        </strong>{" "}
+        <em className="dim">{status}</em>
+      </p>
+      <p className={styles.metrics}>
+        funded <strong>{funding} SUP</strong>
+        <span>
+          flow <strong>{flow} SUP/mo</strong>
+        </span>
+      </p>
+      <p className={styles.members}>
+        <strong>{members}</strong> active pool members
+      </p>
+      <p className="dim">
+        #{program.id}
+        {attribution.descriptors.length
+          ? ` · ${attribution.descriptors.join(" / ")}`
+          : " · unattributed"}
+      </p>
+      <p className="dim">
+        pool{" "}
+        <a
+          href={`https://basescan.org/address/${poolAddress}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {shortAddress(poolAddress)} ↗
+        </a>
+      </p>
+      <button
+        className="text-button"
+        type="button"
+        onClick={() => setHistoryOpen((open) => !open)}
+      >
+        {historyOpen ? "hide full event history" : "inspect full event history"}
+      </button>
+      {historyOpen && (
+        <CampaignEventHistory campaignId={BigInt(program.id)} detailed />
+      )}
+    </article>
   );
-}
-
-function unique(values: string[]) {
-  return [...new Set(values)];
-}
-
-function getAttribution(programId: string) {
-  const apps = appsByProgram.get(programId) ?? [];
-  return {
-    names: unique(apps.map((app) => app.name)),
-    descriptors: unique(
-      apps.map((app) => `Season ${app.season ?? "—"} · ${app.category}`),
-    ),
-  };
 }
 
 export function Campaigns() {
   const [programs, setPrograms] = useState<PublicProgram[]>([]);
+  const [attributions, setAttributions] = useState<ProgramAttributions>(
+    STATIC_PROGRAM_ATTRIBUTIONS,
+  );
+  const [memberCounts, setMemberCounts] = useState<Map<string, number>>(
+    () => new Map(),
+  );
+  const [memberCountError, setMemberCountError] = useState("");
   const [error, setError] = useState("");
+  const [attributionError, setAttributionError] = useState("");
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<ProgramFilter>("All");
 
   useEffect(() => {
+    let disposed = false;
     getPublicPrograms()
-      .then(setPrograms)
-      .catch((reason) => setError(String(reason)));
+      .then((result) => {
+        if (!disposed) setPrograms(result);
+      })
+      .catch((reason) => {
+        if (!disposed) setError(String(reason));
+      });
+    getPublicProgramAttributions()
+      .then((live) => {
+        if (!disposed) {
+          setAttributions(
+            mergeProgramAttributions(STATIC_PROGRAM_ATTRIBUTIONS, live),
+          );
+        }
+      })
+      .catch((reason) => {
+        if (!disposed) {
+          setAttributionError(
+            `Live campaign names are unavailable; using recovered labels. ${String(reason)}`,
+          );
+        }
+      });
+    return () => {
+      disposed = true;
+    };
   }, []);
+
+  useEffect(() => {
+    if (programs.length === 0) return;
+
+    let disposed = false;
+    setMemberCountError("");
+    getActivePoolMemberCounts(
+      programs.map((program) => program.distributionPool),
+    )
+      .then((counts) => {
+        if (!disposed) setMemberCounts(counts);
+      })
+      .catch((reason) => {
+        if (!disposed) setMemberCountError(String(reason));
+      });
+
+    return () => {
+      disposed = true;
+    };
+  }, [programs]);
 
   const shown = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return programs.filter((program) => {
-      const attribution = getAttribution(program.id);
+      const attribution = getCampaignAttribution(
+        BigInt(program.id),
+        attributions,
+      );
       const haystack = [
         program.id,
         program.distributionPool,
@@ -76,7 +191,7 @@ export function Campaigns() {
         (status === "All" || getProgramStatus(program) === status)
       );
     });
-  }, [programs, query, status]);
+  }, [attributions, programs, query, status]);
 
   const counts = useMemo(
     () =>
@@ -91,112 +206,60 @@ export function Campaigns() {
   );
 
   return (
-    <>
-      <section className={styles.summary} aria-label="Campaign summary">
-        <div>
-          <span>Programs</span>
-          <strong>{programs.length || "—"}</strong>
-        </div>
-        <div>
-          <span>Active</span>
-          <strong>{counts.Active}</strong>
-        </div>
-        <div>
-          <span>Finished</span>
-          <strong>{counts.Finished}</strong>
-        </div>
-        <div>
-          <span>Stopped</span>
-          <strong>{counts.Stopped}</strong>
-        </div>
-      </section>
-
-      <div className={styles.tools}>
+    <section className={styles.campaigns}>
+      <p className={styles.summary} aria-label="Campaign summary">
+        programs {programs.length || "—"} · active {counts.Active} · finished{" "}
+        {counts.Finished} · stopped {counts.Stopped}
+      </p>
+      <label className={styles.search}>
+        <span>filter</span>
         <input
           aria-label="Filter campaigns"
-          placeholder="Search name, ID, category, or pool"
+          placeholder="name, ID, category, or pool"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
-        <div className={styles.filters} aria-label="Campaign status">
-          {FILTERS.map((value) => (
-            <button
-              className={status === value ? styles.activeFilter : undefined}
-              key={value}
-              type="button"
-              onClick={() => setStatus(value)}
-            >
-              {value}
-            </button>
-          ))}
-        </div>
-      </div>
+      </label>
 
-      <p className="muted">
+      <p className={styles.filters} aria-label="Campaign status">
+        {FILTERS.map((value) => (
+          <button
+            className={status === value ? styles.activeFilter : undefined}
+            key={value}
+            type="button"
+            onClick={() => setStatus(value)}
+          >
+            {value.toLowerCase()}
+          </button>
+        ))}
+      </p>
+
+      <p>
         {programs.length
           ? `${shown.length} matching program${shown.length === 1 ? "" : "s"}`
-          : "Loading onchain programs…"}
+          : "loading onchain programs…"}
       </p>
       {error && <p className="status error">{error}</p>}
+      {attributionError && <p className="status warning">{attributionError}</p>}
+      {memberCountError && (
+        <p className="status warning">
+          Active pool-member counts are unavailable. {memberCountError}
+        </p>
+      )}
 
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Campaign</th>
-              <th>Status</th>
-              <th>Funding</th>
-              <th>Subsidy</th>
-              <th>Pool</th>
-            </tr>
-          </thead>
-          <tbody>
-            {shown.map((program) => {
-              const attribution = getAttribution(program.id);
-              const programStatus = getProgramStatus(program);
-              return (
-                <tr key={program.id}>
-                  <td data-label="Campaign">
-                    <strong>
-                      {attribution.names.length
-                        ? attribution.names.join(" / ")
-                        : `Program ${program.id}`}
-                    </strong>
-                    <small>
-                      {attribution.descriptors.length
-                        ? `${attribution.descriptors.join(" / ")} · #${program.id}`
-                        : `Unattributed · #${program.id}`}
-                    </small>
-                  </td>
-                  <td data-label="Status">
-                    <span
-                      className={`${styles.statusPill} ${styles[programStatus.toLowerCase()]}`}
-                    >
-                      {programStatus}
-                    </span>
-                  </td>
-                  <td data-label="Funding">
-                    {formatTokenAmount(program.fundingAmount)} SUP
-                  </td>
-                  <td data-label="Subsidy">
-                    {formatTokenAmount(program.subsidyAmount)} SUP
-                  </td>
-                  <td data-label="Pool">
-                    <a
-                      className={styles.poolLink}
-                      href={`https://basescan.org/address/${program.distributionPool}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {shortAddress(program.distributionPool)} ↗
-                    </a>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      <div className={styles.programLines}>
+        {shown.map((program) => (
+          <ProgramLine
+            key={program.id}
+            program={program}
+            attributions={attributions}
+            memberCount={memberCounts.get(
+              program.distributionPool.toLowerCase(),
+            )}
+            memberCountUnavailable={Boolean(memberCountError)}
+          />
+        ))}
       </div>
-    </>
+    </section>
   );
 }

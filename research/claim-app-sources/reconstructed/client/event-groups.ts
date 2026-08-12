@@ -7,9 +7,12 @@ export interface CmsEventLike {
 
 export interface CmsEventGroup {
   key: string;
+  familyKey: string;
   displayName: string;
   count: number;
+  pointsPerEvent: number;
   totalPoints: number;
+  canceled: boolean;
   firstCreatedAt: string;
   latestCreatedAt: string;
 }
@@ -28,14 +31,25 @@ function timestamp(value: string) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function titleCaseEventName(value: string) {
-  const words = value.trim().replace(/[-_]+/g, " ").replace(/\s+/g, " ").split(" ");
+function humanizeEventName(value: string) {
+  const words = value
+    .trim()
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .split(" ")
+    .filter(Boolean);
   if (!words[0]) return "Event";
+
   return words
     .map((word, index) => {
       const initialism = INITIALISMS.get(word.toLowerCase());
       if (initialism) return initialism;
-      return index === 0 ? word[0].toUpperCase() + word.slice(1) : word;
+      const normalized = word.toLowerCase();
+      return index === 0
+        ? normalized[0].toUpperCase() + normalized.slice(1)
+        : normalized;
     })
     .join(" ");
 }
@@ -48,7 +62,7 @@ export function getEventFamily(eventName: string) {
 
   return {
     key: familyName.toLowerCase(),
-    displayName: titleCaseEventName(familyName),
+    displayName: humanizeEventName(familyName),
   };
 }
 
@@ -59,12 +73,17 @@ export function groupCmsEvents(
 
   for (const event of events) {
     const family = getEventFamily(event.eventName);
-    const group = groups.get(family.key);
+    const groupKey = JSON.stringify([family.key, event.points]);
+    const group = groups.get(groupKey);
     if (!group) {
-      groups.set(family.key, {
-        ...family,
+      groups.set(groupKey, {
+        key: groupKey,
+        familyKey: family.key,
+        displayName: family.displayName,
         count: 1,
+        pointsPerEvent: event.points,
         totalPoints: event.points,
+        canceled: false,
         firstCreatedAt: event.createdAt,
         latestCreatedAt: event.createdAt,
       });
@@ -81,9 +100,60 @@ export function groupCmsEvents(
     }
   }
 
-  return [...groups.values()].sort(
-    (left, right) =>
-      timestamp(right.latestCreatedAt) - timestamp(left.latestCreatedAt) ||
-      left.displayName.localeCompare(right.displayName),
+  const canceledCounts = new Map<string, number>();
+  for (const group of groups.values()) {
+    if (group.pointsPerEvent <= 0) continue;
+    const opposite = groups.get(
+      JSON.stringify([group.familyKey, -group.pointsPerEvent]),
+    );
+    if (opposite) {
+      canceledCounts.set(group.key, Math.min(group.count, opposite.count));
+    }
+  }
+
+  const displayGroups = [...groups.values()].flatMap((group) => {
+    const pairKey = JSON.stringify([
+      group.familyKey,
+      Math.abs(group.pointsPerEvent),
+    ]);
+    const canceledCount = canceledCounts.get(pairKey) ?? 0;
+    if (canceledCount === 0) return group;
+
+    const remainderCount = group.count - canceledCount;
+    const canceledGroup = {
+      ...group,
+      key: `${group.key}:canceled`,
+      count: canceledCount,
+      totalPoints: group.pointsPerEvent * canceledCount,
+      canceled: true,
+    };
+    if (remainderCount === 0) return canceledGroup;
+    return [
+      {
+        ...group,
+        key: `${group.key}:active`,
+        count: remainderCount,
+        totalPoints: group.pointsPerEvent * remainderCount,
+      },
+      canceledGroup,
+    ];
+  });
+
+  return displayGroups.sort(
+    (left, right) => {
+      if (
+        left.familyKey === right.familyKey &&
+        Math.abs(left.pointsPerEvent) === Math.abs(right.pointsPerEvent)
+      ) {
+        return (
+          Number(left.canceled) - Number(right.canceled) ||
+          right.pointsPerEvent - left.pointsPerEvent
+        );
+      }
+      return (
+        timestamp(right.latestCreatedAt) - timestamp(left.latestCreatedAt) ||
+        left.displayName.localeCompare(right.displayName)
+      );
+    },
   );
 }

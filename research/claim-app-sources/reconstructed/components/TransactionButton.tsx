@@ -1,9 +1,8 @@
 "use client";
 
-import { LoaderCircle } from "lucide-react";
-import { useSwitchChain } from "wagmi";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { Chain } from "viem";
+import { useSwitchChain } from "wagmi";
 
 import { useWalletAccount } from "../hooks/useWalletAccount";
 import type { TransactionStatus } from "../types/transactions";
@@ -43,22 +42,14 @@ export function TransactionButton({
     !canSwitch && (!isConnected || status?.isFinished || disabled);
 
   const label =
-    status?.isLoading || loading ? (
-      <>
-        <span className="invisible">.</span>
-        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-        <span className="invisible">.</span>
-      </>
-    ) : requiresChainSwitch ? (
-      `Switch Chain to ${chain.name}`
-    ) : (
-      children
-    );
+    status?.isLoading || loading
+      ? `[ ${status?.displayText || "working…"} ]`
+      : requiresChainSwitch
+        ? `[ switch to ${chain.name} ]`
+        : children;
 
   return (
-    <div
-      className={`flex w-full flex-col items-center space-y-2 ${className ?? ""}`}
-    >
+    <span className={className}>
       <button
         data-testid={dataTestId}
         data-variant={variant}
@@ -70,7 +61,11 @@ export function TransactionButton({
       >
         {label}
       </button>
-      {status?.isError && <p className="text-sm">{status.displayText}</p>}
-    </div>
+      {status?.isError && (
+        <span className="negative" role="alert">
+          {" "}{status.displayText}
+        </span>
+      )}
+    </span>
   );
 }

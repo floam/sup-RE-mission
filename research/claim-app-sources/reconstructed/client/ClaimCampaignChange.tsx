@@ -1,160 +1,150 @@
 import { GroupedEventList } from "./GroupedEventList";
 import type { PointState } from "./claim-chain";
 import {
+  formatCompactMonthlyFlow,
   formatList,
-  formatMonthlyFlow,
   getCampaignAttribution,
 } from "./claim-display";
 import type { EventBreakdown } from "./claim-event-breakdown";
+import type { ProgramAttributions } from "./program-attribution";
 
 const numberFormat = new Intl.NumberFormat("en-US");
+const compactNumberFormat = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  maximumFractionDigits: 2,
+});
+
+function formatSignedPoints(value: bigint) {
+  if (value > 0n) return `+${numberFormat.format(value)}`;
+  if (value < 0n) return `−${numberFormat.format(-value)}`;
+  return "0";
+}
+
+function signedClass(value: bigint) {
+  if (value > 0n) return "positive";
+  if (value < 0n) return "negative";
+  return undefined;
+}
+
+function formatProjectedShare(row: PointState) {
+  const projectedTotalUnits =
+    row.poolTotalUnits - row.onchainPoints + row.offchainPoints;
+  if (projectedTotalUnits <= 0n || row.offchainPoints <= 0n) {
+    return "0% projected pool share";
+  }
+
+  const hundredths = (row.offchainPoints * 10_000n) / projectedTotalUnits;
+  if (hundredths === 0n) return "<0.01% projected pool share";
+
+  const whole = hundredths / 100n;
+  const fraction = (hundredths % 100n).toString().padStart(2, "0");
+  const compactFraction = fraction.replace(/0+$/, "");
+  return `${whole}${compactFraction ? `.${compactFraction}` : ""}% projected pool share`;
+}
 
 export function ClaimCampaignChange({
   row,
+  attributions,
+  isSelected,
+  isSelectionDisabled = false,
+  onSelectionChange,
   breakdown,
-  onToggleBreakdown,
 }: {
   row: PointState;
+  attributions?: ProgramAttributions;
+  isSelected?: boolean;
+  isSelectionDisabled?: boolean;
+  onSelectionChange?(selected: boolean): void;
   breakdown?: EventBreakdown;
-  onToggleBreakdown(row: PointState): void;
 }) {
-  const attribution = getCampaignAttribution(row.programId);
+  const attribution = getCampaignAttribution(row.programId, attributions);
   const unitDelta = row.offchainPoints - row.onchainPoints;
-  const uncappedDelta = row.uncappedPoints - row.onchainPoints;
   const flowDelta = row.projectedFlowRate - row.currentFlowRate;
-  const eventTotal = (breakdown?.events ?? []).reduce(
-    (sum, event) => sum + event.points,
-    0,
-  );
-  const eventsReconcile =
-    Number.isSafeInteger(eventTotal) && BigInt(eventTotal) === uncappedDelta;
-
-  const statusLabel = !row.cmsCampaignExists
-    ? "Reward unavailable"
-    : row.isCapped
-      ? "Capped out"
-      : !row.isOnchainOutdated
-        ? "Up to date"
-        : flowDelta > 0n
-          ? "Stream can grow"
-          : unitDelta > 0n
-            ? "More SUP earned"
-            : "Reward changed";
+  const campaignName = attribution.names.length
+    ? formatList(attribution.names)
+    : `Campaign ${row.programId}`;
 
   return (
     <article className="campaign-change">
-      <header className="campaign-heading">
-        <div>
-          <h4>
-            {attribution.names.length
-              ? formatList(attribution.names)
-              : `Campaign ${row.programId}`}
-          </h4>
-          <p className="campaign-meta">
-            {attribution.descriptors.length
-              ? `${attribution.descriptors.join(" / ")} · #${row.programId}`
-              : `Campaign #${row.programId}`}
-          </p>
-        </div>
-        <span
-          className={
-            !row.cmsCampaignExists
-              ? "unavailable-pill"
-              : row.isCapped || row.isOnchainOutdated
-                ? "update-pill"
-                : "current-pill"
-          }
-        >
-          {statusLabel}
+      {onSelectionChange ? (
+        <label className="campaign-heading">
+          <input
+            className="campaign-checkbox"
+            type="checkbox"
+            checked={isSelected}
+            disabled={isSelectionDisabled}
+            onChange={(event) => onSelectionChange(event.target.checked)}
+          />
+          <span className="campaign-check" aria-hidden="true">
+            {isSelected ? "[✓]" : "[ ]"}
+          </span>{" "}
+          <strong className="campaign-name">{campaignName}</strong>
+        </label>
+      ) : (
+        <p className="campaign-heading">
+          <span className="campaign-check" aria-hidden="true">
+            [-]
+          </span>{" "}
+          <strong className="campaign-name">{campaignName}</strong>
+        </p>
+      )}
+
+      <p className="campaign-metrics">
+        <span>
+          pts{" "}
+          <strong className={signedClass(unitDelta)}>
+            {formatSignedPoints(unitDelta)}
+          </strong>
         </span>
-      </header>
+        <span>
+          flow{" "}
+          <strong className={signedClass(flowDelta)}>
+            {formatCompactMonthlyFlow(flowDelta, true)}
+          </strong>
+        </span>
+      </p>
 
-      <div className="flow-comparison" aria-label="SUP stream comparison">
-        <div>
-          <span>Current stream</span>
-          <strong>{formatMonthlyFlow(row.currentFlowRate)}</strong>
-        </div>
-        <div className="target">
-          <span>After update</span>
-          <strong>{formatMonthlyFlow(row.projectedFlowRate)}</strong>
-        </div>
-      </div>
-
-      <div className="campaign-outcome">
-        <span>Stream change</span>
-        <strong className={flowDelta >= 0n ? "positive" : "negative"}>
-          {formatMonthlyFlow(flowDelta, true)}
-        </strong>
-      </div>
-
-      {row.isCapped && (
-        <section className="event-drawer" aria-label="Campaign cap reached">
-          <span className="eyebrow">Maximum allocation reached</span>
-          <h3>This campaign is capped out</h3>
-          <p className="muted">
-            CMS reports {numberFormat.format(row.uncappedPoints)} raw points and caps
-            the claim target at {numberFormat.format(row.offchainPoints)} unit
-            {row.offchainPoints === 1n ? "" : "s"}. Additional campaign activity will
-            not increase this campaign&apos;s SUP stream.
-          </p>
-          {row.isOnchainOutdated && (
-            <p className="muted">
-              The pending transaction applies the capped target to your Reserve.
+      {row.isCapped ? (
+        <p className="event-line">
+          <span>~</span>
+          <span className="event-name">
+            cap {compactNumberFormat.format(row.uncappedPoints)} raw →{" "}
+            {numberFormat.format(row.offchainPoints)} unit
+            {row.offchainPoints === 1n ? "" : "s"}
+          </span>
+        </p>
+      ) : breakdown?.events.length ? (
+        <>
+          <GroupedEventList events={breakdown.events} />
+          {breakdown.message && (
+            <p className="event-line">
+              <span>~</span>
+              <span className="event-name">{breakdown.message}</span>
             </p>
           )}
-        </section>
+        </>
+      ) : breakdown?.message ? (
+        <p className="event-line">
+          <span>~</span>
+          <span className="event-name">{breakdown.message}</span>
+        </p>
+      ) : row.isOnchainOutdated && row.cmsCampaignExists ? (
+        <p className="event-line">
+          <span>~</span>
+          <span className="event-name">loading nonce-bounded points…</span>
+        </p>
+      ) : null}
+
+      {!row.cmsCampaignExists && (
+        <p className="event-line">
+          <span>!</span>
+          <span className="event-name">
+            campaign unavailable from points API
+          </span>
+        </p>
       )}
 
-      <div className="campaign-actions">
-        <details className="technical-details">
-          <summary>How this is calculated</summary>
-          <p>
-            Your Reserve changes from {numberFormat.format(row.onchainPoints)} to{" "}
-            {numberFormat.format(row.offchainPoints)} units. The projected stream
-            assumes the campaign pool&apos;s total flow is unchanged when the transaction
-            executes; live pool changes can move the final rate slightly.
-          </p>
-          {row.isCapped && (
-            <p>
-              Raw CMS points: {numberFormat.format(row.uncappedPoints)}. Capped claim
-              target: {numberFormat.format(row.offchainPoints)}.
-            </p>
-          )}
-        </details>
-        {!row.isCapped && row.isOnchainOutdated && row.cmsCampaignExists && (
-          <button
-            className="text-button"
-            type="button"
-            aria-expanded={Boolean(breakdown)}
-            onClick={() => onToggleBreakdown(row)}
-          >
-            {breakdown ? "Hide breakdown" : "Explain this update"}
-          </button>
-        )}
-      </div>
-
-      {breakdown && !row.isCapped && (
-        <section className="event-drawer" aria-live="polite">
-          <span className="eyebrow">Pending update</span>
-          <h3>Newest events explaining this point difference</h3>
-          <p className="muted">
-            CMS returns events newest first. We include them one at a time until their
-            net points equal the difference between the uncapped CMS balance and your
-            current onchain units.
-          </p>
-          {breakdown.message && <p className="muted">{breakdown.message}</p>}
-          {breakdown.events.length > 0 && (
-            <>
-              <GroupedEventList events={breakdown.events} />
-              <p className="claim-reconciliation muted">
-                {eventsReconcile
-                  ? `${numberFormat.format(eventTotal)} CMS points exactly reconcile the ${numberFormat.format(uncappedDelta)}-point difference.`
-                  : `${numberFormat.format(eventTotal)} of ${numberFormat.format(uncappedDelta)} pending points are explained by the available newest-first prefix.`}
-              </p>
-            </>
-          )}
-        </section>
-      )}
+      <p className="campaign-standing">{formatProjectedShare(row)}</p>
     </article>
   );
 }

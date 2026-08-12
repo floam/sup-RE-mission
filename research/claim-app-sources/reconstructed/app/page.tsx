@@ -1,40 +1,55 @@
+"use client";
+
 import Link from "next/link";
 
+import { ConnectButton } from "../components/layout/ConnectButton";
+import { useWalletAccount } from "../hooks/useWalletAccount";
+
+const routes = [
+  ["claim", "/claim", "review campaign deltas and update the SUP stream"],
+  ["campaigns", "/campaign", "inspect programs and full event history"],
+  ["reserve", "/reserve", "create and inspect a Superfluid Reserve"],
+  ["leaderboard", "/leaderboard", "review campaign standings"],
+  ["governance", "/governance", "inspect governance state"],
+  ["liquidity", "/liquidity", "review liquidity positions"],
+  ["staking", "/staking", "review SUP staking"],
+  ["reserve names", "/reserve-names", "inspect Reserve naming"],
+] as const;
+
 export default function Home() {
+  const { isConnected } = useWalletAccount();
+
   return (
-    <main>
-      <section className="hero">
-        <span className="tag">Recovered · client-first</span>
-        <h1>Claim your share of Superfluid.</h1>
-        <p className="muted">
-          A deployable reconstruction that reads public campaign data in your
-          browser and keeps your wallet in control.
-        </p>
-        <div className="toolbar">
-          <Link href="/claim">
-            <button>Check my claim</button>
-          </Link>
-          <Link href="/apps">
-            <button>Explore campaigns</button>
-          </Link>
-        </div>
-      </section>
-      <section className="grid">
-        <article className="card">
-          <h2>Public data</h2>
-          <p className="muted">
-            Campaign discovery is queried directly from the SUP and protocol
-            subgraphs.
+    <main className="terminal-page">
+      <p className="command-line">
+        <span className="prompt">&gt;</span> independent Superfluid client
+      </p>
+      <p className="dim">
+        public campaign data, direct chain reads, and wallet-controlled claims
+      </p>
+
+      {isConnected ? (
+        <>
+          <div className="route-lines" aria-label="Application routes">
+            {routes.map(([label, href, description]) => (
+              <p className="route-line" key={href}>
+                <Link href={href}>{label}</Link>
+                <span className="dim">{description}</span>
+              </p>
+            ))}
+          </div>
+
+          <p className="dim">
+            read operations run in the browser; claim vouchers are requested only
+            when a selected update is submitted
           </p>
-        </article>
-        <article className="card">
-          <h2>No app server</h2>
-          <p className="muted">
-            Read behavior runs in the browser. The only compatibility call is
-            the production voucher signer when a claim is submitted.
-          </p>
-        </article>
-      </section>
+        </>
+      ) : (
+        <section className="home-connect" aria-label="Connect a wallet">
+          <p>Connect a wallet to open the SUP workbench.</p>
+          <p><ConnectButton /></p>
+        </section>
+      )}
     </main>
   );
 }

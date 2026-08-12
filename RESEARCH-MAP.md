@@ -5,9 +5,10 @@ Load the smallest relevant group for the question at hand.
 ## Claim UX, claim state, flows, caps, and pending-event explanations
 
 - `research/claim-app-sources/reconstructed/RUNNABILITY.md`: current SDK/Wagmi/OpenAPI architecture, flow projection, client-helper boundary, verification, and limitations.
-- `research/claim-app-sources/reconstructed/client/ClaimExperience.tsx`: staged account review, ownership-aware submission, batched explanation loading, and client explanation cache.
-- `research/claim-app-sources/reconstructed/client/ClaimCampaignChange.tsx`: per-campaign current/projected flows, capped-out state, and event reconciliation UI.
+- `research/claim-app-sources/reconstructed/client/ClaimExperience.tsx`: staged account review, ownership-aware submission, and automatic nonce-bounded explanation cache.
+- `research/claim-app-sources/reconstructed/client/ClaimCampaignChange.tsx`: per-campaign claim delta, nonce-bounded events, flows, and capped-out state.
 - `research/claim-app-sources/reconstructed/client/claim-chain.ts`: active CMS uncapped/capped targets plus SDK/Wagmi onchain state assembly.
+- `research/claim-app-sources/reconstructed/client/program-attribution.ts`: live claim-app names, seasons, and categories with recovered labels as an outage fallback.
 - `research/claim-app-sources/reconstructed/client/claim-batch.ts`: CMS account/order/parallel-array validation.
 - `research/claim-app-sources/reconstructed/client/pending-event-explanations.ts`: reuses reviewed point state, batches fresh signed balances, reads next-valid nonces, and reconciles bounded CMS events without a local API proxy.
 - `research/claim-app-sources/reconstructed/lib/cms-client.ts`: sole typed CMS transport boundary for the runnable claim path.
@@ -24,6 +25,7 @@ Use this group for questions such as:
 - Has CMS capped the campaign target?
 - What are the current and projected SUP flows?
 - Which SDK/Wagmi/OpenAPI calls implement the transaction?
+- How does the user select campaigns, and why are decreasing targets clear by default?
 
 For an uncapped campaign, the runnable UI computes `uncapped CMS points - onchain
 units`. It derives the lower event-time bound from
@@ -38,6 +40,13 @@ capped out and event additions are not requested because they no longer increase
 claim target. CMS event `createdAt` remains the API name for `eventTime`, not insertion
 time.
 
+The runnable claim UI gives each changed campaign a transaction checkbox. It selects
+positive target deltas by default, leaves decreasing targets clear, locks selection
+during submission, and requests a signed batch only for the checked campaign IDs.
+Post-claim refreshes preserve explicit exclusions. A receipt transport error is
+indeterminate rather than a verified failure; stale or uncertain state blocks another
+submission until a read-only refresh succeeds.
+
 ## Claim voucher injector
 
 - `tools/claim-voucher/injector.js`: complete browser and Apple Shortcuts payload.
@@ -48,20 +57,15 @@ time.
 - `skills/superfluid-points-research/references/endpoints.md`: detailed public endpoint response/error catalog.
 - `skills/superfluid-points-research/references/runtime-endpoints.md`: runtime route inventory, CMS OpenAPI mapping, program-manager nonce boundary, optional balances API, and SDK/Wagmi procedures.
 - `research/2026-06-30-spr-campaigns-claim-endpoints.md`: dated public-app endpoint audit.
-- `tools/point-events/export-point-event-names.ts`: live campaign and program discovery.
-
-## Point-event evidence
-
-- `tools/point-events/export-point-event-names.ts`: discovery, caching, coalescing, and HTML generation.
-- `tools/point-events/README.md`: invocation, source layering, coverage, and output rules.
-- `tools/point-events/point-event-names.html`: generated observed-event catalog.
-- `research/claim-app-sources/reconstructed/client/event-groups.ts`: compact semantic-family grouping used by claim explanations.
+- `research/claim-app-sources/reconstructed/lib/campaign-event-history.ts`: explicit newest-first campaign event batches of at most 300 rows.
+- `research/claim-app-sources/reconstructed/app/campaign/page.tsx`: broad program history entry point with raw event records and explicit older-event loading.
+- `research/claim-app-sources/reconstructed/client/event-groups.ts`: equal-point family grouping and canceled-pair display used by claim explanations.
 
 ## Nonce and historical claim research
 
-- `research/fluid-ep-nonce-staleness-assessment.md`: threat model, conclusions, and evidence limits.
-- `tools/sup-nonces/investigate-sup-nonces.js`: transaction and log scanner with calldata decoding.
-- `tools/sup-nonces/investigate-sup-nonces.live.test.ts`: live smoke test.
+- `research/fluid-ep-nonce-staleness-assessment.md`: threat model, conclusions, and source limits.
+- `tools/sup-nonces/scan-sup-nonces.js`: transaction and log scanner with calldata decoding.
+- `tools/sup-nonces/scan-sup-nonces.live.test.ts`: live smoke test.
 - `tools/sup-nonces/README.md`: invocation, live-test constraints, and decoding limits.
 - `.github/workflows/build-sup-nonce-bundle.yml`: portable JavaScriptCore and a-Shell bundle.
 
@@ -69,13 +73,13 @@ time.
 program/user. It does not identify its transaction hash or mined timestamp. For those,
 locate and decode the claim transaction and verify its successful receipt or logs.
 
-## Claim-app deployment evidence and reconstruction
+## Claim-app deployment sources and reconstruction
 
 - `recovered/claim.superfluid.org/README.md`: pinned-snapshot layout and verification.
 - `tools/claim-source-recovery/README.md`: live recovery command, safety boundary, and output layout.
-- `research/claim-app-sources/reconstructed/README.md`: recovered-versus-compatibility scope and evidence policy.
+- `research/claim-app-sources/reconstructed/README.md`: recovered-versus-compatibility scope and source policy.
 - `research/claim-app-sources/reconstructed/RUNNABILITY.md`: standalone app operation and current compatibility architecture.
-- `research/claim-app-sources/reconstructed/MODULE_MAP.md`: recovered symbol/evidence ledger.
+- `research/claim-app-sources/reconstructed/MODULE_MAP.md`: recovered symbol/source ledger.
 
 ## Documentation synchronization
 

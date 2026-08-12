@@ -1,7 +1,7 @@
 # SUP Re:Mission
 
 A research workbench for Superfluid points, emission programs, campaign discovery,
-point events, claim vouchers, SUP nonce behavior, public claim-app evidence, and a
+point events, claim vouchers, SUP nonce behavior, public claim-app sources, and a
 runnable semantic reconstruction of the claim experience.
 
 ## What is here
@@ -10,20 +10,18 @@ runnable semantic reconstruction of the claim experience.
   SDK/Wagmi claim state, a typed CMS OpenAPI client, current/projected SUP flows,
   nonce-bounded pending-event explanations, capped-campaign UX, and Base submission.
 - `tools/claim-voucher/`: Safari Shortcuts-compatible claim-voucher injector.
-- `tools/point-events/`: live campaign discovery and point-event evidence export.
-- `tools/sup-nonces/`: Base claim-history and nonce investigation utility.
+- `tools/sup-nonces/`: Base claim-history and nonce analysis utility.
 - `tools/claim-source-recovery/`: provenance-aware public deployment capture tools.
-- `research/`: dated endpoint audits, security analysis, and reconstruction evidence.
+- `research/`: dated endpoint audits, security analysis, and reconstruction notes.
 - `skills/superfluid-points-research/`: focused points-research skill.
-- `RESEARCH-MAP.md`: task-to-evidence map.
+- `RESEARCH-MAP.md`: task-to-reference map.
 - `PROVENANCE.md`: external-source and generated-artifact record.
 
 ## Commands
 
 ```sh
-npm install
-npm run export:point-events
-npm run investigate:nonces -- --user 0x... --program-ids 607
+npm ci
+npm run scan:nonces -- --user 0x... --program-ids 607
 npm run test:nonces
 npm run bundle:nonces
 npm run build:skill
@@ -88,7 +86,7 @@ See
 [`research/claim-app-sources/reconstructed/RUNNABILITY.md`](research/claim-app-sources/reconstructed/RUNNABILITY.md)
 for exact behavior and limitations.
 
-## Claim-app source evidence
+## Claim-app sources
 
 The pinned public-response snapshot is documented in
 [`recovered/claim.superfluid.org/`](recovered/claim.superfluid.org/). Raw responses are

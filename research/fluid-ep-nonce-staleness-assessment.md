@@ -35,7 +35,7 @@ Using BouncyCastle as a simplified example:
 
 This bypasses the correction. The correction exists in CMS, but the old signature lets me claim the pre-correction balance on-chain.
 
-## Evidence reviewed
+## Sources reviewed
 
 ### CMS signature format
 

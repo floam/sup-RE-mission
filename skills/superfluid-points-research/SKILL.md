@@ -7,7 +7,7 @@ description: Research and implement Superfluid points / SPR campaign discovery, 
 
 ## Start here
 
-1. Open `RESEARCH-MAP.md` and load the smallest relevant evidence set.
+1. Open `RESEARCH-MAP.md` and load the smallest relevant reference set.
 2. Open `references/endpoints.md` for public response shapes and errors.
 3. Open `references/runtime-endpoints.md` for runnable routes and SDK/Wagmi procedures.
 4. Open `references/pending-event-reconciliation.md` for the authoritative claim
@@ -25,7 +25,7 @@ Use each source only for what it can prove:
 4. `claim.superfluid.org/api/programs`: human-readable attribution.
 5. `cms.superfluid.pro/points/*`: raw/capped/signed balances and point events.
 6. `balances.superfluid.dev`: optional token-ledger diagnostics only.
-7. Committed evidence, recovered bundles, then explicitly labeled inference.
+7. Committed records, recovered bundles, then explicitly labeled inference.
 
 CMS event `createdAt` is `eventTime`, not insertion time. An empty ledger response does
 not prove no claim occurred. A nonce snapshot does not identify a transaction hash or
@@ -77,15 +77,22 @@ Validate account identity, campaign order, and parallel array lengths for every 
 2. Use Wagmi reads/hooks and `waitForTransactionReceipt`.
 3. Resolve `getUserLocker(account)`.
 4. Retain active SUP programs.
-5. Fetch unsigned raw/capped values through `balance-batch` in chunks of 50.
-6. Read `getUnitsPerProgram`, `getFlowRatePerProgram`, pool `getTotalUnits`, and
+5. Join names, seasons, and categories from the live claim `/api/programs` response.
+   Recovered definitions are an outage fallback, not a campaign-discovery boundary.
+6. Fetch unsigned raw/capped values through `balance-batch` in chunks of 50.
+7. Read `getUnitsPerProgram`, `getFlowRatePerProgram`, pool `getTotalUnits`, and
    `getTotalFlowRate`.
-7. Mark a row claimable when the CMS campaign exists and capped target differs from
+8. Mark a row claimable when the CMS campaign exists and capped target differs from
    onchain units.
-8. On explicit submission, request `signed-balance-batch`, validate it, and submit
+9. Let the user select changed campaigns. Select positive target deltas by default and
+   leave decreasing targets clear. On explicit submission, request
+   `signed-balance-batch` only for the selected campaigns, validate it, and submit
    signed `points`, campaign IDs, timestamp, and signature. Never submit
    `uncappedPoints`.
-9. Require receipt `status: success`; refresh after partial multi-batch success.
+10. Lock campaign selection during submission and preserve explicit exclusions across
+    post-claim refreshes. Require receipt `status: success` before reporting confirmed
+    success. Treat post-submission receipt transport errors as indeterminate, and block
+    resubmission from stale state until a read-only refresh succeeds.
 
 ## Show flows
 
@@ -116,7 +123,8 @@ Procedure:
 9. Add signed event points one at a time and stop at the first prefix equal to
    `uncappedPoints - onchainUnits`.
 10. Return the selected events or an explicit partial-explanation message; group
-    semantic event families in the UI.
+    events in the UI only when their semantic family and point amount both match.
+    Strike through equal opposite pairs and split grouped counts to show any remainder.
 
 The lower nonce is the signed balance snapshot last accepted onchain, not the claim
 transaction's block time. To identify the actual claim transaction, inspect calldata and
@@ -139,7 +147,7 @@ The CMS raw/claimable pair is authoritative. When they differ:
 ## Historical claim research
 
 For transaction hash, caller, calldata, block time, or receipt status, use
-`tools/sup-nonces/investigate-sup-nonces.js`, SUP indexed claims, and direct Base receipt
+`tools/sup-nonces/scan-sup-nonces.js`, SUP indexed claims, and direct Base receipt
 or SDK-defined log verification. Do not substitute snapshot nonce time for block time.
 
 ## Leaderboards
@@ -154,12 +162,13 @@ Prefer server-provided order/rank unless tie, cap, and exclusion rules are prove
 - Independently verify onchain units for high-confidence conclusions.
 - Reuse a voucher only when account, campaign IDs, targets, and nonce remain exact.
 
-## Performance and evidence defaults
+## Performance defaults
 
 - Cache successful broad-scan responses.
 - Chunk CMS balance/signature operations at 50.
 - Use event pages of 100 and explicit page caps.
-- Batch changed-campaign explanations once per wallet state.
+- Show broad campaign history only after user action and load at most 300 events per action.
+- Batch changed-campaign explanations once per wallet state and show them automatically on the claim page.
 - Fail explicitly rather than silently truncating.
 - Preserve disagreements between live sources.
 

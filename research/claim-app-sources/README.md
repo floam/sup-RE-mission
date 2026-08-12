@@ -37,4 +37,4 @@ node tools/claim-app-sources/recover-claim-app-sources.mjs \
   --write-source-catalog research/claim-app-sources/source-catalog.md
 ```
 
-It reads every public JavaScript chunk referenced by the claim-app HTML in memory, reports the current deployment/chunk/action metadata, and writes only generated Markdown inventories when the output flags are supplied. It never writes downloaded minified JavaScript into the repository. Compare its output with this recovery before updating this evidence. The script needs Node.js 22+ and outbound HTTPS access.
+It reads every public JavaScript chunk referenced by the claim-app HTML in memory, reports the current deployment/chunk/action metadata, and writes only generated Markdown inventories when the output flags are supplied. It never writes downloaded minified JavaScript into the repository. Compare its output with this recovery before updating the pinned sources. The script needs Node.js 22+ and outbound HTTPS access.

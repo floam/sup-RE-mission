@@ -1,7 +1,8 @@
 node_modules/
 .cache/
 *.log
-investigate-sup-nonces.bundle.js
+scan-sup-nonces.bundle.js
 .DS_Store
 
 dist/
+recovered/claim.superfluid.org/beautified/
