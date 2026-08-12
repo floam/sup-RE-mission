@@ -77,10 +77,10 @@ export function useDailyMysteryBox() {
       transactionHash: `0x${string}`;
     }) => claimMysteryBoxPoints(claimAddress, transactionHash),
     onSuccess: (result) => {
-      savePendingClaim(null);
       transaction.reset();
       setOpenResult(result);
       if (result.success) {
+        savePendingClaim(null);
         setClaimCompleted(true);
         void check.refetch();
         void lastClaim.refetch();
@@ -88,11 +88,15 @@ export function useDailyMysteryBox() {
           queryKey: ["getAccountProgramPointStates", address],
           refetchType: "all",
         });
-      } else
+      } else {
+        attemptedClaimHash.current = pendingClaim?.txHash ?? null;
+        if (pendingClaim)
+          savePendingClaim({ ...pendingClaim, status: "succeeded" });
         console.error(
           "Failed to claim mystery box points",
           result.error ?? "Unknown error",
         );
+      }
     },
     onError: (error) => {
       console.error("Mystery box claim error:", error);
@@ -194,7 +198,19 @@ export function useDailyMysteryBox() {
     mysteryBoxData: check.data?.success ? check.data : null,
     isLoading: check.isLoading,
     handleOpenBox() {
-      if (address) transaction.open();
+      if (address && !transaction.status?.isLoading) transaction.open();
+    },
+    retryRewardClaim() {
+      if (
+        !address ||
+        claim.isPending ||
+        pendingClaim?.address !== address ||
+        pendingClaim.status !== "succeeded"
+      )
+        return;
+      attemptedClaimHash.current = pendingClaim.txHash;
+      savePendingClaim({ ...pendingClaim, status: "claiming" });
+      claim.mutate({ address, transactionHash: pendingClaim.txHash });
     },
     openResult,
     status: claimIsFinishing
@@ -256,6 +272,7 @@ export function DailyMysteryBoxProvider() {
           activePrograms={mysteryBox.mysteryBoxData.activePrograms}
           hasSupStakingBonus={mysteryBox.hasSupStakingBonus}
           onOpenBox={mysteryBox.handleOpenBox}
+          onRetryReward={mysteryBox.retryRewardClaim}
           openResult={mysteryBox.openResult}
           status={mysteryBox.status}
           chain={mysteryBox.chain}
