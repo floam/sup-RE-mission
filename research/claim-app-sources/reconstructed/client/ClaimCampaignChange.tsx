@@ -89,6 +89,12 @@ export function ClaimCampaignChange({
         </p>
       )}
 
+      {attribution.descriptors.length > 0 && (
+        <p className="campaign-attribution">
+          {formatList(attribution.descriptors)}
+        </p>
+      )}
+
       <p className="campaign-metrics">
         <span>
           pts{" "}
