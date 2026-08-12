@@ -277,6 +277,16 @@ export function ClaimExperience() {
     }
   }
 
+  useEffect(() => {
+    if (!state) return;
+    state.programPointStates
+      .filter(
+        (row) =>
+          row.cmsCampaignExists && row.isOnchainOutdated && !row.isCapped,
+      )
+      .forEach((row) => void explainCampaign(row));
+  }, [state]);
+
   async function claim() {
     if (
       isSubmitting ||
@@ -511,12 +521,6 @@ export function ClaimExperience() {
             : undefined
         }
         breakdown={breakdowns.get(row.programId)}
-        account={state!.account}
-        onExplain={
-          row.cmsCampaignExists && row.isOnchainOutdated && !row.isCapped
-            ? () => void explainCampaign(row)
-            : undefined
-        }
       />
     );
   }

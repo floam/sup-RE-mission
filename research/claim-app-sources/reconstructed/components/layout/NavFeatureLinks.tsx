@@ -14,7 +14,7 @@ export function NavFeatureLinks() {
   return (
     <>
       <Link href="/claim">claim</Link>
-      <Link href="/apps">campaigns</Link>
+      <Link href="/campaign">campaigns</Link>
     </>
   );
 }

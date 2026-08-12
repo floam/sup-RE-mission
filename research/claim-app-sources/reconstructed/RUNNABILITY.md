@@ -119,7 +119,7 @@ A pending capped target is still submitted normally.
 
 ## Client batching and cache
 
-The first explanation action processes all changed uncapped campaigns together. Signed
+The claim review automatically processes all changed uncapped campaigns together. Signed
 balances are batched, independent nonce/event work runs concurrently, and each result is
 cached by account, campaign, onchain units, and uncapped balance. A claim-state refresh
 naturally changes the key.
@@ -151,7 +151,7 @@ npm run test:e2e
 npm run build
 ```
 
-Also exercise `/claim`, open more than one changed campaign explanation to confirm cache
+Also exercise `/claim`, confirm that changed campaign explanations appear without an expansion action, and confirm cache
 reuse, and confirm capped campaigns never request incremental events.
 
 ## Known limitations

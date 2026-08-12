@@ -18,7 +18,7 @@ export interface NavigationItem {
 export const NAVIGATION_ITEMS: readonly NavigationItem[] = [
   { title: "My Reserve", href: "/reserve", additionalHref: [], isNew: true },
   { title: "Claim", href: "/claim", additionalHref: ["/"], isNew: false },
-  { title: "Campaigns", href: "/apps", additionalHref: [], isNew: false },
+  { title: "Campaigns", href: "/campaign", additionalHref: ["/apps"], isNew: false },
   {
     title: "Leaderboard",
     href: "/leaderboard",

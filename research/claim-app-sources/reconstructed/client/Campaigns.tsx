@@ -6,6 +6,7 @@ import { getAddress } from "viem";
 import { useProgramTotalFlowRate } from "../hooks/useProgramTotalFlowRate";
 import { formatCompactTokenAmount, formatMonthlyFlowRate } from "../lib/format";
 import styles from "./Campaigns.module.css";
+import { CampaignEventHistory } from "./CampaignEventHistory";
 import {
   getCampaignAttribution,
   STATIC_PROGRAM_ATTRIBUTIONS,
@@ -44,6 +45,7 @@ function ProgramLine({
   memberCount?: number;
   memberCountUnavailable: boolean;
 }) {
+  const [historyOpen, setHistoryOpen] = useState(false);
   const attribution = getCampaignAttribution(BigInt(program.id), attributions);
   const status = getProgramStatus(program).toLowerCase();
   const poolAddress = getAddress(program.distributionPool);
@@ -92,6 +94,16 @@ function ProgramLine({
           {shortAddress(poolAddress)} ↗
         </a>
       </p>
+      <button
+        className="text-button"
+        type="button"
+        onClick={() => setHistoryOpen((open) => !open)}
+      >
+        {historyOpen ? "hide full event history" : "inspect full event history"}
+      </button>
+      {historyOpen && (
+        <CampaignEventHistory campaignId={BigInt(program.id)} detailed />
+      )}
     </article>
   );
 }

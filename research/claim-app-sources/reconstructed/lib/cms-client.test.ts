@@ -64,6 +64,29 @@ test("loads no more than 300 campaign events per user batch", async () => {
   assert.equal(requests.length, 3);
 });
 
+test("loads campaign-wide history without an account filter", async () => {
+  const { fetch, requests } = captureFetch(() =>
+    json({
+      events: [],
+      pagination: {
+        page: 1,
+        limit: 100,
+        totalDocs: 0,
+        totalPages: 0,
+        hasNextPage: false,
+        hasPrevPage: false,
+      },
+    }),
+  );
+  const cms = createCmsClient({ origin: "https://cms.example", fetch });
+
+  await loadCampaignEventHistory({ campaignId: 608 }, cms);
+
+  const url = new URL(requests[0].url);
+  assert.equal(url.searchParams.get("campaignId"), "608");
+  assert.equal(url.searchParams.has("account"), false);
+});
+
 test("uses the generated POST contract for campaign balances", async () => {
   const { fetch, requests } = captureFetch(() =>
     json({

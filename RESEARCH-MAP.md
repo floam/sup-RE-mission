@@ -5,8 +5,8 @@ Load the smallest relevant group for the question at hand.
 ## Claim UX, claim state, flows, caps, and pending-event explanations
 
 - `research/claim-app-sources/reconstructed/RUNNABILITY.md`: current SDK/Wagmi/OpenAPI architecture, flow projection, client-helper boundary, verification, and limitations.
-- `research/claim-app-sources/reconstructed/client/ClaimExperience.tsx`: staged account review, ownership-aware submission, and user-requested explanation cache.
-- `research/claim-app-sources/reconstructed/client/ClaimCampaignChange.tsx`: per-campaign flows, capped-out state, and drill-down event history.
+- `research/claim-app-sources/reconstructed/client/ClaimExperience.tsx`: staged account review, ownership-aware submission, and automatic nonce-bounded explanation cache.
+- `research/claim-app-sources/reconstructed/client/ClaimCampaignChange.tsx`: per-campaign claim delta, nonce-bounded events, flows, and capped-out state.
 - `research/claim-app-sources/reconstructed/client/claim-chain.ts`: active CMS uncapped/capped targets plus SDK/Wagmi onchain state assembly.
 - `research/claim-app-sources/reconstructed/client/program-attribution.ts`: live claim-app names, seasons, and categories with recovered labels as an outage fallback.
 - `research/claim-app-sources/reconstructed/client/claim-batch.ts`: CMS account/order/parallel-array validation.
@@ -58,6 +58,7 @@ submission until a read-only refresh succeeds.
 - `skills/superfluid-points-research/references/runtime-endpoints.md`: runtime route inventory, CMS OpenAPI mapping, program-manager nonce boundary, optional balances API, and SDK/Wagmi procedures.
 - `research/2026-06-30-spr-campaigns-claim-endpoints.md`: dated public-app endpoint audit.
 - `research/claim-app-sources/reconstructed/lib/campaign-event-history.ts`: explicit newest-first campaign event batches of at most 300 rows.
+- `research/claim-app-sources/reconstructed/app/campaign/page.tsx`: broad program history entry point with raw event records and explicit older-event loading.
 - `research/claim-app-sources/reconstructed/client/event-groups.ts`: equal-point family grouping and canceled-pair display used by claim explanations.
 
 ## Nonce and historical claim research
