@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useWaitForTransactionReceipt } from "wagmi";
 
 import { Countdown } from "../components/claim/Countdown";
+import { TransactionButton } from "../components/TransactionButton";
 import { APP_CHAIN } from "../config/chains";
 import { useWalletAccount } from "../hooks/useWalletAccount";
 import {
@@ -297,16 +298,18 @@ export function DailyMysteryBoxClaim() {
           {mysteryBox.status?.isLoading ? "[ retrying… ]" : "[ retry claim ]"}
         </button>
       ) : !mysteryBox.openResult?.success ? (
-        <button
-          className="mystery-box-claim-button"
-          type="button"
+        <TransactionButton
+          chain={mysteryBox.chain}
           onClick={mysteryBox.handleOpenBox}
-          disabled={!mysteryBox.canClaim || Boolean(mysteryBox.status?.isLoading)}
+          status={mysteryBox.status}
+          ButtonProps={{
+            className: "mystery-box-claim-button",
+            disabled: !mysteryBox.canClaim,
+            type: "button",
+          }}
         >
-          {mysteryBox.status?.isLoading
-            ? "[ claiming mystery box… ]"
-            : "[ claim mystery box ]"}
-        </button>
+          [ claim mystery box ]
+        </TransactionButton>
       ) : null}
       {mysteryBox.hasSupStakingBonus && !mysteryBox.openResult && (
         <small>SUP staking bonus: 2× rewards</small>
