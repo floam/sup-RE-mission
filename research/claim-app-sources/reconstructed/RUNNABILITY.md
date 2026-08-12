@@ -141,9 +141,13 @@ scan does not restart at page one.
   and `/staking` retain their reconstructed implementations.
 - The daily mystery box is active by default. Its launcher stays visible after an
   open and counts down 24 hours from the contract `lastClaimTime` value. Eligibility
-  is checked again when the countdown ends. The recovered bonus modal still requires
-  `NEXT_PUBLIC_ENABLE_RECOVERED_REWARDS=true`. Local same-origin routes validate and
-  forward mystery-box eligibility and reward requests to the live claim service.
+  and the open simulation are refreshed when the countdown ends. Only a successful
+  onchain receipt advances to the reward request; transient eligibility and reward
+  failures retry without discarding a recoverable transaction hash. The open control
+  remains disabled throughout the write-and-receipt lifecycle. The recovered bonus
+  modal still requires `NEXT_PUBLIC_ENABLE_RECOVERED_REWARDS=true`. Local same-origin
+  routes validate and forward mystery-box eligibility and reward requests to the live
+  claim service.
 - `/swap` is intentionally absent from the runnable application. The independent
   client does not ship the recovered LI.FI swap/referrer flow.
 
