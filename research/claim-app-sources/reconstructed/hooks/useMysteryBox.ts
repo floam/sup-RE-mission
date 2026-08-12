@@ -117,6 +117,7 @@ export function useMysteryBoxOpen(accountAddress?: Address) {
     estimateOpen: estimate,
     writeMysteryBoxOpen: write,
     waitForTransactionOpen: waitFor,
+    receiptStatus: waitFor.data?.status,
     isFinished:
       write.isSuccess &&
       waitFor.isSuccess &&

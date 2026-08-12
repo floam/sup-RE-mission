@@ -75,7 +75,7 @@ export function useDailyMysteryBox() {
   });
   const claim = useMutation({
     mutationKey: ["claimMysteryBoxPoints", address],
-    mutationFn: ({
+    mutationFn: async ({
       address: claimAddress,
       transactionHash,
     }: {
@@ -120,6 +120,13 @@ export function useDailyMysteryBox() {
 
   useEffect(() => {
     if (
+      transaction.receiptStatus === "reverted" &&
+      pendingClaim?.txHash === transaction.txHash
+    ) {
+      savePendingClaim(null);
+      return;
+    }
+    if (
       transaction.txHash &&
       address &&
       !claimCompleted &&
@@ -132,7 +139,13 @@ export function useDailyMysteryBox() {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, claimCompleted, transaction.txHash]);
+  }, [
+    address,
+    claimCompleted,
+    pendingClaim,
+    transaction.receiptStatus,
+    transaction.txHash,
+  ]);
   useEffect(() => {
     if (
       transaction.isReverted &&
@@ -153,7 +166,13 @@ export function useDailyMysteryBox() {
       savePendingClaim({ ...pendingClaim, status: "succeeded" });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, pendingClaim, transaction.isFinished, transaction.txHash]);
+  }, [
+    address,
+    pendingClaim,
+    transaction.isFinished,
+    transaction.receiptStatus,
+    transaction.txHash,
+  ]);
   useEffect(() => {
     if (!resumedClaim) return;
     if (
