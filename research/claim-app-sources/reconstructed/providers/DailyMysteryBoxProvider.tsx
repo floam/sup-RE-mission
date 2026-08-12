@@ -54,6 +54,7 @@ export function useDailyMysteryBox() {
     queryFn: () => checkMysteryBox(address!),
     enabled: Boolean(address && isConnected && !claimCompleted),
     refetchOnWindowFocus: false,
+    retry: 3,
   });
   const resumedClaim = Boolean(
     pendingClaim &&
