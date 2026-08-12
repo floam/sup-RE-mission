@@ -2,11 +2,46 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  getAffectedClaimPointStates,
   getDefaultClaimSelection,
   isClaimablePointState,
   isPositiveClaimDelta,
   reconcileClaimSelection,
 } from "./claim-state.ts";
+
+test("lists only campaigns with a changed CMS target", () => {
+  const affected = getAffectedClaimPointStates([
+    {
+      programId: 1n,
+      offchainPoints: 100n,
+      onchainPoints: 100n,
+      isOnchainOutdated: false,
+      cmsCampaignExists: true,
+      isCapped: true,
+    },
+    {
+      programId: 2n,
+      offchainPoints: 90n,
+      onchainPoints: 100n,
+      isOnchainOutdated: true,
+      cmsCampaignExists: true,
+      isCapped: true,
+    },
+    {
+      programId: 3n,
+      offchainPoints: 0n,
+      onchainPoints: 100n,
+      isOnchainOutdated: true,
+      cmsCampaignExists: false,
+      isCapped: false,
+    },
+  ]);
+
+  assert.deepEqual(
+    affected.map((row) => row.programId),
+    [2n],
+  );
+});
 
 test("allows an outdated point target that reduces units to zero", () => {
   assert.equal(

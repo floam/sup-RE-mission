@@ -17,6 +17,12 @@ export function isPositiveClaimDelta(row: ClaimPointState): boolean {
   return isClaimablePointState(row) && row.offchainPoints > row.onchainPoints;
 }
 
+export function getAffectedClaimPointStates<Row extends ClaimPointState>(
+  rows: readonly Row[],
+): Row[] {
+  return rows.filter(isClaimablePointState);
+}
+
 export function getDefaultClaimSelection(
   rows: readonly SelectableClaimPointState[],
 ): Set<bigint> {

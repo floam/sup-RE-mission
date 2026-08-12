@@ -113,6 +113,7 @@ export function DailyMysteryBoxModal({
   activePrograms,
   hasSupStakingBonus,
   onOpenBox,
+  onRetryReward,
   openResult,
   status,
   chain,
@@ -122,6 +123,7 @@ export function DailyMysteryBoxModal({
   activePrograms: number;
   hasSupStakingBonus: boolean;
   onOpenBox(): void;
+  onRetryReward(): void;
   openResult: MysteryBoxResult | null;
   status?: TransactionStatus | null;
   chain: Chain;
@@ -186,6 +188,33 @@ export function DailyMysteryBoxModal({
           <br />
           for another daily mystery box!
         </p>
+      </div>
+    );
+  }
+  if (openResult?.success === false) {
+    return (
+      <div
+        role="dialog"
+        aria-label="Mystery Box Reward Recovery"
+        className="modal max-w-md bg-[#E9E9E9] p-6"
+      >
+        <button aria-label="Close" onClick={() => onOpenChange(false)}>
+          ×
+        </button>
+        <h2>Your box was opened</h2>
+        <p role="alert">
+          The reward service could not finish your claim. Your confirmed
+          transaction has been saved, so you can retry without opening another
+          box.
+        </p>
+        {openResult.error && <p>{openResult.error}</p>}
+        <button
+          data-testid="retry-mystery-box-reward-button"
+          disabled={Boolean(status?.isLoading)}
+          onClick={onRetryReward}
+        >
+          {status?.isLoading ? "Retrying reward…" : "Retry reward claim"}
+        </button>
       </div>
     );
   }

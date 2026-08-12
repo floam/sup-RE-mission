@@ -123,7 +123,8 @@ The browser caches every returned explanation by account, campaign, onchain unit
 uncapped balance until the explanation or reviewed claim state is cleared.
 
 Campaign transaction selection does not change this explanation set. Each changed
-campaign has a checkbox. Positive target deltas are selected by default; decreasing
+campaign with a changed CMS target is listed, shows its claim-app attribution, and has
+a checkbox. Positive target deltas are selected by default; decreasing
 targets are clear. A submission locks that displayed selection, requests a signed batch
 only for checked campaigns, and preserves explicit exclusions across refreshed state.
 An indeterminate receipt wait or failed post-claim refresh clears and locks the stale
