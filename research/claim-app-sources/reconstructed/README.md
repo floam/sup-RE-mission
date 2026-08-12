@@ -72,9 +72,10 @@ These modules are local product/reconstruction work, not recovered private sourc
   and categories. Keep recovered definitions only as a display fallback; use the SUP
   subgraph for program existence and lifecycle.
 - Submit only signed/capped `points`; use `uncappedPoints` only for explanation.
-- Let the user choose changed campaigns. Select positive deltas by default, leave
-  decreasing deltas clear, lock selection during submission, sign only the checked
-  campaign IDs, and preserve explicit exclusions across post-claim refreshes. Treat
+- List only campaigns with changed CMS targets and show their live season/category
+  attribution. Let the user choose these campaigns. Select positive deltas by default,
+  leave decreasing deltas clear, lock selection during submission, sign only the
+  checked campaign IDs, and preserve explicit exclusions across post-claim refreshes. Treat
   receipt transport errors after submission as indeterminate and require a read-only
   refresh before retrying from stale or uncertain state.
 - Treat `getNextValidNonce - 1` as the nonce of the last accepted signed snapshot, not
