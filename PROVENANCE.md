@@ -76,6 +76,11 @@ Local product/reconstruction modules include:
 - `lib/cms-events.ts`
 - `lib/campaign-event-history.ts`
 - `lib/claim-nonce-window.ts`
+- `hooks/useMysteryBox.ts` (`useMysteryBoxLastClaim` only)
+
+`useMysteryBoxLastClaim` is a repository-authored compatibility boundary that reads
+the app contract's `lastClaimTime`; the other mystery-box hook behavior in that module
+is reconstructed from webpack factory 327.
 
 `lib/cms-client.ts` is a small repository-authored `openapi-fetch` integration. Its
 path/request/response types come from committed `lib/cms-openapi.d.ts`, generated from

@@ -82,6 +82,7 @@ export function useDailyMysteryBox() {
       setOpenResult(result);
       if (result.success) {
         setClaimCompleted(true);
+        void check.refetch();
         void lastClaim.refetch();
         void queryClient.invalidateQueries({
           queryKey: ["getAccountProgramPointStates", address],
@@ -166,6 +167,11 @@ export function useDailyMysteryBox() {
     !showModal &&
     !check.isLoading,
   );
+  const isOnCooldown = Boolean(
+    check.data?.success &&
+    check.data.shouldShow === false &&
+    Number(lastClaim.data ?? 0n) > 0,
+  );
   const claimIsFinishing =
     claim.isPending ||
     (resumedClaim &&
@@ -184,6 +190,7 @@ export function useDailyMysteryBox() {
       setShowModal(true);
     },
     canClaim,
+    isOnCooldown,
     mysteryBoxData: check.data?.success ? check.data : null,
     isLoading: check.isLoading,
     handleOpenBox() {
@@ -223,11 +230,13 @@ export function DailyMysteryBoxProvider() {
           aria-label={
             mysteryBox.canClaim
               ? "Open daily mystery box"
-              : "Mystery box is on cooldown"
+              : mysteryBox.isOnCooldown
+                ? "Mystery box is on cooldown"
+                : "Mystery box is unavailable"
           }
         >
           <span aria-hidden="true">[ mystery box ]</span>
-          {!mysteryBox.canClaim && mysteryBox.lastClaimTime > 0 && (
+          {mysteryBox.isOnCooldown && (
             <small>
               next box in{" "}
               <Countdown
